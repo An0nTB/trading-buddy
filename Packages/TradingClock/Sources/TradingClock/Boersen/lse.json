@@ -1,0 +1,121 @@
+{
+  "format": 1,
+  "id": "lse",
+  "name": "London Stock Exchange",
+  "mic": "XLON",
+  "zeitzone": "Europe/London",
+  "handelszeiten": [
+    {
+      "tage": [
+        "Mo",
+        "Di",
+        "Mi",
+        "Do",
+        "Fr"
+      ],
+      "beginn": "08:00",
+      "ende": "16:30"
+    }
+  ],
+  "feiertage": [
+    {
+      "datum": "2026-01-01",
+      "name": "New Year's Day"
+    },
+    {
+      "datum": "2026-04-03",
+      "name": "Good Friday"
+    },
+    {
+      "datum": "2026-04-06",
+      "name": "Easter Monday"
+    },
+    {
+      "datum": "2026-05-04",
+      "name": "Early May Bank Holiday"
+    },
+    {
+      "datum": "2026-05-25",
+      "name": "Spring Bank Holiday"
+    },
+    {
+      "datum": "2026-08-31",
+      "name": "Summer Bank Holiday"
+    },
+    {
+      "datum": "2026-12-25",
+      "name": "Christmas Day"
+    },
+    {
+      "datum": "2026-12-28",
+      "name": "Boxing Day (Ersatztag)"
+    },
+    {
+      "datum": "2027-01-01",
+      "name": "New Year's Day"
+    },
+    {
+      "datum": "2027-03-26",
+      "name": "Good Friday"
+    },
+    {
+      "datum": "2027-03-29",
+      "name": "Easter Monday"
+    },
+    {
+      "datum": "2027-05-03",
+      "name": "Early May Bank Holiday"
+    },
+    {
+      "datum": "2027-05-31",
+      "name": "Spring Bank Holiday"
+    },
+    {
+      "datum": "2027-08-30",
+      "name": "Summer Bank Holiday"
+    },
+    {
+      "datum": "2027-12-27",
+      "name": "Christmas Day (Ersatztag)"
+    },
+    {
+      "datum": "2027-12-28",
+      "name": "Boxing Day (Ersatztag)"
+    }
+  ],
+  "verkuerzteTage": [
+    {
+      "datum": "2026-12-24",
+      "ende": "12:30",
+      "name": "Christmas Eve"
+    },
+    {
+      "datum": "2026-12-31",
+      "ende": "12:30",
+      "name": "New Year's Eve"
+    },
+    {
+      "datum": "2027-12-24",
+      "ende": "12:30",
+      "name": "Christmas Eve"
+    },
+    {
+      "datum": "2027-12-31",
+      "ende": "12:30",
+      "name": "New Year's Eve"
+    }
+  ],
+  "datenGueltigBis": "2027-12-31",
+  "stand": "2026-10-01",
+  "quellen": [
+    {
+      "titel": "London Stock Exchange: Business days",
+      "url": "https://www.londonstockexchange.com/equities-trading/business-days",
+      "abgerufen": "2026-10-01"
+    }
+  ],
+  "hinweise": [
+    "Handelszeit ist der fortlaufende Handel im Orderbuch SETS 08:00 bis 16:30; Auktionen sind nicht abgebildet.",
+    "Erstbefüllung der Feiertage und verkürzten Tage aus exchange_calendars 4.13.2 (Python, Apache-2.0) am 01.10.2026 nach R1 Abschnitt 6; Abgleich mit der offiziellen Börsenseite noch zu prüfen."
+  ]
+}
