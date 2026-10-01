@@ -34,3 +34,13 @@ cd Packages/TradingCore && swift test
 ```
 
 Jeder Pull Request startet dieselben Tests automatisch auf macOS und Linux und baut die App für macOS und den iOS-Simulator (GitHub Actions, `.github/workflows/ci.yml`).
+
+## Connector für Claude Desktop (Experiment AP6)
+
+Der lokale MCP-Server liegt in `Packages/TradingConnector`. Bauen und verpacken auf dem Mac, nachdem `Config/Local.xcconfig` eingerichtet ist:
+
+```
+scripts/connector_bauen.sh
+```
+
+Ergebnis ist `build/TradingBuddy.mcpb`. Installation in Claude Desktop: Settings → Extensions → Advanced settings → „Install Extension…“.
