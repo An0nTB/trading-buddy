@@ -143,6 +143,27 @@ enum Schema {
             }
         }
 
+        migrator.registerMigration("v2 Journal je Trade") { db in
+            // Eigene Angaben zu einem Trade (Setup, Regeltreue, Zustand, nachgetragener Stop).
+            // Schlüssel ist Konto + Ticket, nicht die Zeile in `geschlossenePosition`: So darf ein
+            // Eintrag auch vor dem Import der Position stehen und übersteht jeden Re-Import.
+            // Der Stop aus dem Export bleibt unverändert in `geschlossenePosition`; der
+            // nachgetragene Einstiegs-Stop steht hier daneben, damit die Herkunft erkennbar bleibt.
+            try db.create(table: "journal") { t in
+                t.column("kontoId", .integer).notNull()
+                    .references("konto", onDelete: .cascade)
+                t.column("ticket", .text).notNull()
+                t.column("setup", .text)
+                t.column("regeltreue", .boolean)
+                t.column("zustand", .integer).check { (1...5).contains($0) }
+                t.column("marktumfeld", .text)
+                t.column("grund", .text)
+                t.column("stopEinstieg", .text)
+                t.column("geaendertAm", .datetime).notNull()
+                t.primaryKey(["kontoId", "ticket"])
+            }
+        }
+
         return migrator
     }
 }
