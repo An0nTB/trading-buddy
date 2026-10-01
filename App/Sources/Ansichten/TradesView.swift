@@ -21,16 +21,17 @@ struct TradesView: View {
     @State private var suche = ""
     @State private var nurMitMuster = false
     @State private var nurOhneStop = false
-    @State private var auswahl: TradeZeileDaten.ID?
     @State private var inspektorOffen = true
     @State private var sortierung = [KeyPathComparator(\TradeZeileDaten.trade.closeTime, order: .reverse)]
 
     private var gefiltert: [TradeZeileDaten] {
         let muster = modell.musterJeTrade
         let eintraege = modell.journaleintraege
+        let musterFilter = modell.musterFilter
         return modell.trades.compactMap { trade -> TradeZeileDaten? in
             let zeile = TradeZeileDaten(trade: trade, setup: eintraege[trade.id]?.setup ?? "", muster: muster[trade.id] ?? [])
             if nurMitMuster, zeile.muster.isEmpty { return nil }
+            if let musterFilter, !zeile.muster.contains(musterFilter) { return nil }
             if nurOhneStop, trade.stopLoss != nil { return nil }
             if !suche.isEmpty, !trade.symbol.localizedCaseInsensitiveContains(suche), !trade.id.contains(suche),
                !zeile.setup.localizedCaseInsensitiveContains(suche) {
@@ -42,7 +43,7 @@ struct TradesView: View {
     }
 
     private var ausgewaehlterTrade: Trade? {
-        modell.trades.first { $0.id == auswahl }
+        modell.trades.first { $0.id == modell.tradeAuswahl }
     }
 
     /// Am iPhone zeigt die Liste eine Detailseite, kein Inspektor.
@@ -63,6 +64,24 @@ struct TradesView: View {
             }
             .toggleStyle(.button)
             .padding(.horizontal, Abstand.seitenrand)
+            if let musterFilter = modell.musterFilter {
+                Button {
+                    modell.musterFilter = nil
+                } label: {
+                    HStack(spacing: Abstand.raster) {
+                        Text("Nur \(musterFilter.titel)")
+                        Image(systemName: "xmark.circle.fill")
+                    }
+                    .font(Schrift.beschriftung)
+                    .padding(.horizontal, Abstand.raster * 2)
+                    .padding(.vertical, Abstand.raster)
+                    .background(thema.akzentTint, in: Capsule())
+                    .foregroundStyle(thema.text)
+                }
+                .buttonStyle(.plain)
+                .help("Filter aufheben")
+                .padding(.horizontal, Abstand.seitenrand)
+            }
             if liste.isEmpty {
                 KeineTrades()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -112,7 +131,8 @@ struct TradesView: View {
 
     /// Tabelle mit Spalten Geschlossen, Instrument, Richtung, Setup, Lots, R, Netto, Hinweise; Klick wählt für den Inspektor.
     private func tradeTabelle(_ liste: [TradeZeileDaten]) -> some View {
-        Table(liste, selection: $auswahl, sortOrder: $sortierung) {
+        @Bindable var modell = modell
+        return Table(liste, selection: $modell.tradeAuswahl, sortOrder: $sortierung) {
             TableColumn("Geschlossen", value: \.trade.closeTime) { zeile in
                 Text(verbatim: Format.zeit(zeile.trade.closeTime))
                     .monospacedDigit()
@@ -121,6 +141,7 @@ struct TradesView: View {
             TableColumn("Instrument", value: \.trade.symbol) { zeile in
                 Text(verbatim: zeile.trade.symbol)
             }
+            .width(min: 90, ideal: 100)
             TableColumn("Richtung", value: \.trade.side.rawValue) { zeile in
                 Text(verbatim: Format.richtung(zeile.trade.side))
             }
@@ -128,6 +149,7 @@ struct TradesView: View {
             TableColumn("Setup", value: \.setup) { zeile in
                 Text(verbatim: zeile.setup)
             }
+            .width(min: 80, ideal: 120)
             TableColumn("Lots", value: \.trade.lots) { zeile in
                 Text(verbatim: Format.lots(zeile.trade.lots))
                     .monospacedDigit()
@@ -153,10 +175,9 @@ struct TradesView: View {
             .width(min: 90, ideal: 100)
             .alignment(.numeric)
             TableColumn("Hinweise") { zeile in
-                HStack(spacing: Abstand.raster) {
-                    ForEach(zeile.muster, id: \.self) { MusterChip(muster: $0) }
-                }
+                MusterChips(muster: zeile.muster)
             }
+            .width(min: 170, ideal: 220)
         }
     }
 
@@ -235,7 +256,7 @@ struct TradeInspektor: View {
                 Karte("Fehlermuster") {
                     ForEach(muster, id: \.self) { befundMuster in
                         VStack(alignment: .leading, spacing: Abstand.raster) {
-                            MusterChip(muster: befundMuster)
+                            MusterChip(muster: befundMuster, kurz: false)
                             Text(verbatim: befundMuster.regel)
                                 .font(Schrift.beschriftung)
                                 .foregroundStyle(thema.textSchwach)
@@ -442,9 +463,7 @@ struct TradeZeile: View {
                     .font(Schrift.beschriftung)
                     .foregroundStyle(thema.textSchwach)
                 if !muster.isEmpty {
-                    HStack(spacing: Abstand.raster) {
-                        ForEach(muster, id: \.self) { MusterChip(muster: $0) }
-                    }
+                    MusterChips(muster: muster, maxAnzahl: 3)
                 }
             }
             Spacer()
