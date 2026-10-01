@@ -164,6 +164,83 @@ enum Schema {
             }
         }
 
+        migrator.registerMigration("v3 Broker-Importe CSV") { db in
+            // Schicht 2 aus R2 für Broker, die Käufe, Verkäufe und Geld einzeln exportieren
+            // (Trade Republic, Scalable). Doppelte erkennt die Datenbank über Konto und
+            // Vorgangs-ID des Brokers (transaction_id, reference), je Tabelle.
+            try db.create(table: "ausfuehrung") { t in
+                t.autoIncrementedPrimaryKey("id")
+                t.belongsTo("konto").notNull()
+                t.belongsTo("importlauf").notNull()
+                t.column("vorgangId", .text).notNull()
+                t.column("zeit", .datetime).notNull().indexed()
+                t.column("nurDatum", .boolean).notNull()
+                t.column("kennung", .text).notNull()
+                t.column("name", .text).notNull()
+                t.column("seite", .text).notNull()
+                t.column("menge", .text).notNull()
+                t.column("preis", .text).notNull()
+                t.column("betrag", .text).notNull()
+                t.column("gebuehr", .text).notNull()
+                t.column("steuer", .text).notNull()
+                t.column("waehrung", .text).notNull()
+                t.column("sparplan", .boolean).notNull()
+                t.column("rohzeile", .text).notNull()
+                t.uniqueKey(["kontoId", "vorgangId"])
+            }
+
+            // Ein- und Auszahlungen, Dividenden, Zinsen, Steuern, Gebühren, Sonstiges.
+            try db.create(table: "geldbewegung") { t in
+                t.autoIncrementedPrimaryKey("id")
+                t.belongsTo("konto").notNull()
+                t.belongsTo("importlauf").notNull()
+                t.column("vorgangId", .text).notNull()
+                t.column("zeit", .datetime).notNull().indexed()
+                t.column("nurDatum", .boolean).notNull()
+                t.column("art", .text).notNull()
+                t.column("betrag", .text).notNull()
+                t.column("gebuehr", .text).notNull()
+                t.column("steuer", .text).notNull()
+                t.column("waehrung", .text).notNull()
+                t.column("kennung", .text)
+                t.column("rohzeile", .text).notNull()
+                t.uniqueKey(["kontoId", "vorgangId"])
+            }
+
+            // Split, Ausbuchung und Unbekanntes: Bestandsänderung ohne Kauf oder Verkauf.
+            try db.create(table: "kapitalmassnahme") { t in
+                t.autoIncrementedPrimaryKey("id")
+                t.belongsTo("konto").notNull()
+                t.belongsTo("importlauf").notNull()
+                t.column("vorgangId", .text).notNull()
+                t.column("zeit", .datetime).notNull()
+                t.column("art", .text).notNull()
+                t.column("vorgang", .text).notNull()
+                t.column("kennung", .text).notNull()
+                t.column("menge", .text).notNull()
+                t.column("rohzeile", .text).notNull()
+                t.uniqueKey(["kontoId", "vorgangId"])
+            }
+
+            // Nicht ausgeführte Orders (storniert, abgelehnt): nur die Kennung, nie ein Trade.
+            try db.create(table: "verworfenerVorgang") { t in
+                t.autoIncrementedPrimaryKey("id")
+                t.belongsTo("konto").notNull()
+                t.belongsTo("importlauf").notNull()
+                t.column("vorgangId", .text).notNull()
+                t.uniqueKey(["kontoId", "vorgangId"])
+            }
+
+            // Zeilen, die der Importer nicht sicher zuordnen konnte; gehören zur Datei, daher je Import.
+            try db.create(table: "importhinweis") { t in
+                t.autoIncrementedPrimaryKey("id")
+                t.belongsTo("importlauf", onDelete: .cascade).notNull()
+                t.column("zeile", .integer).notNull()
+                t.column("vorgang", .text).notNull()
+                t.column("folge", .text).notNull()
+            }
+        }
+
         return migrator
     }
 }

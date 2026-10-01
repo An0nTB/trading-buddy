@@ -37,6 +37,8 @@ public struct ImportErgebnis: Sendable, Equatable {
     public var geloeschteBekannt: Int = 0
     public var offene: Int = 0
     public var wartende: Int = 0
+    /// Zähler eines CSV-Imports (Trade Republic, Scalable); beim MT4-Import leer.
+    public var csv = CSVZaehler()
 }
 
 /// Das Trading-Journal auf der Festplatte: eine SQLite-Datei.
@@ -165,7 +167,7 @@ public final class Journal: Sendable {
         SHA256.hash(data: datei).map { String(format: "%02x", $0) }.joined()
     }
 
-    private static func konto(_ db: Database, broker: String, nummer: String,
+    static func konto(_ db: Database, broker: String, nummer: String,
                               name: String, waehrung: String) throws -> Konto {
         if let konto = try Konto
             .filter(Column("broker") == broker && Column("kontonummer") == nummer)
