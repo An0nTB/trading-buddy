@@ -2,7 +2,7 @@ import Foundation
 
 /// Abgeschlossener Trade, unabhängig vom Broker. Grundlage aller Kennzahlen.
 /// Beträge in Kontowährung, Zeiten in UTC.
-public struct Trade: Sendable, Equatable {
+public struct Trade: Sendable, Equatable, Identifiable {
     public var id: String
     public var symbol: String
     public var side: Side
