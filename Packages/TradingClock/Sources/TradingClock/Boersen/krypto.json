@@ -1,0 +1,11 @@
+{
+  "format": 1,
+  "id": "krypto",
+  "name": "Krypto 24/7",
+  "zeitzone": "UTC",
+  "durchgehend": true,
+  "stand": "2026-10-01",
+  "hinweise": [
+    "Kryptobörsen handeln rund um die Uhr an allen Tagen (R1 Abschnitt 6). Wartungspausen einzelner Börsen sind nicht abgebildet."
+  ]
+}
