@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  trading-core-macos:
+    name: TradingCore (macOS)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Swift-Version
+        run: swift --version
+      - name: Tests
+        working-directory: Packages/TradingCore
+        run: swift test
+
+  trading-core-linux:
+    name: TradingCore (Linux)
+    runs-on: ubuntu-latest
+    container: swift:6.2
+    steps:
+      - uses: actions/checkout@v4
+      - name: Swift-Version
+        run: swift --version
+      - name: Tests
+        working-directory: Packages/TradingCore
+        run: swift test
