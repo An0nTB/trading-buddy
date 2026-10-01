@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "trading-buddy",
   "display_name": "Trading Buddy (Experiment)",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Experiment AP6: Kennzahlen aus der Trading-Buddy-App in Claude abrufen.",
   "author": {
     "name": "Tim Bock"
@@ -14,7 +14,7 @@
       "command": "${__dirname}/server/trading-buddy-mcp",
       "args": [],
       "env": {
-        "TB_APP_GROUP": "__TEAM__.journal"
+        "TB_EXPORT_DIR": "${user_config.export_ordner}"
       }
     }
   },
@@ -25,10 +25,21 @@
     },
     {
       "name": "pruefe_datenweg",
-      "description": "Prüft, ob der Server die Testdatei der Trading-Buddy-App lesen kann."
+      "description": "Prüft, ob der Server die Testdatei der Trading-Buddy-App im Export-Ordner lesen kann."
     }
   ],
   "compatibility": {
-    "platforms": ["darwin"]
+    "platforms": [
+      "darwin"
+    ]
+  },
+  "user_config": {
+    "export_ordner": {
+      "type": "directory",
+      "title": "Export-Ordner",
+      "description": "Derselbe Ordner, den du in der Trading-Buddy-App unter „Export-Ordner wählen“ eingestellt hast.",
+      "required": true,
+      "default": "${HOME}/TradingBuddy-Export"
+    }
   }
 }

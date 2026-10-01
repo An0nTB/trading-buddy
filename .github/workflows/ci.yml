@@ -72,3 +72,17 @@ jobs:
           cat antwort.txt
           grep -q pruefe_datenweg antwort.txt
           grep -q Profitfaktor antwort.txt
+      - name: Server liest den Export-Ordner
+        run: |
+          BIN="$(swift build -c release --show-bin-path)/trading-buddy-mcp"
+          ORDNER="$RUNNER_TEMP/export"
+          mkdir -p "$ORDNER"
+          echo '{"wert":42}' > "$ORDNER/connector-test.json"
+          (
+            echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"ci","version":"1"}}}'
+            echo '{"jsonrpc":"2.0","method":"notifications/initialized"}'
+            echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"pruefe_datenweg","arguments":{}}}'
+            sleep 3
+          ) | TB_EXPORT_DIR="$ORDNER" perl -e 'alarm 20; exec @ARGV' "$BIN" > antwort2.txt || true
+          cat antwort2.txt
+          grep -q ERFOLG antwort2.txt
