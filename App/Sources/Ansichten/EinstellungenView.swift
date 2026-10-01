@@ -53,6 +53,7 @@ struct AllgemeinFelder: View {
 struct ErscheinungsbildFelder: View {
     @AppStorage("erscheinungsbild") private var erscheinungsbild = Erscheinungsbild.system
     @AppStorage("farbwelt") private var farbwelt = Farbwelt.nordlicht
+    @AppStorage("flaechenGetoent") private var flaechenGetoent = true
     @Environment(\.thema) private var thema
     @Environment(\.colorScheme) private var modus
 
@@ -72,6 +73,10 @@ struct ErscheinungsbildFelder: View {
             }
         }
         Text("Je Farbwelt: Akzent, Gewinn, Verlust. Gilt sofort, in Hell und Dunkel.")
+            .font(Schrift.beschriftung)
+            .foregroundStyle(thema.textSchwach)
+        Toggle("Flächen tönen", isOn: $flaechenGetoent)
+        Text("An: Grund, Kacheln und Linien nehmen die Farbwelt leicht an. Aus: neutrales Weiß oder Dunkel, die Farbwelt färbt nur Akzent, Gewinn und Verlust.")
             .font(Schrift.beschriftung)
             .foregroundStyle(thema.textSchwach)
     }
