@@ -10,12 +10,13 @@ public struct Anfrage: Sendable {
     public var vorgabe: String?
 
     public var zeitzone: TimeZone { export.nutzerZeitzone }
+    public var kontoname: String { export.kurzname(konto) }
 
     /// Zeitraum aus `monat` („JJJJ-MM“), `woche` (ein Tag der Woche, „JJJJ-MM-TT“)
     /// oder `von` und `bis` („JJJJ-MM-TT“, beide einschließlich). Ohne Angabe:
     /// der letzte Monat mit Trades. Konto über `konto` (Endziffern oder Broker), bei nur einem Konto entbehrlich.
     public static func lies(_ argumente: [String: String], export: JournalExport) throws -> Anfrage {
-        let konto = try waehleKonto(argumente["konto"], in: export.konten)
+        let konto = try waehleKonto(argumente["konto"], in: export)
         let zone = export.nutzerZeitzone
         var vorgabe: String?
         let zeitraum: Zeitspanne
@@ -35,7 +36,7 @@ public struct Anfrage: Sendable {
             zeitraum = z
         } else {
             guard let letzter = konto.trades.map(\.closeTime).max() else {
-                throw AnfrageFehler.keineTrades(konto.kurzname)
+                throw AnfrageFehler.keineTrades(export.kurzname(konto))
             }
             zeitraum = Zeitspanne.monat(mit: letzter, zeitzone: zone)
             vorgabe = "Kein Zeitraum angegeben, daher der letzte Monat mit Trades."
@@ -48,21 +49,27 @@ public struct Anfrage: Sendable {
                    zeitzone: zeitzone)
     }
 
-    static func waehleKonto(_ wunsch: String?, in konten: [JournalExport.Kontodaten]) throws
-        -> JournalExport.Kontodaten {
+    static func waehleKonto(_ wunsch: String?, in export: JournalExport) throws -> JournalExport.Kontodaten {
+        let konten = export.konten
+        let namen = konten.map(export.kurzname)
         guard !konten.isEmpty else { throw AnfrageFehler.keineKonten }
         let wunsch = wunsch?.trimmingCharacters(in: .whitespaces) ?? ""
         if wunsch.isEmpty {
-            guard konten.count == 1 else { throw AnfrageFehler.kontoUnklar(konten.map(\.kurzname)) }
+            guard konten.count == 1 else { throw AnfrageFehler.kontoUnklar(namen) }
             return konten[0]
         }
-        let treffer = konten.filter {
-            $0.kontonummer.hasSuffix(wunsch) || $0.kurzname.localizedCaseInsensitiveContains(wunsch)
+        var treffer = konten.indices.filter {
+            konten[$0].kontonummer.hasSuffix(wunsch) || namen[$0].localizedCaseInsensitiveContains(wunsch)
         }
-        if treffer.count == 1 { return treffer[0] }
+        // Genau der Kurzname oder genau die Nummer gewinnt, wenn der Wunsch auch in anderen Namen steckt.
+        let genau = treffer.filter {
+            namen[$0].caseInsensitiveCompare(wunsch) == .orderedSame || konten[$0].kontonummer == wunsch
+        }
+        if genau.count == 1 { treffer = genau }
+        if treffer.count == 1 { return konten[treffer[0]] }
         throw treffer.isEmpty
-            ? AnfrageFehler.kontoUnbekannt(wunsch, konten.map(\.kurzname))
-            : AnfrageFehler.kontoUnklar(treffer.map(\.kurzname))
+            ? AnfrageFehler.kontoUnbekannt(wunsch, namen)
+            : AnfrageFehler.kontoUnklar(treffer.map { namen[$0] })
     }
 
     private static func zahlen(_ text: String) -> [Int] {

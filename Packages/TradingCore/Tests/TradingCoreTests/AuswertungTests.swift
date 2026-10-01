@@ -59,6 +59,22 @@ private func gbeMai() throws -> MT4Statement {
     let alt = try JSONSerialization.data(withJSONObject: roh)
     #expect(String(decoding: alt, as: UTF8.self).contains("journal") == false)
     #expect(try JournalExport.lese(alt).konten[0].journal.isEmpty)
+
+    // Neue Datei mit Journal, gelesen wie von einem Connector vor dem Journal (Aufbau eingefroren).
+    struct AlterExport: Decodable {
+        struct Konto: Decodable {
+            var broker: String, kontonummer: String, waehrung: String
+            var trades: [Trade]
+            var geloeschteOrders: [Date]
+        }
+        var format: Int
+        var zeitzone: String
+        var konten: [Konto]
+    }
+    let decoder = JSONDecoder()
+    decoder.dateDecodingStrategy = .iso8601
+    let gelesen = try decoder.decode(AlterExport.self, from: daten)
+    #expect(gelesen.format == 1 && gelesen.konten[0].trades == [trade])
 }
 
 @Test func neueresFormatWirdAbgelehnt() throws {
