@@ -53,7 +53,8 @@ private func nurKonto(_ journal: Journal) throws -> Konto {
     let positionen = try journal.geschlossenePositionen(konto: konto)
     #expect(positionen == original.positionen.sorted { ($0.closeTime, $0.ticket) < ($1.closeTime, $1.ticket) })
     #expect(positionen.map(\.ticket) == ["910001", "910003", "910002"])
-    #expect(positionen.map { Trade($0).netProfit } == [250, 40, d("22.1")])
+    let netto: [Decimal] = positionen.map { Trade($0).netProfit }
+    #expect(netto == [250, 40, d("22.1")])
 
     let k = try journal.kontobewegungen(konto: konto)
     #expect(k.geldbewegungen == original.kasse.geldbewegungen.sorted { ($0.zeit, $0.id) < ($1.zeit, $1.id) })
@@ -83,7 +84,8 @@ private func nurKonto(_ journal: Journal) throws -> Konto {
     #expect(konto.kontonummer == "00000001")
     #expect(try journal.importe(konto: konto).count == 1)
     // Sollwerte aus den TradingCore-Tests (xtbEinfacherAufbau): zwei Trades, eine Einzahlung.
-    #expect(try journal.geschlossenePositionen(konto: konto).map { Trade($0).netProfit } == [200, d("-11.5")])
+    let netto: [Decimal] = try journal.geschlossenePositionen(konto: konto).map { Trade($0).netProfit }
+    #expect(netto == [200, d("-11.5")])
     #expect(try journal.kontobewegungen(konto: konto).geldbewegungen.map(\.art) == [.einzahlung])
 }
 
@@ -112,9 +114,11 @@ private func nurKonto(_ journal: Journal) throws -> Konto {
     try importiere(andersrum, eigen("xtb_folgezeitraum"), "xtb_folgezeitraum")
     try importiere(andersrum, kern("xtb_sonderfaelle"), "xtb_sonderfaelle")
     let konto2 = try nurKonto(andersrum)
-    #expect(try andersrum.geschlossenePositionen(konto: konto2).map(\.ticket) == positionen.map(\.ticket))
-    #expect(try andersrum.geschlossenePositionen(konto: konto2).map { Trade($0).netProfit }
-            == positionen.map { Trade($0).netProfit })
+    let positionen2 = try andersrum.geschlossenePositionen(konto: konto2)
+    #expect(positionen2.map(\.ticket) == positionen.map(\.ticket))
+    let netto2: [Decimal] = positionen2.map { Trade($0).netProfit }
+    let netto: [Decimal] = positionen.map { Trade($0).netProfit }
+    #expect(netto2 == netto)
     #expect(try andersrum.kontobewegungen(konto: konto2).kassenwirkung == d("1055.82"))
 }
 
