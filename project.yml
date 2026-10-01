@@ -18,6 +18,8 @@ settings:
 packages:
   TradingCore:
     path: Packages/TradingCore
+  TradingStore:
+    path: Packages/TradingStore
 targets:
   TradingBuddy:
     type: application
@@ -27,6 +29,7 @@ targets:
       - path: App/Resources
     dependencies:
       - package: TradingCore
+      - package: TradingStore
     configFiles:
       Debug: Config/Base.xcconfig
       Release: Config/Base.xcconfig
