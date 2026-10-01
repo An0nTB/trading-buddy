@@ -21,7 +21,7 @@ targets:
       - package: TradingCore
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: de.timbock.tradingbuddy
+        PRODUCT_BUNDLE_IDENTIFIER: de.timbock.journal
         PRODUCT_NAME: Trading Buddy
         MARKETING_VERSION: "0.1.0"
         CURRENT_PROJECT_VERSION: "1"
