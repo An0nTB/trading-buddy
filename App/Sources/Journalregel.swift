@@ -11,3 +11,10 @@ extension Trade {
         return trade
     }
 }
+
+extension Journaleintrag {
+    /// Die Angaben, die der Connector bekommt (alles außer Stop, Schlüssel und Zeitstempel).
+    var angaben: Journalangaben {
+        Journalangaben(setup: setup, regeltreue: regeltreue, zustand: zustand, marktumfeld: marktumfeld, grund: grund)
+    }
+}
