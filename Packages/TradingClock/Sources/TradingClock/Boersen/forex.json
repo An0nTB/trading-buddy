@@ -1,0 +1,33 @@
+{
+  "format": 1,
+  "id": "forex",
+  "name": "Forex 24/5",
+  "zeitzone": "America/New_York",
+  "handelszeiten": [
+    {
+      "tage": [
+        "So",
+        "Mo",
+        "Di",
+        "Mi",
+        "Do"
+      ],
+      "beginn": "17:00",
+      "ende": "17:00",
+      "endeNachTagen": 1
+    }
+  ],
+  "stand": "2026-10-01",
+  "quellen": [
+    {
+      "titel": "CME Group: Trading Hours (FX-Futures als Bezug für die 17-Uhr-Grenze New York)",
+      "url": "https://www.cmegroup.com/trading-hours.html",
+      "abgerufen": "2026-10-01"
+    }
+  ],
+  "hinweise": [
+    "Annahme: Devisenhandel von Sonntag 17:00 bis Freitag 17:00 New Yorker Zeit, die übliche Marktkonvention; es gibt keine Börse und keine offizielle Quelle für den außerbörslichen Devisenmarkt.",
+    "Die kurze tägliche Pause vieler Broker um 17:00 New York ist nicht abgebildet.",
+    "Feiertage sind nicht gepflegt; viele Broker schließen am 25.12. und 01.01. Das gilt je Broker und ist noch zu prüfen."
+  ]
+}
