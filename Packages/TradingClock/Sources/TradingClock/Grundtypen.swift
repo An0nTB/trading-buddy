@@ -143,6 +143,8 @@ public enum BoersenuhrFehler: Error, Equatable, Sendable {
     case ungueltigeHandelszeit(id: String, grund: String)
     /// Zwei Börsen mit derselben Kennung.
     case doppelteBoerse(id: String)
+    /// Zwei Feiertagskalender mit derselben Kennung.
+    case doppelterKalender(id: String)
     /// Der Ordner mit den mitgelieferten Börsendateien fehlt im Paket.
     case mitgelieferteDatenFehlen
 }
