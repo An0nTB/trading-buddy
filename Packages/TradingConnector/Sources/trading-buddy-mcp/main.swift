@@ -22,13 +22,13 @@ enum Katalog {
              description: "Wochen- oder Monatsauswertung: Kennzahlen mit Vorzeitraum, Kosten, Symbole, Fehlermuster, auffällige Trades, dazu das Rezept für die Antwort. Für Fragen wie „Wie lief mein Mai?“. Ohne Zeitraum gilt der letzte Monat mit Trades.",
              inputSchema: schema(zeitraum), annotations: nurLesen),
         Tool(name: "hole_aufschluesselung",
-             description: "Kennzahlen je Gruppe: Symbol, Richtung, Wochentag, Stunde, Trade-Nummer am Tag, Ergebnis des vorherigen Trades oder Haltedauer.",
+             description: "Kennzahlen je Gruppe: Symbol, Richtung, Wochentag, Stunde, Trade-Nummer am Tag, Ergebnis des vorherigen Trades, Haltedauer oder eigene Journalangaben (Setup, Regeltreue, Zustand).",
              inputSchema: schema(zeitraum.merging(
-                 ["dimension": text("Wonach aufgeteilt wird", werte: Aufteilung.allCases.map(\.rawValue))]) { $1 },
+                 ["dimension": text("Wonach aufgeteilt wird", werte: Aufschluesselung.alleWerte)]) { $1 },
                  pflicht: ["dimension"]),
              annotations: nurLesen),
         Tool(name: "hole_trades",
-             description: "Einzelne Trades eines Zeitraums, wahlweise nur die eines Fehlermusters, sortiert nach bestem oder schlechtestem Ergebnis.",
+             description: "Einzelne Trades eines Zeitraums mit Journalangaben (Setup, Regeltreue, Zustand, Grund), wahlweise nur die eines Fehlermusters, sortiert nach bestem oder schlechtestem Ergebnis.",
              inputSchema: schema(zeitraum.merging([
                  "auswahl": text("Sortierung, Vorgabe chronologisch", werte: Tradeauswahl.allCases.map(\.rawValue)),
                  "muster": text("Nur Trades dieses Fehlermusters", werte: Fehlermuster.allCases.map(\.rawValue)),
@@ -85,8 +85,8 @@ enum Ausfuehrung {
             case "hole_auswertung":
                 return antwort(Ausgabe.auswertung(try Anfrage.lies(argumente, export: export)))
             case "hole_aufschluesselung":
-                guard let dimension = argumente["dimension"].flatMap(Aufteilung.init(rawValue:)) else {
-                    let erlaubt = Aufteilung.allCases.map(\.rawValue).joined(separator: ", ")
+                guard let dimension = argumente["dimension"].flatMap(Aufschluesselung.init(rawValue:)) else {
+                    let erlaubt = Aufschluesselung.alleWerte.joined(separator: ", ")
                     return antwort("DIMENSION FEHLT: eine von \(erlaubt).", fehler: true)
                 }
                 return antwort(Ausgabe.aufschluesselung(try Anfrage.lies(argumente, export: export), nach: dimension))
@@ -121,7 +121,7 @@ enum Ausfuehrung {
 
 let server = Server(
     name: "trading-buddy",
-    version: "0.1.0",
+    version: "0.2.0",
     capabilities: .init(prompts: .init(listChanged: false), tools: .init(listChanged: false))
 )
 
