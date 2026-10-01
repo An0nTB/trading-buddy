@@ -15,6 +15,8 @@ public enum SpeicherFehler: Error, Equatable, Sendable {
     case abweichenderDatensatz(tickets: [String])
     /// In der Datenbank steht ein Wert, den das Datenmodell nicht kennt.
     case unbekannterWert(String)
+    /// Eine Eingabe liegt außerhalb des erlaubten Bereichs.
+    case ungueltigerWert(String)
 }
 
 /// Was ein Import bewirkt hat.
@@ -58,6 +60,9 @@ public final class Journal: Sendable {
         db = writer
         try Schema.migrator.migrate(db)
     }
+
+    func lies<T>(_ arbeit: (Database) throws -> T) throws -> T { try db.read(arbeit) }
+    func schreibe<T>(_ arbeit: (Database) throws -> T) throws -> T { try db.write(arbeit) }
 
     /// Namen der Migrationen, die in dieser Datenbank gelaufen sind.
     public func angewandteMigrationen() throws -> [String] {
