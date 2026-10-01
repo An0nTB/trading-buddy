@@ -29,6 +29,8 @@ final class AppModell {
     private(set) var alleGeloeschten: [CancelledOrder] = []
     private(set) var kontoId: Int64?
     var fehler: String?
+    /// Stand der Exportdatei für den Claude-Connector, angezeigt im Reiter Claude der Einstellungen.
+    private(set) var exportStand = ""
 
     // Zustand der Oberfläche
     var bereich: Bereich = .uebersicht
@@ -39,6 +41,7 @@ final class AppModell {
         do {
             journal = try Journal(pfad: Self.datenbankpfad())
             laden()
+            exportiere()
         } catch {
             fehler = error.localizedDescription
         }
@@ -150,7 +153,15 @@ final class AppModell {
         let ergebnis = try journal.importiereMT4(datei: daten, dateiname: dateiname,
                                                  serverZeitzone: serverZeitzone, kontowaehrung: waehrung)
         laden()
+        exportiere()
         return ergebnis
+    }
+
+    /// Schreibt die Exportdatei für den Claude-Connector neu (AP12), nur am Mac.
+    func exportiere() {
+        #if os(macOS)
+        exportStand = ExportOrdner.schreibe(journal, zeitzone: zeitzone)
+        #endif
     }
 
     /// `Application Support/Trading Buddy/journal.sqlite`, in der Sandbox im Container der App.

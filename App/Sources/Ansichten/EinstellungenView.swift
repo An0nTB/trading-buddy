@@ -151,7 +151,8 @@ struct KontenView: View {
 /// Reiter Claude: Export-Ordner für den Connector (Entscheidung 13, AP6) und die exportierten Felder.
 struct ClaudeFelder: View {
     @State private var ordnerWaehlen = false
-    @State private var status = ""
+    @State private var fehler = ""
+    @Environment(AppModell.self) private var modell
     @Environment(\.thema) private var thema
 
     var body: some View {
@@ -167,27 +168,28 @@ struct ClaudeFelder: View {
                 .font(Schrift.beschriftung)
                 .foregroundStyle(thema.textSchwach)
             LabeledContent("Exportierte Felder") {
-                Text("Zeiten, Instrument, Richtung, Lots, Kurse, Kosten, Ergebnis, Journal. Nicht: Kontonummer, Name, Saldo.")
+                Text("Zeiten, Instrument, Richtung, Lots, Kurse, Kosten, Ergebnis, Broker und die letzten vier Stellen der Kontonummer. Nicht: Name, volle Kontonummer, Saldo, Journal.")
             }
-            if !status.isEmpty {
+            if let status = [fehler, modell.exportStand].first(where: { !$0.isEmpty }) {
                 Text(verbatim: status)
                     .font(Schrift.beschriftung)
                     .foregroundStyle(thema.textSchwach)
             }
         }
         .formStyle(.grouped)
-        .task { status = ExportOrdner.schreibeTestdatei() }
+        .task { modell.exportiere() }
         .fileImporter(isPresented: $ordnerWaehlen, allowedContentTypes: [.folder]) { ergebnis in
             switch ergebnis {
             case .success(let url):
                 do {
                     try ExportOrdner.merke(url)
-                    status = ExportOrdner.schreibeTestdatei()
+                    fehler = ""
+                    modell.exportiere()
                 } catch {
-                    status = error.localizedDescription
+                    fehler = error.localizedDescription
                 }
-            case .failure(let fehler):
-                status = fehler.localizedDescription
+            case .failure(let problem):
+                fehler = problem.localizedDescription
             }
         }
     }
