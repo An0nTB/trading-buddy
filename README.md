@@ -23,7 +23,9 @@ xcodegen generate
 open TradingBuddy.xcodeproj
 ```
 
-In Xcode oben das Ziel „My Mac“ wählen und auf Start drücken. Zum Signieren unter Target → Signing & Capabilities dein Personal Team auswählen.
+In Xcode oben das Ziel „My Mac“ wählen und auf Start drücken.
+
+Signieren, einmalig: `cp Config/Local.xcconfig.example Config/Local.xcconfig`, darin die eigene Team-ID eintragen, dann `xcodegen generate`. Die Team-ID steht in Xcode unter Target → Build Settings → „Development Team“, nachdem man dort einmal das Personal Team gewählt hat. `Local.xcconfig` wird nicht eingecheckt, so bleibt das Team auch nach jedem `xcodegen generate` gesetzt.
 
 ## Tests lokal ausführen
 
