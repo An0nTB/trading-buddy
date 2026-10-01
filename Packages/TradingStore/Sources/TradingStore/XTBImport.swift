@@ -113,9 +113,13 @@ extension Journal {
         var abweichungen: [String] = []
         if let summe = auszug.positionenLautSumme {
             let p = auszug.positionen
-            let werte = [("Kommission", summe.commission, p.map(\.commission).reduce(0, +)),
-                         ("Swap", summe.swap, p.map(\.swap).reduce(0, +)),
-                         ("Ergebnis", summe.profit, p.map(\.profit).reduce(0, +))]
+            // Einzeln und mit Typ, sonst braucht der Swift-Compiler zu lange für die Typprüfung.
+            let kommission: Decimal = p.reduce(0) { $0 + $1.commission }
+            let swap: Decimal = p.reduce(0) { $0 + $1.swap }
+            let ergebnis: Decimal = p.reduce(0) { $0 + $1.profit }
+            let werte: [(String, Decimal, Decimal)] = [("Kommission", summe.commission, kommission),
+                                                       ("Swap", summe.swap, swap),
+                                                       ("Ergebnis", summe.profit, ergebnis)]
             for (name, soll, ist) in werte where soll != ist {
                 abweichungen.append("Positionen \(name): Summe \(soll), Zeilen \(ist)")
             }
