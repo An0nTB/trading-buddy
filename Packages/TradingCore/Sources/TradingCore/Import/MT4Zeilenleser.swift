@@ -65,7 +65,7 @@ struct MT4Zeilenleser {
             let art = try MT4Werte.auftragsart(z[2])
             guard art == .buy || art == .sell else { throw unbekannt }
             geschlossen.append(ClosedPosition(
-                ticket: z[0], side: art.side, lots: try zahl(z[3]), symbol: z[4],
+                ticket: z[0], rohzeile: z, side: art.side, lots: try zahl(z[3]), symbol: z[4],
                 openTime: try zeit(z[1]), openPrice: try zahl(z[5]),
                 stopLoss: try MT4Werte.optionaleZahl(z[6]), takeProfit: try MT4Werte.optionaleZahl(z[7]),
                 closeTime: try zeit(z[8]), closePrice: try zahl(z[9]),
@@ -73,7 +73,7 @@ struct MT4Zeilenleser {
             ))
         case "Closed Transactions" where z.count == 11 && z[10].lowercased() == "cancelled":
             geloescht.append(CancelledOrder(
-                ticket: z[0], type: try MT4Werte.auftragsart(z[2]), lots: try zahl(z[3]), symbol: z[4],
+                ticket: z[0], rohzeile: z, type: try MT4Werte.auftragsart(z[2]), lots: try zahl(z[3]), symbol: z[4],
                 placedAt: try zeit(z[1]), orderPrice: try zahl(z[5]),
                 stopLoss: try MT4Werte.optionaleZahl(z[6]), takeProfit: try MT4Werte.optionaleZahl(z[7]),
                 cancelledAt: try zeit(z[8]), marketPrice: try zahl(z[9])
@@ -82,7 +82,7 @@ struct MT4Zeilenleser {
             let art = try MT4Werte.auftragsart(z[2])
             guard art == .buy || art == .sell else { throw unbekannt }
             offen.append(OpenPosition(
-                ticket: z[0], side: art.side, lots: try zahl(z[3]), symbol: z[4],
+                ticket: z[0], rohzeile: z, side: art.side, lots: try zahl(z[3]), symbol: z[4],
                 openTime: try zeit(z[1]), openPrice: try zahl(z[5]),
                 stopLoss: try MT4Werte.optionaleZahl(z[6]), takeProfit: try MT4Werte.optionaleZahl(z[7]),
                 currentPrice: try zahl(z[9]),
@@ -91,7 +91,7 @@ struct MT4Zeilenleser {
         case "Working Orders" where z.count >= 9:
             // Aufbau aus der Kopfzeile abgeleitet, noch ohne echtes Beispiel (ungeprüft).
             wartend.append(WorkingOrder(
-                ticket: z[0], type: try MT4Werte.auftragsart(z[2]), lots: try zahl(z[3]), symbol: z[4],
+                ticket: z[0], rohzeile: z, type: try MT4Werte.auftragsart(z[2]), lots: try zahl(z[3]), symbol: z[4],
                 placedAt: try zeit(z[1]), orderPrice: try zahl(z[5]),
                 stopLoss: try MT4Werte.optionaleZahl(z[6]), takeProfit: try MT4Werte.optionaleZahl(z[7]),
                 marketPrice: try zahl(z[8])
