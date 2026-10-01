@@ -141,12 +141,12 @@ struct HinweisZeile: Codable, FetchableRecord, PersistableRecord {
 }
 
 /// GRDB speichert Zeiten auf die Millisekunde; feinere Unterschiede gelten beim Vergleich als gleich.
-private func gleicheZeit(_ gespeichert: Date, _ neu: Date) -> Date {
+func gleicheZeit(_ gespeichert: Date, _ neu: Date) -> Date {
     abs(gespeichert.timeIntervalSince(neu)) < 0.001 ? neu : gespeichert
 }
 
 extension ImportErgebnis {
-    /// Neue und schon bekannte Datensätze eines CSV-Imports.
+    /// Neue und schon bekannte Datensätze eines CSV-Imports (bei XTB nur Geldbewegungen und Hinweise).
     public struct CSVZaehler: Sendable, Equatable {
         public var ausfuehrungenNeu = 0
         public var ausfuehrungenBekannt = 0
