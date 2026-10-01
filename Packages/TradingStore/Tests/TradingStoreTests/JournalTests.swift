@@ -38,6 +38,8 @@ private func netto(_ positionen: [ClosedPosition]) -> Decimal {
     positionen.reduce(Decimal(0)) { $0 + $1.netProfit }
 }
 
+private let alleMigrationen = ["v1 Konten, Importe, MT4-Auszüge", "v2 Journal je Trade"]
+
 @Test func migrationenLaufenUndSindWiederholbar() throws {
     let ordner = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
     try FileManager.default.createDirectory(at: ordner, withIntermediateDirectories: true)
@@ -46,11 +48,11 @@ private func netto(_ positionen: [ClosedPosition]) -> Decimal {
 
     let erstes = try Journal(pfad: pfad)
     try importiere(erstes, "gbe-2025-06-04-daily")
-    #expect(try erstes.angewandteMigrationen() == ["v1 Konten, Importe, MT4-Auszüge"])
+    #expect(try erstes.angewandteMigrationen() == alleMigrationen)
 
     // Zweites Öffnen derselben Datei: keine Migration läuft doppelt, Daten bleiben.
     let zweites = try Journal(pfad: pfad)
-    #expect(try zweites.angewandteMigrationen() == ["v1 Konten, Importe, MT4-Auszüge"])
+    #expect(try zweites.angewandteMigrationen() == alleMigrationen)
     #expect(try zweites.geschlossenePositionen(konto: nurKonto(zweites)).count == 1)
 }
 
