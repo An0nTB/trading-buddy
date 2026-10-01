@@ -22,3 +22,6 @@ TradingBuddy.xcodeproj/
 
 # Persönliche Xcode-Einstellungen (Team-ID), Vorlage: Config/Local.xcconfig.example
 Config/Local.xcconfig
+
+# Gebaute Connector-Pakete (scripts/connector_bauen.sh)
+build/
