@@ -11,6 +11,7 @@ Planung und Entscheidungen liegen im Projektordner des Claude-Projekts „Tradin
 | `Packages/TradingCore` | Rechenkern: Datenmodell, Broker-Importer, Kennzahlen. Reines Swift-Paket ohne Oberfläche. |
 | `Packages/TradingStore` | Lokale Datenbank (SQLite über GRDB): Konten, Importe mit Originaldatei, Trades; erkennt doppelte Importe. |
 | `App/` | App für macOS, iPhone und iPad (SwiftUI), Texte Deutsch und Englisch. |
+| `Design/tokens.json` | Design-Token aus AP10 (Neutralfarben, vier Farbwelten, Schrift, Abstände). Die App trägt dieselben Werte in `App/Sources/Design/Farbwelt.swift`; `scripts/token_pruefen.py` vergleicht beide in CI. |
 | `project.yml` | Bauplan für das Xcode-Projekt. Daraus erzeugt XcodeGen `TradingBuddy.xcodeproj`. |
 
 ## App auf dem Mac öffnen
