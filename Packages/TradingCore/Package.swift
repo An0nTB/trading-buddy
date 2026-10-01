@@ -12,6 +12,10 @@ let package = Package(
     ],
     targets: [
         .target(name: "TradingCore"),
-        .testTarget(name: "TradingCoreTests", dependencies: ["TradingCore"])
+        .testTarget(
+            name: "TradingCoreTests",
+            dependencies: ["TradingCore"],
+            exclude: ["Fixtures"]
+        )
     ]
 )
