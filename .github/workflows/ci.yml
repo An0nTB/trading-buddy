@@ -28,3 +28,19 @@ jobs:
       - name: Tests
         working-directory: Packages/TradingCore
         run: swift test
+
+  app:
+    name: App (macOS und iOS-Simulator)
+    runs-on: xcode-27
+    steps:
+      - uses: actions/checkout@v4
+      - name: Xcode-Version
+        run: xcodebuild -version
+      - name: XcodeGen installieren
+        run: brew install xcodegen
+      - name: Xcode-Projekt erzeugen
+        run: xcodegen generate
+      - name: Bauen für macOS
+        run: xcodebuild -project TradingBuddy.xcodeproj -scheme TradingBuddy -destination 'generic/platform=macOS' CODE_SIGNING_ALLOWED=NO build
+      - name: Bauen für iOS-Simulator
+        run: xcodebuild -project TradingBuddy.xcodeproj -scheme TradingBuddy -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build

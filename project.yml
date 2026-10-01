@@ -1,0 +1,37 @@
+# Bauplan für das Xcode-Projekt. Daraus erzeugt XcodeGen die Datei
+# TradingBuddy.xcodeproj (wird nicht eingecheckt): `xcodegen generate`
+name: TradingBuddy
+options:
+  bundleIdPrefix: de.timbock
+  developmentLanguage: de
+  deploymentTarget:
+    macOS: "27.0"
+    iOS: "27.0"
+packages:
+  TradingCore:
+    path: Packages/TradingCore
+targets:
+  TradingBuddy:
+    type: application
+    supportedDestinations: [macOS, iOS]
+    sources:
+      - path: App/Sources
+      - path: App/Resources
+    dependencies:
+      - package: TradingCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: de.timbock.tradingbuddy
+        PRODUCT_NAME: Trading Buddy
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.finance
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        LOCALIZATION_PREFERS_STRING_CATALOGS: YES
+        SWIFT_EMIT_LOC_STRINGS: YES
+        SWIFT_VERSION: "6.0"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        "CODE_SIGN_ENTITLEMENTS[sdk=macosx*]": App/TradingBuddy-macOS.entitlements
+        "ENABLE_HARDENED_RUNTIME[sdk=macosx*]": YES
+    scheme: {}
