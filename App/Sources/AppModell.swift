@@ -25,7 +25,8 @@ final class AppModell {
     private(set) var importe: [ImportEintrag] = []
     /// Alle Trades des gewählten Kontos, vor Filtern.
     private(set) var alleTrades: [Trade] = []
-    private(set) var geloeschteOrders = 0
+    /// Alle gelöschten Pending Orders des gewählten Kontos, vor Filtern.
+    private(set) var alleGeloeschten: [CancelledOrder] = []
     private(set) var kontoId: Int64?
     var fehler: String?
 
@@ -62,6 +63,16 @@ final class AppModell {
             if case .monat(let monat) = zeitraum, monatsanfang(trade.closeTime, kalender) != monat { return false }
             return true
         }
+    }
+
+    /// Gelöschte Pending Orders im gewählten Zeitraum (für die Stornoquote), Instrumentfilter gilt mit.
+    var geloeschteOrders: Int {
+        let kalender = self.kalender
+        return alleGeloeschten.filter { order in
+            if let instrument, order.symbol != instrument { return false }
+            if case .monat(let monat) = zeitraum, monatsanfang(order.cancelledAt, kalender) != monat { return false }
+            return true
+        }.count
     }
 
     /// Monate mit Trades, neuester zuerst.
@@ -109,10 +120,10 @@ final class AppModell {
             }
             if let konto {
                 alleTrades = try journal.geschlossenePositionen(konto: konto).map { Trade($0) }
-                geloeschteOrders = try journal.geloeschteOrders(konto: konto).count
+                alleGeloeschten = try journal.geloeschteOrders(konto: konto)
             } else {
                 alleTrades = []
-                geloeschteOrders = 0
+                alleGeloeschten = []
             }
         } catch {
             fehler = error.localizedDescription
