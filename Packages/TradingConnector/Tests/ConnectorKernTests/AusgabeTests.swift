@@ -29,6 +29,8 @@ private func gbeExport() throws -> JournalExport {
     #expect(text.contains("Ohne diese Trades: netto 9,20"))
     #expect(text.contains("| 90000076 |"))
     #expect(text.contains("## Rezept für die Antwort"))
+    #expect(text.contains("Gespeichert insgesamt (alle Zeiträume): 83 Trades, geschlossen"))
+    #expect(!text.contains("## Nach Setup") && text.contains("Setup 0, Regeltreue 0, Zustand 0, Grund 0 von 83"))
     // Nur die Endziffern des Kontos gehen an Claude.
     #expect(text.contains("…0001") && !text.contains("100001"))
 }
@@ -46,6 +48,31 @@ private func gbeExport() throws -> JournalExport {
     #expect(schlechteste.contains("82 weitere Trades nicht gezeigt."))
     let revanche = Ausgabe.trades(anfrage, auswahl: .chronologisch, muster: .revancheTrade, anzahl: 50)
     #expect(revanche.components(separatedBy: "Revanche-Trade").count - 1 >= 13)
+}
+
+@Test func journalangabenErscheinenInAuswertungUndListen() throws {
+    var export = try gbeExport()
+    export.konten[0].journal = [
+        "90000076": Journalangaben(setup: "Ausbruch", regeltreue: true, zustand: 4, grund: "Plan | eingehalten"),
+        "90000016": Journalangaben(setup: "Rücksetzer", regeltreue: false, zustand: 2)
+    ]
+    let anfrage = try Anfrage.lies(["monat": "2025-05"], export: export)
+    let text = Ausgabe.auswertung(anfrage)
+    #expect(text.contains("## Nach Setup (eigene Angabe im Journal)"))
+    #expect(text.contains("| Ausbruch | 1 | 22,91 |"))
+    #expect(text.contains("| Rücksetzer | 1 | -12,92 |"))
+    #expect(text.contains("| ohne Angabe | 81 |"))
+    #expect(text.contains("| Regel gebrochen | 1 |") && text.contains("| nach Regeln | 1 |"))
+    #expect(text.contains("| 4 von 5 | 1 |"))
+    #expect(text.contains("Setup 2, Regeltreue 2, Zustand 2, Grund 1 von 83"))
+
+    let setups = Ausgabe.aufschluesselung(anfrage, nach: try #require(Aufschluesselung(rawValue: "setup")))
+    #expect(setups.contains("# Trading Buddy · Setup") && setups.contains("| Ausbruch | 1 |"))
+    #expect(Aufschluesselung(rawValue: "wochentag") == .kern(.wochentag))
+    #expect(Aufschluesselung(rawValue: "unsinn") == nil)
+
+    let beste = Ausgabe.trades(anfrage, auswahl: .beste, muster: nil, anzahl: 1)
+    #expect(beste.contains("| 90000076 | Ausbruch | ja | 4/5 | – | Plan / eingehalten |"))
 }
 
 @Test func vorlagenNennenDasWerkzeug() {

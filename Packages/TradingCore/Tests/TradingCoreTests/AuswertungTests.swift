@@ -39,6 +39,28 @@ private func gbeMai() throws -> MT4Statement {
     #expect(export.rechenkern == TradingCore.version)
 }
 
+@Test func journalangabenUeberstehenDieRundreise() throws {
+    let trade = Trade(id: "7", symbol: "de40", side: .buy, lots: 1, openTime: zeit("2025-05-02T08:00:00"),
+                      closeTime: zeit("2025-05-02T09:00:00"), openPrice: 100, closePrice: 110, profit: 10)
+    let konto = JournalExport.Kontodaten(
+        broker: "GBE", kontonummer: "0001", waehrung: "EUR", trades: [trade],
+        journal: ["7": Journalangaben(setup: "Ausbruch", regeltreue: false, zustand: 2, grund: "FOMO"),
+                  "8": Journalangaben()])
+    #expect(konto.journal.keys.sorted() == ["7"])  // leere Angaben fallen weg
+    let export = JournalExport(konten: [konto], zeitzone: berlin, erstellt: zeit("2026-10-01T20:00:00"))
+    let daten = try export.json()
+    #expect(try JournalExport.lese(daten) == export)
+
+    // Datei einer älteren App ohne Journal: liest sich mit leerem Journal.
+    var roh = try #require(try JSONSerialization.jsonObject(with: daten) as? [String: Any])
+    var konten = try #require(roh["konten"] as? [[String: Any]])
+    konten[0]["journal"] = nil
+    roh["konten"] = konten
+    let alt = try JSONSerialization.data(withJSONObject: roh)
+    #expect(String(decoding: alt, as: UTF8.self).contains("journal") == false)
+    #expect(try JournalExport.lese(alt).konten[0].journal.isEmpty)
+}
+
 @Test func neueresFormatWirdAbgelehnt() throws {
     let export = JournalExport(konten: [], zeitzone: utc, erstellt: zeit("2026-10-01T20:00:00"))
     let text = String(decoding: try export.json(), as: UTF8.self)
