@@ -1,0 +1,5 @@
+// Gemeinsame Einstellungen für alle Builds.
+// Persönliche Werte (z. B. das Entwickler-Team) stehen in Local.xcconfig.
+// Die Datei ist optional (#include?) und wird nicht eingecheckt;
+// ohne sie baut CI weiter ohne Signierung.
+#include? "Local.xcconfig"

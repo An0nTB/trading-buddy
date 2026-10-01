@@ -19,6 +19,9 @@ targets:
       - path: App/Resources
     dependencies:
       - package: TradingCore
+    configFiles:
+      Debug: Config/Base.xcconfig
+      Release: Config/Base.xcconfig
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: de.timbock.journal

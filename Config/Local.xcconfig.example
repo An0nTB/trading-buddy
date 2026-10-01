@@ -1,0 +1,4 @@
+// Vorlage: kopieren nach Config/Local.xcconfig (wird nicht eingecheckt).
+// Team-ID findest du in Xcode unter Target → Build Settings → „Development Team“,
+// nachdem du dort einmal dein Team ausgewählt hast.
+DEVELOPMENT_TEAM = <Team-ID, siehe lokal>
