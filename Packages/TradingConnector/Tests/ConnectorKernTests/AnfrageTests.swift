@@ -71,3 +71,30 @@ private let export = JournalExport(
     }
     #expect(AnfrageFehler.vonOhneBis.text.contains("von"))
 }
+
+@Test func gleicheEndziffernBekommenMehrStellen() throws {
+    let konten = JournalExport(
+        konten: [
+            .init(broker: "GBE", kontonummer: "11349", waehrung: "EUR",
+                  trades: [trade("1", schluss: "2025-05-02T10:00:00", netto: 1)]),
+            .init(broker: "GBE", kontonummer: "21349", waehrung: "EUR", trades: []),
+            .init(broker: "XTB", kontonummer: "551349", waehrung: "EUR", trades: [])
+        ],
+        zeitzone: berlin, erstellt: zeit("2026-10-01T20:00:00"))
+    #expect(konten.konten.map(konten.kurzname) == ["GBE …11349", "GBE …21349", "XTB …1349"])
+    #expect(JournalExport.endziffern("12001234", neben: ["12001234", "34001234"]) == 7)
+    #expect(JournalExport.endziffern("0001", neben: ["0001", "XY0001"]) == 4)
+    #expect(try Anfrage.lies(["konto": "11349", "monat": "2025-05"], export: konten).konto.kontonummer == "11349")
+    #expect(throws: AnfrageFehler.kontoUnklar(["GBE …11349", "GBE …21349", "XTB …1349"])) {
+        try Anfrage.lies(["konto": "1349"], export: konten)
+    }
+
+    // Genau passende Nummer gewinnt, auch wenn sie das Ende einer anderen ist.
+    let kurz = JournalExport(
+        konten: [.init(broker: "GBE", kontonummer: "1349", waehrung: "EUR",
+                       trades: [trade("1", schluss: "2025-05-02T10:00:00", netto: 1)]),
+                 .init(broker: "GBE", kontonummer: "11349", waehrung: "EUR", trades: [])],
+        zeitzone: berlin)
+    #expect(kurz.konten.map(kurz.kurzname) == ["GBE …1349", "GBE …11349"])
+    #expect(try Anfrage.lies(["konto": "1349", "monat": "2025-05"], export: kurz).konto.kontonummer == "1349")
+}

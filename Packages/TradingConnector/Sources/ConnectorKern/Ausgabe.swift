@@ -88,7 +88,7 @@ public enum Ausgabe {
     }
 
     static func kopf(_ anfrage: Anfrage, vergleich: String? = nil) -> String {
-        var text = "Konto \(anfrage.konto.kurzname), Beträge in \(anfrage.konto.waehrung). "
+        var text = "Konto \(anfrage.kontoname), Beträge in \(anfrage.konto.waehrung). "
         if let vergleich { text += "Vergleich: \(vergleich). " }
         text += "Zeitzone \(anfrage.export.zeitzone). Export vom \(Format.datum(anfrage.export.erstellt, anfrage.zeitzone)). "
         return text + gespeichert(anfrage.konto, anfrage.zeitzone)
