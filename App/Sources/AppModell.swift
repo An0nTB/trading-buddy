@@ -23,7 +23,11 @@ final class AppModell {
     private(set) var journal: Journal?
     private(set) var konten: [Konto] = []
     private(set) var importe: [ImportEintrag] = []
-    /// Alle Trades des gewählten Kontos, vor Filtern.
+    /// Geschlossene Positionen des gewählten Kontos, wie importiert.
+    private var positionen: [ClosedPosition] = []
+    /// Journaleinträge des gewählten Kontos, Schlüssel ist das Ticket.
+    private(set) var journaleintraege: [String: Journaleintrag] = [:]
+    /// Alle Trades des gewählten Kontos, vor Filtern; ein nachgetragener Stop ersetzt den aus dem Export.
     private(set) var alleTrades: [Trade] = []
     /// Alle gelöschten Pending Orders des gewählten Kontos, vor Filtern.
     private(set) var alleGeloeschten: [CancelledOrder] = []
@@ -122,16 +126,63 @@ final class AppModell {
                 try journal.importe(konto: konto).map { ImportEintrag(id: $0.id ?? 0, konto: konto, lauf: $0) }
             }
             if let konto {
-                alleTrades = try journal.geschlossenePositionen(konto: konto).map { Trade($0) }
+                positionen = try journal.geschlossenePositionen(konto: konto)
+                journaleintraege = try journal.journaleintraege(konto: konto)
                 alleGeloeschten = try journal.geloeschteOrders(konto: konto)
             } else {
-                alleTrades = []
+                positionen = []
+                journaleintraege = [:]
                 alleGeloeschten = []
             }
+            aktualisiereTrades()
         } catch {
             fehler = error.localizedDescription
         }
     }
+
+    /// Baut die Trades aus den Positionen; ein Stop aus dem Journal ersetzt den aus dem Export
+    /// (Entscheidung 8: der Export kennt nur den letzten Stand), damit Risiko und R stimmen.
+    private func aktualisiereTrades() {
+        alleTrades = positionen.map { position in
+            var trade = Trade(position)
+            if let stop = journaleintraege[position.ticket]?.stopEinstieg { trade.stopLoss = stop }
+            return trade
+        }
+    }
+
+    /// Stop, wie er im Export steht, auch wenn im Journal ein anderer nachgetragen ist.
+    func stopLautExport(_ trade: Trade) -> Decimal? {
+        positionen.first { $0.ticket == trade.id }?.stopLoss
+    }
+
+    /// Der Journaleintrag zum Trade, sonst ein leerer für dieses Konto; `nil` ohne Konto.
+    func journaleintrag(_ trade: Trade) -> Journaleintrag? {
+        if let vorhanden = journaleintraege[trade.id] { return vorhanden }
+        guard let kontoId = konto?.id else { return nil }
+        return Journaleintrag(kontoId: kontoId, ticket: trade.id)
+    }
+
+    /// Speichert den Eintrag; ein Eintrag ohne Angaben wird gelöscht. Trades und Kennzahlen ziehen sofort mit.
+    func speichereJournal(_ eintrag: Journaleintrag) {
+        guard let journal, let konto else { return }
+        do {
+            if eintrag.ohneAngaben {
+                try journal.loescheJournal(konto: konto, ticket: eintrag.ticket)
+                journaleintraege[eintrag.ticket] = nil
+            } else {
+                var neu = eintrag
+                neu.geaendertAm = Date()
+                try journal.speichereJournal(neu)
+                journaleintraege[eintrag.ticket] = neu
+            }
+            aktualisiereTrades()
+        } catch {
+            fehler = error.localizedDescription
+        }
+    }
+
+    /// Setups, die schon einmal eingetragen wurden, alphabetisch.
+    var bekannteSetups: [String] { Set(journaleintraege.values.compactMap(\.setup)).sorted() }
 
     /// Das Konto zu Broker und Nummer, falls schon angelegt.
     func bekanntesKonto(broker: String, kontonummer: String) -> Konto? {
@@ -176,6 +227,35 @@ final class AppModell {
 
 private func monatsanfang(_ datum: Date, _ kalender: Calendar) -> Date {
     kalender.dateInterval(of: .month, for: datum)?.start ?? datum
+}
+
+extension Journaleintrag {
+    /// Kein Feld ausgefüllt: so ein Eintrag wird nicht gespeichert, ein vorhandener gelöscht.
+    var ohneAngaben: Bool {
+        setup == nil && regeltreue == nil && zustand == nil && marktumfeld == nil && grund == nil && stopEinstieg == nil
+    }
+
+    /// Dieselben Angaben wie `andere` (ohne Zeitstempel); `nil` zählt wie ein Eintrag ohne Angaben.
+    func gleicheAngaben(wie andere: Journaleintrag?) -> Bool {
+        guard let andere else { return ohneAngaben }
+        return setup == andere.setup && regeltreue == andere.regeltreue && zustand == andere.zustand
+            && marktumfeld == andere.marktumfeld && grund == andere.grund && stopEinstieg == andere.stopEinstieg
+    }
+
+    /// Leerraum an den Rändern weg, leere Texte werden `nil`.
+    var bereinigt: Journaleintrag {
+        var kopie = self
+        kopie.setup = Self.text(setup)
+        kopie.marktumfeld = Self.text(marktumfeld)
+        kopie.grund = Self.text(grund)
+        return kopie
+    }
+
+    private static func text(_ wert: String?) -> String? {
+        guard let wert else { return nil }
+        let getrimmt = wert.trimmingCharacters(in: .whitespacesAndNewlines)
+        return getrimmt.isEmpty ? nil : getrimmt
+    }
 }
 
 extension Fehlermuster {
