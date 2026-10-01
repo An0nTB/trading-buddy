@@ -3,9 +3,8 @@ import Foundation
 import MCP
 
 enum Umgebung {
-    /// Kommt aus manifest.json (scripts/connector_bauen.sh), z. B. ABCDE12345.journal
-    static let gruppe = ProcessInfo.processInfo.environment["TB_APP_GROUP"]
-    static let home = FileManager.default.homeDirectoryForCurrentUser
+    /// Export-Ordner aus den Einstellungen der Erweiterung (manifest.json, user_config)
+    static let exportOrdner = ProcessInfo.processInfo.environment["TB_EXPORT_DIR"]
     static let leeresSchema: Value = .object([
         "type": .string("object"),
         "properties": .object([:])
@@ -40,7 +39,7 @@ await server.withMethodHandler(CallTool.self) { params in
     case "hole_kennzahlen":
         return .init(content: [.text(text: Beispielkennzahlen.text, annotations: nil, _meta: nil)])
     case "pruefe_datenweg":
-        let ergebnis = Datenweg.pruefe(gruppe: Umgebung.gruppe, home: Umgebung.home)
+        let ergebnis = Datenweg.pruefe(ordner: Umgebung.exportOrdner)
         var istFehler = true
         if case .gelesen = ergebnis { istFehler = false }
         return .init(
