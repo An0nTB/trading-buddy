@@ -16,3 +16,6 @@ Package.resolved.bak
 *.p12
 *.mobileprovision
 .env
+
+# Wird aus project.yml erzeugt (xcodegen generate)
+TradingBuddy.xcodeproj/
