@@ -14,12 +14,15 @@ public enum Journalgruppe: String, Sendable, CaseIterable {
         }
     }
 
-    /// Gruppenname eines Trades; Trades ohne Angabe landen in „ohne Angabe“.
-    func schluessel(_ angaben: Journalangaben?) -> String {
+    /// Gruppenname eines Trades; `nil` ohne Angabe. Getrennt von „ohne Angabe“ als Text,
+    /// damit ein Setup, das zufällig so heißt, nicht mit den leeren zusammenfällt.
+    func schluessel(_ angaben: Journalangaben?) -> String? {
         switch self {
-        case .setup: angaben?.setup ?? Journalgruppe.ohneAngabe
-        case .regeltreue: angaben?.regeltreue.map { $0 ? "nach Regeln" : "Regel gebrochen" } ?? Journalgruppe.ohneAngabe
-        case .zustand: angaben?.zustand.map { "\($0) von 5" } ?? Journalgruppe.ohneAngabe
+        case .setup:
+            let setup = angaben?.setup?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            return setup.isEmpty ? nil : setup
+        case .regeltreue: return angaben?.regeltreue.map { $0 ? "nach Regeln" : "Regel gebrochen" }
+        case .zustand: return angaben?.zustand.map { "\($0) von 5" }
         }
     }
 
@@ -53,13 +56,14 @@ extension Anfrage {
     /// Kennzahlen je Gruppe; „ohne Angabe“ zuletzt, sonst alphabetisch.
     func gruppen(_ trades: [Trade], nach gruppe: Journalgruppe) -> [(name: String, kennzahlen: Kennzahlen)] {
         Dictionary(grouping: trades) { gruppe.schluessel(journal($0)) }
-            .map { (name: $0.key, kennzahlen: Kennzahlen(trades: $0.value)) }
             .sorted { a, b in
-                if (a.name == Journalgruppe.ohneAngabe) != (b.name == Journalgruppe.ohneAngabe) {
-                    return b.name == Journalgruppe.ohneAngabe
+                switch (a.key, b.key) {
+                case let (x?, y?): return x < y
+                case (_?, nil): return true
+                case (nil, _): return false
                 }
-                return a.name < b.name
             }
+            .map { (name: $0.key ?? Journalgruppe.ohneAngabe, kennzahlen: Kennzahlen(trades: $0.value)) }
     }
 
     /// Wie viele Trades eine Angabe haben: (Setup, Regeltreue, Zustand, Grund).

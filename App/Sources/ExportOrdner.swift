@@ -31,17 +31,29 @@ enum ExportOrdner {
 
     /// Exportdatei für den Connector aus allen Konten des Journals, mit dem Stop aus dem Journal
     /// wie in der App (`Trade.mitJournal`) und den übrigen Journalangaben. Ohne Kontonamen und Rohzeilen;
-    /// von der Kontonummer nur die letzten vier Stellen, damit Claude die Konten unterscheiden kann.
+    /// von der Kontonummer nur die letzten vier Stellen, damit Claude die Konten unterscheiden kann
+    /// (mehr nur, wenn zwei Konten desselben Brokers auf dieselben vier Stellen enden).
     static func export(_ journal: Journal, zeitzone: TimeZone) throws -> JournalExport {
-        let konten = try journal.konten().map { konto in
+        let alle = try journal.konten()
+        let konten = try alle.map { konto in
             let eintraege = try journal.journaleintraege(konto: konto)
+            let andere = alle.filter { $0.broker == konto.broker }.map(\.kontonummer)
+            let stellen = JournalExport.endziffern(konto.kontonummer, neben: andere)
             return JournalExport.Kontodaten(
-                broker: konto.broker, kontonummer: String(konto.kontonummer.suffix(4)), waehrung: konto.waehrung,
-                trades: try journal.geschlossenePositionen(konto: konto).map { Trade($0).mitJournal(eintraege[$0.ticket]) },
+                broker: konto.broker, kontonummer: String(konto.kontonummer.suffix(stellen)), waehrung: konto.waehrung,
+                trades: try Self.trades(journal, konto).map { $0.mitJournal(eintraege[$0.id]) },
                 geloeschteOrders: try journal.geloeschteOrders(konto: konto).map(\.cancelledAt),
                 journal: eintraege.mapValues(\.angaben))
         }
         return JournalExport(konten: konten, zeitzone: zeitzone)
+    }
+
+    /// Abgeschlossene Trades eines Kontos wie in der App: Positionen aus MetaTrader und XTB,
+    /// dazu aus Käufen und Verkäufen gebildete Trades (Trade Republic, Scalable).
+    private static func trades(_ journal: Journal, _ konto: Konto) throws -> [Trade] {
+        let bewegungen = try journal.kontobewegungen(konto: konto)
+        let gebildet = Positionsbildung.bilde(bewegungen.ausfuehrungen, kapitalmassnahmen: bewegungen.kapitalmassnahmen)
+        return try journal.geschlossenePositionen(konto: konto).map { Trade($0) } + gebildet.trades
     }
 
     /// Schreibt `trading-buddy-export.json` in den gewählten Ordner, nach jedem Import und beim Start.
@@ -49,7 +61,11 @@ enum ExportOrdner {
     @discardableResult
     static func schreibe(_ journal: Journal?, zeitzone: TimeZone = .current) -> String {
         guard let journal else { return String(localized: "Export: Journal nicht geöffnet") }
-        guard let ordner = gemerkterOrdner() else { return String(localized: "Export: noch kein Ordner gewählt") }
+        guard let ordner = gemerkterOrdner() else {
+            return UserDefaults.standard.data(forKey: schluessel) == nil
+                ? String(localized: "Export: noch kein Ordner gewählt")
+                : String(localized: "Export: Ordner nicht erreichbar, bitte neu wählen")
+        }
         guard ordner.startAccessingSecurityScopedResource() else {
             return String(localized: "Export: kein Zugriff auf \(ordner.path)")
         }
