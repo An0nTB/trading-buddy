@@ -18,10 +18,12 @@ public struct Trade: Sendable, Equatable, Identifiable {
     public var swap: Decimal
     /// Kursergebnis ohne Kosten.
     public var profit: Decimal
+    /// Abgeführte oder erstattete Steuern (Trade Republic, Scalable); bei MetaTrader 0.
+    public var taxes: Decimal
 
     public init(id: String, symbol: String, side: Side, lots: Decimal, openTime: Date, closeTime: Date,
                 openPrice: Decimal, closePrice: Decimal, stopLoss: Decimal? = nil, takeProfit: Decimal? = nil,
-                commission: Decimal = 0, swap: Decimal = 0, profit: Decimal) {
+                commission: Decimal = 0, swap: Decimal = 0, profit: Decimal, taxes: Decimal = 0) {
         self.id = id
         self.symbol = symbol
         self.side = side
@@ -35,6 +37,7 @@ public struct Trade: Sendable, Equatable, Identifiable {
         self.commission = commission
         self.swap = swap
         self.profit = profit
+        self.taxes = taxes
     }
 
     public init(_ p: ClosedPosition) {
@@ -44,8 +47,8 @@ public struct Trade: Sendable, Equatable, Identifiable {
                   swap: p.swap, profit: p.profit)
     }
 
-    /// Kosten (Kommission und Swap), meist negativ.
-    public var costs: Decimal { commission + swap }
+    /// Kosten (Kommission, Swap und Steuern), meist negativ.
+    public var costs: Decimal { commission + swap + taxes }
     /// Ergebnis nach Kosten. Alle Kennzahlen rechnen damit.
     public var netProfit: Decimal { profit + costs }
     public var holdingTime: TimeInterval { closeTime.timeIntervalSince(openTime) }

@@ -7,7 +7,7 @@ extension Side: Codable {}
 extension Trade: Codable {
     private enum CodingKeys: String, CodingKey {
         case id, symbol, side, lots, openTime, closeTime, openPrice, closePrice
-        case stopLoss, takeProfit, commission, swap, profit
+        case stopLoss, takeProfit, commission, swap, profit, taxes
     }
 
     public init(from decoder: any Decoder) throws {
@@ -24,7 +24,8 @@ extension Trade: Codable {
                   takeProfit: try c.optionalerBetrag(.takeProfit),
                   commission: try c.betrag(.commission),
                   swap: try c.betrag(.swap),
-                  profit: try c.betrag(.profit))
+                  profit: try c.betrag(.profit),
+                  taxes: try c.optionalerBetrag(.taxes) ?? 0)
     }
 
     public func encode(to encoder: any Encoder) throws {
@@ -42,6 +43,8 @@ extension Trade: Codable {
         try c.encode(commission.description, forKey: .commission)
         try c.encode(swap.description, forKey: .swap)
         try c.encode(profit.description, forKey: .profit)
+        // Nur wenn vorhanden: Exporte ohne Steuern bleiben für ältere Connector-Versionen gleich.
+        if taxes != 0 { try c.encode(taxes.description, forKey: .taxes) }
     }
 }
 

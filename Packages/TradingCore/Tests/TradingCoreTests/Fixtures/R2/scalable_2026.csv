@@ -1,0 +1,8 @@
+date;time;status;reference;description;assetType;type;isin;shares;price;amount;fee;tax;currency
+2026-03-02;08:00:00;Executed;SCALSYN0001;Einzahlung;Cash;Ein-/Auszahlung;;;;1.000,00;0,00;0,00;EUR
+2026-03-02;10:01:15;Executed;SCALSYN0002;SAP SE;Security;Order;DE0007164600;2;200,00;-400,00;-0,99;0,00;EUR
+2026-03-03;11:20:00;Cancelled;SCALSYN0003;SAP SE;Security;Order;DE0007164600;2;195,00;-390,00;0,00;0,00;EUR
+2026-03-09;15:05:44;Executed;SCALSYN0004;SAP SE;Security;Order;DE0007164600;-2;220,00;440,00;-0,99;-10,03;EUR
+2026-03-16;09:00:00;Executed;SCALSYN0005;iShares Core MSCI World;Security;Sparplanausführung;IE00B4L5Y983;0,5;100,00;-50,00;0,00;0,00;EUR
+2026-03-20;00:00:00;Executed;SCALSYN0006;Allianz SE;Security;Ausschüttung;DE0008404005;1;;15,40;0,00;-4,06;EUR
+2026-03-31;00:00:00;Executed;SCALSYN0007;Steuererstattung;Cash;Steuer;;;;0,00;0,00;2,00;EUR
