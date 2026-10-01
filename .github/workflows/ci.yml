@@ -105,7 +105,10 @@ jobs:
             sleep 3
           ) | TB_EXPORT_DIR="$ORDNER" perl -e 'alarm 20; exec @ARGV' "$BIN/trading-buddy-mcp" > antwort.txt || true
           cat antwort.txt
+          echo "Umfang je Antwort (Zeichen, grob 3 bis 4 je Token):"
+          awk '{ print length($0) "  " substr($0, 1, 30) }' antwort.txt
           grep -q hole_aufschluesselung antwort.txt
+          grep -q "Gespeichert insgesamt (alle Zeiträume): 104 Trades" antwort.txt
           grep -q wochenauswertung antwort.txt
           grep -q "104 Trades" antwort.txt
           grep -q "83 (54" antwort.txt

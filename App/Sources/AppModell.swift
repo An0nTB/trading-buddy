@@ -184,7 +184,6 @@ final class AppModell {
     /// Speichert den Eintrag; ein Eintrag ohne Angaben wird gelöscht. Trades und Kennzahlen ziehen sofort mit.
     func speichereJournal(_ eintrag: Journaleintrag) {
         guard let journal, let konto else { return }
-        let stopGeaendert = journaleintraege[eintrag.ticket]?.stopEinstieg != eintrag.stopEinstieg
         do {
             if eintrag.ohneAngaben {
                 try journal.loescheJournal(konto: konto, ticket: eintrag.ticket)
@@ -196,8 +195,8 @@ final class AppModell {
                 journaleintraege[eintrag.ticket] = neu
             }
             aktualisiereTrades()
-            // Der Connector rechnet R mit demselben Stop wie die App.
-            if stopGeaendert { exportiere() }
+            // Der Connector bekommt Stop und Journalangaben im selben Stand wie die App.
+            exportiere()
         } catch {
             fehler = error.localizedDescription
         }

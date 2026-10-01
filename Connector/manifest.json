@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "trading-buddy",
   "display_name": "Trading Buddy",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Kennzahlen, Fehlermuster und Wochen- oder Monatsauswertung aus deinem Trading-Buddy-Journal. Nur lesend; die Daten bleiben auf deinem Mac.",
   "author": {
     "name": "Tim Bock"
@@ -29,11 +29,11 @@
     },
     {
       "name": "hole_aufschluesselung",
-      "description": "Kennzahlen je Symbol, Richtung, Wochentag, Stunde, Trade-Nummer am Tag, Vorergebnis oder Haltedauer."
+      "description": "Kennzahlen je Symbol, Richtung, Wochentag, Stunde, Trade-Nummer am Tag, Vorergebnis, Haltedauer, Setup, Regeltreue oder Zustand."
     },
     {
       "name": "hole_trades",
-      "description": "Einzelne Trades, auch nur die eines Fehlermusters."
+      "description": "Einzelne Trades mit Journalangaben, auch nur die eines Fehlermusters."
     }
   ],
   "prompts_generated": true,

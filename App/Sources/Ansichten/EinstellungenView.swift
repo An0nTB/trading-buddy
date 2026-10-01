@@ -168,7 +168,7 @@ struct ClaudeFelder: View {
                 .font(Schrift.beschriftung)
                 .foregroundStyle(thema.textSchwach)
             LabeledContent("Exportierte Felder") {
-                Text("Zeiten, Instrument, Richtung, Lots, Kurse, Kosten, Ergebnis, nachgetragener Stop, Broker und die letzten vier Stellen der Kontonummer. Nicht: Name, volle Kontonummer, Saldo, übrige Journalfelder.")
+                Text("Zeiten, Instrument, Richtung, Lots, Kurse, Kosten, Steuern, Ergebnis, Journal (Stop, Setup, Regeltreue, Zustand, Marktumfeld, Grund), Broker und die letzten vier Stellen der Kontonummer. Nicht: Name, volle Kontonummer, Saldo.")
             }
             if let status = [fehler, modell.exportStand].first(where: { !$0.isEmpty }) {
                 Text(verbatim: status)

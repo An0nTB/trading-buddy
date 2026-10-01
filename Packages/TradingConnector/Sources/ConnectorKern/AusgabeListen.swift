@@ -26,7 +26,21 @@ extension Ausgabe {
         return t.joined(separator: "\n")
     }
 
-    /// Kennzahlen je Gruppe einer Dimension (Werkzeug `hole_aufschluesselung`).
+    /// Kennzahlen je Gruppe eines Merkmals aus Rechenkern oder Journal (Werkzeug `hole_aufschluesselung`).
+    public static func aufschluesselung(_ anfrage: Anfrage, nach merkmal: Aufschluesselung) -> String {
+        switch merkmal {
+        case let .kern(dimension):
+            return aufschluesselung(anfrage, nach: dimension)
+        case let .journal(gruppe):
+            let a = anfrage.auswertung()
+            return ["# Trading Buddy · \(gruppe.name) · \(Format.zeitraum(a.zeitraum, anfrage.zeitzone))",
+                    kopf(anfrage), journaltabelle(anfrage, a.trades, gruppe),
+                    "Eigene Angaben aus dem Journal. Gruppen unter 30 Trades nur beschreiben, nicht folgern."]
+                .joined(separator: "\n")
+        }
+    }
+
+    /// Kennzahlen je Gruppe einer Dimension des Rechenkerns.
     public static func aufschluesselung(_ anfrage: Anfrage, nach dimension: Aufteilung) -> String {
         let a = anfrage.auswertung()
         let zone = anfrage.zeitzone
@@ -58,10 +72,23 @@ extension Ausgabe {
         case .chronologisch: break
         }
         let n = min(max(anzahl, 1), 50)
+        let gezeigt = Array(liste.prefix(n))
         var t = ["# Trading Buddy · Trades \(Format.zeitraum(a.zeitraum, anfrage.zeitzone))"
                      + (muster.map { " · \($0.bezeichnung)" } ?? ""),
                  kopf(anfrage),
-                 tradetabelle(Array(liste.prefix(n)), a, anfrage.zeitzone)]
+                 tradetabelle(gezeigt, a, anfrage.zeitzone)]
+        let mitJournal = gezeigt.filter { anfrage.journal($0) != nil }
+        if !mitJournal.isEmpty {
+            t.append("\nJournal (eigene Angaben):")
+            t.append(Format.tabelle(["Ticket", "Setup", "Regeltreue", "Zustand", "Marktumfeld", "Grund"],
+                                    mitJournal.map { trade in
+                                        let j = anfrage.journal(trade)
+                                        return [trade.id, Format.kurz(j?.setup, zeichen: 40),
+                                                j?.regeltreue.map { $0 ? "ja" : "nein" } ?? "–",
+                                                j?.zustand.map { "\($0)/5" } ?? "–", Format.kurz(j?.marktumfeld, zeichen: 40),
+                                                Format.kurz(j?.grund)]
+                                    }))
+        }
         if liste.count > n { t.append("\(liste.count - n) weitere Trades nicht gezeigt.") }
         if liste.isEmpty { t.append("Keine passenden Trades.") }
         return t.joined(separator: "\n")
