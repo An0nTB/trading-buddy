@@ -18,12 +18,7 @@ struct UebersichtView: View {
                     KeineTrades()
                 } else {
                     HStack(spacing: Abstand.raster * 2) {
-                        Text("\(kennzahlen.anzahl) Trades")
-                            .font(Schrift.beschriftung)
-                            .padding(.horizontal, Abstand.raster * 2)
-                            .padding(.vertical, Abstand.raster)
-                            .background(thema.flaeche2, in: Capsule())
-                            .foregroundStyle(thema.text)
+                        Kapsel(text: String(localized: "\(kennzahlen.anzahl) Trades"), betont: true)
                         StichprobenHinweis(anzahl: kennzahlen.anzahl)
                     }
                     LazyVGrid(columns: Raster.kacheln, spacing: Abstand.kachelAbstand) {
@@ -61,13 +56,13 @@ struct Filterleiste: View {
     var body: some View {
         @Bindable var modell = modell
         HStack(spacing: Abstand.raster * 2) {
-            Picker("Zeitraum", selection: $modell.zeitraum) {
+            Auswahlknopf("Zeitraum", anzeige: zeitraumText, auswahl: $modell.zeitraum) {
                 Text("Alle Monate").tag(Zeitraum.alle)
                 ForEach(modell.monate, id: \.self) { monat in
                     Text(verbatim: Format.monat(monat)).tag(Zeitraum.monat(monat))
                 }
             }
-            Picker("Instrument", selection: $modell.instrument) {
+            Auswahlknopf("Instrument", anzeige: instrumentText, auswahl: $modell.instrument) {
                 Text("Alle Instrumente").tag(String?.none)
                 ForEach(modell.symbole, id: \.self) { symbol in
                     Text(verbatim: symbol).tag(String?.some(symbol))
@@ -80,8 +75,17 @@ struct Filterleiste: View {
                 .padding(.vertical, Abstand.raster)
                 .background(thema.flaeche2, in: RoundedRectangle(cornerRadius: Abstand.radiusKnopf))
         }
-        .pickerStyle(.menu)
-        .labelsHidden()
+    }
+
+    private var zeitraumText: String {
+        switch modell.zeitraum {
+        case .alle: String(localized: "Alle Monate")
+        case .monat(let monat): Format.monat(monat)
+        }
+    }
+
+    private var instrumentText: String {
+        modell.instrument ?? String(localized: "Alle Instrumente")
     }
 }
 
