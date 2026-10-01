@@ -10,20 +10,29 @@ public struct Boersenauswahl: Sendable, Hashable, Codable {
     public var angepassteZeiten: [String: [Handelszeit]]
     /// Vom Nutzer angelegte Börsen.
     public var eigene: [Boerse]
+    /// Vom Nutzer hinzugefügte Feiertagskalender, zum Beispiel anderer Länder.
+    public var kalender: [Feiertagskalender]
+    /// Welche Kalender zusätzlich für welche Börse gelten, je Börsenkennung eine Liste von Kalenderkennungen.
+    public var kalenderJeBoerse: [String: [String]]
 
-    public init(angezeigt: [String] = [], angepassteZeiten: [String: [Handelszeit]] = [:], eigene: [Boerse] = []) {
+    public init(angezeigt: [String] = [], angepassteZeiten: [String: [Handelszeit]] = [:], eigene: [Boerse] = [],
+                kalender: [Feiertagskalender] = [], kalenderJeBoerse: [String: [String]] = [:]) {
         self.angezeigt = angezeigt
         self.angepassteZeiten = angepassteZeiten
         self.eigene = eigene
+        self.kalender = kalender
+        self.kalenderJeBoerse = kalenderJeBoerse
     }
 
-    private enum CodingKeys: String, CodingKey { case angezeigt, angepassteZeiten, eigene }
+    private enum CodingKeys: String, CodingKey { case angezeigt, angepassteZeiten, eigene, kalender, kalenderJeBoerse }
 
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         angezeigt = try c.decodeIfPresent([String].self, forKey: .angezeigt) ?? []
         angepassteZeiten = try c.decodeIfPresent([String: [Handelszeit]].self, forKey: .angepassteZeiten) ?? [:]
         eigene = try c.decodeIfPresent([Boerse].self, forKey: .eigene) ?? []
+        kalender = try c.decodeIfPresent([Feiertagskalender].self, forKey: .kalender) ?? []
+        kalenderJeBoerse = try c.decodeIfPresent([String: [String]].self, forKey: .kalenderJeBoerse) ?? [:]
     }
 }
 
@@ -51,10 +60,19 @@ extension Boerse {
 }
 
 extension Boersenuhr {
-    /// Alle mitgelieferten Börsen plus die eigenen aus der Auswahl, ohne Filter.
-    /// Für die Liste „Börsen hinzufügen“ in den Einstellungen.
+    /// Alle mitgelieferten Börsen plus die eigenen aus der Auswahl, ohne Filter, mit angepassten
+    /// Zeiten und zugeordneten Kalendern. Für die Liste „Börsen hinzufügen“ in den Einstellungen.
     public static func verfuegbar(_ auswahl: Boersenauswahl = Boersenauswahl()) throws -> Boersenuhr {
-        try mitgeliefert(zusaetzlich: auswahl.eigene).angepasst(auswahl.angepassteZeiten)
+        var kalenderNachId: [String: Feiertagskalender] = [:]
+        for k in auswahl.kalender {
+            try k.pruefe()
+            guard kalenderNachId.updateValue(k, forKey: k.id) == nil else { throw BoersenuhrFehler.doppelterKalender(id: k.id) }
+        }
+        let uhr = try mitgeliefert(zusaetzlich: auswahl.eigene).angepasst(auswahl.angepassteZeiten)
+        // Unbekannte Kalenderkennungen überspringen, damit ein gelöschter Kalender die Uhr nicht lahmlegt.
+        return Boersenuhr(geordnet: uhr.boersen.map { b in
+            b.mitKalendern((auswahl.kalenderJeBoerse[b.id] ?? []).compactMap { kalenderNachId[$0] })
+        })
     }
 
     /// Die Uhr, wie der Nutzer sie gewählt hat: angepasste Zeiten angewandt, nur die angezeigten

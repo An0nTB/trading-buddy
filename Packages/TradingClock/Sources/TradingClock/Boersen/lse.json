@@ -112,10 +112,16 @@
       "titel": "London Stock Exchange: Business days",
       "url": "https://www.londonstockexchange.com/equities-trading/business-days",
       "abgerufen": "2026-10-01"
+    },
+    {
+      "titel": "GOV.UK: Bank holidays England and Wales (JSON)",
+      "url": "https://www.gov.uk/bank-holidays.json",
+      "abgerufen": "2026-10-01"
     }
   ],
   "hinweise": [
     "Handelszeit ist der fortlaufende Handel im Orderbuch SETS 08:00 bis 16:30; Auktionen sind nicht abgebildet.",
-    "Erstbefüllung der Feiertage und verkürzten Tage aus exchange_calendars 4.13.2 (Python, Apache-2.0) am 01.10.2026 nach R1 Abschnitt 6; Abgleich mit der offiziellen Börsenseite noch zu prüfen."
+    "Feiertage 2026 und 2027 am 01.10.2026 mit den Bank Holidays von GOV.UK abgeglichen: stimmen überein. Die Seite der LSE ließ sich nicht maschinell lesen.",
+    "Frühschluss 12:30 am 24.12. und 31.12. ist Annahme aus exchange_calendars, noch zu prüfen."
   ]
 }
