@@ -143,11 +143,7 @@ final class AppModell {
     /// Baut die Trades aus den Positionen; ein Stop aus dem Journal ersetzt den aus dem Export
     /// (Entscheidung 8: der Export kennt nur den letzten Stand), damit Risiko und R stimmen.
     private func aktualisiereTrades() {
-        alleTrades = positionen.map { position in
-            var trade = Trade(position)
-            if let stop = journaleintraege[position.ticket]?.stopEinstieg { trade.stopLoss = stop }
-            return trade
-        }
+        alleTrades = positionen.map { Trade($0).mitJournal(journaleintraege[$0.ticket]) }
     }
 
     /// Stop, wie er im Export steht, auch wenn im Journal ein anderer nachgetragen ist.
@@ -165,6 +161,7 @@ final class AppModell {
     /// Speichert den Eintrag; ein Eintrag ohne Angaben wird gelöscht. Trades und Kennzahlen ziehen sofort mit.
     func speichereJournal(_ eintrag: Journaleintrag) {
         guard let journal, let konto else { return }
+        let stopGeaendert = journaleintraege[eintrag.ticket]?.stopEinstieg != eintrag.stopEinstieg
         do {
             if eintrag.ohneAngaben {
                 try journal.loescheJournal(konto: konto, ticket: eintrag.ticket)
@@ -176,6 +173,8 @@ final class AppModell {
                 journaleintraege[eintrag.ticket] = neu
             }
             aktualisiereTrades()
+            // Der Connector rechnet R mit demselben Stop wie die App.
+            if stopGeaendert { exportiere() }
         } catch {
             fehler = error.localizedDescription
         }
