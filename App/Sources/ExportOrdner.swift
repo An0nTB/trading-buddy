@@ -41,11 +41,19 @@ enum ExportOrdner {
             let stellen = JournalExport.endziffern(konto.kontonummer, neben: andere)
             return JournalExport.Kontodaten(
                 broker: konto.broker, kontonummer: String(konto.kontonummer.suffix(stellen)), waehrung: konto.waehrung,
-                trades: try journal.geschlossenePositionen(konto: konto).map { Trade($0).mitJournal(eintraege[$0.ticket]) },
+                trades: try Self.trades(journal, konto).map { $0.mitJournal(eintraege[$0.id]) },
                 geloeschteOrders: try journal.geloeschteOrders(konto: konto).map(\.cancelledAt),
                 journal: eintraege.mapValues(\.angaben))
         }
         return JournalExport(konten: konten, zeitzone: zeitzone)
+    }
+
+    /// Abgeschlossene Trades eines Kontos wie in der App: Positionen aus MetaTrader und XTB,
+    /// dazu aus Käufen und Verkäufen gebildete Trades (Trade Republic, Scalable).
+    private static func trades(_ journal: Journal, _ konto: Konto) throws -> [Trade] {
+        let bewegungen = try journal.kontobewegungen(konto: konto)
+        let gebildet = Positionsbildung.bilde(bewegungen.ausfuehrungen, kapitalmassnahmen: bewegungen.kapitalmassnahmen)
+        return try journal.geschlossenePositionen(konto: konto).map { Trade($0) } + gebildet.trades
     }
 
     /// Schreibt `trading-buddy-export.json` in den gewählten Ordner, nach jedem Import und beim Start.
