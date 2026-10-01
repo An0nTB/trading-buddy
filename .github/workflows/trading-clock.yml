@@ -8,7 +8,7 @@ on:
       - "Packages/TradingClock/**"
       - ".github/workflows/trading-clock.yml"
   push:
-    branches: [main]
+    branches: [main, "claude/boersenuhr-*"]
     paths:
       - "Packages/TradingClock/**"
       - ".github/workflows/trading-clock.yml"
