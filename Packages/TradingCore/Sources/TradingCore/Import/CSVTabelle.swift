@@ -1,6 +1,7 @@
 import Foundation
 
 /// Fehler, an denen der ganze Import scheitert: Die Datei passt nicht zum Format.
+/// Gilt auch für die Tabellen in Excel-Dateien (XTB).
 /// Unbekannte Vorgangsarten brechen nicht ab, sie landen als `Importhinweis` beim Nutzer.
 public enum CSVImportFehler: Error, Equatable, Sendable {
     /// Kopfzeile passt zu keinem bekannten Broker-Format.
