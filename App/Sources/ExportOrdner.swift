@@ -1,12 +1,13 @@
 #if os(macOS)
 import Foundation
+import TradingCore
+import TradingStore
 
 /// Ordner, in den die App Daten für den Claude-Connector schreibt.
 /// Der Nutzer wählt ihn einmal; die App merkt sich den Zugriff als
 /// Security-scoped Bookmark, damit er nach einem Neustart erhalten bleibt.
 enum ExportOrdner {
     static let schluessel = "exportOrdnerLesezeichen"
-    static let testdatei = "connector-test.json"
 
     /// Merkt sich den Ordner aus dem Auswahldialog.
     static func merke(_ url: URL) throws {
@@ -28,21 +29,35 @@ enum ExportOrdner {
         return url
     }
 
-    /// Experiment AP6: schreibt eine Testdatei, die der Connector liest.
-    static func schreibeTestdatei() -> String {
-        guard let ordner = gemerkterOrdner() else {
-            return "Connector-Test: noch kein Export-Ordner gewählt"
+    /// Exportdatei für den Connector aus allen Konten des Journals. Ohne Kontonamen und Rohzeilen;
+    /// von der Kontonummer nur die letzten vier Stellen, damit Claude die Konten unterscheiden kann.
+    static func export(_ journal: Journal, zeitzone: TimeZone) throws -> JournalExport {
+        let konten = try journal.konten().map { konto in
+            JournalExport.Kontodaten(
+                broker: konto.broker, kontonummer: String(konto.kontonummer.suffix(4)), waehrung: konto.waehrung,
+                positionen: try journal.geschlossenePositionen(konto: konto),
+                geloescht: try journal.geloeschteOrders(konto: konto))
         }
+        return JournalExport(konten: konten, zeitzone: zeitzone)
+    }
+
+    /// Schreibt `trading-buddy-export.json` in den gewählten Ordner, nach jedem Import und beim Start.
+    /// Gibt den Stand als Text für die Einstellungen zurück.
+    @discardableResult
+    static func schreibe(_ journal: Journal?, zeitzone: TimeZone = .current) -> String {
+        guard let journal else { return String(localized: "Export: Journal nicht geöffnet") }
+        guard let ordner = gemerkterOrdner() else { return String(localized: "Export: noch kein Ordner gewählt") }
         guard ordner.startAccessingSecurityScopedResource() else {
-            return "Connector-Test: kein Zugriff auf \(ordner.path)"
+            return String(localized: "Export: kein Zugriff auf \(ordner.path)")
         }
         defer { ordner.stopAccessingSecurityScopedResource() }
-        let json = #"{"quelle":"Trading Buddy App","wert":42,"geschrieben":"\#(Date.now.ISO8601Format())"}"#
         do {
-            try json.write(to: ordner.appending(path: testdatei), atomically: true, encoding: .utf8)
-            return "Connector-Test: Datei geschrieben (\(ordner.path))"
+            let daten = try export(journal, zeitzone: zeitzone)
+            try daten.json().write(to: ordner.appending(path: JournalExport.dateiname), options: .atomic)
+            let trades = daten.konten.reduce(0) { $0 + $1.trades.count }
+            return String(localized: "Export: \(trades) Trades aus \(daten.konten.count) Konten, \(Date.now.formatted(date: .omitted, time: .shortened))")
         } catch {
-            return "Connector-Test: Fehler \(error.localizedDescription)"
+            return String(localized: "Export: Fehler \(error.localizedDescription)")
         }
     }
 }
