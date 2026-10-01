@@ -81,6 +81,7 @@ struct GeschlossenZeile: Codable, FetchableRecord, PersistableRecord {
     var kontoId: Int64
     var importlaufId: Int64
     var ticket: String
+    var rohzeile: [String]
     var side: String
     var lots: Decimal
     var symbol: String
@@ -98,6 +99,7 @@ struct GeschlossenZeile: Codable, FetchableRecord, PersistableRecord {
         self.kontoId = kontoId
         self.importlaufId = importlaufId
         ticket = p.ticket
+        rohzeile = p.rohzeile
         side = p.side.rawValue
         lots = p.lots
         symbol = p.symbol
@@ -113,7 +115,7 @@ struct GeschlossenZeile: Codable, FetchableRecord, PersistableRecord {
     }
 
     func modell() throws -> ClosedPosition {
-        ClosedPosition(ticket: ticket, side: try seite(side), lots: lots, symbol: symbol,
+        ClosedPosition(ticket: ticket, rohzeile: rohzeile, side: try seite(side), lots: lots, symbol: symbol,
                        openTime: openTime, openPrice: openPrice, stopLoss: stopLoss,
                        takeProfit: takeProfit, closeTime: closeTime, closePrice: closePrice,
                        commission: commission, swap: swap, profit: profit)
@@ -125,6 +127,7 @@ struct GeloeschtZeile: Codable, FetchableRecord, PersistableRecord {
     var kontoId: Int64
     var importlaufId: Int64
     var ticket: String
+    var rohzeile: [String]
     var type: String
     var lots: Decimal
     var symbol: String
@@ -139,6 +142,7 @@ struct GeloeschtZeile: Codable, FetchableRecord, PersistableRecord {
         self.kontoId = kontoId
         self.importlaufId = importlaufId
         ticket = o.ticket
+        rohzeile = o.rohzeile
         type = o.type.rawValue
         lots = o.lots
         symbol = o.symbol
@@ -151,7 +155,7 @@ struct GeloeschtZeile: Codable, FetchableRecord, PersistableRecord {
     }
 
     func modell() throws -> CancelledOrder {
-        CancelledOrder(ticket: ticket, type: try auftragsart(type), lots: lots, symbol: symbol,
+        CancelledOrder(ticket: ticket, rohzeile: rohzeile, type: try auftragsart(type), lots: lots, symbol: symbol,
                        placedAt: placedAt, orderPrice: orderPrice, stopLoss: stopLoss,
                        takeProfit: takeProfit, cancelledAt: cancelledAt, marketPrice: marketPrice)
     }
@@ -161,6 +165,7 @@ struct OffenZeile: Codable, FetchableRecord, PersistableRecord {
     static let databaseTableName = "offenePosition"
     var importlaufId: Int64
     var ticket: String
+    var rohzeile: [String]
     var side: String
     var lots: Decimal
     var symbol: String
@@ -176,6 +181,7 @@ struct OffenZeile: Codable, FetchableRecord, PersistableRecord {
     init(importlaufId: Int64, _ p: OpenPosition) {
         self.importlaufId = importlaufId
         ticket = p.ticket
+        rohzeile = p.rohzeile
         side = p.side.rawValue
         lots = p.lots
         symbol = p.symbol
@@ -190,7 +196,7 @@ struct OffenZeile: Codable, FetchableRecord, PersistableRecord {
     }
 
     func modell() throws -> OpenPosition {
-        OpenPosition(ticket: ticket, side: try seite(side), lots: lots, symbol: symbol,
+        OpenPosition(ticket: ticket, rohzeile: rohzeile, side: try seite(side), lots: lots, symbol: symbol,
                      openTime: openTime, openPrice: openPrice, stopLoss: stopLoss,
                      takeProfit: takeProfit, currentPrice: currentPrice,
                      commission: commission, swap: swap, profit: profit)
@@ -201,6 +207,7 @@ struct WartendZeile: Codable, FetchableRecord, PersistableRecord {
     static let databaseTableName = "wartendeOrder"
     var importlaufId: Int64
     var ticket: String
+    var rohzeile: [String]
     var type: String
     var lots: Decimal
     var symbol: String
@@ -213,6 +220,7 @@ struct WartendZeile: Codable, FetchableRecord, PersistableRecord {
     init(importlaufId: Int64, _ o: WorkingOrder) {
         self.importlaufId = importlaufId
         ticket = o.ticket
+        rohzeile = o.rohzeile
         type = o.type.rawValue
         lots = o.lots
         symbol = o.symbol
@@ -224,7 +232,7 @@ struct WartendZeile: Codable, FetchableRecord, PersistableRecord {
     }
 
     func modell() throws -> WorkingOrder {
-        WorkingOrder(ticket: ticket, type: try auftragsart(type), lots: lots, symbol: symbol,
+        WorkingOrder(ticket: ticket, rohzeile: rohzeile, type: try auftragsart(type), lots: lots, symbol: symbol,
                      placedAt: placedAt, orderPrice: orderPrice, stopLoss: stopLoss,
                      takeProfit: takeProfit, marketPrice: marketPrice)
     }
