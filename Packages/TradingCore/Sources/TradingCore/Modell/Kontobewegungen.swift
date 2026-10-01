@@ -16,7 +16,7 @@ public struct Geldbewegung: Sendable, Equatable {
     public var gebuehr: Decimal
     public var steuer: Decimal
     public var waehrung: String
-    /// ISIN bei Dividenden.
+    /// ISIN bei Dividenden; XTB nennt stattdessen das Symbol („SAP.DE“).
     public var kennung: String?
     public var rohzeile: [String]
 
@@ -77,7 +77,7 @@ public struct Importhinweis: Sendable, Equatable {
         case nichtVerbucht
     }
 
-    /// Zeile in der Datei, der Kopf ist Zeile 1.
+    /// Zeile in der Datei: bei CSV ist der Kopf Zeile 1, bei Excel die Zeilennummer im Blatt.
     public var zeile: Int
     /// Vorgangsart laut Broker.
     public var vorgang: String
@@ -90,7 +90,7 @@ public struct Importhinweis: Sendable, Equatable {
     }
 }
 
-/// Ergebnis eines CSV-Imports.
+/// Ergebnis eines CSV-Imports; bei XTB die Kassenoperationen ohne Handel.
 public struct Kontobewegungen: Sendable, Equatable {
     public var ausfuehrungen: [Ausfuehrung] = []
     public var geldbewegungen: [Geldbewegung] = []
