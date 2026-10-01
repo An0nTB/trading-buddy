@@ -1,0 +1,11 @@
+date;time;status;reference;description;assetType;type;isin;shares;price;amount;fee;tax;currency
+2025-10-02;02:00:00;Executed;"SCALSYN1010";"Praemie SYN";Cash;Bonus;;;;10,00;0,00;0,00;EUR
+2025-10-01;02:00:00;Executed;"SCALSYN1009";"Depotuebertrag SYN";Security;Security transfer;DE000SYN0013;5;;0,00;0,00;0,00;EUR
+2025-09-25;02:00:00;Executed;"SCALSYN1006";"MSCI World SYN";Cash;Distribution;IE000SYN0011;;;0,56;0,00;0,00;EUR
+2025-09-08;02:00:00;Executed;"SCALSYN1007";"Auszahlung SYN";Cash;Withdrawal;;;;-1.000,00;0,00;;EUR
+2025-09-05;11:00:00;Cancelled;"SCALSYN1005";"Aktie SYN";Security;Buy;US000SYN0012;10;8,00;-80,00;0,00;0,00;EUR
+2025-09-03;15:45:10;Executed;"SCALSYN1004";"Aktie SYN";Security;Sell;US000SYN0012;80;8,10;648,00;0,99;-15,82;EUR
+2025-08-04;09:30:00;Executed;"SCALSYN1003";"Aktie SYN";Security;Buy;US000SYN0012;80;7,34;-587,20;0,99;0,00;EUR
+2025-08-01;14:11:01;Executed;"SCALSYN1002";"MSCI World SYN";Security;Savings plan;IE000SYN0011;3,505;21,395;-74,989475;0,00;0,00;EUR
+2025-07-31;02:00:00;Executed;"SCALSYN1001";"Einzahlung SYN";Cash;Deposit;;;;550,00;0,00;;EUR
+2024-01-19;01:00:00;Executed;"SCALSYN1008";"Steuer SYN";Cash;Taxes;IE000SYN0011;;;-13,01;0,00;;EUR
