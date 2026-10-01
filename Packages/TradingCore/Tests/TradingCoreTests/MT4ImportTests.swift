@@ -84,6 +84,8 @@ func auszugStimmtMitSollwertenUndEigenenSummen(soll: Sollwerte) throws {
     #expect(a.serverZeitzone == utcPlus3)
     let p = try #require(a.closedPositions.first)
     #expect(p.ticket == "90000099")
+    #expect(p.rohzeile == ["90000099", "2025.05.13 08:51:24", "buy", "0.01", "cadchfc", "0.60361", "0.58231",
+                           "0.60574", "2025.05.14 12:51:41", "0.59880", "-0.07", "0.03", "-5.13"])
     #expect(p.side == .buy)
     #expect(p.lots == d("0.01"))
     #expect(p.symbol == "cadchfc")
@@ -101,6 +103,7 @@ func auszugStimmtMitSollwertenUndEigenenSummen(soll: Sollwerte) throws {
     let a = try auszug("gbe-2025-05-14-daily")
     let o = try #require(a.cancelledOrders.first)
     #expect(o.ticket == "90000104")
+    #expect(o.rohzeile.last == "cancelled")
     #expect(o.type == .buyStop)
     #expect(o.type.side == .buy)
     #expect(o.takeProfit == nil)
