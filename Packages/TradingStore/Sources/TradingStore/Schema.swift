@@ -242,19 +242,21 @@ enum Schema {
         }
 
         migrator.registerMigration("v4 Review-Ziele") { db in
-            // Ziele aus der Wochen- oder Monatsauswertung (Rezept Punkt 7), damit das nächste Review sie
-            // aufgreift (Punkt 6). Ohne Konto gilt ein Ziel für alle Konten. Zeitraum: von einschließlich,
-            // bis ausschließlich. Status als Text (offen, erreicht, verfehlt, verworfen), geprüft im Code.
-            try db.create(table: "reviewZiel") { t in
+            // Ziele aus der Wochen- oder Monatsauswertung (Rezept Punkt 7) je Konto, damit das nächste
+            // Review sie aufgreift (Punkt 6). Zeitraum: von einschließlich, bis ausschließlich. Status als
+            // Text (offen, erreicht, verfehlt, verworfen), geprüft im Code. Zielwert als Text wie alle Beträge.
+            try db.create(table: "reviewziel") { t in
                 t.autoIncrementedPrimaryKey("id")
-                t.column("kontoId", .integer).references("konto", onDelete: .cascade)
-                t.column("von", .datetime).notNull().indexed()
-                t.column("bis", .datetime).notNull()
+                t.belongsTo("konto", onDelete: .cascade).notNull()
                 t.column("text", .text).notNull()
+                t.column("von", .datetime).notNull()
+                t.column("bis", .datetime).notNull()
+                t.column("messgroesse", .text)
+                t.column("zielwert", .text)
                 t.column("status", .text).notNull()
                 t.column("ergebnis", .text)
-                t.column("angelegtAm", .datetime).notNull()
-                t.column("geaendertAm", .datetime).notNull()
+                t.column("erstellt", .datetime).notNull()
+                t.column("geaendert", .datetime).notNull()
             }
         }
 
