@@ -59,8 +59,10 @@ enum Format {
 
     /// Freitext für Tabellen: einzeilig, ohne Tabellenzeichen, höchstens `zeichen` lang.
     static func kurz(_ text: String?, zeichen: Int = 120) -> String {
-        guard let text, !text.isEmpty else { return "–" }
-        let einzeilig = text.replacingOccurrences(of: "\n", with: " ").replacingOccurrences(of: "|", with: "/")
+        // Alle Zeilenumbrüche (auch \r, \r\n, U+2028) und Leerraum zu einem Leerzeichen, damit die Tabellenzeile hält.
+        let einzeilig = (text ?? "").replacingOccurrences(of: "|", with: "/")
+            .components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }.joined(separator: " ")
+        guard !einzeilig.isEmpty else { return "–" }
         return einzeilig.count > zeichen ? String(einzeilig.prefix(zeichen)) + "…" : einzeilig
     }
 
