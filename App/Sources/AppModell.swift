@@ -40,6 +40,10 @@ final class AppModell {
     var bereich: Bereich = .uebersicht
     var zeitraum: Zeitraum = .alle
     var instrument: String?
+    /// Gewählter Trade in der Trade-Tabelle (Ticket); auch Ziel für Sprünge aus anderen Ansichten.
+    var tradeAuswahl: String?
+    /// Zeigt in Trades nur Trades mit diesem Fehlermuster (Sprung von der Fehlermuster-Seite).
+    var musterFilter: Fehlermuster?
 
     init() {
         do {
@@ -112,6 +116,25 @@ final class AppModell {
 
     /// Trades ohne Stop im Export: ohne Stop kein R.
     var ohneStop: Int { trades.filter { $0.stopLoss == nil }.count }
+
+    /// Die Trades eines Befunds, neueste zuerst.
+    func trades(zu befund: Befund) -> [Trade] {
+        let ids = Set(befund.trades)
+        return tradesNeuesteZuerst.filter { ids.contains($0.id) }
+    }
+
+    /// Springt in die Trade-Tabelle, gefiltert auf ein Fehlermuster, und wählt einen Trade für den Inspektor.
+    func zeigeTrade(_ id: String, muster: Fehlermuster? = nil) {
+        musterFilter = muster
+        tradeAuswahl = id
+        bereich = .trades
+    }
+
+    /// Springt in die Trade-Tabelle, gefiltert auf ein Fehlermuster.
+    func zeigeTrades(mit muster: Fehlermuster) {
+        musterFilter = muster
+        bereich = .trades
+    }
 
     func waehleKonto(_ id: Int64?) {
         kontoId = id
@@ -270,6 +293,22 @@ extension Fehlermuster {
         case .schwankendeGroesse: String(localized: "Schwankende Größe")
         case .groesseNachGewinnserie: String(localized: "Größe nach Gewinnserie")
         case .staendigesUmplanen: String(localized: "Ständiges Umplanen")
+        }
+    }
+
+    /// Kurzform für Chips in Tabellen und Listen; der volle Titel steht im Tooltip.
+    var kurz: String {
+        switch self {
+        case .revancheTrade: String(localized: "Revanche")
+        case .ueberhandeln: String(localized: "Überhandelt")
+        case .stopNichtEingehalten: String(localized: "Stop gerissen")
+        case .gewinneZuFrueh: String(localized: "Zu früh raus")
+        case .verliererLaufenLassen: String(localized: "Laufen lassen")
+        case .verbilligen: String(localized: "Verbilligt")
+        case .ohneStop: String(localized: "Ohne Stop")
+        case .schwankendeGroesse: String(localized: "Größe schwankt")
+        case .groesseNachGewinnserie: String(localized: "Größe nach Serie")
+        case .staendigesUmplanen: String(localized: "Umgeplant")
         }
     }
 

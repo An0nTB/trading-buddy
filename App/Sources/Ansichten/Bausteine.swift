@@ -143,18 +143,40 @@ struct Platzhalter: View {
     }
 }
 
-/// Fehlermuster als kleine Marke in Listen.
+/// Fehlermuster als kleine Marke in Listen: Kurzform, voller Titel als Tooltip; `kurz: false` für den vollen Titel.
 struct MusterChip: View {
     let muster: Fehlermuster
+    var kurz = true
     @Environment(\.thema) private var thema
 
     var body: some View {
-        Text(verbatim: muster.titel)
+        Text(verbatim: kurz ? muster.kurz : muster.titel)
             .font(.caption2)
+            .lineLimit(1)
             .padding(.horizontal, Abstand.raster * 2)
             .padding(.vertical, Abstand.raster / 2)
             .background(thema.flaeche2, in: Capsule())
             .foregroundStyle(thema.text)
+            .help(muster.titel)
+    }
+}
+
+/// Bis zu `maxAnzahl` Chips nebeneinander, der Rest als „+N“; alle Titel im Tooltip.
+struct MusterChips: View {
+    let muster: [Fehlermuster]
+    var maxAnzahl = 2
+    @Environment(\.thema) private var thema
+
+    var body: some View {
+        HStack(spacing: Abstand.raster) {
+            ForEach(Array(muster.prefix(maxAnzahl)), id: \.self) { MusterChip(muster: $0) }
+            if muster.count > maxAnzahl {
+                Text(verbatim: "+\(muster.count - maxAnzahl)")
+                    .font(.caption2)
+                    .foregroundStyle(thema.textSchwach)
+            }
+        }
+        .help(muster.map(\.titel).joined(separator: ", "))
     }
 }
 
