@@ -213,3 +213,55 @@ private let eigeneBoerse = """
     #expect(throws: BoersenuhrFehler.ungueltigeUhrzeit("24:00")) { try Uhrzeit("24:00") }
     #expect(try Uhrzeit("09:30") < Uhrzeit("16:00"))
 }
+
+// MARK: Freie Wahl (Tim, 01.10.2026)
+
+@Test func auswahlZeigtNurGewaehlteBoersenInEigenerReihenfolge() throws {
+    let auswahl = Boersenauswahl(angezeigt: ["krypto", "xetra", "gibtsnicht", "xetra"])
+    #expect(try Boersenuhr.mit(auswahl).boersen.map(\.id) == ["krypto", "xetra"])
+    #expect(try Boersenuhr.mit(Boersenauswahl()).boersen.count == 6)
+}
+
+@Test func angepassteZeitenBehaltenFeiertage() throws {
+    let lang = Handelszeit(tage: [.montag, .dienstag, .mittwoch, .donnerstag, .freitag],
+                           beginn: try Uhrzeit("08:00"), ende: try Uhrzeit("22:00"))
+    let uhr = try Boersenuhr.mit(Boersenauswahl(angepassteZeiten: ["xetra": [lang]]))
+    let x = try #require(uhr["xetra"])
+    #expect(x.istOffen(zeit("2026-10-07T19:59:59")))                  // 21:59:59 Berlin
+    #expect(!x.istOffen(zeit("2026-10-07T20:00:00")))
+    #expect(x.status(zeit("2026-04-03T10:00:00")).feiertag == "Karfreitag")
+    #expect(!x.istOffen(zeit("2026-04-03T10:00:00")))
+    let nyseBeginn = try Uhrzeit("09:30")
+    #expect(uhr["nyse"]?.handelszeiten.first?.beginn == nyseBeginn)   // andere unverändert
+}
+
+@Test func eigeneBoerseAusDemFormular() throws {
+    let tokio = try Boerse.eigene(id: "tse", name: "Tokio", zeitzone: "Asia/Tokyo",
+                                  beginn: Uhrzeit("09:00"), ende: Uhrzeit("15:30"), stand: Kalendertag("2026-10-01"))
+    let auswahl = Boersenauswahl(angezeigt: ["tse", "xetra"], eigene: [tokio])
+    let uhr = try Boersenuhr.mit(auswahl)
+    #expect(uhr.boersen.map(\.id) == ["tse", "xetra"])
+    #expect(uhr["tse"]?.istOffen(zeit("2026-10-07T01:00:00")) == true)   // 10:00 Tokio
+    #expect(try Boersenuhr.verfuegbar(auswahl).boersen.count == 7)
+}
+
+@Test func auswahlUeberstehtSpeichernUndLaden() throws {
+    let tokio = try Boerse.eigene(id: "tse", name: "Tokio", zeitzone: "Asia/Tokyo",
+                                  beginn: Uhrzeit("09:00"), ende: Uhrzeit("15:30"), stand: Kalendertag("2026-10-01"))
+    let lang = Handelszeit(tage: [.montag], beginn: try Uhrzeit("08:00"), ende: try Uhrzeit("22:00"))
+    let auswahl = Boersenauswahl(angezeigt: ["tse"], angepassteZeiten: ["xetra": [lang]], eigene: [tokio])
+    let zurueck = try JSONDecoder().decode(Boersenauswahl.self, from: JSONEncoder().encode(auswahl))
+    #expect(zurueck == auswahl)
+    #expect(try JSONDecoder().decode(Boersenauswahl.self, from: Data("{}".utf8)) == Boersenauswahl())
+}
+
+@Test func falscheEigeneZeitenWerdenAbgelehnt() throws {
+    let verkehrt = Handelszeit(tage: [.montag], beginn: try Uhrzeit("17:00"), ende: try Uhrzeit("09:00"))
+    #expect(throws: BoersenuhrFehler.self) {
+        try Boersenuhr.mit(Boersenauswahl(angepassteZeiten: ["xetra": [verkehrt]]))
+    }
+    let krypto = try boerse("krypto")
+    #expect(throws: BoersenuhrFehler.doppelteBoerse(id: "krypto")) {
+        try Boersenuhr.mit(Boersenauswahl(eigene: [krypto]))
+    }
+}
