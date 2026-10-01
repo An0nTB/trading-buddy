@@ -64,6 +64,8 @@ enum Schema {
                 t.belongsTo("konto").notNull()
                 t.belongsTo("importlauf").notNull()
                 t.column("ticket", .text).notNull()
+                // Zelltexte der Originalzeile als JSON-Liste (Regel 9: Rohzeile aufbewahren).
+                t.column("rohzeile", .text).notNull()
                 t.column("side", .text).notNull()
                 t.column("lots", .text).notNull()
                 t.column("symbol", .text).notNull()
@@ -85,6 +87,8 @@ enum Schema {
                 t.belongsTo("konto").notNull()
                 t.belongsTo("importlauf").notNull()
                 t.column("ticket", .text).notNull()
+                // Zelltexte der Originalzeile als JSON-Liste (Regel 9: Rohzeile aufbewahren).
+                t.column("rohzeile", .text).notNull()
                 t.column("type", .text).notNull()
                 t.column("lots", .text).notNull()
                 t.column("symbol", .text).notNull()
@@ -104,6 +108,8 @@ enum Schema {
                 t.autoIncrementedPrimaryKey("id")
                 t.belongsTo("importlauf", onDelete: .cascade).notNull()
                 t.column("ticket", .text).notNull()
+                // Zelltexte der Originalzeile als JSON-Liste (Regel 9: Rohzeile aufbewahren).
+                t.column("rohzeile", .text).notNull()
                 t.column("side", .text).notNull()
                 t.column("lots", .text).notNull()
                 t.column("symbol", .text).notNull()
@@ -123,6 +129,8 @@ enum Schema {
                 t.autoIncrementedPrimaryKey("id")
                 t.belongsTo("importlauf", onDelete: .cascade).notNull()
                 t.column("ticket", .text).notNull()
+                // Zelltexte der Originalzeile als JSON-Liste (Regel 9: Rohzeile aufbewahren).
+                t.column("rohzeile", .text).notNull()
                 t.column("type", .text).notNull()
                 t.column("lots", .text).notNull()
                 t.column("symbol", .text).notNull()

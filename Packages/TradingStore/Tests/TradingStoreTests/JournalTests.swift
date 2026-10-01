@@ -123,6 +123,8 @@ private func netto(_ positionen: [ClosedPosition]) -> Decimal {
     #expect(try journal.geschlossenePositionen(konto: konto) == original.closedPositions.sorted {
         ($0.closeTime, $0.ticket) < ($1.closeTime, $1.ticket)
     })
+    // Rohzeile (Regel 9) kommt mit: erste Zelle ist das Ticket.
+    #expect(try journal.geschlossenePositionen(konto: konto).allSatisfy { $0.rohzeile.first == $0.ticket })
     #expect(Set(try journal.geloeschteOrders(konto: konto).map(\.ticket)) == Set(original.cancelledOrders.map(\.ticket)))
 
     let lauf = try #require(try journal.importe(konto: konto).first)
