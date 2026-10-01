@@ -1,0 +1,195 @@
+import SwiftUI
+import TradingStore
+
+/// Einstellungen (Doc 10, Abschnitt 7): am Mac ein Fenster mit Reitern, am iPhone eine Liste unter „Mehr“.
+/// Alles gilt sofort, kein Speichern-Knopf.
+struct EinstellungenView: View {
+    var body: some View {
+        #if os(macOS)
+        TabView {
+            Tab("Allgemein", systemImage: "gearshape") {
+                Form { AllgemeinFelder() }
+                    .formStyle(.grouped)
+            }
+            Tab("Erscheinungsbild", systemImage: "paintpalette") {
+                Form { ErscheinungsbildFelder() }
+                    .formStyle(.grouped)
+            }
+            Tab("Konten", systemImage: "building.columns") {
+                KontenView()
+            }
+            Tab("Claude", systemImage: "sparkles") {
+                ClaudeFelder()
+            }
+        }
+        .frame(width: 720, height: 480)
+        #else
+        Form {
+            Section("Erscheinungsbild") { ErscheinungsbildFelder() }
+            Section("Allgemein") { AllgemeinFelder() }
+            Section("Claude") {
+                Text("Der Claude-Connector und der Export-Ordner laufen am Mac.")
+            }
+        }
+        .navigationTitle("Einstellungen")
+        #endif
+    }
+}
+
+/// Reiter Allgemein: Sprache und Anzeigewährung (beide folgen dem System bzw. dem Konto).
+struct AllgemeinFelder: View {
+    @Environment(\.thema) private var thema
+
+    var body: some View {
+        LabeledContent("Sprache") { Text("Wie System") }
+        LabeledContent("Anzeigewährung") { Text("Kontowährung, Umrechnung folgt") }
+        Text("Die Sprache stellst du in den Systemeinstellungen je App um; die App liefert Deutsch und Englisch.")
+            .font(Schrift.beschriftung)
+            .foregroundStyle(thema.textSchwach)
+    }
+}
+
+/// Reiter Erscheinungsbild: System/Hell/Dunkel und die vier Farbwelten (Doc 10, E1 und Farbwelten).
+struct ErscheinungsbildFelder: View {
+    @AppStorage("erscheinungsbild") private var erscheinungsbild = Erscheinungsbild.system
+    @AppStorage("farbwelt") private var farbwelt = Farbwelt.nordlicht
+    @Environment(\.thema) private var thema
+    @Environment(\.colorScheme) private var modus
+
+    var body: some View {
+        Picker("Erscheinungsbild", selection: $erscheinungsbild) {
+            ForEach(Erscheinungsbild.allCases) { Text($0.name).tag($0) }
+        }
+        .pickerStyle(.segmented)
+        Text("System folgt der Einstellung in den Systemeinstellungen, auch dem automatischen Wechsel am Abend.")
+            .font(Schrift.beschriftung)
+            .foregroundStyle(thema.textSchwach)
+        LabeledContent("Farbwelt") {
+            HStack(spacing: Abstand.kachelAbstand) {
+                ForEach(Farbwelt.allCases) { welt in
+                    FarbweltKarte(welt: welt, gewaehlt: welt == farbwelt, modus: modus) { farbwelt = welt }
+                }
+            }
+        }
+        Text("Je Farbwelt: Akzent, Gewinn, Verlust. Gilt sofort, in Hell und Dunkel.")
+            .font(Schrift.beschriftung)
+            .foregroundStyle(thema.textSchwach)
+    }
+}
+
+/// Eine Farbwelt als Karte mit drei Farbfeldern (Akzent, Gewinn, Verlust) und Auswahlkreis.
+struct FarbweltKarte: View {
+    let welt: Farbwelt
+    let gewaehlt: Bool
+    let modus: ColorScheme
+    let waehle: () -> Void
+    @Environment(\.thema) private var thema
+
+    var body: some View {
+        let probe = welt.thema(modus)
+        Button(action: waehle) {
+            VStack(spacing: Abstand.raster * 2) {
+                HStack(spacing: Abstand.raster) {
+                    ForEach([probe.akzent, probe.gewinn, probe.verlust], id: \.self) { farbe in
+                        RoundedRectangle(cornerRadius: Abstand.radiusKnopf)
+                            .fill(farbe)
+                            .frame(width: 28, height: 20)
+                    }
+                }
+                Label(welt.name, systemImage: gewaehlt ? "largecircle.fill.circle" : "circle")
+                    .font(Schrift.beschriftung)
+                    .foregroundStyle(thema.text)
+            }
+            .padding(Abstand.raster * 2)
+            .background(thema.flaeche2, in: RoundedRectangle(cornerRadius: Abstand.radiusKachel))
+            .overlay(
+                RoundedRectangle(cornerRadius: Abstand.radiusKachel)
+                    .stroke(gewaehlt ? thema.akzent : thema.linie, lineWidth: gewaehlt ? 2 : 1)
+            )
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(gewaehlt ? .isSelected : [])
+    }
+}
+
+/// Konten und Kosten: Liste der Konten aus der Datenbank. Das Kostenprofil je Konto kommt später.
+struct KontenView: View {
+    @Environment(AppModell.self) private var modell
+    @Environment(\.thema) private var thema
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Abstand.kachelAbstand) {
+            Kopfzeile("Konten und Kosten", untertitel: String(localized: "\(modell.konten.count) Konten"))
+            if modell.konten.isEmpty {
+                ContentUnavailableView("Noch kein Konto", systemImage: "building.columns",
+                                       description: Text("Konten entstehen beim ersten Import eines Auszugs."))
+            } else {
+                List(modell.konten, id: \.id) { konto in
+                    HStack {
+                        VStack(alignment: .leading, spacing: Abstand.raster) {
+                            Text(verbatim: "\(konto.broker) · \(konto.kontoname)")
+                                .foregroundStyle(thema.text)
+                            Text(verbatim: "\(String(localized: "Konto")) ••••\(konto.kontonummer.suffix(4)) · \(konto.waehrung)")
+                                .font(Schrift.beschriftung)
+                                .foregroundStyle(thema.textSchwach)
+                        }
+                        Spacer()
+                        Text("Kostenprofil folgt")
+                            .font(Schrift.beschriftung)
+                            .foregroundStyle(thema.textSchwach)
+                    }
+                    .listRowBackground(thema.flaeche)
+                }
+                .scrollContentBackground(.hidden)
+            }
+        }
+        .padding(Abstand.seitenrand)
+    }
+}
+
+#if os(macOS)
+/// Reiter Claude: Export-Ordner für den Connector (Entscheidung 13, AP6) und die exportierten Felder.
+struct ClaudeFelder: View {
+    @State private var ordnerWaehlen = false
+    @State private var status = ""
+    @Environment(\.thema) private var thema
+
+    var body: some View {
+        Form {
+            LabeledContent("Export-Ordner") {
+                VStack(alignment: .leading, spacing: Abstand.raster) {
+                    Text(verbatim: ExportOrdner.gemerkterOrdner()?.path ?? String(localized: "noch nicht gewählt"))
+                        .textSelection(.enabled)
+                    Button("exportFolder.choose") { ordnerWaehlen = true }
+                }
+            }
+            Text("Claude Desktop liest diesen Ordner über die Erweiterung „Trading Buddy“. Derselbe Ordner muss in den Einstellungen der Erweiterung stehen.")
+                .font(Schrift.beschriftung)
+                .foregroundStyle(thema.textSchwach)
+            LabeledContent("Exportierte Felder") {
+                Text("Zeiten, Instrument, Richtung, Lots, Kurse, Kosten, Ergebnis, Journal. Nicht: Kontonummer, Name, Saldo.")
+            }
+            if !status.isEmpty {
+                Text(verbatim: status)
+                    .font(Schrift.beschriftung)
+                    .foregroundStyle(thema.textSchwach)
+            }
+        }
+        .formStyle(.grouped)
+        .task { status = ExportOrdner.schreibeTestdatei() }
+        .fileImporter(isPresented: $ordnerWaehlen, allowedContentTypes: [.folder]) { ergebnis in
+            switch ergebnis {
+            case .success(let url):
+                do {
+                    try ExportOrdner.merke(url)
+                    status = ExportOrdner.schreibeTestdatei()
+                } catch {
+                    status = error.localizedDescription
+                }
+            case .failure(let fehler):
+                status = fehler.localizedDescription
+            }
+        }
+    }
+}
+#endif
