@@ -22,6 +22,11 @@ public struct Boersenuhr: Sendable {
         }
     }
 
+    /// Übernimmt bereits geprüfte Börsen in der gegebenen Reihenfolge.
+    init(geordnet: [Boerse]) {
+        boersen = geordnet
+    }
+
     /// Die im Paket mitgelieferten Börsen, plus optional eigene.
     public static func mitgeliefert(zusaetzlich: [Boerse] = []) throws -> Boersenuhr {
         try Boersenuhr(boersen: mitgelieferteBoersen() + zusaetzlich)
