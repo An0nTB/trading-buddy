@@ -59,6 +59,12 @@ struct TradesView: View {
         let muster = modell.musterJeTrade
         VStack(alignment: .leading, spacing: Abstand.kachelAbstand) {
             Kopfzeile("Trades", untertitel: String(localized: "\(liste.count) von \(modell.trades.count)")) {
+                #if os(macOS)
+                // Suchfeld in der Kopfzeile statt in der Symbolleiste: dort überdeckte es den Kopf des Inspektors.
+                TextField("Instrument, Setup oder Ticket", text: $suche)
+                    .textFieldStyle(.roundedBorder)
+                    .frame(width: 200)
+                #endif
                 Toggle("Nur mit Muster", isOn: $nurMitMuster)
                 Toggle("Stop fehlt (\(modell.ohneStop))", isOn: $nurOhneStop)
             }
@@ -101,7 +107,9 @@ struct TradesView: View {
             }
         }
         .padding(.top, Abstand.seitenrand)
+        #if os(iOS)
         .searchable(text: $suche, prompt: "Instrument, Setup oder Ticket")
+        #endif
         .inspector(isPresented: inspektorSichtbar) {
             Group {
                 if let trade = ausgewaehlterTrade {
@@ -335,7 +343,9 @@ struct JournalEingabe: View {
                         .font(Schrift.beschriftung)
                         .foregroundStyle(thema.textSchwach)
                 }
-                LabeledContent("Regeltreue") {
+                // Regler mit Beschriftung darüber: im 320-pt-Inspektor passt der Zustand-Regler (sechs Segmente)
+                // nicht neben eine Beschriftung, LabeledContent drückte sie weg (Tims Screenshot 01.10.2026).
+                Feldblock("Regeltreue") {
                     Picker("Regeltreue", selection: $eintrag.regeltreue) {
                         Text("offen").tag(Bool?.none)
                         Text("Ja").tag(Bool?.some(true))
@@ -344,7 +354,7 @@ struct JournalEingabe: View {
                     .pickerStyle(.segmented)
                     .labelsHidden()
                 }
-                LabeledContent("Zustand") {
+                Feldblock("Zustand") {
                     Picker("Zustand", selection: $eintrag.zustand) {
                         Text("offen").tag(Int?.none)
                         ForEach(1...5, id: \.self) { stufe in

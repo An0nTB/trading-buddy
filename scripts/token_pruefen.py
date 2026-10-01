@@ -2,7 +2,7 @@
 """Prüft die Design-Token der App gegen Design/tokens.json (Doc 10, Abschnitt 9).
 
 1. Jede Farbwelt in App/Sources/Design/Farbwelt.swift trägt genau die Werte aus tokens.json
-   (Akzent, Gewinn, Verlust, je dunkel und hell), ebenso die Neutralfarben.
+   (Akzent, Gewinn, Verlust, je dunkel und hell), ebenso die Neutralfarben und die getönten Flächen.
 2. In den Ansichten (App/Sources/Ansichten, App/Sources/*.swift) steht kein Hex-Farbwert.
 
 Aufruf im Repository-Ordner: python3 scripts/token_pruefen.py
@@ -41,17 +41,51 @@ def pruefe_farbwelten(tokens: dict, quelle: str) -> list[str]:
     return fehler
 
 
+FLAECHEN = ("grund", "flaeche", "flaeche2", "linie")
+
+
+def paare_in(zeile: str) -> dict[str, tuple[str, str]]:
+    """Liest `name: (0xDUNKEL, 0xHELL)` aus einer Flaechen(...)-Zeile."""
+    return {name: (d.lower(), h.lower())
+            for name, d, h in re.findall(r"(\w+):\s*\(0x([0-9a-fA-F]{6}),\s*0x([0-9a-fA-F]{6})\)", zeile)}
+
+
 def pruefe_neutral(tokens: dict, quelle: str) -> list[str]:
     fehler = []
-    for name in ("grund", "flaeche", "flaeche2", "linie", "text", "textSchwach"):
+    neutral_zeile = next((z for z in quelle.splitlines() if "static let neutral = Flaechen(" in z), "")
+    neutral = paare_in(neutral_zeile)
+    for name in FLAECHEN + ("text", "textSchwach"):
         dunkel = hex_json(tokens["neutral"]["dunkel"][name])
         hell = hex_json(tokens["neutral"]["hell"][name])
+        if name in FLAECHEN:
+            ist = neutral.get(name)
+            if ist is None:
+                fehler.append(f"Neutralfarbe {name}: fehlt in `static let neutral = Flaechen(...)` in Farbwelt.swift")
+            elif ist != (dunkel, hell):
+                fehler.append(f"Neutralfarbe {name}: Swift {ist} ≠ tokens.json ({dunkel}, {hell})")
+            continue
         muster = re.compile(name + r":\s*waehle\(\(0x([0-9a-fA-F]{6}),\s*0x([0-9a-fA-F]{6})\)\)")
         treffer = muster.search(quelle)
         if not treffer:
             fehler.append(f"Neutralfarbe {name}: keine Zeile `{name}: waehle((0x…, 0x…))` in Farbwelt.swift")
         elif (treffer.group(1).lower(), treffer.group(2).lower()) != (dunkel, hell):
             fehler.append(f"Neutralfarbe {name}: Swift ({treffer.group(1)}, {treffer.group(2)}) ≠ tokens.json ({dunkel}, {hell})")
+    return fehler
+
+
+def pruefe_getoent(tokens: dict, quelle: str) -> list[str]:
+    """Getönte Flächen je Farbwelt: `case .name: Flaechen(grund: (0x…, 0x…), …)` gegen farbwelten.*.getoent."""
+    fehler = []
+    for name, welt in tokens["farbwelten"].items():
+        zeile = next((z for z in quelle.splitlines() if re.search(r"case \." + name + r":\s*Flaechen\(", z)), "")
+        if not zeile:
+            fehler.append(f"Getönte Flächen {name}: keine Zeile `case .{name}: Flaechen(...)` in Farbwelt.swift")
+            continue
+        ist = paare_in(zeile)
+        for flaeche in FLAECHEN:
+            soll = (hex_json(welt["getoent"]["dunkel"][flaeche]), hex_json(welt["getoent"]["hell"][flaeche]))
+            if ist.get(flaeche) != soll:
+                fehler.append(f"Getönte Flächen {name}.{flaeche}: Swift {ist.get(flaeche)} ≠ tokens.json {soll}")
     return fehler
 
 
@@ -72,14 +106,15 @@ def pruefe_ansichten() -> list[str]:
 def main() -> int:
     tokens = json.loads(TOKENS.read_text(encoding="utf-8"))
     quelle = FARBWELT.read_text(encoding="utf-8")
-    fehler = pruefe_farbwelten(tokens, quelle) + pruefe_neutral(tokens, quelle) + pruefe_ansichten()
+    fehler = (pruefe_farbwelten(tokens, quelle) + pruefe_neutral(tokens, quelle)
+              + pruefe_getoent(tokens, quelle) + pruefe_ansichten())
     anzahl_welten = len(tokens["farbwelten"])
     if fehler:
         print("\n".join(fehler))
         print(f"FEHLER: {len(fehler)} Abweichungen")
         return 1
-    print(f"ALLE OK: {anzahl_welten} Farbwelten und 6 Neutralfarben stimmen mit tokens.json überein, "
-          f"kein Hex-Wert in den Ansichten")
+    print(f"ALLE OK: {anzahl_welten} Farbwelten, 6 Neutralfarben und {anzahl_welten * 4} getönte Flächen "
+          f"stimmen mit tokens.json überein, kein Hex-Wert in den Ansichten")
     return 0
 
 

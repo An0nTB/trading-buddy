@@ -15,9 +15,15 @@ struct Thema: Equatable {
     var linie: Color
     var text: Color
     var textSchwach: Color
+    /// Flächen in der Farbwelt getönt (Einstellung „Flächen tönen“, Entscheidung Tim 01.10.2026).
+    var flaechenGetoent = false
 
     /// Akzent mit 18 % Deckkraft für gewählte Zeilen und Seitenleisten-Einträge.
     var akzentTint: Color { akzent.opacity(0.18) }
+    /// Feiner Rand um Kacheln und Karten, nur bei getönten Flächen sichtbar.
+    var kachelRand: Color { flaechenGetoent ? akzentTint : .clear }
+    /// Titel einer Kennzahl-Kachel: im Akzent bei getönten Flächen, sonst schwache Textfarbe.
+    var kachelTitel: Color { flaechenGetoent ? akzent : textSchwach }
 
     /// Gewinn- oder Verlustfarbe nach Vorzeichen; null bleibt Textfarbe.
     func vorzeichen(_ wert: Decimal) -> Color {
@@ -40,7 +46,8 @@ enum Farbwelt: String, CaseIterable, Identifiable {
         }
     }
 
-    func thema(_ modus: ColorScheme) -> Thema {
+    /// `getoent`: Grund, Flächen und Linien in der Farbwelt getönt statt neutral (Schalter „Flächen tönen“).
+    func thema(_ modus: ColorScheme, getoent: Bool = false) -> Thema {
         let dunkel = modus == .dark
         // Akzent, Gewinn, Verlust je Farbwelt: (dunkel, hell), Werte aus Design/tokens.json
         let farben: [(UInt32, UInt32)] = switch self {
@@ -50,19 +57,44 @@ enum Farbwelt: String, CaseIterable, Identifiable {
         case .terminal: [(0x4dd0e1, 0x0b6b78), (0x4cd964, 0x1a7a2e), (0xff5a5a, 0xc62828)]
         }
         func waehle(_ paar: (UInt32, UInt32)) -> Color { Color(hex: dunkel ? paar.0 : paar.1) }
-        // Neutralfarben sind in allen Farbwelten gleich: kein reines Schwarz, kein reines Weiß als Grund.
+        // Textfarben sind in allen Farbwelten gleich; Flächen neutral oder getönt (Flaechen).
+        let flaechen = getoent ? Flaechen.getoent(self) : Flaechen.neutral
         return Thema(
             akzent: waehle(farben[0]),
             gewinn: waehle(farben[1]),
             verlust: waehle(farben[2]),
             textAufAkzent: waehle((0x121316, 0xffffff)),
-            grund: waehle((0x121316, 0xf2f2f4)),
-            flaeche: waehle((0x1b1d21, 0xffffff)),
-            flaeche2: waehle((0x24272c, 0xe9eaee)),
-            linie: waehle((0x2c2f35, 0xd9dadf)),
+            grund: waehle(flaechen.grund),
+            flaeche: waehle(flaechen.flaeche),
+            flaeche2: waehle(flaechen.flaeche2),
+            linie: waehle(flaechen.linie),
             text: waehle((0xe8e9ec, 0x1b1d21)),
-            textSchwach: waehle((0x9a9ea6, 0x5c606a))
+            textSchwach: waehle((0x9a9ea6, 0x5c606a)),
+            flaechenGetoent: getoent
         )
+    }
+}
+
+/// Flächenfarben als (dunkel, hell): neutral für alle Welten (kein reines Schwarz, kein reines Weiß als Grund)
+/// oder je Farbwelt getönt (Entscheidung Tim 01.10.2026, Variante C „etwas stärker“).
+/// Tönung Hell: Akzent zu 12 / 4 / 14 / 26 % in Weiß. Dunkel: Akzent × 0,3 zu 30 / 30 / 30 / 34 % in die Neutralfläche.
+/// Kontrast gerechnet (WCAG): Text, schwacher Text und Akzent auf allen Flächen ≥ 4,5:1; Gewinn und Verlust ≥ 4,5:1
+/// auf Grund und Fläche, auf Fläche 2 (nur Chips, Kapseln, Knöpfe) mindestens 4,4:1.
+struct Flaechen {
+    var grund: (UInt32, UInt32)
+    var flaeche: (UInt32, UInt32)
+    var flaeche2: (UInt32, UInt32)
+    var linie: (UInt32, UInt32)
+
+    static let neutral = Flaechen(grund: (0x121316, 0xf2f2f4), flaeche: (0x1b1d21, 0xffffff), flaeche2: (0x24272c, 0xe9eaee), linie: (0x2c2f35, 0xd9dadf))
+
+    static func getoent(_ welt: Farbwelt) -> Flaechen {
+        switch welt {
+        case .nordlicht: Flaechen(grund: (0x171c26, 0xe5ecf8), flaeche: (0x1d232e, 0xf6f9fd), flaeche2: (0x232a36, 0xe0e9f7), linie: (0x28303d, 0xc6d6f0))
+        case .graphit: Flaechen(grund: (0x211c17, 0xf2ebe2), flaeche: (0x27231f, 0xfbf8f5), flaeche2: (0x2d2a27, 0xefe8dd), linie: (0x34302c, 0xe2d4c0))
+        case .lavendel: Flaechen(grund: (0x1d1b26, 0xedeaf9), flaeche: (0x23222e, 0xf9f8fd), flaeche2: (0x292936, 0xeae6f9), linie: (0x2f2f3d, 0xd9d1f3))
+        case .terminal: Flaechen(grund: (0x142024, 0xe2edef), flaeche: (0x1a272b, 0xf5f9fa), flaeche2: (0x202e33, 0xddeaec), linie: (0x25343a, 0xc0d9dc))
+        }
     }
 }
 
