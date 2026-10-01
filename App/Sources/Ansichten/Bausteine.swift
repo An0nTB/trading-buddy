@@ -49,7 +49,9 @@ struct Kachel: View {
         VStack(alignment: .leading, spacing: Abstand.raster) {
             Text(titel)
                 .font(Schrift.beschriftung)
-                .foregroundStyle(thema.textSchwach)
+                .fontWeight(thema.flaechenGetoent ? .semibold : .regular)
+                .textCase(thema.flaechenGetoent ? .uppercase : nil)
+                .foregroundStyle(thema.kachelTitel)
             Text(verbatim: wert)
                 .font(Schrift.zahlGross)
                 .foregroundStyle(farbe ?? thema.text)
@@ -66,6 +68,7 @@ struct Kachel: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(Abstand.kachelInnen)
         .background(thema.flaeche, in: RoundedRectangle(cornerRadius: Abstand.radiusKachel))
+        .overlay(RoundedRectangle(cornerRadius: Abstand.radiusKachel).strokeBorder(thema.kachelRand, lineWidth: 1))
     }
 }
 
@@ -106,6 +109,7 @@ struct Karte<Inhalt: View>: View {
         .padding(Abstand.kachelInnen)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(thema.flaeche, in: RoundedRectangle(cornerRadius: Abstand.radiusKachel))
+        .overlay(RoundedRectangle(cornerRadius: Abstand.radiusKachel).strokeBorder(thema.kachelRand, lineWidth: 1))
     }
 }
 
@@ -250,5 +254,27 @@ struct Auswahlknopf<Wert: Hashable, Optionen: View>: View {
         .menuIndicator(.hidden)
         .accessibilityLabel(Text(titel))
         .accessibilityValue(Text(verbatim: anzeige))
+    }
+}
+
+
+/// Beschriftung über einem Eingabeelement, für schmale Spalten wie den Inspektor.
+struct Feldblock<Inhalt: View>: View {
+    let titel: LocalizedStringKey
+    @ViewBuilder let inhalt: () -> Inhalt
+    @Environment(\.thema) private var thema
+
+    init(_ titel: LocalizedStringKey, @ViewBuilder inhalt: @escaping () -> Inhalt) {
+        self.titel = titel
+        self.inhalt = inhalt
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Abstand.raster) {
+            Text(titel)
+                .font(Schrift.beschriftung)
+                .foregroundStyle(thema.textSchwach)
+            inhalt()
+        }
     }
 }
