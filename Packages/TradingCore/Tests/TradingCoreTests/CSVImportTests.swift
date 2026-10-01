@@ -67,12 +67,12 @@ private func zeitpunkt(_ iso: String) -> Date {
     #expect(k.ausfuehrungen.count == 2)
     #expect(k.geldbewegungen.count == 1)
     #expect(k.kassenwirkung == dez("1027.98"))
-    #expect(try Positionsbildung.bilde(k.ausfuehrungen).trades.map(\.netProfit) == [dez("27.98")])
+    #expect(Positionsbildung.bilde(k.ausfuehrungen).trades.map(\.netProfit) == [dez("27.98")])
 }
 
 @Test func positionsbildungTradeRepublic() throws {
     let k = try TradeRepublicCSV.lies(csv("trade_republic_2026_komma"))
-    let ergebnis = try Positionsbildung.bilde(k.ausfuehrungen)
+    let ergebnis = Positionsbildung.bilde(k.ausfuehrungen)
     #expect(ergebnis.trades.count == 1)
     let sap = try #require(ergebnis.trades.first)
     #expect(sap.id == "tr-0003")
@@ -107,7 +107,7 @@ private func zeitpunkt(_ iso: String) -> Date {
     #expect(k.geldbewegungen[2].betrag == 0)
     #expect(k.geldbewegungen[2].steuer == 2)
 
-    let sap = try #require(try Positionsbildung.bilde(k.ausfuehrungen).trades.first)
+    let sap = try #require(Positionsbildung.bilde(k.ausfuehrungen).trades.first)
     #expect(sap.profit == 40)
     #expect(sap.commission == dez("-1.98"))
     #expect(sap.taxes == dez("-10.03"))
@@ -120,7 +120,7 @@ private func zeitpunkt(_ iso: String) -> Date {
         Ausfuehrung(id: id, zeit: start.addingTimeInterval(tag * 86_400), kennung: "X", name: "", seite: seite,
                     menge: menge, preis: abs(betrag / menge), betrag: betrag, gebuehr: -1, waehrung: "EUR")
     }
-    let ergebnis = try Positionsbildung.bilde([
+    let ergebnis = Positionsbildung.bilde([
         ausfuehrung("v1", tag: 2, .sell, 15, 300),
         ausfuehrung("k1", tag: 0, .buy, 10, -100),
         ausfuehrung("k2", tag: 1, .buy, 10, -200),
@@ -139,16 +139,11 @@ private func zeitpunkt(_ iso: String) -> Date {
 }
 
 @Test func fehlerBrechenAb() {
-    let verkauf = Ausfuehrung(id: "v1", zeit: .now, kennung: "X", name: "", seite: .sell, menge: 1, preis: 1,
-                              betrag: 1, waehrung: "EUR")
-    #expect(throws: CSVImportFehler.verkaufOhneBestand(kennung: "X", id: "v1")) {
-        try Positionsbildung.bilde([verkauf])
-    }
+    #expect(throws: CSVImportFehler.fehlendeSpalte("time")) { try ScalableCSV.lies("date;status\n") }
     let kopf = "datetime,account_type,category,type,name,symbol,shares,price,amount,fee,tax,currency,description,"
         + "transaction_id\n"
-    let umbuchung = kopf + "2026-03-02T08:00:00Z,DEFAULT,TRADING,TRANSFER,,,,,,,,EUR,,tr-9\n"
-    #expect(throws: CSVImportFehler.unbekannteArt(zeile: 2, art: "TRANSFER")) { try TradeRepublicCSV.lies(umbuchung) }
-    #expect(throws: CSVImportFehler.fehlendeSpalte("time")) { try ScalableCSV.lies("date;status\n") }
+    let kaputt = kopf + "2026-03-02T08:00:00Z,DEFAULT,CASH,DIVIDEND,,,,,1.2.3,,,EUR,,tr-9\n"
+    #expect(throws: CSVImportFehler.ungueltigeZahl(zeile: 2, text: "1.2.3")) { try TradeRepublicCSV.lies(kaputt) }
 }
 
 @Test func steuernImExportNurWennVorhanden() throws {
