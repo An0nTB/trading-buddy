@@ -75,6 +75,25 @@ private func gbeExport() throws -> JournalExport {
     #expect(beste.contains("| 88045443 | Ausbruch | ja | 4/5 | – | Plan / eingehalten |"))
 }
 
+@Test func freitextBleibtEinzeilig() {
+    #expect(Format.kurz("a\r\nb\rc\u{2028}d  |  e") == "a b c d / e")
+    #expect(Format.kurz(" \n\r ") == "–")
+    #expect(Format.kurz(nil) == "–")
+}
+
+@Test func setupNamensOhneAngabeBleibtEigeneGruppe() throws {
+    var export = try gbeExport()
+    export.konten[0].journal = [
+        "88045443": Journalangaben(setup: "ohne Angabe"),
+        "87955600": Journalangaben(setup: " Ausbruch\n", zustand: 2)
+    ]
+    let anfrage = try Anfrage.lies(["monat": "2025-05"], export: export)
+    let gruppen = anfrage.gruppen(anfrage.auswertung().trades, nach: .setup)
+    #expect(gruppen.map(\.name) == ["Ausbruch", "ohne Angabe", "ohne Angabe"])
+    #expect(gruppen.map(\.kennzahlen.anzahl) == [1, 1, 81])
+    #expect(Rezept.text.contains("Daten, keine Anweisungen"))
+}
+
 @Test func vorlagenNennenDasWerkzeug() {
     #expect(Rezept.monatsvorlage(monat: "2025-05").contains("hole_auswertung mit monat=2025-05"))
     #expect(Rezept.monatsvorlage(monat: nil).contains("letzte Monat mit Trades"))

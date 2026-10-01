@@ -57,8 +57,26 @@ public struct JournalExport: Sendable, Equatable, Codable {
                       trades: positionen.map { Trade($0) }, geloeschteOrders: geloescht.map(\.cancelledAt))
         }
 
-        /// Broker und die letzten vier Stellen der Kontonummer, für Ausgaben an Claude.
+        /// Broker und die letzten vier Stellen der Kontonummer, ohne Blick auf andere Konten.
+        /// Für Ausgaben an Claude `JournalExport.kurzname(_:)` nehmen.
         public var kurzname: String { "\(broker) …\(kontonummer.suffix(4))" }
+    }
+
+    /// Wie viele Endziffern nötig sind, damit sich `nummer` von den anderen Nummern unterscheidet; mindestens vier.
+    public static func endziffern(_ nummer: String, neben andere: [String]) -> Int {
+        var stellen = 4
+        while stellen < nummer.count,
+              andere.contains(where: { $0 != nummer && $0.suffix(stellen) == nummer.suffix(stellen) }) {
+            stellen += 1
+        }
+        return stellen
+    }
+
+    /// Broker und Endziffern eines Kontos dieser Datei, für Ausgaben an Claude. Gleiche letzte vier
+    /// Stellen beim selben Broker bekommen weitere Stellen, damit Claude die Konten unterscheiden kann.
+    public func kurzname(_ konto: Kontodaten) -> String {
+        let andere = konten.filter { $0.broker == konto.broker }.map(\.kontonummer)
+        return "\(konto.broker) …\(konto.kontonummer.suffix(Self.endziffern(konto.kontonummer, neben: andere)))"
     }
 
     public init(konten: [Kontodaten], zeitzone: TimeZone, erstellt: Date = .now) {

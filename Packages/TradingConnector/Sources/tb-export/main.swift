@@ -49,7 +49,7 @@ do {
     let pfad = URL(filePath: ziel, directoryHint: .isDirectory).appending(path: JournalExport.dateiname)
     try export.json().write(to: pfad, options: .atomic)
     for k in export.konten {
-        print("\(k.kurzname): \(k.trades.count) Trades, \(k.geloeschteOrders.count) gelöschte Orders")
+        print("\(export.kurzname(k)): \(k.trades.count) Trades, \(k.geloeschteOrders.count) gelöschte Orders")
     }
     print("Geschrieben: \(pfad.path)")
 } catch {
