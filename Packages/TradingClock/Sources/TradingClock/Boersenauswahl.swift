@@ -62,17 +62,12 @@ extension Boerse {
 extension Boersenuhr {
     /// Alle mitgelieferten Börsen plus die eigenen aus der Auswahl, ohne Filter, mit angepassten
     /// Zeiten und zugeordneten Kalendern. Für die Liste „Börsen hinzufügen“ in den Einstellungen.
+    /// Fehlerhafte Einträge der Auswahl werden übersprungen, damit ein einzelner Fehler nicht die
+    /// ganze Uhr leert; welche das sind, sagt `Boersenauswahl.probleme()`. Werfen kann die Funktion
+    /// nur, wenn die mitgelieferten Börsendateien selbst fehlen oder kaputt sind.
     public static func verfuegbar(_ auswahl: Boersenauswahl = Boersenauswahl()) throws -> Boersenuhr {
-        var kalenderNachId: [String: Feiertagskalender] = [:]
-        for k in auswahl.kalender {
-            try k.pruefe()
-            guard kalenderNachId.updateValue(k, forKey: k.id) == nil else { throw BoersenuhrFehler.doppelterKalender(id: k.id) }
-        }
-        let uhr = try mitgeliefert(zusaetzlich: auswahl.eigene).angepasst(auswahl.angepassteZeiten)
-        // Unbekannte Kalenderkennungen überspringen, damit ein gelöschter Kalender die Uhr nicht lahmlegt.
-        return Boersenuhr(geordnet: uhr.boersen.map { b in
-            b.mitKalendern((auswahl.kalenderJeBoerse[b.id] ?? []).compactMap { kalenderNachId[$0] })
-        })
+        let basis = try mitgeliefert()
+        return Boersenuhr(geordnet: auswahl.bereinigt(mitgeliefert: basis.boersen).boersen)
     }
 
     /// Die Uhr, wie der Nutzer sie gewählt hat: angepasste Zeiten angewandt, nur die angezeigten
@@ -85,8 +80,44 @@ extension Boersenuhr {
         let gewaehlt = auswahl.angezeigt.filter { gesehen.insert($0).inserted }.compactMap { alle[$0] }
         return Boersenuhr(geordnet: gewaehlt)
     }
+}
 
-    func angepasst(_ zeiten: [String: [Handelszeit]]) throws -> Boersenuhr {
-        Boersenuhr(geordnet: try boersen.map { b in try zeiten[b.id].map { try b.mitHandelszeiten($0) } ?? b })
+extension Boersenauswahl {
+    /// Was an der Auswahl nicht stimmt, zum Beispiel für einen Hinweis in den Einstellungen.
+    /// Leer heißt: Die Uhr nutzt alles so, wie es gespeichert ist.
+    public func probleme() throws -> [BoersenuhrFehler] {
+        bereinigt(mitgeliefert: try Boersenuhr.mitgelieferteBoersen()).probleme
+    }
+
+    func bereinigt(mitgeliefert: [Boerse]) -> (boersen: [Boerse], probleme: [BoersenuhrFehler]) {
+        var probleme: [BoersenuhrFehler] = []
+        func notiere(_ fehler: Error) {
+            probleme.append(fehler as? BoersenuhrFehler ?? .ungueltigeHandelszeit(id: "?", grund: "\(fehler)"))
+        }
+
+        var kalenderNachId: [String: Feiertagskalender] = [:]
+        for k in kalender {
+            do { try k.pruefe() } catch { notiere(error); continue }
+            if kalenderNachId[k.id] != nil { probleme.append(.doppelterKalender(id: k.id)); continue }
+            kalenderNachId[k.id] = k
+        }
+
+        var ids = Set(mitgeliefert.map(\.id))
+        var alle = mitgeliefert
+        for b in eigene {
+            do { try b.pruefe() } catch { notiere(error); continue }
+            guard ids.insert(b.id).inserted else { probleme.append(.doppelteBoerse(id: b.id)); continue }
+            alle.append(b)
+        }
+
+        let ergebnis = alle.map { b -> Boerse in
+            var neu = b
+            if let zeiten = angepassteZeiten[b.id] {
+                do { neu = try b.mitHandelszeiten(zeiten) } catch { notiere(error) }
+            }
+            // Unbekannte Kalenderkennungen überspringen, damit ein gelöschter Kalender die Uhr nicht lahmlegt.
+            return neu.mitKalendern((kalenderJeBoerse[b.id] ?? []).compactMap { kalenderNachId[$0] })
+        }
+        return (ergebnis, probleme)
     }
 }

@@ -255,15 +255,26 @@ private let eigeneBoerse = """
     #expect(try JSONDecoder().decode(Boersenauswahl.self, from: Data("{}".utf8)) == Boersenauswahl())
 }
 
-@Test func falscheEigeneZeitenWerdenAbgelehnt() throws {
+@Test func fehlerhafteAuswahlLegtDieUhrNichtLahm() throws {
+    // Review 01.10.2026: Ein einzelner kaputter Eintrag darf nicht alle Anzeigen leeren.
     let verkehrt = Handelszeit(tage: [.montag], beginn: try Uhrzeit("17:00"), ende: try Uhrzeit("09:00"))
-    #expect(throws: BoersenuhrFehler.self) {
-        try Boersenuhr.mit(Boersenauswahl(angepassteZeiten: ["xetra": [verkehrt]]))
-    }
     let krypto = try boerse("krypto")
-    #expect(throws: BoersenuhrFehler.doppelteBoerse(id: "krypto")) {
-        try Boersenuhr.mit(Boersenauswahl(eigene: [krypto]))
-    }
+    var kaputt = try Boerse.eigene(id: "x", name: "X", zeitzone: "UTC", beginn: Uhrzeit("09:00"), ende: Uhrzeit("17:00"),
+                                   stand: Kalendertag("2026-10-01"))
+    kaputt.zeitzone = "Mond/Basis"
+    let auswahl = Boersenauswahl(angepassteZeiten: ["xetra": [verkehrt]], eigene: [krypto, kaputt])
+    let uhr = try Boersenuhr.mit(auswahl)
+    #expect(uhr.boersen.map(\.id) == ["xetra", "nyse", "nasdaq", "lse", "forex", "krypto"])
+    let neun = try Uhrzeit("09:00")
+    #expect(uhr["xetra"]?.handelszeiten.first?.beginn == neun)   // Anpassung verworfen
+    let probleme = try auswahl.probleme()
+    #expect(probleme.count == 3)
+    #expect(probleme.contains(.doppelteBoerse(id: "krypto")))
+    #expect(probleme.contains(.unbekannteZeitzone(id: "x", zeitzone: "Mond/Basis")))
+    #expect(try Boersenauswahl().probleme().isEmpty)
+    // Auch eine nachträglich verbogene Zeitzone bringt die Uhr nicht zum Absturz.
+    #expect(kaputt.timeZone.identifier == TimeZone(secondsFromGMT: 0)!.identifier)
+    _ = kaputt.status(zeit("2026-10-07T12:00:00"))
 }
 
 // MARK: Eigene Feiertagskalender (Tim, 01.10.2026)
@@ -329,10 +340,65 @@ private func zweiKalender() throws -> [Feiertagskalender] {
 
 @Test func doppelteKalenderUndFalscheFormateWerdenAbgelehnt() throws {
     let a = try zweiKalender()[0]
-    #expect(throws: BoersenuhrFehler.doppelterKalender(id: "a")) {
-        try Boersenuhr.mit(Boersenauswahl(kalender: [a, a]))
+    let doppelt = Boersenauswahl(kalender: [a, a], kalenderJeBoerse: ["xetra": ["a"]])
+    #expect(try doppelt.probleme() == [.doppelterKalender(id: "a")])
+    #expect(try Boersenuhr.mit(doppelt)["xetra"]?.status(zeit("2026-10-07T08:00:00")).feiertag == "Testtag A (Kalender A)")
+    #expect(throws: BoersenuhrFehler.leereKennungOderName(id: "")) {
+        try Feiertagskalender(id: "", name: "Leer", feiertage: [], stand: Kalendertag("2026-10-01"))
     }
     #expect(throws: BoersenuhrFehler.unbekanntesFormat(id: "z", format: 9)) {
         try Feiertagskalender.lade(json: json(#"{ "format": 9, "id": "z", "name": "Z", "stand": "2026-10-01" }"#))
+    }
+}
+
+// MARK: Befunde aus dem Review (01.10.2026)
+
+@Test func forexSchliesstAmFeiertagDesKalenders() throws {
+    let weihnachten = try Feiertagskalender(id: "fx", name: "Forex-Broker",
+                                            feiertage: [Feiertag(datum: Kalendertag("2026-12-25"), name: "Weihnachten")],
+                                            stand: Kalendertag("2026-10-01"))
+    let f = try boerse("forex").mitKalendern([weihnachten])
+    // Die Sitzung Donnerstag 17:00 bis Freitag 17:00 New York gehört zum Freitag und entfällt.
+    #expect(f.istOffen(zeit("2026-12-24T21:59:59")))
+    #expect(!f.istOffen(zeit("2026-12-25T15:00:00")))
+    #expect(f.naechsteSchliessung(nach: zeit("2026-12-24T12:00:00")) == zeit("2026-12-24T22:00:00"))
+    #expect(f.naechsteOeffnung(nach: zeit("2026-12-25T15:00:00")) == zeit("2026-12-27T22:00:00"))
+}
+
+@Test func umstellungstageDerSommerzeit() throws {
+    // EU zurück auf Winterzeit am 25.10.2026, USA erst am 01.11.2026.
+    #expect(try boerse("xetra").naechsteOeffnung(nach: zeit("2026-10-25T12:00:00")) == zeit("2026-10-26T08:00:00"))
+    #expect(try boerse("nyse").naechsteOeffnung(nach: zeit("2026-10-25T12:00:00")) == zeit("2026-10-26T13:30:00"))
+    #expect(try boerse("forex").naechsteOeffnung(nach: zeit("2026-10-31T12:00:00")) == zeit("2026-11-01T22:00:00"))
+    // EU auf Sommerzeit am 29.03.2026
+    #expect(try boerse("xetra").naechsteOeffnung(nach: zeit("2026-03-28T12:00:00")) == zeit("2026-03-30T07:00:00"))
+    #expect(try boerse("lse").naechsteOeffnung(nach: zeit("2026-06-30T20:00:00")) == zeit("2026-07-01T07:00:00"))
+}
+
+@Test func rundUmDieUhrUeberHandelszeitenMeldetKeineSchliessung() throws {
+    let alleTage = Wochentag.allCases
+    let b = try Boerse.eigene(id: "rund", name: "Rund", zeitzone: "Europe/Berlin", tage: alleTage,
+                              beginn: Uhrzeit("00:00"), ende: Uhrzeit("00:00"), endeNachTagen: 1,
+                              stand: Kalendertag("2026-10-01"))
+    let s = b.status(zeit("2026-10-01T12:00:00"))
+    #expect(s.offen)
+    #expect(s.naechsterWechsel == nil)
+    #expect(b.naechsteSchliessung(nach: zeit("2026-10-01T12:00:00")) == nil)
+}
+
+@Test func fruehesterSchlussGiltAuchInnerhalbEinerBoerse() throws {
+    var x = try boerse("xetra")
+    x.verkuerzteTage += [VerkuerzterTag(datum: try Kalendertag("2026-10-07"), ende: try Uhrzeit("15:00"), name: "Spät"),
+                         VerkuerzterTag(datum: try Kalendertag("2026-10-07"), ende: try Uhrzeit("12:00"), name: "Früh")]
+    #expect(x.naechsteSchliessung(nach: zeit("2026-10-07T08:00:00")) == zeit("2026-10-07T10:00:00"))
+    // Reihenfolge der Einträge spielt keine Rolle
+    x.verkuerzteTage.reverse()
+    #expect(x.naechsteSchliessung(nach: zeit("2026-10-07T08:00:00")) == zeit("2026-10-07T10:00:00"))
+}
+
+@Test func leereKennungWirdAbgelehnt() throws {
+    #expect(throws: BoersenuhrFehler.leereKennungOderName(id: " ")) {
+        try Boerse.eigene(id: " ", name: "X", zeitzone: "UTC", beginn: Uhrzeit("09:00"), ende: Uhrzeit("17:00"),
+                          stand: Kalendertag("2026-10-01"))
     }
 }
