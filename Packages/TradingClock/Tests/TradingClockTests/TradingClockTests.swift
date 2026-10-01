@@ -265,3 +265,74 @@ private let eigeneBoerse = """
         try Boersenuhr.mit(Boersenauswahl(eigene: [krypto]))
     }
 }
+
+// MARK: Eigene Feiertagskalender (Tim, 01.10.2026)
+
+private let kalenderA = """
+{ "format": 1, "id": "a", "name": "Kalender A", "land": "CH", "stand": "2026-10-01", "datenGueltigBis": "2026-12-31",
+  "feiertage": [ { "datum": "2026-10-07", "name": "Testtag A" } ],
+  "verkuerzteTage": [ { "datum": "2026-10-09", "ende": "12:00", "name": "Kurz A" } ] }
+"""
+
+private func zweiKalender() throws -> [Feiertagskalender] {
+    let a = try Feiertagskalender.lade(json: json(kalenderA))
+    let b = try Feiertagskalender(id: "b", name: "Kalender B",
+                                  feiertage: [Feiertag(datum: Kalendertag("2026-10-08"), name: "Testtag B")],
+                                  verkuerzteTage: [VerkuerzterTag(datum: Kalendertag("2026-10-09"), ende: Uhrzeit("13:00"), name: "Kurz B")],
+                                  stand: Kalendertag("2026-10-01"))
+    return [a, b]
+}
+
+@Test func mehrereKalenderGeltenZusaetzlich() throws {
+    let auswahl = Boersenauswahl(kalender: try zweiKalender(), kalenderJeBoerse: ["xetra": ["a", "b", "geloescht"]])
+    let uhr = try Boersenuhr.mit(auswahl)
+    let x = try #require(uhr["xetra"])
+    let s = x.status(zeit("2026-10-07T08:00:00"))
+    #expect(!s.offen)
+    #expect(s.feiertag == "Testtag A (Kalender A)")
+    #expect(s.naechsterWechsel == zeit("2026-10-09T07:00:00"))       // 08.10. zu durch Kalender B
+    #expect(s.verkuerzt == "Kurz A")                                  // frühester Schluss gewinnt
+    #expect(x.naechsteSchliessung(nach: zeit("2026-10-09T08:00:00")) == zeit("2026-10-09T10:00:00"))
+    #expect(x.istOffen(zeit("2026-04-03T10:00:00")) == false)          // eigene Feiertage bleiben
+    let grenze = try Kalendertag("2026-12-31")
+    #expect(x.datenGueltigBis == grenze)
+    #expect(!x.status(zeit("2027-01-05T10:00:00")).datenGueltig)
+    #expect(uhr["nyse"]?.istOffen(zeit("2026-10-07T14:00:00")) == true)  // ohne Zuordnung unberührt
+}
+
+@Test func feiertagSchlaegtVerkuerztenTag() throws {
+    let kurz = try Feiertagskalender(id: "k", name: "K",
+                                     feiertage: [],
+                                     verkuerzteTage: [VerkuerzterTag(datum: Kalendertag("2026-04-03"), ende: Uhrzeit("12:00"), name: "Kurz")],
+                                     stand: Kalendertag("2026-10-01"))
+    let x = try boerse("xetra").mitKalendern([kurz])
+    let karfreitag = try Kalendertag("2026-04-03")
+    #expect(!x.verkuerzteTage.contains { $0.datum == karfreitag })
+    #expect(x.status(zeit("2026-04-03T09:00:00")).feiertag == "Karfreitag")
+}
+
+@Test func kalenderAuchFuerEigeneBoerse() throws {
+    let tokio = try Boerse.eigene(id: "tse", name: "Tokio", zeitzone: "Asia/Tokyo",
+                                  beginn: Uhrzeit("09:00"), ende: Uhrzeit("15:30"), stand: Kalendertag("2026-10-01"))
+    let auswahl = Boersenauswahl(angezeigt: ["tse"], eigene: [tokio], kalender: try zweiKalender(),
+                                 kalenderJeBoerse: ["tse": ["b"]])
+    let t = try #require(try Boersenuhr.mit(auswahl)["tse"])
+    #expect(t.status(zeit("2026-10-08T01:00:00")).feiertag == "Testtag B (Kalender B)")
+    #expect(t.datenGueltigBis == nil)
+}
+
+@Test func auswahlMitKalendernUeberstehtSpeichernUndLaden() throws {
+    let auswahl = Boersenauswahl(kalender: try zweiKalender(), kalenderJeBoerse: ["lse": ["a"]])
+    let zurueck = try JSONDecoder().decode(Boersenauswahl.self, from: JSONEncoder().encode(auswahl))
+    #expect(zurueck == auswahl)
+}
+
+@Test func doppelteKalenderUndFalscheFormateWerdenAbgelehnt() throws {
+    let a = try zweiKalender()[0]
+    #expect(throws: BoersenuhrFehler.doppelterKalender(id: "a")) {
+        try Boersenuhr.mit(Boersenauswahl(kalender: [a, a]))
+    }
+    #expect(throws: BoersenuhrFehler.unbekanntesFormat(id: "z", format: 9)) {
+        try Feiertagskalender.lade(json: json(#"{ "format": 9, "id": "z", "name": "Z", "stand": "2026-10-01" }"#))
+    }
+}
