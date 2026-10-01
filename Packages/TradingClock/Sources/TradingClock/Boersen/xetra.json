@@ -1,0 +1,98 @@
+{
+  "format": 1,
+  "id": "xetra",
+  "name": "Xetra",
+  "mic": "XETR",
+  "zeitzone": "Europe/Berlin",
+  "handelszeiten": [
+    {
+      "tage": [
+        "Mo",
+        "Di",
+        "Mi",
+        "Do",
+        "Fr"
+      ],
+      "beginn": "09:00",
+      "ende": "17:30"
+    }
+  ],
+  "feiertage": [
+    {
+      "datum": "2026-01-01",
+      "name": "Neujahr"
+    },
+    {
+      "datum": "2026-04-03",
+      "name": "Karfreitag"
+    },
+    {
+      "datum": "2026-04-06",
+      "name": "Ostermontag"
+    },
+    {
+      "datum": "2026-05-01",
+      "name": "Tag der Arbeit"
+    },
+    {
+      "datum": "2026-12-24",
+      "name": "Heiligabend"
+    },
+    {
+      "datum": "2026-12-25",
+      "name": "1. Weihnachtstag"
+    },
+    {
+      "datum": "2026-12-31",
+      "name": "Silvester"
+    },
+    {
+      "datum": "2027-01-01",
+      "name": "Neujahr"
+    },
+    {
+      "datum": "2027-03-26",
+      "name": "Karfreitag"
+    },
+    {
+      "datum": "2027-03-29",
+      "name": "Ostermontag"
+    },
+    {
+      "datum": "2027-12-24",
+      "name": "Heiligabend"
+    },
+    {
+      "datum": "2027-12-31",
+      "name": "Silvester"
+    }
+  ],
+  "verkuerzteTage": [
+    {
+      "datum": "2026-12-30",
+      "ende": "14:00",
+      "name": "Letzter Handelstag des Jahres"
+    },
+    {
+      "datum": "2027-12-30",
+      "ende": "14:00",
+      "name": "Letzter Handelstag des Jahres"
+    }
+  ],
+  "datenGueltigBis": "2027-12-31",
+  "stand": "2026-10-01",
+  "quellen": [
+    {
+      "titel": "Deutsche Börse Cash Market: Handelskalender und -zeiten",
+      "url": "https://www.cashmarket.deutsche-boerse.com/cash-de/Handelskalender-und-zeiten-4302078",
+      "abgerufen": "2026-10-01"
+    }
+  ],
+  "hinweise": [
+    "Handelszeit ist der fortlaufende Handel 09:00 bis 17:30; Eröffnungs- und Schlussauktion sind nicht abgebildet.",
+    "2026 deckt sich mit den Beispielwerten in R1 Abschnitt 6.",
+    "Fallen 2027 der 01.05. und der 25./26.12. auf ein Wochenende, entfallen sie als Handelstag ohnehin.",
+    "Verkürzter Schluss 14:00 am 30.12. ist Annahme aus exchange_calendars, noch zu prüfen.",
+    "Erstbefüllung der Feiertage und verkürzten Tage aus exchange_calendars 4.13.2 (Python, Apache-2.0) am 01.10.2026 nach R1 Abschnitt 6; Abgleich mit der offiziellen Börsenseite noch zu prüfen."
+  ]
+}

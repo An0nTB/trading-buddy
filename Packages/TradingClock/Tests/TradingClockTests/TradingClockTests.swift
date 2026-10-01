@@ -1,0 +1,215 @@
+import Foundation
+import Testing
+@testable import TradingClock
+
+/// Sollwerte in UTC, unabhängig mit Python zoneinfo gerechnet (01.10.2026).
+/// Sommerzeit: EU ab 29.03.2026, USA ab 08.03.2026, beide bis Ende Oktober beziehungsweise 01.11.2026.
+private func zeit(_ iso: String) -> Date {
+    let formatter = ISO8601DateFormatter()
+    formatter.timeZone = TimeZone(secondsFromGMT: 0)!
+    return formatter.date(from: iso + "Z")!
+}
+
+private func uhr() throws -> Boersenuhr { try Boersenuhr.mitgeliefert() }
+
+private func boerse(_ id: String) throws -> Boerse { try #require(try uhr()[id]) }
+
+// MARK: Mitgelieferte Daten
+
+@Test func alleSechsBoersenLadenInFesterReihenfolge() throws {
+    #expect(try uhr().boersen.map(\.id) == ["xetra", "nyse", "nasdaq", "lse", "forex", "krypto"])
+}
+
+@Test func boersenMitFeiertagenSindBis2027Gepflegt() throws {
+    let ende = try Kalendertag("2027-12-31")
+    for id in ["xetra", "nyse", "nasdaq", "lse"] {
+        let b = try boerse(id)
+        #expect(b.datenGueltigBis == ende, "\(id)")
+        #expect(b.feiertage.contains { $0.datum.jahr == 2026 }, "\(id)")
+        #expect(b.feiertage.contains { $0.datum.jahr == 2027 }, "\(id)")
+        #expect(!b.quellen.isEmpty, "\(id)")
+    }
+}
+
+@Test func feiertageLiegenNichtAufWochenenden() throws {
+    for b in try uhr().boersen {
+        for feiertag in b.feiertage {
+            #expect(![Wochentag.samstag, .sonntag].contains(feiertag.datum.wochentag), "\(b.id) \(feiertag.datum)")
+        }
+    }
+}
+
+// MARK: Xetra
+
+@Test func xetraIstMittwochsVormittagsOffen() throws {
+    let s = try boerse("xetra").status(zeit("2026-10-07T08:00:00"))   // 10:00 Berlin
+    #expect(s.offen)
+    #expect(s.naechsterWechsel == zeit("2026-10-07T15:30:00"))      // 17:30 Berlin
+    #expect(s.feiertag == nil)
+    #expect(s.datenGueltig)
+}
+
+@Test func xetraGrenzenGenau() throws {
+    let x = try boerse("xetra")
+    #expect(!x.istOffen(zeit("2026-10-07T06:59:59")))
+    #expect(x.istOffen(zeit("2026-10-07T07:00:00")))
+    #expect(x.istOffen(zeit("2026-10-07T15:29:59")))
+    #expect(!x.istOffen(zeit("2026-10-07T15:30:00")))
+}
+
+@Test func xetraAmWochenendeZuBisMontag() throws {
+    let s = try boerse("xetra").status(zeit("2026-10-03T12:00:00"))   // Samstag
+    #expect(!s.offen)
+    #expect(s.naechsterWechsel == zeit("2026-10-05T07:00:00"))
+}
+
+@Test func xetraUeberOsternGeschlossen() throws {
+    let x = try boerse("xetra")
+    let s = x.status(zeit("2026-04-03T10:00:00"))
+    #expect(!s.offen)
+    #expect(s.feiertag == "Karfreitag")
+    #expect(s.naechsterWechsel == zeit("2026-04-07T07:00:00"))      // Dienstag nach Ostermontag
+    #expect(x.naechsteSchliessung(nach: zeit("2026-04-03T10:00:00")) == zeit("2026-04-07T15:30:00"))
+}
+
+@Test func xetraJahreswechselMitVerkuerztemTag() throws {
+    let x = try boerse("xetra")
+    let offen = x.status(zeit("2026-12-30T12:00:00"))                 // 13:00 Berlin, Winterzeit
+    #expect(offen.offen)
+    #expect(offen.naechsterWechsel == zeit("2026-12-30T13:00:00"))    // 14:00 Berlin
+    #expect(offen.verkuerzt == "Letzter Handelstag des Jahres")
+
+    let zu = x.status(zeit("2026-12-30T13:00:00"))
+    #expect(!zu.offen)
+    #expect(zu.naechsterWechsel == zeit("2027-01-04T08:00:00"))       // 31.12. und 01.01. zu, dann Wochenende
+    #expect(zu.verkuerzt == nil)
+}
+
+@Test func sitzungenLiefertEineWocheXetra() throws {
+    let liste = try boerse("xetra").sitzungen(von: zeit("2026-10-05T00:00:00"), bis: zeit("2026-10-12T00:00:00"))
+    #expect(liste.count == 5)
+    #expect(liste.first?.beginn == zeit("2026-10-05T07:00:00"))
+    #expect(liste.last?.ende == zeit("2026-10-09T15:30:00"))
+}
+
+// MARK: USA und London
+
+@Test func nyseRechnetMitAmerikanischerSommerzeit() throws {
+    // Zwischen 08.03. und 29.03.2026 liegen New York und Berlin nur fünf statt sechs Stunden auseinander.
+    let n = try boerse("nyse")
+    #expect(!n.istOffen(zeit("2026-03-16T13:29:59")))
+    #expect(n.istOffen(zeit("2026-03-16T13:30:00")))
+    #expect(n.naechsteSchliessung(nach: zeit("2026-03-16T13:30:00")) == zeit("2026-03-16T20:00:00"))
+}
+
+@Test func nyseSchliesstNachThanksgivingFrueher() throws {
+    let s = try boerse("nyse").status(zeit("2026-11-27T17:00:00"))    // 12:00 New York, Winterzeit
+    #expect(s.offen)
+    #expect(s.naechsterWechsel == zeit("2026-11-27T18:00:00"))
+    #expect(s.verkuerzt == "Tag nach Thanksgiving")
+}
+
+@Test func nasdaqFolgtDemUSKalender() throws {
+    let s = try boerse("nasdaq").status(zeit("2026-07-03T15:00:00"))
+    #expect(!s.offen)
+    #expect(s.feiertag == "Independence Day (Ersatztag)")
+    #expect(s.naechsterWechsel == zeit("2026-07-06T13:30:00"))
+}
+
+@Test func lseHeiligabendBisMittag() throws {
+    let l = try boerse("lse")
+    #expect(l.naechsteSchliessung(nach: zeit("2026-12-24T09:00:00")) == zeit("2026-12-24T12:30:00"))
+    // 25.12. Freitag, Wochenende, 28.12. Ersatztag: weiter am Dienstag
+    #expect(l.naechsteOeffnung(nach: zeit("2026-12-24T12:30:00")) == zeit("2026-12-29T08:00:00"))
+}
+
+// MARK: Forex und Krypto
+
+@Test func forexLaeuftVonSonntagBisFreitagDurch() throws {
+    let f = try boerse("forex")
+    // Die Tagesgrenze 17:00 New York ist keine Schließung.
+    #expect(f.istOffen(zeit("2026-10-07T21:00:00")))
+    #expect(f.naechsteSchliessung(nach: zeit("2026-10-07T12:00:00")) == zeit("2026-10-09T21:00:00"))
+    #expect(!f.istOffen(zeit("2026-10-10T12:00:00")))                  // Samstag
+    #expect(f.naechsteOeffnung(nach: zeit("2026-10-10T12:00:00")) == zeit("2026-10-11T21:00:00"))
+    // Im Winter eine Stunde später in UTC
+    #expect(f.naechsteOeffnung(nach: zeit("2026-11-07T12:00:00")) == zeit("2026-11-08T22:00:00"))
+}
+
+@Test func kryptoIstImmerOffen() throws {
+    let k = try boerse("krypto")
+    let s = k.status(zeit("2026-12-25T03:00:00"))
+    #expect(s.offen)
+    #expect(s.naechsterWechsel == nil)
+    #expect(k.naechsteOeffnung(nach: zeit("2026-12-25T03:00:00")) == nil)
+    #expect(k.naechsteSchliessung(nach: zeit("2026-12-25T03:00:00")) == nil)
+}
+
+@Test func nachDemGepflegtenZeitraumWarntDieUhr() throws {
+    let s = try boerse("xetra").status(zeit("2028-01-05T10:00:00"))
+    #expect(s.offen)
+    #expect(!s.datenGueltig)
+    #expect(try boerse("xetra").status(zeit("2027-12-31T10:00:00")).datenGueltig == false)  // nächste Öffnung 2028
+}
+
+// MARK: Eigene Börsen und Fehler
+
+private func json(_ text: String) -> Data { Data(text.utf8) }
+
+private let eigeneBoerse = """
+{ "format": 1, "id": "tse", "name": "Tokio", "mic": "XTKS", "zeitzone": "Asia/Tokyo", "stand": "2026-10-01",
+  "handelszeiten": [ { "tage": ["Mo","Di","Mi","Do","Fr"], "beginn": "09:00", "ende": "11:30" },
+                     { "tage": ["Mo","Di","Mi","Do","Fr"], "beginn": "12:30", "ende": "15:30" } ] }
+"""
+
+@Test func eigeneBoerseMitMittagspause() throws {
+    let tokio = try Boerse.lade(json: json(eigeneBoerse))
+    let uhr = try Boersenuhr.mitgeliefert(zusaetzlich: [tokio])
+    #expect(uhr.boersen.last?.id == "tse")
+    // 12:00 Tokio = 03:00 UTC, keine Sommerzeit
+    let s = tokio.status(zeit("2026-10-07T03:00:00"))
+    #expect(!s.offen)
+    #expect(s.naechsterWechsel == zeit("2026-10-07T03:30:00"))
+    #expect(s.datenGueltig)  // ohne datenGueltigBis keine Warnung
+}
+
+@Test func dateiUeberstehtRundreiseUnveraendert() throws {
+    for b in try uhr().boersen {
+        let zurueck = try Boerse.lade(json: JSONEncoder().encode(b))
+        #expect(zurueck == b)
+    }
+}
+
+@Test func fehlerhafteDateienWerdenAbgelehnt() throws {
+    let basis = #"{ "format": 1, "id": "x", "name": "X", "stand": "2026-10-01", "#
+    #expect(throws: BoersenuhrFehler.unbekannteZeitzone(id: "x", zeitzone: "Mond/Basis")) {
+        try Boerse.lade(json: json(basis + #""zeitzone": "Mond/Basis", "durchgehend": true }"#))
+    }
+    #expect(throws: BoersenuhrFehler.unbekanntesFormat(id: "x", format: 2)) {
+        try Boerse.lade(json: json(#"{ "format": 2, "id": "x", "name": "X", "stand": "2026-10-01", "zeitzone": "UTC", "durchgehend": true }"#))
+    }
+    #expect(throws: BoersenuhrFehler.keineHandelszeiten(id: "x")) {
+        try Boerse.lade(json: json(basis + #""zeitzone": "UTC" }"#))
+    }
+    #expect(throws: BoersenuhrFehler.self) {
+        try Boerse.lade(json: json(basis + #""zeitzone": "UTC", "handelszeiten": [ { "tage": ["Mo"], "beginn": "17:00", "ende": "09:00" } ] }"#))
+    }
+    #expect(throws: DecodingError.self) {
+        try Boerse.lade(json: json(basis + #""zeitzone": "UTC", "durchgehend": true, "feiertage": [ { "datum": "2026-02-30", "name": "Falsch" } ] }"#))
+    }
+    #expect(throws: DecodingError.self) {
+        try Boerse.lade(json: json(basis + #""zeitzone": "UTC", "handelszeiten": [ { "tage": ["Montag"], "beginn": "09:00", "ende": "17:00" } ] }"#))
+    }
+    let krypto = try boerse("krypto")
+    #expect(throws: BoersenuhrFehler.doppelteBoerse(id: "krypto")) {
+        try Boersenuhr(boersen: [krypto, krypto])
+    }
+}
+
+@Test func grundtypenPruefenIhreWerte() throws {
+    #expect(throws: BoersenuhrFehler.ungueltigesDatum("2027-02-29")) { try Kalendertag("2027-02-29") }
+    #expect(try Kalendertag("2028-02-29").plus(tage: 1) == Kalendertag("2028-03-01"))
+    #expect(try Kalendertag("2026-10-01").wochentag == .donnerstag)
+    #expect(throws: BoersenuhrFehler.ungueltigeUhrzeit("24:00")) { try Uhrzeit("24:00") }
+    #expect(try Uhrzeit("09:30") < Uhrzeit("16:00"))
+}
