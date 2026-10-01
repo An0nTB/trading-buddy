@@ -1,0 +1,34 @@
+{
+  "manifest_version": "0.3",
+  "name": "trading-buddy",
+  "display_name": "Trading Buddy (Experiment)",
+  "version": "0.0.1",
+  "description": "Experiment AP6: Kennzahlen aus der Trading-Buddy-App in Claude abrufen.",
+  "author": {
+    "name": "Tim Bock"
+  },
+  "server": {
+    "type": "binary",
+    "entry_point": "server/trading-buddy-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/server/trading-buddy-mcp",
+      "args": [],
+      "env": {
+        "TB_APP_GROUP": "__TEAM__.journal"
+      }
+    }
+  },
+  "tools": [
+    {
+      "name": "hole_kennzahlen",
+      "description": "Liefert Kennzahlen aus dem Trading Buddy (im Experiment feste Beispielwerte)."
+    },
+    {
+      "name": "pruefe_datenweg",
+      "description": "Prüft, ob der Server die Testdatei der Trading-Buddy-App lesen kann."
+    }
+  ],
+  "compatibility": {
+    "platforms": ["darwin"]
+  }
+}
