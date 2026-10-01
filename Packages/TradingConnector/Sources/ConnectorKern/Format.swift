@@ -57,6 +57,13 @@ enum Format {
         return f.string(from: zeitpunkt)
     }
 
+    /// Freitext für Tabellen: einzeilig, ohne Tabellenzeichen, höchstens `zeichen` lang.
+    static func kurz(_ text: String?, zeichen: Int = 120) -> String {
+        guard let text, !text.isEmpty else { return "–" }
+        let einzeilig = text.replacingOccurrences(of: "\n", with: " ").replacingOccurrences(of: "|", with: "/")
+        return einzeilig.count > zeichen ? String(einzeilig.prefix(zeichen)) + "…" : einzeilig
+    }
+
     /// Markdown-Tabelle; kompakter als Fließtext und für Claude eindeutig.
     static func tabelle(_ kopf: [String], _ zeilen: [[String]]) -> String {
         let alle = [kopf, kopf.map { _ in "---" }] + zeilen
