@@ -44,3 +44,31 @@ jobs:
         run: xcodebuild -project TradingBuddy.xcodeproj -scheme TradingBuddy -destination 'generic/platform=macOS' CODE_SIGNING_ALLOWED=NO build
       - name: Bauen für iOS-Simulator
         run: xcodebuild -project TradingBuddy.xcodeproj -scheme TradingBuddy -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
+
+  connector:
+    name: Connector (macOS)
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: Packages/TradingConnector
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tests
+        run: swift test
+      - name: Bauen (Release)
+        run: swift build -c release
+      - name: Manifest prüfen
+        run: python3 -m json.tool ../../Connector/manifest.json > /dev/null
+      - name: Server antwortet auf MCP-Anfragen
+        run: |
+          BIN="$(swift build -c release --show-bin-path)/trading-buddy-mcp"
+          (
+            echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"ci","version":"1"}}}'
+            echo '{"jsonrpc":"2.0","method":"notifications/initialized"}'
+            echo '{"jsonrpc":"2.0","id":2,"method":"tools/list"}'
+            echo '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"hole_kennzahlen","arguments":{}}}'
+            sleep 3
+          ) | perl -e 'alarm 20; exec @ARGV' "$BIN" > antwort.txt || true
+          cat antwort.txt
+          grep -q pruefe_datenweg antwort.txt
+          grep -q Profitfaktor antwort.txt
