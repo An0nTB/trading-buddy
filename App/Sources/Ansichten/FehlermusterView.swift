@@ -40,6 +40,9 @@ struct FehlermusterView: View {
                                         .foregroundStyle(thema.textSchwach)
                                 }
                             }
+                            if !befund.trades.isEmpty {
+                                BefundTrades(befund: befund)
+                            }
                         }
                     }
                     Text("Schwellen sind Vorschläge aus der Recherche (R5) und noch nicht am echten Datensatz kalibriert.")
@@ -49,6 +52,65 @@ struct FehlermusterView: View {
             }
             .padding(Abstand.seitenrand)
         }
+    }
+}
+
+/// Aufklappbare Liste der Trades eines Befunds (Tims Wunsch 01.10.2026): Klick auf einen Trade öffnet ihn
+/// in der Trade-Tabelle, gefiltert auf dieses Muster; „Alle in Trades öffnen“ zeigt die ganze Gruppe.
+struct BefundTrades: View {
+    let befund: Befund
+    @Environment(AppModell.self) private var modell
+    @Environment(\.thema) private var thema
+    @State private var offen = false
+
+    var body: some View {
+        DisclosureGroup(isExpanded: $offen) {
+            VStack(alignment: .leading, spacing: Abstand.raster) {
+                ForEach(modell.trades(zu: befund)) { trade in
+                    Button {
+                        modell.zeigeTrade(trade.id, muster: befund.muster)
+                    } label: {
+                        HStack(spacing: Abstand.kachelAbstand) {
+                            Text(verbatim: Format.zeit(trade.closeTime))
+                                .font(Schrift.tabelle)
+                                .foregroundStyle(thema.textSchwach)
+                                .frame(width: 100, alignment: .leading)
+                            Text(verbatim: "\(trade.symbol) · \(Format.richtung(trade.side)) · \(Format.lots(trade.lots)) Lots")
+                                .foregroundStyle(thema.text)
+                            Spacer()
+                            if trade.rMultiple != nil {
+                                Text(verbatim: Format.r(trade.rMultiple))
+                                    .font(Schrift.tabelle)
+                                    .foregroundStyle(thema.textSchwach)
+                            }
+                            Text(verbatim: Format.geld(trade.netProfit, modell.waehrung))
+                                .font(Schrift.tabelle)
+                                .foregroundStyle(thema.vorzeichen(trade.netProfit))
+                                .frame(width: 90, alignment: .trailing)
+                            Image(systemName: "chevron.right")
+                                .font(.caption2)
+                                .foregroundStyle(thema.textSchwach)
+                        }
+                        .padding(.vertical, Abstand.raster / 2)
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .help("Im Journal öffnen")
+                }
+                Button("Alle \(befund.trades.count) in Trades öffnen") {
+                    modell.zeigeTrades(mit: befund.muster)
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(thema.akzent)
+                .padding(.top, Abstand.raster)
+            }
+            .padding(.top, Abstand.raster)
+        } label: {
+            Text("\(befund.trades.count) betroffene Trades")
+                .font(Schrift.beschriftung)
+                .foregroundStyle(thema.textSchwach)
+        }
+        .tint(thema.textSchwach)
     }
 }
 
