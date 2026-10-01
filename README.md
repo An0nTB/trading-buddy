@@ -37,7 +37,7 @@ Jeder Pull Request startet dieselben Tests automatisch auf macOS und Linux und b
 
 ## Connector für Claude Desktop (Experiment AP6)
 
-Der lokale MCP-Server liegt in `Packages/TradingConnector`. Bauen und verpacken auf dem Mac, nachdem `Config/Local.xcconfig` eingerichtet ist:
+Der lokale MCP-Server liegt in `Packages/TradingConnector`. Er liest die Daten der App aus einem Export-Ordner, den man in der App und in den Einstellungen der Erweiterung gleich wählt. Bauen und verpacken auf dem Mac:
 
 ```
 scripts/connector_bauen.sh
