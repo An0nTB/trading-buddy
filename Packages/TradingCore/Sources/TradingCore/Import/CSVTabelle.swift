@@ -1,17 +1,13 @@
 import Foundation
 
-/// Fehler beim Einlesen einer CSV-Datei. Wie beim MT4-Import gilt: lieber abbrechen
-/// als still eine Zeile verlieren.
+/// Fehler, an denen der ganze Import scheitert: Die Datei passt nicht zum Format.
+/// Unbekannte Vorgangsarten brechen nicht ab, sie landen als `Importhinweis` beim Nutzer.
 public enum CSVImportFehler: Error, Equatable, Sendable {
     /// Kopfzeile passt zu keinem bekannten Broker-Format.
     case unbekanntesFormat(kopf: [String])
     case fehlendeSpalte(String)
     case ungueltigeZahl(zeile: Int, text: String)
     case ungueltigeZeit(zeile: Int, text: String)
-    /// Vorgangsart, deren Bedeutung nicht belegt ist.
-    case unbekannteArt(zeile: Int, art: String)
-    /// Verkauf ohne passenden Bestand aus früheren Käufen.
-    case verkaufOhneBestand(kennung: String, id: String)
 }
 
 /// CSV nach RFC 4180: Felder in Anführungszeichen dürfen Trennzeichen,
@@ -110,5 +106,10 @@ enum CSVWerte {
                                                             hour: u[0], minute: u[1], second: u[2]))
         else { throw CSVImportFehler.ungueltigeZeit(zeile: zeile, text: "\(datum) \(uhrzeit)") }
         return zeit
+    }
+
+    /// Mitternacht UTC: So schreiben Broker Buchungen, die nur ein Datum haben.
+    static func istMitternachtUTC(_ zeit: Date) -> Bool {
+        zeit.timeIntervalSince1970.truncatingRemainder(dividingBy: 86_400) == 0
     }
 }
