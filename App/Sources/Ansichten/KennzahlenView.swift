@@ -21,12 +21,7 @@ struct KennzahlenView: View {
                     KeineTrades()
                 } else {
                     HStack(spacing: Abstand.raster * 2) {
-                        Text("\(kennzahlen.anzahl) Trades")
-                            .font(Schrift.beschriftung)
-                            .padding(.horizontal, Abstand.raster * 2)
-                            .padding(.vertical, Abstand.raster)
-                            .background(thema.flaeche2, in: Capsule())
-                            .foregroundStyle(thema.text)
+                        Kapsel(text: String(localized: "\(kennzahlen.anzahl) Trades"), betont: true)
                         StichprobenHinweis(anzahl: kennzahlen.anzahl)
                     }
                     LazyVGrid(columns: Raster.kacheln, spacing: Abstand.kachelAbstand) {
