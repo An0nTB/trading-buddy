@@ -1,54 +1,22 @@
 {
-  "sourceLanguage" : "de",
-  "strings" : {
-    "exportFolder.choose" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Export-Ordner wählen"
+  "sourceLanguage": "de",
+  "strings": {
+    "exportFolder.choose": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export-Ordner wählen"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choose export folder"
-          }
-        }
-      }
-    },
-    "greeting" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hallo"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hello"
-          }
-        }
-      }
-    },
-    "version %@" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rechenkern %@"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Core %@"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose export folder"
           }
         }
       }
     }
   },
-  "version" : "1.0"
+  "version": "1.0"
 }

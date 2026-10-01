@@ -3,16 +3,36 @@ import Observation
 import TradingCore
 import TradingStore
 
-/// Zustand der App: das Journal auf der Festplatte und die Trades des gewählten Kontos.
-/// Kennzahlen und Fehlermuster rechnet der Rechenkern bei Bedarf neu.
+/// Zeitraum-Filter: alles oder ein Kalendermonat (Monatsanfang in der Zeitzone des Nutzers).
+enum Zeitraum: Hashable {
+    case alle
+    case monat(Date)
+}
+
+/// Eine importierte Datei in der Liste unter „Import“.
+struct ImportEintrag: Identifiable {
+    var id: Int64
+    var konto: Konto
+    var lauf: Importlauf
+}
+
+/// Zustand der App: das Journal auf der Festplatte, die Trades des gewählten Kontos
+/// und die Filter der Oberfläche. Kennzahlen und Fehlermuster rechnet der Rechenkern bei Bedarf neu.
 @Observable @MainActor
 final class AppModell {
     private(set) var journal: Journal?
     private(set) var konten: [Konto] = []
-    private(set) var trades: [Trade] = []
+    private(set) var importe: [ImportEintrag] = []
+    /// Alle Trades des gewählten Kontos, vor Filtern.
+    private(set) var alleTrades: [Trade] = []
     private(set) var geloeschteOrders = 0
-    var kontoId: Int64?
+    private(set) var kontoId: Int64?
     var fehler: String?
+
+    // Zustand der Oberfläche
+    var bereich: Bereich = .uebersicht
+    var zeitraum: Zeitraum = .alle
+    var instrument: String?
 
     init() {
         do {
@@ -27,6 +47,30 @@ final class AppModell {
     var waehrung: String { konto?.waehrung ?? "EUR" }
     /// Wochentag, Stunde und Tagesgrenze in der Zeitzone des Nutzers.
     var zeitzone: TimeZone { .current }
+
+    private var kalender: Calendar {
+        var kalender = Calendar(identifier: .gregorian)
+        kalender.timeZone = zeitzone
+        return kalender
+    }
+
+    /// Trades nach Zeitraum und Instrument: Grundlage aller Zahlen in der Oberfläche.
+    var trades: [Trade] {
+        let kalender = self.kalender
+        return alleTrades.filter { trade in
+            if let instrument, trade.symbol != instrument { return false }
+            if case .monat(let monat) = zeitraum, monatsanfang(trade.closeTime, kalender) != monat { return false }
+            return true
+        }
+    }
+
+    /// Monate mit Trades, neuester zuerst.
+    var monate: [Date] {
+        let kalender = self.kalender
+        return Set(alleTrades.map { monatsanfang($0.closeTime, kalender) }).sorted(by: >)
+    }
+
+    var symbole: [String] { Set(alleTrades.map(\.symbol)).sorted() }
 
     var kennzahlen: Kennzahlen { Kennzahlen(trades: trades) }
     var kapitalverlauf: Kapitalverlauf { Kapitalverlauf(trades: trades) }
@@ -48,20 +92,45 @@ final class AppModell {
         return ergebnis
     }
 
+    /// Trades ohne Stop im Export: ohne Stop kein R.
+    var ohneStop: Int { trades.filter { $0.stopLoss == nil }.count }
+
+    func waehleKonto(_ id: Int64?) {
+        kontoId = id
+        laden()
+    }
+
     func laden() {
         guard let journal else { return }
         do {
             konten = try journal.konten()
+            importe = try konten.flatMap { konto in
+                try journal.importe(konto: konto).map { ImportEintrag(id: $0.id ?? 0, konto: konto, lauf: $0) }
+            }
             if let konto {
-                trades = try journal.geschlossenePositionen(konto: konto).map { Trade($0) }
+                alleTrades = try journal.geschlossenePositionen(konto: konto).map { Trade($0) }
                 geloeschteOrders = try journal.geloeschteOrders(konto: konto).count
             } else {
-                trades = []
+                alleTrades = []
                 geloeschteOrders = 0
             }
         } catch {
             fehler = error.localizedDescription
         }
+    }
+
+    /// Das Konto zu Broker und Nummer, falls schon angelegt.
+    func bekanntesKonto(broker: String, kontonummer: String) -> Konto? {
+        konten.first { $0.broker == broker && $0.kontonummer == kontonummer }
+    }
+
+    /// Tickets, die für dieses Konto schon gespeichert sind (Zahl „Schon bekannt“ im Import-Blatt).
+    func bekannteTickets(broker: String, kontonummer: String) -> Set<String> {
+        guard let journal,
+              let konto = bekanntesKonto(broker: broker, kontonummer: kontonummer),
+              let positionen = try? journal.geschlossenePositionen(konto: konto)
+        else { return [] }
+        return Set(positionen.map(\.ticket))
     }
 
     func importiere(daten: Data, dateiname: String, serverZeitzone: TimeZone,
@@ -81,6 +150,10 @@ final class AppModell {
         try FileManager.default.createDirectory(at: ordner, withIntermediateDirectories: true)
         return ordner.appendingPathComponent("journal.sqlite").path
     }
+}
+
+private func monatsanfang(_ datum: Date, _ kalender: Calendar) -> Date {
+    kalender.dateInterval(of: .month, for: datum)?.start ?? datum
 }
 
 extension Fehlermuster {
