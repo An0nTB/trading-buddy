@@ -7,6 +7,8 @@ public enum MT4ImportFehler: Error, Equatable, Sendable {
     case keinMT4Auszug
     /// Zeile mit Ticket, deren Aufbau unbekannt ist (zum Beispiel Ein- oder Auszahlung).
     case unbekannteZeile(abschnitt: String, ticket: String, zellen: [String])
+    /// Spaltenkopf weicht vom belegten Aufbau ab; nach Position zu lesen wäre dann falsch.
+    case unerwarteteSpalten(abschnitt: String, gefunden: [String])
     case ungueltigeZahl(String)
     case ungueltigeZeit(String)
     case unbekannteAuftragsart(String)
