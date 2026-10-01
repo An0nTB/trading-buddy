@@ -92,7 +92,7 @@
     "Handelszeit ist der fortlaufende Handel 09:00 bis 17:30; Eröffnungs- und Schlussauktion sind nicht abgebildet.",
     "2026 deckt sich mit den Beispielwerten in R1 Abschnitt 6.",
     "Fallen 2027 der 01.05. und der 25./26.12. auf ein Wochenende, entfallen sie als Handelstag ohnehin.",
-    "Verkürzter Schluss 14:00 am 30.12. ist Annahme aus exchange_calendars, noch zu prüfen.",
-    "Erstbefüllung der Feiertage und verkürzten Tage aus exchange_calendars 4.13.2 (Python, Apache-2.0) am 01.10.2026 nach R1 Abschnitt 6; Abgleich mit der offiziellen Börsenseite noch zu prüfen."
+    "Handelsfreie Tage 2026 und 2027 am 01.10.2026 mit der Seite der Deutschen Börse abgeglichen: stimmen überein.",
+    "Verkürzter Schluss 14:00 am 30.12. ist Annahme aus exchange_calendars; die Börse schreibt für den 30.12.2026 nur „gegebenenfalls abweichende Handelszeiten“ (Rundschreiben)."
   ]
 }

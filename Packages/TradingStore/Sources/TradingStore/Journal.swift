@@ -37,7 +37,8 @@ public struct ImportErgebnis: Sendable, Equatable {
     public var geloeschteBekannt: Int = 0
     public var offene: Int = 0
     public var wartende: Int = 0
-    /// Zähler eines CSV-Imports (Trade Republic, Scalable); beim MT4-Import leer.
+    /// Zähler eines CSV-Imports (Trade Republic, Scalable); bei XTB Kassenoperationen und Hinweise;
+    /// beim MT4-Import leer.
     public var csv = CSVZaehler()
 }
 

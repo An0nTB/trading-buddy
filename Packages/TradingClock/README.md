@@ -24,3 +24,12 @@ auswahl.angepassteZeiten["xetra"] = [Handelszeit(tage: [.montag, .dienstag, .mit
 let uhr = try Boersenuhr.mit(auswahl)          // was angezeigt wird
 let liste = try Boersenuhr.verfuegbar(auswahl) // alles, was man hinzufügen kann
 ```
+
+Eigene Feiertagskalender (0.3.0): `Feiertagskalender` als JSON (`format`, `id`, `name`, `land`,
+`feiertage`, `verkuerzteTage`, `datenGueltigBis`, `stand`, `quellen`, `hinweise`), beliebig viele je Börse:
+
+```swift
+let schweiz = try Feiertagskalender.lade(json: daten)
+var auswahl = Boersenauswahl(kalender: [schweiz], kalenderJeBoerse: ["xetra": ["ch"]])
+let uhr = try Boersenuhr.mit(auswahl)   // Xetra schließt zusätzlich an Schweizer Feiertagen
+```
