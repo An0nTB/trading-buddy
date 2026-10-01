@@ -375,6 +375,8 @@ struct ImportBlatt: View {
                 return String(localized: "Tickets mit anderen Werten als beim früheren Import: \(tickets.joined(separator: ", "))")
             case .unbekannterWert(let wert):
                 return String(localized: "Unbekannter Wert in der Datenbank: \(wert)")
+            case .ungueltigerWert(let wert):
+                return String(localized: "Eingabe außerhalb des erlaubten Bereichs: \(wert)")
             }
         }
         if let fehler = error as? MT4ImportFehler {
