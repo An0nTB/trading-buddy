@@ -1,9 +1,9 @@
 {
   "manifest_version": "0.3",
   "name": "trading-buddy",
-  "display_name": "Trading Buddy (Experiment)",
-  "version": "0.0.2",
-  "description": "Experiment AP6: Kennzahlen aus der Trading-Buddy-App in Claude abrufen.",
+  "display_name": "Trading Buddy",
+  "version": "0.1.0",
+  "description": "Kennzahlen, Fehlermuster und Wochen- oder Monatsauswertung aus deinem Trading-Buddy-Journal. Nur lesend; die Daten bleiben auf deinem Mac.",
   "author": {
     "name": "Tim Bock"
   },
@@ -20,14 +20,23 @@
   },
   "tools": [
     {
-      "name": "hole_kennzahlen",
-      "description": "Liefert Kennzahlen aus dem Trading Buddy (im Experiment feste Beispielwerte)."
+      "name": "hole_datenstand",
+      "description": "Welche Konten und welcher Zeitraum vorliegen."
     },
     {
-      "name": "pruefe_datenweg",
-      "description": "Prüft, ob der Server die Testdatei der Trading-Buddy-App im Export-Ordner lesen kann."
+      "name": "hole_auswertung",
+      "description": "Wochen- oder Monatsauswertung mit Vergleich, Fehlermustern und Rezept für die Antwort."
+    },
+    {
+      "name": "hole_aufschluesselung",
+      "description": "Kennzahlen je Symbol, Richtung, Wochentag, Stunde, Trade-Nummer am Tag, Vorergebnis oder Haltedauer."
+    },
+    {
+      "name": "hole_trades",
+      "description": "Einzelne Trades, auch nur die eines Fehlermusters."
     }
   ],
+  "prompts_generated": true,
   "compatibility": {
     "platforms": [
       "darwin"
@@ -37,9 +46,8 @@
     "export_ordner": {
       "type": "directory",
       "title": "Export-Ordner",
-      "description": "Derselbe Ordner, den du in der Trading-Buddy-App unter „Export-Ordner wählen“ eingestellt hast.",
-      "required": true,
-      "default": "${HOME}/TradingBuddy-Export"
+      "description": "Derselbe Ordner, den du in der Trading-Buddy-App als Export-Ordner gewählt hast. Über „Durchsuchen“ auswählen.",
+      "required": true
     }
   }
 }
