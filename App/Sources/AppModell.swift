@@ -14,6 +14,8 @@ struct ImportEintrag: Identifiable {
     var id: Int64
     var konto: Konto
     var lauf: Importlauf
+    /// Zeilen, die der Importer nicht sicher zuordnen konnte (Trade Republic, Scalable, XTB); bei MT4 leer.
+    var hinweise: [Importhinweis] = []
 }
 
 /// Zustand der App: das Journal auf der Festplatte, die Trades des gewählten Kontos
@@ -23,8 +25,12 @@ final class AppModell {
     private(set) var journal: Journal?
     private(set) var konten: [Konto] = []
     private(set) var importe: [ImportEintrag] = []
-    /// Geschlossene Positionen des gewählten Kontos, wie importiert.
+    /// Geschlossene Positionen des gewählten Kontos, wie importiert (MetaTrader, XTB).
     private var positionen: [ClosedPosition] = []
+    /// Ausführungen, Geldbewegungen und Kapitalmaßnahmen des gewählten Kontos (Trade Republic, Scalable).
+    private(set) var kontobewegungen = Kontobewegungen()
+    /// Trades aus den Ausführungen nach FIFO, dazu offene Käufe und Verkäufe ohne Kauf im Export.
+    private(set) var positionsbildung = Positionsbildung.bilde([])
     /// Journaleinträge des gewählten Kontos, Schlüssel ist das Ticket.
     private(set) var journaleintraege: [String: Journaleintrag] = [:]
     /// Alle Trades des gewählten Kontos, vor Filtern; ein nachgetragener Stop ersetzt den aus dem Export.
@@ -146,27 +152,36 @@ final class AppModell {
         do {
             konten = try journal.konten()
             importe = try konten.flatMap { konto in
-                try journal.importe(konto: konto).map { ImportEintrag(id: $0.id ?? 0, konto: konto, lauf: $0) }
+                try journal.importe(konto: konto).map { lauf in
+                    try ImportEintrag(id: lauf.id ?? 0, konto: konto, lauf: lauf,
+                                      hinweise: journal.importhinweise(importlauf: lauf))
+                }
             }
             if let konto {
                 positionen = try journal.geschlossenePositionen(konto: konto)
+                kontobewegungen = try journal.kontobewegungen(konto: konto)
                 journaleintraege = try journal.journaleintraege(konto: konto)
                 alleGeloeschten = try journal.geloeschteOrders(konto: konto)
             } else {
                 positionen = []
+                kontobewegungen = Kontobewegungen()
                 journaleintraege = [:]
                 alleGeloeschten = []
             }
+            positionsbildung = Positionsbildung.bilde(kontobewegungen.ausfuehrungen,
+                                                      kapitalmassnahmen: kontobewegungen.kapitalmassnahmen)
             aktualisiereTrades()
         } catch {
             fehler = error.localizedDescription
         }
     }
 
-    /// Baut die Trades aus den Positionen; ein Stop aus dem Journal ersetzt den aus dem Export
-    /// (Entscheidung 8: der Export kennt nur den letzten Stand), damit Risiko und R stimmen.
+    /// Baut die Trades aus den Positionen (MetaTrader, XTB) und aus der Positionsbildung (Trade Republic,
+    /// Scalable); ein Stop aus dem Journal ersetzt den aus dem Export (Entscheidung 8: der Export kennt
+    /// nur den letzten Stand), damit Risiko und R stimmen.
     private func aktualisiereTrades() {
-        alleTrades = positionen.map { Trade($0).mitJournal(journaleintraege[$0.ticket]) }
+        alleTrades = (positionen.map(Trade.init) + positionsbildung.trades)
+            .map { $0.mitJournal(journaleintraege[$0.id]) }
     }
 
     /// Stop, wie er im Export steht, auch wenn im Journal ein anderer nachgetragen ist.
@@ -210,6 +225,11 @@ final class AppModell {
         konten.first { $0.broker == broker && $0.kontonummer == kontonummer }
     }
 
+    /// Konten eines Brokers, etwa zur Auswahl im Import-Blatt, wenn die Datei kein Konto nennt.
+    func konten(broker: String) -> [Konto] {
+        konten.filter { $0.broker == broker }
+    }
+
     /// Tickets, die für dieses Konto schon gespeichert sind (Zahl „Schon bekannt“ im Import-Blatt).
     func bekannteTickets(broker: String, kontonummer: String) -> Set<String> {
         guard let journal,
@@ -219,14 +239,48 @@ final class AppModell {
         return Set(positionen.map(\.ticket))
     }
 
-    func importiere(daten: Data, dateiname: String, serverZeitzone: TimeZone,
-                    waehrung: String) throws -> ImportErgebnis {
+    /// Vorgangskennungen (Ausführungen, Geldbewegungen, Kapitalmaßnahmen), die für dieses Konto
+    /// schon gespeichert sind: Grundlage der Zahl „Schon bekannt“ bei Trade Republic und Scalable.
+    func bekannteVorgaenge(broker: String, kontonummer: String) -> Set<String> {
+        guard let journal,
+              let konto = bekanntesKonto(broker: broker, kontonummer: kontonummer),
+              let bewegungen = try? journal.kontobewegungen(konto: konto)
+        else { return [] }
+        return Set(bewegungen.ausfuehrungen.map(\.id) + bewegungen.geldbewegungen.map(\.id)
+            + bewegungen.kapitalmassnahmen.map(\.id))
+    }
+
+    /// Speichert einen MetaTrader-4-Auszug (HTML); Konto und Nummer stehen in der Datei.
+    func importiereMT4(daten: Data, dateiname: String, serverZeitzone: TimeZone,
+                       waehrung: String) throws -> ImportErgebnis {
         guard let journal else { throw CocoaError(.fileNoSuchFile) }
         let ergebnis = try journal.importiereMT4(datei: daten, dateiname: dateiname,
                                                  serverZeitzone: serverZeitzone, kontowaehrung: waehrung)
-        laden()
-        exportiere()
+        nachImport(ergebnis)
         return ergebnis
+    }
+
+    /// Speichert einen Transaktionsexport von Trade Republic oder Scalable (CSV). Die Datei nennt kein
+    /// Konto, deshalb wählt der Nutzer es im Blatt; Doppelte erkennt die Speicherung über Konto und
+    /// Vorgangskennung, ein anderes Konto ergäbe also doppelte Vorgänge.
+    func importiereCSV(daten: Data, dateiname: String, kontonummer: String, kontoname: String,
+                       waehrung: String, zeitzone: TimeZone) throws -> ImportErgebnis {
+        guard let journal else { throw CocoaError(.fileNoSuchFile) }
+        let ergebnis = try journal.importiereCSV(datei: daten, dateiname: dateiname, kontonummer: kontonummer,
+                                                 kontoname: kontoname, kontowaehrung: waehrung, zeitzone: zeitzone)
+        nachImport(ergebnis)
+        return ergebnis
+    }
+
+    /// Lädt neu und wechselt zum Konto des Imports, damit die neuen Trades sofort zu sehen sind.
+    private func nachImport(_ ergebnis: ImportErgebnis) {
+        laden()
+        if let konto = importe.first(where: { $0.lauf.id == ergebnis.importlaufId })?.konto,
+           let id = konto.id, id != self.konto?.id {
+            kontoId = id
+            laden()
+        }
+        exportiere()
     }
 
     /// Schreibt die Exportdatei für den Claude-Connector neu (AP12), nur am Mac.
