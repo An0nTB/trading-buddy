@@ -84,7 +84,7 @@ private let zeit = Date(timeIntervalSince1970: 1_759_350_000)
     #expect(try journal.journaleintraege(konto: konto).isEmpty)
 }
 
-@Test func alteDatenbankWirdAufV2Gehoben() throws {
+@Test func alteDatenbankWirdAufNeuestenStandGehoben() throws {
     let ordner = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
     try FileManager.default.createDirectory(at: ordner, withIntermediateDirectories: true)
     defer { try? FileManager.default.removeItem(at: ordner) }
@@ -93,5 +93,5 @@ private let zeit = Date(timeIntervalSince1970: 1_759_350_000)
     // Stand vor diesem Paket: nur Migration v1.
     try Schema.migrator.migrate(DatabaseQueue(path: pfad), upTo: "v1 Konten, Importe, MT4-Auszüge")
     let journal = try Journal(pfad: pfad)
-    #expect(try journal.angewandteMigrationen() == ["v1 Konten, Importe, MT4-Auszüge", "v2 Journal je Trade"])
+    #expect(try journal.angewandteMigrationen() == ["v1 Konten, Importe, MT4-Auszüge", "v2 Journal je Trade", "v3 Broker-Importe CSV"])
 }
