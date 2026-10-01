@@ -50,6 +50,14 @@ jobs:
         working-directory: Packages/TradingStore
         run: swift test
 
+  design-token:
+    name: Design-Token
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Token der App gegen Design/tokens.json prüfen
+        run: python3 scripts/token_pruefen.py
+
   app:
     name: App (macOS und iOS-Simulator)
     runs-on: xcode-27
