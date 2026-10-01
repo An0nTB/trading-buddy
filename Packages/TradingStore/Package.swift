@@ -27,6 +27,9 @@ let package = Package(
                 .product(name: "Crypto", package: "swift-crypto")
             ]
         ),
-        .testTarget(name: "TradingStoreTests", dependencies: ["TradingStore"])
+        .testTarget(
+            name: "TradingStoreTests",
+            dependencies: ["TradingStore", .product(name: "GRDB", package: "GRDB.swift")]
+        )
     ]
 )
