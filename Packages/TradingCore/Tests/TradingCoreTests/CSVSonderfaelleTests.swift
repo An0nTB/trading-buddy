@@ -106,7 +106,8 @@ private func utc(_ iso: String) -> Date {
     // Gebühr ohne Minus in der Datei ist trotzdem ein Abzug.
     #expect(k.ausfuehrungen[0].gebuehr == dez("-0.99"))
     // 02:00 Sommerzeit und 01:00 Winterzeit sind Mitternacht UTC: nur Datum.
-    #expect(k.geldbewegungen.allSatisfy(\.nurDatum))
+    let alleNurDatum = k.geldbewegungen.allSatisfy { $0.nurDatum }
+    #expect(alleNurDatum)
     #expect(k.geldbewegungen[4].zeit == utc("2024-01-19T00:00:00Z"))
     #expect(!k.ausfuehrungen[0].nurDatum)
     #expect(k.ausfuehrungen[0].zeit == utc("2025-09-03T13:45:10Z"))
