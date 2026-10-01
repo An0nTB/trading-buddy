@@ -272,6 +272,17 @@ final class AppModell {
         return ergebnis
     }
 
+    /// Speichert eine XTB-Kontohistorie (Excel). Kontonummer und Währung stehen meist im Kopf der Datei;
+    /// die App gibt sie nur mit, wenn sie dort fehlen (bei Widerspruch bricht die Speicherung ab).
+    func importiereXTB(daten: Data, dateiname: String, kontonummer: String?, kontoname: String?,
+                       waehrung: String?, zeitzone: TimeZone) throws -> ImportErgebnis {
+        guard let journal else { throw CocoaError(.fileNoSuchFile) }
+        let ergebnis = try journal.importiereXTB(datei: daten, dateiname: dateiname, kontonummer: kontonummer,
+                                                 kontoname: kontoname, kontowaehrung: waehrung, zeitzone: zeitzone)
+        nachImport(ergebnis)
+        return ergebnis
+    }
+
     /// Lädt neu und wechselt zum Konto des Imports, damit die neuen Trades sofort zu sehen sind.
     private func nachImport(_ ergebnis: ImportErgebnis) {
         laden()

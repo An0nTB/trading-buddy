@@ -26,6 +26,17 @@ enum Serverzeit: String, CaseIterable, Identifiable {
         case .newYork: "UTC−5 / UTC−4 (New York)"
         }
     }
+
+    /// Ohne den MT4-Zusatz, für den XTB-Auszug (dort ist deutsche Ortszeit die Vorgabe, eine Annahme).
+    var kurzname: LocalizedStringKey {
+        switch self {
+        case .osteuropa: "UTC+2 / UTC+3 (Osteuropa)"
+        case .mitteleuropa: "UTC+1 / UTC+2 (Mitteleuropa, Vorgabe)"
+        case .london: "UTC+0 / UTC+1 (London)"
+        case .utc: "UTC ohne Sommerzeit"
+        case .newYork: "UTC−5 / UTC−4 (New York)"
+        }
+    }
 }
 
 /// Gelesene Datei vor dem Speichern: Grundlage des Import-Blatts.
@@ -38,7 +49,9 @@ struct ImportVorschau: Identifiable {
 /// Importer, die noch gegen keine echte Datei liefen, nur gegen öffentliche Beispiele (Stand-Doc 16,
 /// Entscheidung 01.10.2026): Die App kennzeichnet sie als „ungeprüft“, bis eine echte Datei durchlief.
 enum Importer {
-    static let ungeprueft: Set<String> = [Journal.tradeRepublicImporter, Journal.scalableImporter]
+    static let ungeprueft: Set<String> = [Journal.tradeRepublicImporter, Journal.scalableImporter, Journal.xtbImporter]
+    /// Broker-Name der XTB-Konten, wie `Journal.importiereXTB` ihn speichert.
+    static let xtbBroker = "XTB"
 
     static func istUngeprueft(_ name: String) -> Bool { ungeprueft.contains(name) }
 }
@@ -74,6 +87,7 @@ enum CSVBroker {
 enum ErkannteDatei {
     case mt4(MT4Statement)
     case csv(CSVBroker, Kontobewegungen)
+    case xtb(XTBAuszug)
 }
 
 /// Import (Doc 10, Abschnitt 7): Liste der bisherigen Importe, „Datei wählen“ öffnet das Blatt mit Prüfung.
@@ -84,8 +98,11 @@ struct ImportView: View {
     @State private var vorschau: ImportVorschau?
     @State private var lesefehler: String?
 
-    /// Dateitypen im Öffnen-Dialog: HTML (MetaTrader 4), CSV (Trade Republic, Scalable).
-    private var dateitypen: [UTType] { [.html, .plainText, .commaSeparatedText] }
+    /// Dateitypen im Öffnen-Dialog: HTML (MetaTrader 4), CSV (Trade Republic, Scalable), XLSX (XTB).
+    private var dateitypen: [UTType] {
+        [.html, .plainText, .commaSeparatedText, .spreadsheet]
+            + [UTType("org.openxmlformats.spreadsheetml.sheet"), UTType(filenameExtension: "xlsx")].compactMap { $0 }
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: Abstand.kachelAbstand) {
@@ -108,7 +125,7 @@ struct ImportView: View {
             }
             if modell.importe.isEmpty {
                 ContentUnavailableView("Noch kein Import", systemImage: "square.and.arrow.down",
-                                       description: Text("Wähle einen Kontoauszug: MetaTrader 4 (HTML, GBE und andere Broker) oder den Transaktionsexport von Trade Republic oder Scalable Capital (CSV)."))
+                                       description: Text("Wähle einen Kontoauszug: MetaTrader 4 (HTML, GBE und andere Broker), den Transaktionsexport von Trade Republic oder Scalable Capital (CSV) oder die Kontohistorie von XTB (Excel aus xStation 5)."))
             } else {
                 List(modell.importe) { eintrag in
                     ImportZeile(eintrag: eintrag)
@@ -241,6 +258,10 @@ struct ImportBlatt: View {
     @Environment(\.thema) private var thema
     @Environment(\.dismiss) private var dismiss
     @State private var serverzeit = Serverzeit.vorgabe
+    /// Zeitzone der XTB-Zeiten: nicht belegt, Vorgabe deutsche Ortszeit (Stand-Doc 16).
+    @State private var xtbZeit = Serverzeit.mitteleuropa
+    /// Kontonummer für einen XTB-Auszug ohne Kontokopf.
+    @State private var xtbKontonummer = ""
     @State private var waehrung = "EUR"
     @State private var erkannt: ErkannteDatei?
     @State private var kontowahl: Kontowahl?
@@ -276,6 +297,8 @@ struct ImportBlatt: View {
                         inhaltMT4(auszug)
                     case .csv(let broker, let bewegungen)?:
                         inhaltCSV(broker, bewegungen)
+                    case .xtb(let auszug)?:
+                        inhaltXTB(auszug)
                     case nil:
                         if let lesefehler {
                             Label(lesefehler, systemImage: "exclamationmark.triangle")
@@ -315,6 +338,7 @@ struct ImportBlatt: View {
         .padding(Abstand.seitenrand)
         .frame(minWidth: 640, idealWidth: 700, minHeight: 540)
         .onChange(of: serverzeit, initial: true) { lies() }
+        .onChange(of: xtbZeit) { lies() }
     }
 
     // MARK: MetaTrader 4
@@ -554,6 +578,184 @@ struct ImportBlatt: View {
         claudeSatz
     }
 
+    // MARK: XTB (Excel)
+
+    @ViewBuilder
+    private func inhaltXTB(_ auszug: XTBAuszug) -> some View {
+        let nummer = xtbNummer(auszug)
+        let konto = nummer.isEmpty ? nil : modell.bekanntesKonto(broker: Importer.xtbBroker, kontonummer: nummer)
+        let bekannt = nummer.isEmpty ? [] : modell.bekannteTickets(broker: Importer.xtbBroker, kontonummer: nummer)
+        let dubletten = auszug.positionen.filter { bekannt.contains($0.ticket) }.count
+        let ohneStop = auszug.positionen.filter { $0.stopLoss == nil }.count
+        let anzeigeWaehrung = auszug.waehrung ?? konto?.waehrung ?? waehrung
+        let einAus = auszug.kasse.geldbewegungen.filter { $0.art == .einzahlung || $0.art == .auszahlung }
+            .map { $0.betrag + $0.gebuehr + $0.steuer }.reduce(Decimal(0), +)
+        let summenpruefung = xtbPruefungen(auszug)
+
+        HStack(spacing: Abstand.raster * 2) {
+            Text(verbatim: erkennungXTB(auszug))
+                .font(Schrift.fliesstext)
+                .foregroundStyle(thema.textSchwach)
+            Kapsel(text: String(localized: "ungeprüft"), betont: true)
+        }
+        Text("Dieser Importer lief noch gegen keine echte Datei, nur gegen öffentliche Beispiele. Prüfe nach dem Import Stückzahlen und Beträge gegen xStation.")
+            .font(Schrift.beschriftung)
+            .foregroundStyle(thema.textSchwach)
+
+        HStack(spacing: Abstand.kachelAbstand) {
+            Kachel(titel: "Trades", wert: "\(auszug.positionen.count)",
+                   zusatz: String(localized: "geschlossene Positionen"))
+            Kachel(titel: "Kassenoperationen", wert: "\(auszug.kasse.geldbewegungen.count)",
+                   zusatz: String(localized: "ohne Handel"))
+            Kachel(titel: "Ein-/Auszahlungen", wert: Format.betrag(einAus, anzeigeWaehrung))
+            Kachel(titel: "Schon bekannt", wert: "\(dubletten)")
+        }
+
+        Text("Konto und Zeit")
+            .font(.headline)
+            .foregroundStyle(thema.text)
+        Grid(alignment: .leading, horizontalSpacing: Abstand.kachelAbstand, verticalSpacing: Abstand.raster * 2) {
+            GridRow {
+                Text("Konto").foregroundStyle(thema.textSchwach)
+                HStack {
+                    if let konto {
+                        Text(verbatim: "\(konto.broker) · \(konto.kontoname) (\(String(localized: "bestehend")), \(konto.waehrung))")
+                            .foregroundStyle(thema.text)
+                    } else if auszug.konto != nil {
+                        Text(verbatim: "\(Importer.xtbBroker) · \(String(localized: "Konto")) \(maskiert(nummer)) (\(String(localized: "neu")))")
+                            .foregroundStyle(thema.text)
+                    } else {
+                        Text(verbatim: Importer.xtbBroker).foregroundStyle(thema.text)
+                        TextField("Kontonummer", text: $xtbKontonummer)
+                            .textFieldStyle(.roundedBorder)
+                            .frame(width: 160)
+                    }
+                    if konto == nil {
+                        if let waehrung = auszug.waehrung {
+                            Text(verbatim: waehrung).foregroundStyle(thema.textSchwach)
+                        } else {
+                            Picker("Kontowährung", selection: $waehrung) {
+                                ForEach(Self.waehrungen, id: \.self) { Text(verbatim: $0).tag($0) }
+                            }
+                            .labelsHidden()
+                            .fixedSize()
+                        }
+                    }
+                }
+            }
+            GridRow {
+                Text("Zeit in der Datei").foregroundStyle(thema.textSchwach)
+                Picker("Zeitzone", selection: $xtbZeit) {
+                    ForEach(Serverzeit.allCases) { Text($0.kurzname).tag($0) }
+                }
+                .labelsHidden()
+            }
+            GridRow {
+                Text("Kosten").foregroundStyle(thema.textSchwach)
+                Text("Kommission, Swap und Rollover aus dem Export; Kassenzeilen zu Positionen zählen nicht doppelt").foregroundStyle(thema.text)
+            }
+        }
+        if auszug.konto == nil {
+            Text("Die Datei nennt keine Kontonummer. Gib dieselbe Nummer wie bei früheren Auszügen dieses Kontos an, sonst zählt die App Positionen doppelt.")
+                .font(Schrift.beschriftung)
+                .foregroundStyle(thema.textSchwach)
+        }
+        Text("XTB schreibt keine Zeitzone in die Datei; deutsche Ortszeit ist eine Annahme. Eine andere Wahl verschiebt alle Zeiten, und ein späterer Auszug mit anderer Wahl bricht als abweichend ab.")
+            .font(Schrift.beschriftung)
+            .foregroundStyle(thema.textSchwach)
+
+        Text("Prüfung gegen den Auszug")
+            .font(.headline)
+            .foregroundStyle(thema.text)
+        if summenpruefung.isEmpty {
+            Text("Die Datei hat keine Summenzeilen „Total“; nichts zu vergleichen.")
+                .font(Schrift.beschriftung)
+                .foregroundStyle(thema.textSchwach)
+        } else {
+            Grid(alignment: .leading, horizontalSpacing: Abstand.kachelAbstand, verticalSpacing: Abstand.raster) {
+                GridRow {
+                    Text("Wert")
+                    Text("laut Auszug").gridColumnAlignment(.trailing)
+                    Text("berechnet").gridColumnAlignment(.trailing)
+                    Text("")
+                }
+                .font(Schrift.beschriftung)
+                .foregroundStyle(thema.textSchwach)
+                ForEach(summenpruefung) { pruefung in
+                    GridRow {
+                        Text(verbatim: pruefung.id).foregroundStyle(thema.text)
+                        Text(verbatim: Format.zahl(pruefung.lautAuszug)).font(Schrift.tabelle)
+                        Text(verbatim: Format.zahl(pruefung.berechnet)).font(Schrift.tabelle)
+                        if pruefung.stimmt {
+                            Text("stimmt").foregroundStyle(thema.gewinn)
+                        } else {
+                            Text("weicht ab").foregroundStyle(thema.verlust)
+                        }
+                    }
+                }
+            }
+        }
+
+        if !auszug.hinweise.isEmpty {
+            VStack(alignment: .leading, spacing: Abstand.raster) {
+                Text(verbatim: HinweisListe.anzahlText(auszug.hinweise.count) + ": " + String(localized: "Zeilen, die der Importer nicht sicher zuordnen kann"))
+                    .font(.headline)
+                    .foregroundStyle(thema.text)
+                HinweisListe(hinweise: auszug.hinweise)
+            }
+            .padding(Abstand.kachelInnen)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(thema.flaeche2, in: RoundedRectangle(cornerRadius: Abstand.radiusKachel))
+        }
+
+        if ohneStop > 0 {
+            Text("\(ohneStop) Trades ohne Stop im Export: ohne Stop kein R; Stop nachtragen geht im Inspektor.")
+                .font(Schrift.beschriftung)
+                .foregroundStyle(thema.textSchwach)
+        }
+
+        claudeSatz
+    }
+
+    /// Kontonummer aus dem Kopf der Datei, sonst die eingegebene.
+    private func xtbNummer(_ auszug: XTBAuszug) -> String {
+        auszug.konto ?? xtbKontonummer.trimmingCharacters(in: .whitespaces)
+    }
+
+    private func maskiert(_ nummer: String) -> String {
+        "••••" + String(nummer.suffix(4))
+    }
+
+    private func erkennungXTB(_ auszug: XTBAuszug) -> String {
+        let zeiten = auszug.positionen.map(\.closeTime) + auszug.kasse.geldbewegungen.map(\.zeit)
+        var text = String(localized: "Erkannt: XTB Kontohistorie (Excel)")
+        if let konto = auszug.konto {
+            text += " · " + String(localized: "Konto \(maskiert(konto))")
+        }
+        if let von = zeiten.min(), let bis = zeiten.max() {
+            text += " · " + String(localized: "\(Format.datum(von)) bis \(Format.datum(bis))")
+        }
+        return text
+    }
+
+    /// Summenzeilen „Total“ der Datei gegen die gelesenen Zeilen, wie die Speicherung sie prüft.
+    private func xtbPruefungen(_ auszug: XTBAuszug) -> [Pruefung] {
+        var liste: [Pruefung] = []
+        if let summe = auszug.positionenLautSumme {
+            let p = auszug.positionen
+            liste.append(Pruefung(id: String(localized: "Kommission gesamt"), lautAuszug: summe.commission,
+                                  berechnet: p.reduce(Decimal(0)) { $0 + $1.commission }))
+            liste.append(Pruefung(id: String(localized: "Swap gesamt"), lautAuszug: summe.swap,
+                                  berechnet: p.reduce(Decimal(0)) { $0 + $1.swap }))
+            liste.append(Pruefung(id: String(localized: "Ergebnis gesamt (Gross P/L)"), lautAuszug: summe.profit,
+                                  berechnet: p.reduce(Decimal(0)) { $0 + $1.profit }))
+        }
+        if let kasse = auszug.kasseLautSumme {
+            liste.append(Pruefung(id: String(localized: "Kasse gesamt"), lautAuszug: kasse, berechnet: auszug.kassenwirkung))
+        }
+        return liste
+    }
+
     private var claudeSatz: some View {
         Text("Später an Claude gehen: Zeiten, Instrument, Richtung, Lots, Kurse, Kosten, Ergebnis, Journal. Nicht: Kontonummer, Name, Saldo.")
             .font(Schrift.beschriftung)
@@ -566,6 +768,7 @@ struct ImportBlatt: View {
         switch erkannt {
         case .mt4(let auszug)?: String(localized: "\(auszug.closedPositions.count) Trades importieren")
         case .csv(_, let bewegungen)?: String(localized: "\(bewegungen.ausfuehrungen.count) Ausführungen importieren")
+        case .xtb(let auszug)?: String(localized: "\(auszug.positionen.count) Trades importieren")
         case nil: String(localized: "Importieren")
         }
     }
@@ -577,6 +780,9 @@ struct ImportBlatt: View {
         case .csv(_, let bewegungen)?:
             (bewegungen.ausfuehrungen.count + bewegungen.geldbewegungen.count + bewegungen.kapitalmassnahmen.count) > 0
                 && kontoGueltig
+        case .xtb(let auszug)?:
+            (auszug.positionen.count + auszug.kasse.geldbewegungen.count) > 0
+                && !xtbNummer(auszug).isEmpty && xtbPruefungen(auszug).allSatisfy(\.stimmt)
         case nil:
             false
         }
@@ -632,30 +838,34 @@ struct ImportBlatt: View {
         return liste
     }
 
-    /// Erkennt das Format am Inhalt: erst die CSV-Köpfe von Trade Republic und Scalable, sonst MetaTrader 4.
+    /// Erkennt das Format am Inhalt: erst XTB (Excel), dann die CSV-Köpfe von Trade Republic und Scalable,
+    /// sonst MetaTrader 4 (HTML).
     private func lies() {
-        guard let text = String(data: vorschau.daten, encoding: .utf8) else {
-            erkannt = nil
-            lesefehler = String(localized: "Die Datei ist kein Text (UTF-8).")
-            return
-        }
+        erkannt = nil
+        lesefehler = nil
         do {
-            if TradeRepublicCSV.erkennt(text) {
-                let bewegungen = try TradeRepublicCSV.lies(text)
-                erkannt = .csv(.tradeRepublic, bewegungen)
-            } else if ScalableCSV.erkennt(text) {
-                let bewegungen = try ScalableCSV.lies(text, zeitzone: CSVBroker.scalable.zeitzone)
-                erkannt = .csv(.scalable, bewegungen)
+            if XTBAuszug.erkennt(vorschau.daten) {
+                let auszug = try XTBAuszug.lies(vorschau.daten, zeitzone: xtbZeit.zeitzone)
+                erkannt = .xtb(auszug)
+            } else if vorschau.dateiname.lowercased().hasSuffix(".xlsx") {
+                lesefehler = String(localized: "Excel-Datei ohne Blatt „Closed Position History“: kein XTB-Kontoauszug aus xStation 5.")
+            } else if let text = String(data: vorschau.daten, encoding: .utf8) {
+                if TradeRepublicCSV.erkennt(text) {
+                    let bewegungen = try TradeRepublicCSV.lies(text)
+                    erkannt = .csv(.tradeRepublic, bewegungen)
+                } else if ScalableCSV.erkennt(text) {
+                    let bewegungen = try ScalableCSV.lies(text, zeitzone: CSVBroker.scalable.zeitzone)
+                    erkannt = .csv(.scalable, bewegungen)
+                } else {
+                    let auszug = try MT4Statement.parse(html: text, serverZeitzone: serverzeit.zeitzone)
+                    erkannt = .mt4(auszug)
+                }
             } else {
-                let auszug = try MT4Statement.parse(html: text, serverZeitzone: serverzeit.zeitzone)
-                erkannt = .mt4(auszug)
+                lesefehler = String(localized: "Die Datei ist weder Text (UTF-8) noch eine Excel-Datei.")
             }
-            lesefehler = nil
         } catch MT4ImportFehler.keinMT4Auszug {
-            erkannt = nil
-            lesefehler = String(localized: "Format nicht erkannt: kein MetaTrader-4-Auszug (HTML) und kein Transaktionsexport von Trade Republic oder Scalable (CSV).")
+            lesefehler = String(localized: "Format nicht erkannt: kein MetaTrader-4-Auszug (HTML), kein Transaktionsexport von Trade Republic oder Scalable (CSV) und keine XTB-Kontohistorie (Excel).")
         } catch {
-            erkannt = nil
             lesefehler = fehlertext(error)
         }
         if case .csv(let broker, _)? = erkannt, kontowahl == nil {
@@ -680,6 +890,16 @@ struct ImportBlatt: View {
                                                     kontonummer: konto?.kontonummer ?? name,
                                                     kontoname: konto?.kontoname ?? name,
                                                     waehrung: konto?.waehrung ?? waehrung, zeitzone: broker.zeitzone)
+            case .xtb(let auszug)?:
+                // Nummer und Währung nur mitgeben, wenn die Datei sie nicht nennt; sonst prüft die
+                // Speicherung Datei gegen Angabe und bricht bei Widerspruch ab.
+                let nummer = xtbNummer(auszug)
+                let bestehend = modell.bekanntesKonto(broker: Importer.xtbBroker, kontonummer: nummer)
+                ergebnis = try modell.importiereXTB(daten: vorschau.daten, dateiname: vorschau.dateiname,
+                                                    kontonummer: auszug.konto == nil ? nummer : nil,
+                                                    kontoname: bestehend?.kontoname ?? String(localized: "Konto \(maskiert(nummer))"),
+                                                    waehrung: auszug.waehrung == nil ? (bestehend?.waehrung ?? waehrung) : nil,
+                                                    zeitzone: xtbZeit.zeitzone)
             case nil:
                 return
             }
@@ -697,6 +917,10 @@ struct ImportBlatt: View {
             if case .csv(_, _)? = erkannt {
                 let z = ergebnis.csv
                 return String(localized: "Gespeichert: \(z.ausfuehrungenNeu) neue Ausführungen (\(z.ausfuehrungenBekannt) bekannt), \(z.geldbewegungenNeu) Geldbewegungen, \(z.kapitalmassnahmenNeu) Kapitalmaßnahmen, \(z.verworfen) verworfen, \(z.hinweise) Hinweise.")
+            }
+            if case .xtb? = erkannt {
+                let z = ergebnis.csv
+                return String(localized: "Gespeichert: \(ergebnis.geschlosseneNeu) neue Trades, \(ergebnis.geschlosseneBekannt) schon bekannt, \(z.geldbewegungenNeu) Kassenoperationen (\(z.geldbewegungenBekannt) bekannt), \(z.hinweise) Hinweise.")
             }
             return String(localized: "Gespeichert: \(ergebnis.geschlosseneNeu) neue Trades, \(ergebnis.geschlosseneBekannt) schon bekannt, \(ergebnis.geloeschteNeu) gelöschte Orders.")
         }
@@ -729,6 +953,16 @@ struct ImportBlatt: View {
                 return String(localized: "Ungültige Zahl in Zeile \(zeile): \(text)")
             case .ungueltigeZeit(let zeile, let text):
                 return String(localized: "Ungültige Zeit in Zeile \(zeile): \(text)")
+            }
+        }
+        if let fehler = error as? XLSXFehler {
+            switch fehler {
+            case .keineXLSX:
+                return String(localized: "Die Datei ist kein Excel-Archiv (XLSX).")
+            case .fehlenderTeil(let name):
+                return String(localized: "Die Excel-Datei ist unvollständig, es fehlt: \(name)")
+            case .fehlendesBlatt(let name):
+                return String(localized: "Blatt fehlt in der Excel-Datei: \(name)")
             }
         }
         if let fehler = error as? MT4ImportFehler {
