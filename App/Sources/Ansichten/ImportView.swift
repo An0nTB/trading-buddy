@@ -35,6 +35,47 @@ struct ImportVorschau: Identifiable {
     let dateiname: String
 }
 
+/// Importer, die noch gegen keine echte Datei liefen, nur gegen öffentliche Beispiele (Stand-Doc 16,
+/// Entscheidung 01.10.2026): Die App kennzeichnet sie als „ungeprüft“, bis eine echte Datei durchlief.
+enum Importer {
+    static let ungeprueft: Set<String> = [Journal.tradeRepublicImporter, Journal.scalableImporter]
+
+    static func istUngeprueft(_ name: String) -> Bool { ungeprueft.contains(name) }
+}
+
+/// Broker, deren Transaktionsexport (CSV) die App liest. Namen wie in `Konto.broker` der Speicherung.
+enum CSVBroker {
+    case tradeRepublic, scalable
+
+    var name: String {
+        switch self {
+        case .tradeRepublic: "Trade Republic"
+        case .scalable: "Scalable Capital"
+        }
+    }
+
+    /// Zeitzone der Zeiten in der Datei (Stand-Doc 16): Trade Republic schreibt UTC, Scalable deutsche Ortszeit.
+    var zeitzone: TimeZone {
+        switch self {
+        case .tradeRepublic: .gmt
+        case .scalable: TimeZone(identifier: "Europe/Berlin") ?? .current
+        }
+    }
+
+    var zeitzoneText: LocalizedStringKey {
+        switch self {
+        case .tradeRepublic: "UTC laut Datei; die App zeigt deine Zeitzone"
+        case .scalable: "Deutsche Ortszeit laut Datei"
+        }
+    }
+}
+
+/// Was die App in der gewählten Datei erkannt hat. Erkannt wird am Inhalt, nicht am Dateinamen.
+enum ErkannteDatei {
+    case mt4(MT4Statement)
+    case csv(CSVBroker, Kontobewegungen)
+}
+
 /// Import (Doc 10, Abschnitt 7): Liste der bisherigen Importe, „Datei wählen“ öffnet das Blatt mit Prüfung.
 struct ImportView: View {
     @Environment(AppModell.self) private var modell
@@ -42,6 +83,9 @@ struct ImportView: View {
     @State private var dateiWaehlen = false
     @State private var vorschau: ImportVorschau?
     @State private var lesefehler: String?
+
+    /// Dateitypen im Öffnen-Dialog: HTML (MetaTrader 4), CSV (Trade Republic, Scalable).
+    private var dateitypen: [UTType] { [.html, .plainText, .commaSeparatedText] }
 
     var body: some View {
         VStack(alignment: .leading, spacing: Abstand.kachelAbstand) {
@@ -56,32 +100,26 @@ struct ImportView: View {
                 .font(Schrift.beschriftung)
                 .foregroundStyle(thema.textSchwach)
             #endif
+            if modell.importe.contains(where: { Importer.istUngeprueft($0.lauf.importer) }) {
+                Label("„ungeprüft“: Dieser Importer lief noch gegen keine echte Datei, nur gegen öffentliche Beispiele. Prüfe Stückzahlen und Beträge gegen die App deines Brokers.",
+                      systemImage: "info.circle")
+                    .font(Schrift.beschriftung)
+                    .foregroundStyle(thema.textSchwach)
+            }
             if modell.importe.isEmpty {
                 ContentUnavailableView("Noch kein Import", systemImage: "square.and.arrow.down",
-                                       description: Text("Wähle einen Kontoauszug von GBE oder einem anderen MetaTrader-4-Broker (HTML, Daily Confirmation oder Monthly Statement)."))
+                                       description: Text("Wähle einen Kontoauszug: MetaTrader 4 (HTML, GBE und andere Broker) oder den Transaktionsexport von Trade Republic oder Scalable Capital (CSV)."))
             } else {
                 List(modell.importe) { eintrag in
-                    HStack {
-                        VStack(alignment: .leading, spacing: Abstand.raster) {
-                            Text(verbatim: eintrag.lauf.dateiname)
-                                .foregroundStyle(thema.text)
-                            Text(verbatim: "\(eintrag.konto.broker) · \(eintrag.konto.kontoname) · \(Importart.name(eintrag.lauf.art)) · \(String(localized: "Stichtag")) \(Format.datum(eintrag.lauf.stichtag))")
-                                .font(Schrift.beschriftung)
-                                .foregroundStyle(thema.textSchwach)
-                        }
-                        Spacer()
-                        Text(verbatim: Format.datum(eintrag.lauf.importiertAm))
-                            .font(Schrift.beschriftung)
-                            .foregroundStyle(thema.textSchwach)
-                    }
-                    .listRowBackground(thema.flaeche)
+                    ImportZeile(eintrag: eintrag)
+                        .listRowBackground(thema.flaeche)
                 }
                 .scrollContentBackground(.hidden)
             }
         }
         .padding(Abstand.seitenrand)
         #if os(macOS)
-        .fileImporter(isPresented: $dateiWaehlen, allowedContentTypes: [.html, .plainText]) { ergebnis in
+        .fileImporter(isPresented: $dateiWaehlen, allowedContentTypes: dateitypen) { ergebnis in
             switch ergebnis {
             case .success(let url): lies(url)
             case .failure(let fehler): lesefehler = fehler.localizedDescription
@@ -116,19 +154,87 @@ struct ImportView: View {
     #endif
 }
 
+/// Eine importierte Datei in der Liste: Kennzeichnung „ungeprüft“ und aufklappbare Hinweise des Importers.
+private struct ImportZeile: View {
+    let eintrag: ImportEintrag
+    @Environment(\.thema) private var thema
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Abstand.raster) {
+            HStack {
+                VStack(alignment: .leading, spacing: Abstand.raster) {
+                    HStack(spacing: Abstand.raster * 2) {
+                        Text(verbatim: eintrag.lauf.dateiname)
+                            .foregroundStyle(thema.text)
+                        if Importer.istUngeprueft(eintrag.lauf.importer) {
+                            Kapsel(text: String(localized: "ungeprüft"))
+                        }
+                    }
+                    Text(verbatim: "\(eintrag.konto.broker) · \(eintrag.konto.kontoname) · \(Importart.name(eintrag.lauf.art)) · \(String(localized: "Stichtag")) \(Format.datum(eintrag.lauf.stichtag))")
+                        .font(Schrift.beschriftung)
+                        .foregroundStyle(thema.textSchwach)
+                }
+                Spacer()
+                Text(verbatim: Format.datum(eintrag.lauf.importiertAm))
+                    .font(Schrift.beschriftung)
+                    .foregroundStyle(thema.textSchwach)
+            }
+            if !eintrag.hinweise.isEmpty {
+                DisclosureGroup {
+                    HinweisListe(hinweise: eintrag.hinweise)
+                } label: {
+                    Text(verbatim: HinweisListe.anzahlText(eintrag.hinweise.count))
+                        .font(Schrift.beschriftung)
+                        .foregroundStyle(thema.textSchwach)
+                }
+            }
+        }
+    }
+}
+
+/// Zeilen, die der Importer nicht sicher zuordnen konnte: Zeile in der Datei, Vorgangsart laut Broker, Folge.
+struct HinweisListe: View {
+    let hinweise: [Importhinweis]
+    @Environment(\.thema) private var thema
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Abstand.raster) {
+            ForEach(Array(hinweise.enumerated()), id: \.offset) { _, hinweis in
+                Text(verbatim: Self.text(hinweis))
+                    .font(Schrift.beschriftung)
+                    .foregroundStyle(thema.text)
+            }
+        }
+    }
+
+    static func text(_ hinweis: Importhinweis) -> String {
+        let folge: String = switch hinweis.folge {
+        case .alsSonstiges: String(localized: "Betrag als „sonstiges“ verbucht")
+        case .nichtVerbucht: String(localized: "nicht verbucht")
+        }
+        return String(localized: "Zeile \(hinweis.zeile): \(hinweis.vorgang) · \(folge)")
+    }
+
+    static func anzahlText(_ anzahl: Int) -> String {
+        anzahl == 1 ? String(localized: "1 Hinweis") : String(localized: "\(anzahl) Hinweise")
+    }
+}
+
 /// Art eines Auszugs, wie `Importlauf.art` sie speichert.
 enum Importart {
     static func name(_ art: String) -> String {
         switch art {
         case "daily": String(localized: "Tagesauszug")
         case "monthly": String(localized: "Monatsauszug")
+        case "transaktionen": String(localized: "Transaktionen")
+        case "kontoauszug": String(localized: "Kontoauszug")
         default: art
         }
     }
 }
 
-/// Import A, ein Blatt mit Prüfung (Doc 10, Abschnitt 7): Erkennung, vier Zahlen, Konto und Serverzeit,
-/// Prüfung gegen den Auszug, Hinweis auf Trades ohne Stop. Der Knopf ist nur aktiv, wenn die Prüfung stimmt.
+/// Import A, ein Blatt mit Prüfung (Doc 10, Abschnitt 7): Erkennung, vier Zahlen, Konto und Zeit,
+/// Prüfung gegen den Auszug, Hinweise. Der Knopf ist nur aktiv, wenn die Prüfung stimmt.
 struct ImportBlatt: View {
     let vorschau: ImportVorschau
     @Environment(AppModell.self) private var modell
@@ -136,12 +242,20 @@ struct ImportBlatt: View {
     @Environment(\.dismiss) private var dismiss
     @State private var serverzeit = Serverzeit.vorgabe
     @State private var waehrung = "EUR"
-    @State private var auszug: MT4Statement?
+    @State private var erkannt: ErkannteDatei?
+    @State private var kontowahl: Kontowahl?
+    @State private var neuerKontoname = ""
     @State private var lesefehler: String?
     @State private var ergebnis: ImportErgebnis?
     @State private var speicherfehler: String?
 
     private static let waehrungen = ["EUR", "USD", "GBP", "CHF"]
+
+    /// Konto für einen Export ohne Kontonummer: ein bestehendes des Brokers oder ein neues mit Bezeichnung.
+    private enum Kontowahl: Hashable {
+        case bestehend(Int64)
+        case neu
+    }
 
     private struct Pruefung: Identifiable {
         let id: String
@@ -151,18 +265,27 @@ struct ImportBlatt: View {
     }
 
     var body: some View {
-        let anzahl = auszug?.closedPositions.count ?? 0
         VStack(alignment: .leading, spacing: Abstand.kachelAbstand) {
             Text(verbatim: vorschau.dateiname)
                 .font(Schrift.titel)
                 .foregroundStyle(thema.text)
-            if let auszug {
-                inhalt(auszug)
-            } else if let lesefehler {
-                Label(lesefehler, systemImage: "exclamationmark.triangle")
-                    .foregroundStyle(thema.verlust)
+            ScrollView {
+                VStack(alignment: .leading, spacing: Abstand.kachelAbstand) {
+                    switch erkannt {
+                    case .mt4(let auszug)?:
+                        inhaltMT4(auszug)
+                    case .csv(let broker, let bewegungen)?:
+                        inhaltCSV(broker, bewegungen)
+                    case nil:
+                        if let lesefehler {
+                            Label(lesefehler, systemImage: "exclamationmark.triangle")
+                                .foregroundStyle(thema.verlust)
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            Spacer(minLength: 0)
+            .scrollBounceBehavior(.basedOnSize)
             Divider()
             HStack(spacing: Abstand.kachelAbstand) {
                 if let ergebnis {
@@ -178,7 +301,7 @@ struct ImportBlatt: View {
                 if ergebnis == nil {
                     Button("Abbrechen") { dismiss() }
                         .keyboardShortcut(.cancelAction)
-                    Button("\(anzahl) Trades importieren") { speichere() }
+                    Button(knopfText) { speichere() }
                         .buttonStyle(.borderedProminent)
                         .keyboardShortcut(.defaultAction)
                         .disabled(!importierbar)
@@ -194,8 +317,10 @@ struct ImportBlatt: View {
         .onChange(of: serverzeit, initial: true) { lies() }
     }
 
+    // MARK: MetaTrader 4
+
     @ViewBuilder
-    private func inhalt(_ auszug: MT4Statement) -> some View {
+    private func inhaltMT4(_ auszug: MT4Statement) -> some View {
         let konto = modell.bekanntesKonto(broker: auszug.broker, kontonummer: auszug.accountNumber)
         let bekannt = modell.bekannteTickets(broker: auszug.broker, kontonummer: auszug.accountNumber)
         let dubletten = auszug.closedPositions.filter { bekannt.contains($0.ticket) }.count
@@ -203,7 +328,7 @@ struct ImportBlatt: View {
         let abweichungen = auszug.pruefe()
         let anzeigeWaehrung = konto?.waehrung ?? waehrung
 
-        Text(verbatim: erkennung(auszug))
+        Text(verbatim: erkennungMT4(auszug))
             .font(Schrift.fliesstext)
             .foregroundStyle(thema.textSchwach)
 
@@ -293,20 +418,201 @@ struct ImportBlatt: View {
             .background(thema.flaeche2, in: RoundedRectangle(cornerRadius: Abstand.radiusKachel))
         }
 
+        claudeSatz
+    }
+
+    // MARK: Trade Republic und Scalable (CSV)
+
+    @ViewBuilder
+    private func inhaltCSV(_ broker: CSVBroker, _ bewegungen: Kontobewegungen) -> some View {
+        let bildung = Positionsbildung.bilde(bewegungen.ausfuehrungen, kapitalmassnahmen: bewegungen.kapitalmassnahmen)
+        let konten = modell.konten(broker: broker.name)
+        let gewaehlt = gewaehltesKonto(konten)
+        let bekannt = gewaehlt.map { modell.bekannteVorgaenge(broker: broker.name, kontonummer: $0.kontonummer) } ?? []
+        let vorgangsIds = bewegungen.ausfuehrungen.map(\.id) + bewegungen.geldbewegungen.map(\.id)
+            + bewegungen.kapitalmassnahmen.map(\.id)
+        let dubletten = vorgangsIds.filter { bekannt.contains($0) }.count
+        let anzeigeWaehrung = gewaehlt?.waehrung ?? waehrung
+        let kaeufe = bewegungen.ausfuehrungen.filter { $0.seite == .buy }.count
+        let verkaeufe = bewegungen.ausfuehrungen.count - kaeufe
+        let einAus = bewegungen.geldbewegungen.filter { $0.art == .einzahlung || $0.art == .auszahlung }
+            .map { $0.betrag + $0.gebuehr + $0.steuer }.reduce(Decimal(0), +)
+
+        HStack(spacing: Abstand.raster * 2) {
+            Text(verbatim: erkennungCSV(broker, bewegungen))
+                .font(Schrift.fliesstext)
+                .foregroundStyle(thema.textSchwach)
+            Kapsel(text: String(localized: "ungeprüft"), betont: true)
+        }
+        Text("Dieser Importer lief noch gegen keine echte Datei, nur gegen öffentliche Beispiele. Prüfe nach dem Import Stückzahlen und Beträge gegen die App deines Brokers.")
+            .font(Schrift.beschriftung)
+            .foregroundStyle(thema.textSchwach)
+
+        HStack(spacing: Abstand.kachelAbstand) {
+            Kachel(titel: "Ausführungen", wert: "\(bewegungen.ausfuehrungen.count)",
+                   zusatz: String(localized: "\(kaeufe) Käufe, \(verkaeufe) Verkäufe"))
+            Kachel(titel: "Trades", wert: "\(bildung.trades.count)",
+                   zusatz: String(localized: "nach FIFO, nur diese Datei"))
+            Kachel(titel: "Ein-/Auszahlungen", wert: Format.betrag(einAus, anzeigeWaehrung),
+                   zusatz: String(localized: "\(bewegungen.geldbewegungen.count) Geldbewegungen gesamt"))
+            Kachel(titel: "Schon bekannt", wert: "\(dubletten)",
+                   zusatz: String(localized: "von \(vorgangsIds.count) Vorgängen"))
+        }
+
+        Text("Konto und Zeit")
+            .font(.headline)
+            .foregroundStyle(thema.text)
+        Grid(alignment: .leading, horizontalSpacing: Abstand.kachelAbstand, verticalSpacing: Abstand.raster * 2) {
+            GridRow {
+                Text("Konto").foregroundStyle(thema.textSchwach)
+                HStack {
+                    Picker("Konto", selection: kontowahlBinding) {
+                        ForEach(konten, id: \.id) { konto in
+                            Text(verbatim: "\(konto.kontoname) (\(konto.waehrung))").tag(Kontowahl.bestehend(konto.id ?? 0))
+                        }
+                        Text("Neues Konto").tag(Kontowahl.neu)
+                    }
+                    .labelsHidden()
+                    .fixedSize()
+                    if kontowahl == .neu {
+                        TextField("Bezeichnung", text: $neuerKontoname)
+                            .textFieldStyle(.roundedBorder)
+                            .frame(width: 160)
+                        Picker("Kontowährung", selection: $waehrung) {
+                            ForEach(Self.waehrungen, id: \.self) { Text(verbatim: $0).tag($0) }
+                        }
+                        .labelsHidden()
+                        .fixedSize()
+                    }
+                }
+            }
+            GridRow {
+                Text("Zeit in der Datei").foregroundStyle(thema.textSchwach)
+                Text(broker.zeitzoneText).foregroundStyle(thema.text)
+            }
+            GridRow {
+                Text("Kosten").foregroundStyle(thema.textSchwach)
+                Text("Gebühr und Steuer je Vorgang aus dem Export; im Trade anteilig aus seinen Käufen").foregroundStyle(thema.text)
+            }
+        }
+        Text("Die Datei nennt kein Konto. Wähle bei jedem Export dieses Depots dasselbe Konto, sonst zählt die App Vorgänge doppelt.")
+            .font(Schrift.beschriftung)
+            .foregroundStyle(thema.textSchwach)
+
+        Text("Prüfung")
+            .font(.headline)
+            .foregroundStyle(thema.text)
+        Grid(alignment: .leading, horizontalSpacing: Abstand.kachelAbstand, verticalSpacing: Abstand.raster) {
+            GridRow {
+                Text("Kassenwirkung der Datei").foregroundStyle(thema.text)
+                Text(verbatim: Format.betrag(bewegungen.kassenwirkung, anzeigeWaehrung))
+                    .font(Schrift.tabelle)
+                    .gridColumnAlignment(.trailing)
+                Text("Summe aller Zeilen; der Export nennt keinen Saldo zum Gegenprüfen")
+                    .font(Schrift.beschriftung)
+                    .foregroundStyle(thema.textSchwach)
+            }
+            GridRow {
+                Text("Verworfene Orders").foregroundStyle(thema.text)
+                Text(verbatim: "\(bewegungen.verworfen.count)").font(Schrift.tabelle)
+                Text("storniert oder abgelehnt, zählen nie als Trade")
+                    .font(Schrift.beschriftung)
+                    .foregroundStyle(thema.textSchwach)
+            }
+            if !bildung.ohneBestand.isEmpty {
+                GridRow {
+                    Text("Verkäufe ohne Kauf").foregroundStyle(thema.text)
+                    Text(verbatim: "\(bildung.ohneBestand.count)").font(Schrift.tabelle)
+                    Text("Der Kauf liegt vor dem Exportzeitraum; ohne Einstand kein Trade. Ein längerer Export hilft.")
+                        .font(Schrift.beschriftung)
+                        .foregroundStyle(thema.textSchwach)
+                }
+            }
+            if !bildung.offen.isEmpty {
+                GridRow {
+                    Text("Offene Käufe").foregroundStyle(thema.text)
+                    Text(verbatim: "\(bildung.offen.count)").font(Schrift.tabelle)
+                    Text("noch im Depot; werden beim Verkauf zu Trades")
+                        .font(Schrift.beschriftung)
+                        .foregroundStyle(thema.textSchwach)
+                }
+            }
+        }
+
+        if !bewegungen.hinweise.isEmpty {
+            VStack(alignment: .leading, spacing: Abstand.raster) {
+                Text(verbatim: HinweisListe.anzahlText(bewegungen.hinweise.count) + ": " + String(localized: "Zeilen, die der Importer nicht sicher zuordnen kann"))
+                    .font(.headline)
+                    .foregroundStyle(thema.text)
+                HinweisListe(hinweise: bewegungen.hinweise)
+            }
+            .padding(Abstand.kachelInnen)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(thema.flaeche2, in: RoundedRectangle(cornerRadius: Abstand.radiusKachel))
+        }
+
+        claudeSatz
+    }
+
+    private var claudeSatz: some View {
         Text("Später an Claude gehen: Zeiten, Instrument, Richtung, Lots, Kurse, Kosten, Ergebnis, Journal. Nicht: Kontonummer, Name, Saldo.")
             .font(Schrift.beschriftung)
             .foregroundStyle(thema.textSchwach)
     }
 
-    private var importierbar: Bool {
-        guard let auszug else { return false }
-        return auszug.pruefe().isEmpty
+    // MARK: Zustand
+
+    private var knopfText: String {
+        switch erkannt {
+        case .mt4(let auszug)?: String(localized: "\(auszug.closedPositions.count) Trades importieren")
+        case .csv(_, let bewegungen)?: String(localized: "\(bewegungen.ausfuehrungen.count) Ausführungen importieren")
+        case nil: String(localized: "Importieren")
+        }
     }
 
-    private func erkennung(_ auszug: MT4Statement) -> String {
+    private var importierbar: Bool {
+        switch erkannt {
+        case .mt4(let auszug)?:
+            auszug.pruefe().isEmpty
+        case .csv(_, let bewegungen)?:
+            (bewegungen.ausfuehrungen.count + bewegungen.geldbewegungen.count + bewegungen.kapitalmassnahmen.count) > 0
+                && kontoGueltig
+        case nil:
+            false
+        }
+    }
+
+    private var kontoGueltig: Bool {
+        switch kontowahl {
+        case .bestehend?: true
+        case .neu?: !neuerKontoname.trimmingCharacters(in: .whitespaces).isEmpty
+        case nil: false
+        }
+    }
+
+    private var kontowahlBinding: Binding<Kontowahl> {
+        Binding(get: { kontowahl ?? .neu }, set: { kontowahl = $0 })
+    }
+
+    private func gewaehltesKonto(_ konten: [Konto]) -> Konto? {
+        if case .bestehend(let id)? = kontowahl { return konten.first { $0.id == id } }
+        return nil
+    }
+
+    private func erkennungMT4(_ auszug: MT4Statement) -> String {
         let art = auszug.kind == .daily ? String(localized: "Tagesauszug") : String(localized: "Monatsauszug")
         let nummer = "••••" + String(auszug.accountNumber.suffix(4))
         return String(localized: "Erkannt: MetaTrader 4 \(art) · \(auszug.broker) · Konto \(nummer) · Stichtag \(Format.datum(auszug.reportTime))")
+    }
+
+    private func erkennungCSV(_ broker: CSVBroker, _ bewegungen: Kontobewegungen) -> String {
+        let zeiten = bewegungen.ausfuehrungen.map(\.zeit) + bewegungen.geldbewegungen.map(\.zeit)
+            + bewegungen.kapitalmassnahmen.map(\.zeit)
+        var text = String(localized: "Erkannt: \(broker.name) Transaktionsexport (CSV)")
+        if let von = zeiten.min(), let bis = zeiten.max() {
+            text += " · " + String(localized: "\(Format.datum(von)) bis \(Format.datum(bis))")
+        }
+        return text
     }
 
     private func pruefungen(_ auszug: MT4Statement) -> [Pruefung] {
@@ -326,27 +632,57 @@ struct ImportBlatt: View {
         return liste
     }
 
+    /// Erkennt das Format am Inhalt: erst die CSV-Köpfe von Trade Republic und Scalable, sonst MetaTrader 4.
     private func lies() {
-        guard let html = String(data: vorschau.daten, encoding: .utf8) else {
-            auszug = nil
+        guard let text = String(data: vorschau.daten, encoding: .utf8) else {
+            erkannt = nil
             lesefehler = String(localized: "Die Datei ist kein Text (UTF-8).")
             return
         }
         do {
-            auszug = try MT4Statement.parse(html: html, serverZeitzone: serverzeit.zeitzone)
+            if TradeRepublicCSV.erkennt(text) {
+                let bewegungen = try TradeRepublicCSV.lies(text)
+                erkannt = .csv(.tradeRepublic, bewegungen)
+            } else if ScalableCSV.erkennt(text) {
+                let bewegungen = try ScalableCSV.lies(text, zeitzone: CSVBroker.scalable.zeitzone)
+                erkannt = .csv(.scalable, bewegungen)
+            } else {
+                let auszug = try MT4Statement.parse(html: text, serverZeitzone: serverzeit.zeitzone)
+                erkannt = .mt4(auszug)
+            }
             lesefehler = nil
+        } catch MT4ImportFehler.keinMT4Auszug {
+            erkannt = nil
+            lesefehler = String(localized: "Format nicht erkannt: kein MetaTrader-4-Auszug (HTML) und kein Transaktionsexport von Trade Republic oder Scalable (CSV).")
         } catch {
-            auszug = nil
+            erkannt = nil
             lesefehler = fehlertext(error)
+        }
+        if case .csv(let broker, _)? = erkannt, kontowahl == nil {
+            // Vorgabe: das erste Konto dieses Brokers, sonst ein neues namens „Depot“.
+            kontowahl = modell.konten(broker: broker.name).first.flatMap(\.id).map(Kontowahl.bestehend) ?? .neu
+            if neuerKontoname.isEmpty { neuerKontoname = String(localized: "Depot") }
         }
     }
 
     private func speichere() {
-        guard let auszug else { return }
-        let kontowaehrung = modell.bekanntesKonto(broker: auszug.broker, kontonummer: auszug.accountNumber)?.waehrung ?? waehrung
         do {
-            ergebnis = try modell.importiere(daten: vorschau.daten, dateiname: vorschau.dateiname,
-                                             serverZeitzone: serverzeit.zeitzone, waehrung: kontowaehrung)
+            switch erkannt {
+            case .mt4(let auszug)?:
+                let kontowaehrung = modell.bekanntesKonto(broker: auszug.broker, kontonummer: auszug.accountNumber)?.waehrung
+                    ?? waehrung
+                ergebnis = try modell.importiereMT4(daten: vorschau.daten, dateiname: vorschau.dateiname,
+                                                    serverZeitzone: serverzeit.zeitzone, waehrung: kontowaehrung)
+            case .csv(let broker, _)?:
+                let konto = gewaehltesKonto(modell.konten(broker: broker.name))
+                let name = neuerKontoname.trimmingCharacters(in: .whitespaces)
+                ergebnis = try modell.importiereCSV(daten: vorschau.daten, dateiname: vorschau.dateiname,
+                                                    kontonummer: konto?.kontonummer ?? name,
+                                                    kontoname: konto?.kontoname ?? name,
+                                                    waehrung: konto?.waehrung ?? waehrung, zeitzone: broker.zeitzone)
+            case nil:
+                return
+            }
             speicherfehler = nil
         } catch {
             speicherfehler = fehlertext(error)
@@ -358,6 +694,10 @@ struct ImportBlatt: View {
         case .dateiBereitsImportiert:
             return String(localized: "Genau diese Datei war schon importiert. Nichts geändert.")
         case .gespeichert:
+            if case .csv(_, _)? = erkannt {
+                let z = ergebnis.csv
+                return String(localized: "Gespeichert: \(z.ausfuehrungenNeu) neue Ausführungen (\(z.ausfuehrungenBekannt) bekannt), \(z.geldbewegungenNeu) Geldbewegungen, \(z.kapitalmassnahmenNeu) Kapitalmaßnahmen, \(z.verworfen) verworfen, \(z.hinweise) Hinweise.")
+            }
             return String(localized: "Gespeichert: \(ergebnis.geschlosseneNeu) neue Trades, \(ergebnis.geschlosseneBekannt) schon bekannt, \(ergebnis.geloeschteNeu) gelöschte Orders.")
         }
     }
@@ -372,11 +712,23 @@ struct ImportBlatt: View {
             case .andereKontowaehrung(let gespeichert, let angegeben):
                 return String(localized: "Das Konto ist mit \(gespeichert) angelegt, nicht mit \(angegeben).")
             case .abweichenderDatensatz(let tickets):
-                return String(localized: "Tickets mit anderen Werten als beim früheren Import: \(tickets.joined(separator: ", "))")
+                return String(localized: "Vorgänge mit anderen Werten als beim früheren Import: \(tickets.joined(separator: ", "))")
             case .unbekannterWert(let wert):
                 return String(localized: "Unbekannter Wert in der Datenbank: \(wert)")
             case .ungueltigerWert(let wert):
                 return String(localized: "Eingabe außerhalb des erlaubten Bereichs: \(wert)")
+            }
+        }
+        if let fehler = error as? CSVImportFehler {
+            switch fehler {
+            case .unbekanntesFormat(let kopf):
+                return String(localized: "CSV-Format nicht erkannt. Spalten der Datei: \(kopf.prefix(6).joined(separator: ", "))")
+            case .fehlendeSpalte(let name):
+                return String(localized: "Spalte fehlt in der Datei: \(name)")
+            case .ungueltigeZahl(let zeile, let text):
+                return String(localized: "Ungültige Zahl in Zeile \(zeile): \(text)")
+            case .ungueltigeZeit(let zeile, let text):
+                return String(localized: "Ungültige Zeit in Zeile \(zeile): \(text)")
             }
         }
         if let fehler = error as? MT4ImportFehler {
