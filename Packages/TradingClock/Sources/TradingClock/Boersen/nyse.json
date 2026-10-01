@@ -133,6 +133,6 @@
   "hinweise": [
     "Handelszeit ist die Kernsitzung 09:30 bis 16:00; vor- und nachbörslicher Handel ist nicht abgebildet.",
     "Verkürzte Tage enden 13:00 Ortszeit.",
-    "Erstbefüllung der Feiertage und verkürzten Tage aus exchange_calendars 4.13.2 (Python, Apache-2.0) am 01.10.2026 nach R1 Abschnitt 6; Abgleich mit der offiziellen Börsenseite noch zu prüfen."
+    "Feiertage und Frühschlüsse 2026 und 2027 am 01.10.2026 mit nyse.com abgeglichen: stimmen überein."
   ]
 }
