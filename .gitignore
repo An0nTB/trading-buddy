@@ -19,3 +19,6 @@ Package.resolved.bak
 
 # Wird aus project.yml erzeugt (xcodegen generate)
 TradingBuddy.xcodeproj/
+
+# Persönliche Xcode-Einstellungen (Team-ID), Vorlage: Config/Local.xcconfig.example
+Config/Local.xcconfig
