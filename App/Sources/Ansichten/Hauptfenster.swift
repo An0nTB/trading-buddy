@@ -86,12 +86,16 @@ struct Seitenleiste: View {
             List(selection: auswahl) {
                 Section("Journal") {
                     ForEach(Bereich.journal) { bereich in
-                        Label(bereich.titel, systemImage: bereich.symbol).tag(bereich)
+                        Label(bereich.titel, systemImage: bereich.symbol)
+                            .listItemTint(thema.akzent)
+                            .tag(bereich)
                     }
                 }
                 Section("Daten") {
                     ForEach(Bereich.daten) { bereich in
-                        Label(bereich.titel, systemImage: bereich.symbol).tag(bereich)
+                        Label(bereich.titel, systemImage: bereich.symbol)
+                            .listItemTint(thema.akzent)
+                            .tag(bereich)
                     }
                 }
             }
@@ -124,13 +128,11 @@ struct KontoZeile: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } else {
-                Picker("Konto", selection: kontoAuswahl) {
+                Auswahlknopf("Konto", anzeige: kontoText, auswahl: kontoAuswahl, mitHintergrund: false) {
                     ForEach(modell.konten, id: \.id) { konto in
-                        Text(verbatim: "\(konto.broker) · \(konto.kontoname)").tag(konto.id)
+                        Text(verbatim: kontoName(konto)).tag(konto.id)
                     }
                 }
-                .pickerStyle(.menu)
-                .labelsHidden()
                 Text(verbatim: "\(modell.waehrung) · \(modell.alleTrades.count) Trades")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
@@ -143,6 +145,14 @@ struct KontoZeile: View {
 
     private var kontoAuswahl: Binding<Int64?> {
         Binding(get: { modell.konto?.id }, set: { modell.waehleKonto($0) })
+    }
+
+    private var kontoText: String {
+        modell.konto.map(kontoName) ?? ""
+    }
+
+    private func kontoName(_ konto: Konto) -> String {
+        "\(konto.broker) · \(konto.kontoname)"
     }
 }
 

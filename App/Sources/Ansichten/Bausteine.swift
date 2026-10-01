@@ -190,3 +190,65 @@ struct Pflichthinweis: View {
             .foregroundStyle(thema.textSchwach)
     }
 }
+
+/// Kleine Kapsel mit Zähler oder Filterwert; `betont` färbt sie im Akzent (Hell-Variante B, 01.10.2026).
+struct Kapsel: View {
+    let text: String
+    var betont = false
+    @Environment(\.thema) private var thema
+
+    var body: some View {
+        Text(verbatim: text)
+            .font(Schrift.beschriftung)
+            .padding(.horizontal, Abstand.raster * 2)
+            .padding(.vertical, Abstand.raster)
+            .background(betont ? thema.akzentTint : thema.flaeche2, in: Capsule())
+            .foregroundStyle(betont ? thema.akzent : thema.text)
+    }
+}
+
+/// Auswahl im Akzent: zeigt den gewählten Wert, ein Klick öffnet die Optionen als Menü mit Häkchen.
+/// Ersetzt den Menü-Picker, dessen Schrift am Mac die Systemfarbe trägt und nicht die Farbwelt.
+struct Auswahlknopf<Wert: Hashable, Optionen: View>: View {
+    let titel: LocalizedStringKey
+    let anzeige: String
+    @Binding var auswahl: Wert
+    let mitHintergrund: Bool
+    let optionen: () -> Optionen
+    @Environment(\.thema) private var thema
+
+    init(_ titel: LocalizedStringKey, anzeige: String, auswahl: Binding<Wert>, mitHintergrund: Bool = true,
+         @ViewBuilder optionen: @escaping () -> Optionen) {
+        self.titel = titel
+        self.anzeige = anzeige
+        self._auswahl = auswahl
+        self.mitHintergrund = mitHintergrund
+        self.optionen = optionen
+    }
+
+    var body: some View {
+        Menu {
+            Picker(titel, selection: $auswahl, content: optionen)
+                .pickerStyle(.inline)
+        } label: {
+            HStack(spacing: Abstand.raster) {
+                Text(verbatim: anzeige)
+                    .lineLimit(1)
+                Image(systemName: "chevron.up.chevron.down")
+                    .font(.caption2.weight(.semibold))
+            }
+            .font(mitHintergrund ? Schrift.fliesstext : .callout.weight(.medium))
+            .foregroundStyle(thema.akzent)
+            .padding(.horizontal, mitHintergrund ? Abstand.raster * 2 : 0)
+            .padding(.vertical, mitHintergrund ? Abstand.raster : 0)
+            .background(mitHintergrund ? thema.flaeche2 : .clear,
+                        in: RoundedRectangle(cornerRadius: Abstand.radiusKnopf))
+            .contentShape(RoundedRectangle(cornerRadius: Abstand.radiusKnopf))
+        }
+        .menuStyle(.button)
+        .buttonStyle(.borderless)
+        .menuIndicator(.hidden)
+        .accessibilityLabel(Text(titel))
+        .accessibilityValue(Text(verbatim: anzeige))
+    }
+}
