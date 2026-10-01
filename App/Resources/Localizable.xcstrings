@@ -1,0 +1,18 @@
+{
+  "sourceLanguage" : "de",
+  "strings" : {
+    "greeting" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Hallo" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Hello" } }
+      }
+    },
+    "version %@" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Rechenkern %@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Core %@" } }
+      }
+    }
+  },
+  "version" : "1.0"
+}
