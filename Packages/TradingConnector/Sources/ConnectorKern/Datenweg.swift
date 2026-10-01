@@ -1,7 +1,8 @@
 import Foundation
 
 /// Experiment AP6: Kann der von Claude Desktop gestartete Server
-/// eine Datei lesen, die die App in ihre App Group geschrieben hat?
+/// eine Datei lesen, die die App in den Export-Ordner geschrieben hat?
+/// (Die App Group scheiterte am Container-Schutz von macOS, Messung 01.10.2026.)
 public enum Datenweg {
     public static let dateiname = "connector-test.json"
 
@@ -9,17 +10,12 @@ public enum Datenweg {
         case gelesen(pfad: String, inhalt: String)
         case fehlt(pfad: String)
         case keinZugriff(pfad: String, fehler: String)
-        case keineGruppe
+        case keinOrdner
     }
 
-    /// Ordner der App Group, z. B. ~/Library/Group Containers/ABCDE12345.journal
-    public static func ordner(gruppe: String, home: URL) -> URL {
-        home.appending(path: "Library/Group Containers/\(gruppe)", directoryHint: .isDirectory)
-    }
-
-    public static func pruefe(gruppe: String?, home: URL) -> Ergebnis {
-        guard let gruppe, !gruppe.isEmpty else { return .keineGruppe }
-        let datei = ordner(gruppe: gruppe, home: home).appending(path: dateiname)
+    public static func pruefe(ordner: String?) -> Ergebnis {
+        guard let ordner, !ordner.isEmpty else { return .keinOrdner }
+        let datei = URL(filePath: ordner, directoryHint: .isDirectory).appending(path: dateiname)
         guard FileManager.default.fileExists(atPath: datei.path) else {
             return .fehlt(pfad: datei.path)
         }
@@ -36,11 +32,11 @@ public enum Datenweg {
         case let .gelesen(pfad, inhalt):
             "ERFOLG: Datei der App gelesen.\nPfad: \(pfad)\nInhalt: \(inhalt)"
         case let .fehlt(pfad):
-            "FEHLT: Keine Datei unter \(pfad). Wurde die App einmal gestartet?"
+            "FEHLT: Keine Datei unter \(pfad). Ist in der App derselbe Export-Ordner gewählt?"
         case let .keinZugriff(pfad, fehler):
             "KEIN ZUGRIFF: \(pfad) existiert, ist aber nicht lesbar. Fehler: \(fehler)"
-        case .keineGruppe:
-            "KEINE GRUPPE: Umgebungsvariable TB_APP_GROUP fehlt im Manifest."
+        case .keinOrdner:
+            "KEIN ORDNER: In den Einstellungen der Erweiterung ist kein Export-Ordner eingetragen."
         }
     }
 }
