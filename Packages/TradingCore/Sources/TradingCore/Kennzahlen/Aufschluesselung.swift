@@ -1,7 +1,8 @@
 import Foundation
 
-/// Aufteilung der Kennzahlen nach einer Dimension (R5, Kapitel 08 Abschnitt 8).
-public enum Dimension: String, Sendable, CaseIterable {
+/// Merkmal, nach dem die Kennzahlen aufgeteilt werden (R5, Kapitel 08 Abschnitt 8).
+/// Heißt nicht `Dimension`, weil Foundation diesen Namen schon für Maßeinheiten belegt.
+public enum Aufteilung: String, Sendable, CaseIterable {
     case symbol
     case richtung
     /// ISO-Wochentag der Eröffnung, 1 = Montag.
@@ -42,7 +43,7 @@ public struct Gruppe: Sendable, Equatable {
 extension Kennzahlen {
     /// Kennzahlen je Gruppe, sortiert nach Schlüssel (Zahlen numerisch).
     /// - Parameter zeitzone: Zeitzone für Wochentag, Stunde und Tagesgrenze, in der Regel die des Nutzers.
-    public static func aufschluesseln(_ trades: [Trade], nach dimension: Dimension,
+    public static func aufschluesseln(_ trades: [Trade], nach dimension: Aufteilung,
                                       zeitzone: TimeZone) -> [Gruppe] {
         var kalender = Calendar(identifier: .gregorian)
         kalender.timeZone = zeitzone
@@ -56,7 +57,7 @@ extension Kennzahlen {
             }
     }
 
-    private static func schluesselJeTrade(_ trades: [Trade], dimension: Dimension,
+    private static func schluesselJeTrade(_ trades: [Trade], dimension: Aufteilung,
                                           kalender: Calendar) -> [String] {
         switch dimension {
         case .symbol:
