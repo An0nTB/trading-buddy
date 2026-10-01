@@ -27,6 +27,8 @@ public enum OrderType: String, Sendable, Equatable, CaseIterable {
 /// Geschlossene Position. Beträge in Kontowährung, Zeiten in UTC.
 public struct ClosedPosition: Sendable, Equatable {
     public var ticket: String
+    /// Zelltexte der Originalzeile, nur Leerraum zusammengefasst (Regel 9: Rohzeile aufbewahren).
+    public var rohzeile: [String]
     public var side: Side
     public var lots: Decimal
     public var symbol: String
@@ -49,6 +51,8 @@ public struct ClosedPosition: Sendable, Equatable {
 /// Offene Position zum Zeitpunkt des Auszugs.
 public struct OpenPosition: Sendable, Equatable {
     public var ticket: String
+    /// Zelltexte der Originalzeile, nur Leerraum zusammengefasst (Regel 9: Rohzeile aufbewahren).
+    public var rohzeile: [String]
     public var side: Side
     public var lots: Decimal
     public var symbol: String
@@ -69,6 +73,8 @@ public struct OpenPosition: Sendable, Equatable {
 /// Gelöschte Pending Order. Wird gespeichert, zählt aber nie als Trade.
 public struct CancelledOrder: Sendable, Equatable {
     public var ticket: String
+    /// Zelltexte der Originalzeile, nur Leerraum zusammengefasst (Regel 9: Rohzeile aufbewahren).
+    public var rohzeile: [String]
     public var type: OrderType
     public var lots: Decimal
     public var symbol: String
@@ -84,6 +90,8 @@ public struct CancelledOrder: Sendable, Equatable {
 /// Noch wartende Pending Order zum Zeitpunkt des Auszugs.
 public struct WorkingOrder: Sendable, Equatable {
     public var ticket: String
+    /// Zelltexte der Originalzeile, nur Leerraum zusammengefasst (Regel 9: Rohzeile aufbewahren).
+    public var rohzeile: [String]
     public var type: OrderType
     public var lots: Decimal
     public var symbol: String
