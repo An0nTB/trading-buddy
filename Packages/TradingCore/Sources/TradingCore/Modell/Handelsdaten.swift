@@ -1,29 +1,5 @@
 import Foundation
 
-/// Richtung einer Position.
-public enum Side: String, Sendable, Equatable {
-    case buy
-    case sell
-}
-
-/// Auftragsart, so wie MetaTrader sie in Auszügen schreibt.
-public enum OrderType: String, Sendable, Equatable, CaseIterable {
-    case buy
-    case sell
-    case buyLimit = "buy limit"
-    case sellLimit = "sell limit"
-    case buyStop = "buy stop"
-    case sellStop = "sell stop"
-
-    /// Richtung, die der Auftrag eröffnen würde.
-    public var side: Side {
-        switch self {
-        case .buy, .buyLimit, .buyStop: .buy
-        case .sell, .sellLimit, .sellStop: .sell
-        }
-    }
-}
-
 /// Geschlossene Position. Beträge in Kontowährung, Zeiten in UTC.
 public struct ClosedPosition: Sendable, Equatable {
     public var ticket: String
@@ -43,6 +19,23 @@ public struct ClosedPosition: Sendable, Equatable {
     public var swap: Decimal
     /// Ergebnis aus der Kursbewegung, ohne Kommission und Swap.
     public var profit: Decimal
+
+    public init(ticket: String, rohzeile: [String], side: Side, lots: Decimal, symbol: String, openTime: Date, openPrice: Decimal, stopLoss: Decimal? = nil, takeProfit: Decimal? = nil, closeTime: Date, closePrice: Decimal, commission: Decimal, swap: Decimal, profit: Decimal) {
+        self.ticket = ticket
+        self.rohzeile = rohzeile
+        self.side = side
+        self.lots = lots
+        self.symbol = symbol
+        self.openTime = openTime
+        self.openPrice = openPrice
+        self.stopLoss = stopLoss
+        self.takeProfit = takeProfit
+        self.closeTime = closeTime
+        self.closePrice = closePrice
+        self.commission = commission
+        self.swap = swap
+        self.profit = profit
+    }
 
     /// Ergebnis nach Kosten: Kommission + Swap + Kursergebnis.
     public var netProfit: Decimal { commission + swap + profit }
@@ -66,6 +59,22 @@ public struct OpenPosition: Sendable, Equatable {
     public var swap: Decimal
     public var profit: Decimal
 
+    public init(ticket: String, rohzeile: [String], side: Side, lots: Decimal, symbol: String, openTime: Date, openPrice: Decimal, stopLoss: Decimal? = nil, takeProfit: Decimal? = nil, currentPrice: Decimal, commission: Decimal, swap: Decimal, profit: Decimal) {
+        self.ticket = ticket
+        self.rohzeile = rohzeile
+        self.side = side
+        self.lots = lots
+        self.symbol = symbol
+        self.openTime = openTime
+        self.openPrice = openPrice
+        self.stopLoss = stopLoss
+        self.takeProfit = takeProfit
+        self.currentPrice = currentPrice
+        self.commission = commission
+        self.swap = swap
+        self.profit = profit
+    }
+
     /// Schwebendes Ergebnis nach Kosten.
     public var netProfit: Decimal { commission + swap + profit }
 }
@@ -85,6 +94,20 @@ public struct CancelledOrder: Sendable, Equatable {
     public var cancelledAt: Date
     /// Marktkurs beim Löschen.
     public var marketPrice: Decimal
+
+    public init(ticket: String, rohzeile: [String], type: OrderType, lots: Decimal, symbol: String, placedAt: Date, orderPrice: Decimal, stopLoss: Decimal? = nil, takeProfit: Decimal? = nil, cancelledAt: Date, marketPrice: Decimal) {
+        self.ticket = ticket
+        self.rohzeile = rohzeile
+        self.type = type
+        self.lots = lots
+        self.symbol = symbol
+        self.placedAt = placedAt
+        self.orderPrice = orderPrice
+        self.stopLoss = stopLoss
+        self.takeProfit = takeProfit
+        self.cancelledAt = cancelledAt
+        self.marketPrice = marketPrice
+    }
 }
 
 /// Noch wartende Pending Order zum Zeitpunkt des Auszugs.
@@ -100,6 +123,19 @@ public struct WorkingOrder: Sendable, Equatable {
     public var stopLoss: Decimal?
     public var takeProfit: Decimal?
     public var marketPrice: Decimal
+
+    public init(ticket: String, rohzeile: [String], type: OrderType, lots: Decimal, symbol: String, placedAt: Date, orderPrice: Decimal, stopLoss: Decimal? = nil, takeProfit: Decimal? = nil, marketPrice: Decimal) {
+        self.ticket = ticket
+        self.rohzeile = rohzeile
+        self.type = type
+        self.lots = lots
+        self.symbol = symbol
+        self.placedAt = placedAt
+        self.orderPrice = orderPrice
+        self.stopLoss = stopLoss
+        self.takeProfit = takeProfit
+        self.marketPrice = marketPrice
+    }
 }
 
 /// Summenzeile unter einem Abschnitt (Kommission, Swap, Kursergebnis).
@@ -107,6 +143,12 @@ public struct Totals: Sendable, Equatable {
     public var commission: Decimal
     public var swap: Decimal
     public var profit: Decimal
+
+    public init(commission: Decimal, swap: Decimal, profit: Decimal) {
+        self.commission = commission
+        self.swap = swap
+        self.profit = profit
+    }
 
     public var net: Decimal { commission + swap + profit }
 }
@@ -123,4 +165,16 @@ public struct AccountSummary: Sendable, Equatable {
     public var creditFacility: Decimal
     public var marginRequirement: Decimal
     public var availableMargin: Decimal
+
+    public init(previousBalance: Decimal? = nil, closedTradePL: Decimal, depositWithdrawal: Decimal, balance: Decimal, floatingPL: Decimal, equity: Decimal, creditFacility: Decimal, marginRequirement: Decimal, availableMargin: Decimal) {
+        self.previousBalance = previousBalance
+        self.closedTradePL = closedTradePL
+        self.depositWithdrawal = depositWithdrawal
+        self.balance = balance
+        self.floatingPL = floatingPL
+        self.equity = equity
+        self.creditFacility = creditFacility
+        self.marginRequirement = marginRequirement
+        self.availableMargin = availableMargin
+    }
 }

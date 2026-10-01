@@ -29,6 +29,27 @@ jobs:
         working-directory: Packages/TradingCore
         run: swift test
 
+  trading-store-macos:
+    name: TradingStore (macOS)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tests
+        working-directory: Packages/TradingStore
+        run: swift test
+
+  trading-store-linux:
+    name: TradingStore (Linux)
+    runs-on: ubuntu-latest
+    container: swift:6.2
+    steps:
+      - uses: actions/checkout@v4
+      - name: SQLite-Header installieren
+        run: apt-get update && apt-get install -y libsqlite3-dev
+      - name: Tests
+        working-directory: Packages/TradingStore
+        run: swift test
+
   app:
     name: App (macOS und iOS-Simulator)
     runs-on: xcode-27
