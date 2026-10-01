@@ -81,6 +81,7 @@ func auszugStimmtMitSollwertenUndEigenenSummen(soll: Sollwerte) throws {
     let a = try auszug("gbe-2025-05-14-daily", zeitzone: utcPlus3)
     #expect(a.kind == .daily)
     #expect(a.summary.previousBalance == d("559.19"))
+    #expect(a.serverZeitzone == utcPlus3)
     let p = try #require(a.closedPositions.first)
     #expect(p.ticket == "88075715")
     #expect(p.side == .buy)
@@ -126,6 +127,13 @@ func auszugStimmtMitSollwertenUndEigenenSummen(soll: Sollwerte) throws {
     let text = try html("gbe-2025-05-14-daily")
         .replacingOccurrences(of: "<td>buy</td><td>0.01</td><td>cadchfc</td>", with: "<td>balance</td><td>0.01</td><td>cadchfc</td>")
     #expect(throws: MT4ImportFehler.unbekannteAuftragsart("balance")) {
+        try MT4Statement.parse(html: text, serverZeitzone: utc)
+    }
+}
+
+@Test func geaenderterSpaltenkopfBrichtImportAb() throws {
+    let text = try html("gbe-2025-05-14-daily").replacingOccurrences(of: "<td>R/O Swap</td>", with: "<td>Swap</td>")
+    #expect(throws: MT4ImportFehler.self) {
         try MT4Statement.parse(html: text, serverZeitzone: utc)
     }
 }

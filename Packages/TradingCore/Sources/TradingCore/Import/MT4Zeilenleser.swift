@@ -32,7 +32,11 @@ struct MT4Zeilenleser {
             kopfzeile(zellen)
             return
         }
-        if zellen[0] == "Ticket" || zellen[0] == "No transactions" { return }
+        if zellen[0] == "Ticket" {
+            try Self.pruefeKopf(zellen, abschnitt: abschnitt)
+            return
+        }
+        if zellen[0] == "No transactions" { return }
         if Self.istTicket(zellen[0]) {
             try position(zellen, abschnitt: abschnitt)
         } else if zellen.count == 4, zellen[0].isEmpty {
@@ -99,6 +103,22 @@ struct MT4Zeilenleser {
 
     private func zahl(_ text: String) throws -> Decimal { try MT4Werte.zahl(text) }
     private func zeit(_ text: String) throws -> Date { try MT4Werte.zeit(text, zeitzone: zeitzone) }
+
+    /// Die Spalten werden nach Position gelesen, weil „Price“ zweimal vorkommt.
+    /// Deshalb muss der Spaltenkopf genau dem belegten Aufbau entsprechen.
+    static func pruefeKopf(_ kopf: [String], abschnitt: String) throws {
+        let gemeinsam = ["Ticket", "Open Time", "Type", "Lots", "Item", "Price", "S / L", "T / P"]
+        let erwartet: [String]
+        switch abschnitt {
+        case "Closed Transactions": erwartet = gemeinsam + ["Close Time", "Price", "Commission", "R/O Swap", "Trade P/L"]
+        case "Open Trades": erwartet = gemeinsam + ["", "Price", "Commission", "R/O Swap", "Trade P/L"]
+        case "Working Orders": erwartet = gemeinsam + ["Market Price", ""]
+        default: erwartet = kopf
+        }
+        guard kopf == erwartet else {
+            throw MT4ImportFehler.unerwarteteSpalten(abschnitt: abschnitt, gefunden: kopf)
+        }
+    }
 
     static func istTicket(_ text: String) -> Bool {
         !text.isEmpty && text.allSatisfy { $0.isASCII && $0.isNumber }

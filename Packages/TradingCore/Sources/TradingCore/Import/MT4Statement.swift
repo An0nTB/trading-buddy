@@ -12,6 +12,8 @@ public struct MT4Statement: Sendable, Equatable {
     public var broker: String
     public var accountNumber: String
     public var accountName: String
+    /// Zeitzone des Handelsservers, mit der alle Zeiten nach UTC umgerechnet wurden.
+    public var serverZeitzone: TimeZone
     /// Stichzeitpunkt des Auszugs (Kopfzeile, Serverzeit umgerechnet).
     public var reportTime: Date
     public var closedPositions: [ClosedPosition]
@@ -77,6 +79,7 @@ extension MT4Statement {
             broker: HTMLTabelle.ersterFetterText(html) ?? "",
             accountNumber: nummer,
             accountName: name,
+            serverZeitzone: serverZeitzone,
             reportTime: try MT4Werte.berichtszeit(stichtag, zeitzone: serverZeitzone),
             closedPositions: leser.geschlossen,
             cancelledOrders: leser.geloescht,
