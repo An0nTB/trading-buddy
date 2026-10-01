@@ -1,0 +1,140 @@
+import GRDB
+
+/// Aufbau der Datenbank als Folge von Migrationen.
+///
+/// Eine Migration ist ein benannter, einmaliger Umbauschritt. GRDB merkt sich in der
+/// Datenbank, welche Schritte schon gelaufen sind, und führt beim Öffnen nur die neuen aus.
+/// Bestehende Migrationen werden nie geändert; jede Änderung am Aufbau kommt als neuer Schritt
+/// ans Ende, sonst passen ältere Datenbanken nicht mehr.
+///
+/// Geldbeträge und Mengen stehen als Text in der Datenbank (`.text`), weil SQLite keinen
+/// exakten Dezimaltyp kennt. Eine Spalte vom Typ Zahl würde `0.1` in eine Kommazahl mit
+/// Rundungsfehler verwandeln. Zeiten stehen als UTC-Text (`2025-05-14 09:51:41.000`).
+enum Schema {
+    static var migrator: DatabaseMigrator {
+        var migrator = DatabaseMigrator()
+
+        migrator.registerMigration("v1 Konten, Importe, MT4-Auszüge") { db in
+            // Ein Handelskonto bei einem Broker. Kontowährung je Konto, Vorgabe EUR (Entscheidung 16).
+            try db.create(table: "konto") { t in
+                t.autoIncrementedPrimaryKey("id")
+                t.column("broker", .text).notNull()
+                t.column("kontonummer", .text).notNull()
+                t.column("kontoname", .text).notNull()
+                t.column("waehrung", .text).notNull()
+                t.uniqueKey(["broker", "kontonummer"])
+            }
+
+            // Schicht 1 (R2 Abschnitt 5): jede importierte Datei mit Fingerabdruck und Inhalt.
+            try db.create(table: "importlauf") { t in
+                t.autoIncrementedPrimaryKey("id")
+                t.belongsTo("konto").notNull()
+                t.column("importer", .text).notNull()
+                t.column("importerVersion", .text).notNull()
+                t.column("dateiname", .text).notNull()
+                // SHA-256 des Dateiinhalts. Dieselbe Datei ein zweites Mal wird daran erkannt.
+                t.column("dateiHash", .text).notNull().unique()
+                // Originaldatei, damit sich jeder Datensatz nachprüfen und neu einlesen lässt.
+                t.column("datei", .blob).notNull()
+                t.column("art", .text).notNull()
+                t.column("stichtag", .datetime).notNull()
+                t.column("serverZeitzone", .text).notNull()
+                t.column("importiertAm", .datetime).notNull()
+            }
+
+            // Kontoübersicht am Ende eines Auszugs (eine Zeile je Import).
+            try db.create(table: "kontostand") { t in
+                t.primaryKey("importlaufId", .integer)
+                    .references("importlauf", onDelete: .cascade)
+                t.column("previousBalance", .text)
+                t.column("closedTradePL", .text).notNull()
+                t.column("depositWithdrawal", .text).notNull()
+                t.column("balance", .text).notNull()
+                t.column("floatingPL", .text).notNull()
+                t.column("equity", .text).notNull()
+                t.column("creditFacility", .text).notNull()
+                t.column("marginRequirement", .text).notNull()
+                t.column("availableMargin", .text).notNull()
+            }
+
+            // Geschlossene Positionen: je Konto und Ticket genau einmal, egal in wie vielen
+            // Auszügen sie vorkommen. `importlaufId` zeigt auf den ersten Import.
+            try db.create(table: "geschlossenePosition") { t in
+                t.autoIncrementedPrimaryKey("id")
+                t.belongsTo("konto").notNull()
+                t.belongsTo("importlauf").notNull()
+                t.column("ticket", .text).notNull()
+                t.column("side", .text).notNull()
+                t.column("lots", .text).notNull()
+                t.column("symbol", .text).notNull()
+                t.column("openTime", .datetime).notNull()
+                t.column("openPrice", .text).notNull()
+                t.column("stopLoss", .text)
+                t.column("takeProfit", .text)
+                t.column("closeTime", .datetime).notNull().indexed()
+                t.column("closePrice", .text).notNull()
+                t.column("commission", .text).notNull()
+                t.column("swap", .text).notNull()
+                t.column("profit", .text).notNull()
+                t.uniqueKey(["kontoId", "ticket"])
+            }
+
+            // Gelöschte Pending Orders: gespeichert für „wie oft storniere ich“, nie ein Trade.
+            try db.create(table: "geloeschteOrder") { t in
+                t.autoIncrementedPrimaryKey("id")
+                t.belongsTo("konto").notNull()
+                t.belongsTo("importlauf").notNull()
+                t.column("ticket", .text).notNull()
+                t.column("type", .text).notNull()
+                t.column("lots", .text).notNull()
+                t.column("symbol", .text).notNull()
+                t.column("placedAt", .datetime).notNull()
+                t.column("orderPrice", .text).notNull()
+                t.column("stopLoss", .text)
+                t.column("takeProfit", .text)
+                t.column("cancelledAt", .datetime).notNull()
+                t.column("marketPrice", .text).notNull()
+                t.uniqueKey(["kontoId", "ticket"])
+            }
+
+            // Offene Positionen sind eine Momentaufnahme je Auszug, keine Trades. Ihr Ergebnis
+            // (inklusive Kommission) steckt schon im Floating P/L des Auszugs; deshalb werden
+            // sie nie über mehrere Auszüge aufsummiert.
+            try db.create(table: "offenePosition") { t in
+                t.autoIncrementedPrimaryKey("id")
+                t.belongsTo("importlauf", onDelete: .cascade).notNull()
+                t.column("ticket", .text).notNull()
+                t.column("side", .text).notNull()
+                t.column("lots", .text).notNull()
+                t.column("symbol", .text).notNull()
+                t.column("openTime", .datetime).notNull()
+                t.column("openPrice", .text).notNull()
+                t.column("stopLoss", .text)
+                t.column("takeProfit", .text)
+                t.column("currentPrice", .text).notNull()
+                t.column("commission", .text).notNull()
+                t.column("swap", .text).notNull()
+                t.column("profit", .text).notNull()
+                t.uniqueKey(["importlaufId", "ticket"])
+            }
+
+            // Wartende Orders, ebenfalls als Momentaufnahme je Auszug.
+            try db.create(table: "wartendeOrder") { t in
+                t.autoIncrementedPrimaryKey("id")
+                t.belongsTo("importlauf", onDelete: .cascade).notNull()
+                t.column("ticket", .text).notNull()
+                t.column("type", .text).notNull()
+                t.column("lots", .text).notNull()
+                t.column("symbol", .text).notNull()
+                t.column("placedAt", .datetime).notNull()
+                t.column("orderPrice", .text).notNull()
+                t.column("stopLoss", .text)
+                t.column("takeProfit", .text)
+                t.column("marketPrice", .text).notNull()
+                t.uniqueKey(["importlaufId", "ticket"])
+            }
+        }
+
+        return migrator
+    }
+}
