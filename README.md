@@ -9,6 +9,7 @@ Planung und Entscheidungen liegen im Projektordner des Claude-Projekts „Tradin
 | Ordner | Inhalt |
 |---|---|
 | `Packages/TradingCore` | Rechenkern: Datenmodell, Broker-Importer, Kennzahlen. Reines Swift-Paket ohne Oberfläche. |
+| `Packages/TradingStore` | Lokale Datenbank (SQLite über GRDB): Konten, Importe mit Originaldatei, Trades; erkennt doppelte Importe. |
 | `App/` | App für macOS, iPhone und iPad (SwiftUI), Texte Deutsch und Englisch. |
 | `project.yml` | Bauplan für das Xcode-Projekt. Daraus erzeugt XcodeGen `TradingBuddy.xcodeproj`. |
 
@@ -31,6 +32,7 @@ Signieren, einmalig: `cp Config/Local.xcconfig.example Config/Local.xcconfig`, d
 
 ```
 cd Packages/TradingCore && swift test
+cd Packages/TradingStore && swift test
 ```
 
 Jeder Pull Request startet dieselben Tests automatisch auf macOS und Linux und baut die App für macOS und den iOS-Simulator (GitHub Actions, `.github/workflows/ci.yml`).
