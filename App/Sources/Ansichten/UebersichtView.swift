@@ -1,0 +1,185 @@
+import Charts
+import SwiftUI
+import TradingCore
+
+/// Übersicht (Doc 10, Reihe 1 und 6): Filter, vier Kacheln, Kapitalkurve, Fehlermuster, letzte Trades.
+struct UebersichtView: View {
+    @Environment(AppModell.self) private var modell
+    @Environment(\.thema) private var thema
+
+    var body: some View {
+        let kennzahlen = modell.kennzahlen
+        let verlauf = modell.kapitalverlauf
+        let waehrung = modell.waehrung
+        ScrollView {
+            VStack(alignment: .leading, spacing: Abstand.kachelAbstand) {
+                Kopfzeile("Übersicht") { Filterleiste() }
+                if modell.alleTrades.isEmpty {
+                    KeineTrades()
+                } else {
+                    HStack(spacing: Abstand.raster * 2) {
+                        Text("\(kennzahlen.anzahl) Trades")
+                            .font(Schrift.beschriftung)
+                            .padding(.horizontal, Abstand.raster * 2)
+                            .padding(.vertical, Abstand.raster)
+                            .background(thema.flaeche2, in: Capsule())
+                            .foregroundStyle(thema.text)
+                        StichprobenHinweis(anzahl: kennzahlen.anzahl)
+                    }
+                    LazyVGrid(columns: Raster.kacheln, spacing: Abstand.kachelAbstand) {
+                        Kachel(titel: "Netto",
+                               wert: Format.geld(kennzahlen.netto, waehrung),
+                               zusatz: String(localized: "Kosten \(Format.betrag(kennzahlen.kosten, waehrung))"),
+                               farbe: thema.vorzeichen(kennzahlen.netto))
+                        Kachel(titel: "Trefferquote",
+                               wert: Format.prozent(kennzahlen.trefferquote),
+                               zusatz: String(localized: "\(kennzahlen.gewinner) von \(kennzahlen.anzahl)"))
+                        Kachel(titel: "Profitfaktor",
+                               wert: Format.zahl(kennzahlen.profitfaktor),
+                               zusatz: String(localized: "\(Format.r(kennzahlen.erwartungswertR)) je Trade"))
+                        Kachel(titel: "Max. Drawdown",
+                               wert: Format.geld(-verlauf.maxDrawdown, waehrung),
+                               zusatz: String(localized: "Verlustserie \(verlauf.laengsteVerlustserie)"),
+                               farbe: verlauf.maxDrawdown > 0 ? thema.verlust : nil)
+                    }
+                    Kapitalkurve(punkte: verlauf.punkte)
+                    FehlermusterKarte()
+                    LetzteTradesKarte()
+                }
+                Pflichthinweis()
+            }
+            .padding(Abstand.seitenrand)
+        }
+    }
+}
+
+/// Filter Zeitraum und Instrument; die Währung ist die des Kontos (Umrechnung kommt später).
+struct Filterleiste: View {
+    @Environment(AppModell.self) private var modell
+    @Environment(\.thema) private var thema
+
+    var body: some View {
+        @Bindable var modell = modell
+        HStack(spacing: Abstand.raster * 2) {
+            Picker("Zeitraum", selection: $modell.zeitraum) {
+                Text("Alle Monate").tag(Zeitraum.alle)
+                ForEach(modell.monate, id: \.self) { monat in
+                    Text(verbatim: Format.monat(monat)).tag(Zeitraum.monat(monat))
+                }
+            }
+            Picker("Instrument", selection: $modell.instrument) {
+                Text("Alle Instrumente").tag(String?.none)
+                ForEach(modell.symbole, id: \.self) { symbol in
+                    Text(verbatim: symbol).tag(String?.some(symbol))
+                }
+            }
+            Text(verbatim: modell.waehrung)
+                .font(Schrift.beschriftung)
+                .foregroundStyle(thema.textSchwach)
+                .padding(.horizontal, Abstand.raster * 2)
+                .padding(.vertical, Abstand.raster)
+                .background(thema.flaeche2, in: RoundedRectangle(cornerRadius: Abstand.radiusKnopf))
+        }
+        .pickerStyle(.menu)
+        .labelsHidden()
+    }
+}
+
+/// Kontostand nach jedem Trade, Start bei 0 (Netto nach Kosten, aufsummiert).
+struct Kapitalkurve: View {
+    let punkte: [Decimal]
+    @Environment(\.thema) private var thema
+
+    private struct Punkt: Identifiable {
+        let id: Int
+        let wert: Double
+    }
+
+    private var daten: [Punkt] {
+        [Punkt(id: 0, wert: 0)] + punkte.enumerated().map { Punkt(id: $0.offset + 1, wert: Format.double($0.element)) }
+    }
+
+    var body: some View {
+        let daten = self.daten
+        Karte("Kapitalkurve") {
+            Chart(daten) { punkt in
+                if punkt.id == 0 {
+                    RuleMark(y: .value("Null", 0.0))
+                        .foregroundStyle(thema.linie)
+                }
+                LineMark(x: .value("Trade", punkt.id), y: .value("Kontostand", punkt.wert))
+                    .foregroundStyle(thema.akzent)
+                    .lineStyle(StrokeStyle(lineWidth: Diagramm.linie))
+                if punkt.id == daten.count - 1 {
+                    PointMark(x: .value("Trade", punkt.id), y: .value("Kontostand", punkt.wert))
+                        .foregroundStyle(thema.akzent)
+                        .symbolSize(Diagramm.marker * Diagramm.marker)
+                }
+            }
+            .chartXAxis(.hidden)
+            .chartYAxis {
+                AxisMarks(position: .leading, values: .automatic(desiredCount: 3)) { _ in
+                    AxisGridLine().foregroundStyle(thema.linie)
+                    AxisValueLabel().foregroundStyle(thema.textSchwach)
+                }
+            }
+            .frame(height: 160)
+            Text("Netto nach Kosten, aufsummiert je Trade im gewählten Zeitraum. Start bei 0, weil der Auszug kein Startkapital kennt.")
+                .font(Schrift.beschriftung)
+                .foregroundStyle(thema.textSchwach)
+        }
+    }
+}
+
+/// Die vier teuersten Fehlermuster im Zeitraum, Sprung zur Fehlermuster-Seite.
+struct FehlermusterKarte: View {
+    @Environment(AppModell.self) private var modell
+    @Environment(\.thema) private var thema
+
+    var body: some View {
+        let befunde = Array(modell.befunde.sorted { $0.netto < $1.netto }.prefix(4))
+        Karte("Fehlermuster", aktion: { modell.bereich = .fehlermuster }) {
+            if befunde.isEmpty {
+                Text("Keine Regel hat im gewählten Zeitraum angeschlagen.")
+                    .font(Schrift.fliesstext)
+                    .foregroundStyle(thema.textSchwach)
+            } else {
+                ForEach(befunde, id: \.muster) { befund in
+                    HStack {
+                        Text(verbatim: befund.muster.titel)
+                            .foregroundStyle(thema.text)
+                        Spacer()
+                        Text(verbatim: BefundText.kurz(befund, waehrung: modell.waehrung))
+                            .font(Schrift.tabelle)
+                            .foregroundStyle(thema.textSchwach)
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// Die fünf zuletzt geschlossenen Trades, Sprung zur Trade-Liste.
+struct LetzteTradesKarte: View {
+    @Environment(AppModell.self) private var modell
+    @Environment(\.thema) private var thema
+
+    var body: some View {
+        let letzte = Array(modell.tradesNeuesteZuerst.prefix(5))
+        Karte("Letzte Trades", aktion: { modell.bereich = .trades }) {
+            ForEach(letzte) { trade in
+                HStack(spacing: Abstand.raster * 2) {
+                    Text(verbatim: "\(trade.symbol) \(Format.richtung(trade.side))")
+                        .foregroundStyle(thema.text)
+                    Text(verbatim: Format.zeit(trade.closeTime))
+                        .font(Schrift.beschriftung)
+                        .foregroundStyle(thema.textSchwach)
+                    Spacer()
+                    Text(verbatim: Format.geld(trade.netProfit, modell.waehrung))
+                        .font(Schrift.tabelle)
+                        .foregroundStyle(thema.vorzeichen(trade.netProfit))
+                }
+            }
+        }
+    }
+}

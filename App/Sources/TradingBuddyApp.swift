@@ -18,15 +18,16 @@ struct TradingBuddyApp: App {
     }
 }
 
-/// Setzt Erscheinungsbild und Farbwelt aus den Einstellungen für alles darunter.
+/// Setzt Erscheinungsbild und Farbwelt aus den Einstellungen für alles darunter (Doc 10, E1).
 struct MitThema<Inhalt: View>: View {
     @AppStorage("farbwelt") private var farbwelt = Farbwelt.nordlicht
     @AppStorage("erscheinungsbild") private var erscheinungsbild = Erscheinungsbild.system
-    @Environment(\.colorScheme) private var modus
+    @Environment(\.colorScheme) private var systemModus
     @ViewBuilder var inhalt: () -> Inhalt
 
     var body: some View {
-        let thema = farbwelt.thema(modus)
+        // Ein erzwungenes Erscheinungsbild gilt auch für die Token, nicht nur für die Systemfarben.
+        let thema = farbwelt.thema(erscheinungsbild.farbschema ?? systemModus)
         inhalt()
             .environment(\.thema, thema)
             .tint(thema.akzent)
