@@ -118,7 +118,7 @@ struct BausteinListe: View {
                         .font(Schrift.fliesstext)
                         .foregroundStyle(auswahl == .lernpfad ? thema.akzent : thema.text)
                 }
-                (Text(stufe.titel) + Text(verbatim: " · \(fortschritt.anzahlErledigt(stufe)) von \(bausteine.count) erledigt"))
+                (Text(stufe.titel) + Text(" · \(fortschritt.anzahlErledigt(stufe)) von \(bausteine.count) erledigt"))
                     .font(Schrift.beschriftung)
                     .textCase(.uppercase)
                     .foregroundStyle(thema.textSchwach)
@@ -173,7 +173,7 @@ struct BausteinListeKompakt: View {
                     }
                 }
             } header: {
-                Text(stufe.titel) + Text(verbatim: " · \(fortschritt.anzahlErledigt(stufe)) von \(bausteine.count) erledigt")
+                Text(stufe.titel) + Text(" · \(fortschritt.anzahlErledigt(stufe)) von \(bausteine.count) erledigt")
             }
         }
         .listStyle(.insetGrouped)
@@ -196,7 +196,7 @@ struct BausteinZeile: View {
                 Text(verbatim: baustein.titel)
                     .font(Schrift.fliesstext.weight(.medium))
                     .foregroundStyle(gewaehlt ? thema.akzent : thema.text)
-                Text(verbatim: "Kapitel \(baustein.kapitel) · \(kapitel?.titel ?? "")")
+                Text("Kapitel \(baustein.kapitel) · \(kapitel?.titel ?? "")")
                     .font(Schrift.beschriftung)
                     .foregroundStyle(thema.textSchwach)
                     .lineLimit(1)
