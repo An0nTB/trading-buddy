@@ -134,14 +134,21 @@ public enum Ausgabe {
             text += "Kontowährung ist \(anfrage.kontowaehrung); Ziele und Betragsgrenzen der Handelsregeln gelten dort "
                 + "und fehlen hier. "
         }
+        if !anfrage.umgerechnet.isEmpty {
+            let teile = anfrage.umgerechnet.keys.sorted().map { "\($0) \(anfrage.umgerechnet[$0]!)" }
+            text += "Umgerechnet in \(anfrage.kontowaehrung) mit dem EZB-Referenzkurs am Schlusstag (Näherung, wie in der "
+                + "App): \(teile.joined(separator: ", ")) Trades; Kurse und Stops bleiben in ihrer Währung. "
+        }
         guard !anfrage.andereWaehrungen.isEmpty else { return text }
         let teile = anfrage.andereWaehrungen.keys.sorted().map { w in
             let trades = anfrage.andereWaehrungen[w]!
             let imZeitraum = trades.filter { anfrage.zeitraum.enthaelt($0.closeTime) }.count
             return "\(w): \(trades.count) Trades, davon \(imZeitraum) im Zeitraum"
         }
-        return text + "Nur Trades in \(anfrage.konto.waehrung). Nicht in diesen Summen (eigene Abfrage mit waehrung): "
-            + teile.joined(separator: "; ") + ". Beträge verschiedener Währungen nie zusammenrechnen. "
+        let grund = anfrage.umgerechnet.isEmpty ? "Nur Trades in \(anfrage.konto.waehrung). Nicht in diesen Summen"
+            : "Ohne EZB-Kurs am Schlusstag nicht umgerechnet und nicht in diesen Summen"
+        return text + "\(grund) (eigene Abfrage mit waehrung): " + teile.joined(separator: "; ")
+            + ". Beträge verschiedener Währungen nie zusammenrechnen. "
     }
 
     /// Alle gespeicherten Trades des Kontos, damit Claude Zeitraum und Gesamtbestand nicht verwechselt.
