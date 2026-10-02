@@ -260,6 +260,25 @@ enum Schema {
             }
         }
 
+        // Nummer 6, weil v5 (Handelsregeln je Konto) parallel entsteht; die Reihenfolge im Code bestimmt
+        // die Ausführung, nicht die Nummer.
+        migrator.registerMigration("v6 Produktart") { db in
+            // Produktart je Ausführung und Position (TradingCore 0.10.0) als Rohwert von `Produktart`.
+            // Alte Zeilen bleiben `unbekannt`, außer MT4-Positionen: Die sind CFD, wie sie der MT4-Leser
+            // jetzt liefert. Andere alte Zeilen ergänzt der nächste Import, der die Art kennt.
+            for tabelle in ["ausfuehrung", "geschlossenePosition", "offenePosition"] {
+                try db.alter(table: tabelle) { t in
+                    t.add(column: "produktart", .text).notNull().defaults(to: "unbekannt")
+                }
+            }
+            for tabelle in ["geschlossenePosition", "offenePosition"] {
+                try db.execute(sql: """
+                    UPDATE \(tabelle) SET produktart = 'cfd'
+                    WHERE importlaufId IN (SELECT id FROM importlauf WHERE importer = 'MT4-Auszug')
+                    """)
+            }
+        }
+
         return migrator
     }
 }
