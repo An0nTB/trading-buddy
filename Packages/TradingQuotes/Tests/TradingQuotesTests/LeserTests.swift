@@ -111,7 +111,25 @@ let testSchluessel = AlpacaSchluessel(schluesselID: "TEST-ID", geheimnis: "TEST-
     #expect(zweiter.letzter == d("126.55"))
     #expect(zweiter.geld == d("126.54"))
     #expect(zweiter.brief == d("126.56"))
-    #expect(zweiter.zeit == zeit("2021-02-22T15:51:45.335Z"))
+    // Der Kurs ist so alt wie sein ältester Teil, hier der Abschluss.
+    #expect(zweiter.zeit == zeit("2021-02-22T15:51:44.208Z"))
+}
+
+@Test func alpacaFrischerAbschlussMachtAltesKursblattNichtFrisch() throws {
+    var leser = AlpacaLeser(symbole: ["AAPL"], schluessel: testSchluessel)
+    let blatt = #"[{"T":"q","S":"AAPL","bp":126.54,"ap":126.56,"t":"2021-02-22T15:50:00Z"}]"#
+    let abschluss = #"[{"T":"t","S":"AAPL","p":126.55,"t":"2021-02-22T15:51:00Z"}]"#
+    let neuesBlatt = #"[{"T":"q","S":"AAPL","bp":126.60,"ap":126.62,"t":"2021-02-22T15:52:00Z"}]"#
+    _ = leser.lies(blatt, empfangen: empfangen)
+    // Abschluss eine Minute später: Kurs bleibt so alt wie das Kursblatt.
+    let nachAbschluss = leser.lies(abschluss, empfangen: empfangen)
+    let erster = try #require(nachAbschluss.kurse.first)
+    #expect(erster.zeit == zeit("2021-02-22T15:50:00.000Z"))
+    // Neues Kursblatt: jetzt ist der Abschluss der älteste Teil.
+    let nachBlatt = leser.lies(neuesBlatt, empfangen: empfangen)
+    let zweiter = try #require(nachBlatt.kurse.first)
+    #expect(zweiter.zeit == zeit("2021-02-22T15:51:00.000Z"))
+    #expect(zweiter.geld == d("126.60"))
 }
 
 @Test func alpacaFehlerCodes() {
