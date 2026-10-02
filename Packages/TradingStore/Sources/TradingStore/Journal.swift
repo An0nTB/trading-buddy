@@ -47,7 +47,7 @@ public final class Journal: Sendable {
     /// Name, unter dem der MT4-Importer in `Importlauf.importer` steht.
     public static let mt4Importer = "MT4-Auszug"
 
-    private let db: any DatabaseWriter
+    let db: any DatabaseWriter
 
     /// Öffnet die Datenbank an diesem Pfad oder legt sie an und bringt sie auf den neuesten Aufbau.
     public convenience init(pfad: String) throws {
