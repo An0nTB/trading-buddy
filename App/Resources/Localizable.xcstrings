@@ -142,6 +142,36 @@
         }
       }
     },
+    "Jahresbericht" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annual report"
+          }
+        }
+      }
+    },
+    "Jahresbericht %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annual report %@"
+          }
+        }
+      }
+    },
+    "in diesem Jahr" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "this year"
+          }
+        }
+      }
+    },
     "Keine Überschneidung mit dem Konto bei %@: anderes Depot? Bitte im Blatt zuordnen." : {
       "localizations" : {
         "en" : {
@@ -158,6 +188,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Notify after automatic import"
+          }
+        }
+      }
+    },
+    "Vorjahr" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Previous year"
+          }
+        }
+      }
+    },
+    "Monate" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Months"
+          }
+        }
+      }
+    },
+    "Netto und Anzahl der in diesem Monat geschlossenen Trades." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Net result and number of trades closed in this month."
           }
         }
       }
@@ -10168,12 +10228,12 @@
         }
       }
     },
-    "Monats- oder Wochenbericht des gewählten Kontos als PDF, zum Ablegen oder Weitergeben" : {
+    "Monats-, Wochen- oder Jahresbericht des gewählten Kontos als PDF, zum Ablegen oder Weitergeben" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Monthly or weekly report of the selected account as PDF, for filing or passing on"
+            "value" : "Monthly, weekly or annual report of the selected account as PDF, for filing or passing on"
           }
         }
       }

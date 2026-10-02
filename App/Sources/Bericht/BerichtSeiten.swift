@@ -126,10 +126,15 @@ struct BerichtUeberblick: View {
             if case .woche = kontext.art {
                 BerichtWochentage(tage: bericht.tage, kontext: kontext)
             }
+            if case .jahr = kontext.art {
+                BerichtJahresmonate(tage: bericht.tage, kontext: kontext)
+            }
             if !auswertung.kapitalverlauf.punkte.isEmpty {
                 BerichtAbschnitt(titel: "Kapitalverlauf",
                                  untertitel: String(localized: "Summe der Netto-Ergebnisse nach jedem Trade im Berichtszeitraum, ohne Ein- und Auszahlungen.")) {
-                    BerichtKapitalkurve(punkte: auswertung.kapitalverlauf.punkte)
+                    // Im Jahresbericht stehen zwei Reihen Monatskacheln darüber; die Kurve wird flacher, damit
+                    // die besten und schlechtesten Trades noch auf die Seite passen.
+                    BerichtKapitalkurve(punkte: auswertung.kapitalverlauf.punkte, hoehe: kontext.art.istJahr ? 100 : 150)
                 }
             }
             HStack(alignment: .top, spacing: Abstand.kachelAbstand * 2) {
@@ -233,9 +238,55 @@ struct BerichtWochentage: View {
     }
 }
 
+/// Jahresbericht: Netto und Anzahl je Kalendermonat in zwei Reihen zu sechs Kacheln; Monate ohne
+/// geschlossenen Trade mit Strich. Summiert die Tagesergebnisse des Kerns, rechnet also nichts neu.
+struct BerichtJahresmonate: View {
+    let tage: [Zeitraumbericht.Tagesergebnis]
+    let kontext: BerichtKontext
+    @Environment(\.thema) private var thema
+
+    private struct Monat {
+        var anzahl = 0
+        var netto: Decimal = 0
+    }
+
+    var body: some View {
+        var monate: [Int: Monat] = [:]
+        for tag in tage {
+            monate[tag.tag.monat, default: Monat()].anzahl += tag.anzahl
+            monate[tag.tag.monat, default: Monat()].netto += tag.netto
+        }
+        return BerichtAbschnitt(titel: "Monate",
+                                untertitel: String(localized: "Netto und Anzahl der in diesem Monat geschlossenen Trades.")) {
+            VStack(spacing: Abstand.raster) {
+                ForEach([1, 7], id: \.self) { erster in
+                    HStack(spacing: Abstand.raster) {
+                        ForEach(erster..<(erster + 6), id: \.self) { nummer in
+                            kachel(nummer: nummer, monat: monate[nummer])
+                        }
+                    }
+                }
+            }
+            .frame(width: BerichtMass.breite)
+        }
+    }
+
+    private func kachel(nummer: Int, monat: Monat?) -> some View {
+        var kalender = Calendar(identifier: .gregorian)
+        kalender.locale = Locale.current
+        let namen = kalender.shortStandaloneMonthSymbols
+        let name = namen.indices.contains(nummer - 1) ? namen[nummer - 1] : String(nummer)
+        return BerichtKachel(titel: LocalizedStringKey(name),
+                             wert: monat.map { Format.geld($0.netto, kontext.waehrung) } ?? "–",
+                             zusatz: monat.map { String(localized: "\($0.anzahl) Trades") },
+                             farbe: monat.map { thema.vorzeichen($0.netto) })
+    }
+}
+
 /// Kontostand nach jedem Trade, beginnend bei null.
 struct BerichtKapitalkurve: View {
     let punkte: [Decimal]
+    var hoehe: CGFloat = 150
     @Environment(\.thema) private var thema
 
     private struct Punkt: Identifiable {
@@ -262,7 +313,7 @@ struct BerichtKapitalkurve: View {
                 AxisValueLabel().foregroundStyle(thema.textSchwach)
             }
         }
-        .frame(width: BerichtMass.breite, height: 150)
+        .frame(width: BerichtMass.breite, height: hoehe)
     }
 }
 
