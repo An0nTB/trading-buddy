@@ -152,6 +152,26 @@
         }
       }
     },
+    "Jahresbericht" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annual report"
+          }
+        }
+      }
+    },
+    "Jahresbericht %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annual report %@"
+          }
+        }
+      }
+    },
     "Kursverlauf des Trades mit %lld Balken, Einstieg und Ausstieg markiert" : {
       "localizations" : {
         "en" : {
@@ -162,12 +182,52 @@
         }
       }
     },
+    "in diesem Jahr" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "this year"
+          }
+        }
+      }
+    },
     "Mitteilung nach stillem Import" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Notify after automatic import"
+          }
+        }
+      }
+    },
+    "Vorjahr" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Previous year"
+          }
+        }
+      }
+    },
+    "Monate" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Months"
+          }
+        }
+      }
+    },
+    "Netto und Anzahl der in diesem Monat geschlossenen Trades." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Net result and number of trades closed in this month."
           }
         }
       }
@@ -3663,6 +3723,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Portfolio"
+          }
+        }
+      }
+    },
+    "Der Auszug nennt die Produktart nicht. Bis du sie wählst, zählt der Trade in der Steuer als „nicht zugeordnet“. Die Wahl gilt für alle Trades dieses Kontos mit demselben Symbol." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The statement does not name the product type. Until you choose one, the trade counts as “not assigned” for tax. The choice applies to all trades in this account with the same symbol."
           }
         }
       }
@@ -10168,12 +10238,12 @@
         }
       }
     },
-    "Monats- oder Wochenbericht des gewählten Kontos als PDF, zum Ablegen oder Weitergeben" : {
+    "Monats-, Wochen- oder Jahresbericht des gewählten Kontos als PDF, zum Ablegen oder Weitergeben" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Monthly or weekly report of the selected account as PDF, for filing or passing on"
+            "value" : "Monthly, weekly or annual report of the selected account as PDF, for filing or passing on"
           }
         }
       }

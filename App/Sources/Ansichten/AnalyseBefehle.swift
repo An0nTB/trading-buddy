@@ -22,13 +22,15 @@ struct AnalyseBefehle: Commands {
 
 /// Eintrag fürs Kontextmenü einer Trade-Zeile: Analyse des Symbols dieses Trades.
 /// Fehlt das Blatt im Fenster (Einhängezeile noch nicht gesetzt), ist der Eintrag abgeschaltet statt wirkungslos.
+/// Mit `symbol` statt Trade hängt er an Zeilen ohne Trade, etwa offene Positionen (Paket A1 a).
 struct AnalyseMenuePunkt: View {
-    let trade: Trade
+    var trade: Trade?
+    var symbol: String?
     @Environment(FragBradZustand.self) private var zustand: FragBradZustand?
 
     var body: some View {
         Button("Wert analysieren …", systemImage: "chart.xyaxis.line") {
-            zustand?.frage(.analyse, trade: trade)
+            zustand?.frage(.analyse, trade: trade, symbol: symbol)
         }
         .disabled(zustand == nil)
     }

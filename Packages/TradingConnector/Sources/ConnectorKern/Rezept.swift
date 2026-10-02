@@ -36,9 +36,9 @@ public enum Rezept {
         - Den Abschnitt „Steuer-Orientierung“ nur nennen, wenn danach gefragt wird: Summen je Topf, keine
           Steuerberechnung, keine Steuerberatung; maßgeblich sind Steuerbescheinigung und Steuerberatung.
         - Nur Zahlen aus den Henry-Werkzeugen verwenden; fehlt etwas, das sagen statt schätzen.
-        - Details bei Bedarf: hole_trades (Trades je Muster, beste und schlechteste, mit Journal und Grund),
-          hole_aufschluesselung (Setup, Regeltreue, Zustand, Wochentag, Stunde, Haltedauer, Trade-Nummer am Tag,
-          nach vorherigem Ergebnis) und hole_notizen (Plan, Rückblick und verpasste Trades im Wortlaut).
+        - Details bei Bedarf: hole_trades (Trades je Muster, Symbol oder Ticket, beste und schlechteste, mit Journal
+          und Grund), hole_aufschluesselung (Setup, Regeltreue, Zustand, Produktart, Wochentag, Stunde, Haltedauer,
+          Trade-Nummer am Tag, nach vorherigem Ergebnis) und hole_notizen (Plan, Rückblick und verpasste Trades im Wortlaut).
         - Schluss: „Keine Anlageberatung. Die Auswertung beschreibt vergangene Trades.“
         """
 

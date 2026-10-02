@@ -4,7 +4,7 @@ import TradingCore
 import PDFKit
 #endif
 
-/// Menü „Bericht als PDF“ mit den Monaten und Kalenderwochen, in denen Trades geschlossen wurden
+/// Menü „Bericht als PDF“ mit den Monaten, Kalenderwochen und Jahren, in denen Trades geschlossen wurden
 /// (neueste zuerst). Mac: Sichern-Dialog. iPhone und iPad: Vorschau mit Teilen-Knopf. Einhängen übernimmt AP11
 /// (Menü „Ablage“ und Werkzeugleiste, Patch in uebergabe/Monatsbericht_PDF_einhaengen.patch).
 struct MonatsberichtMenue: View {
@@ -38,6 +38,13 @@ struct MonatsberichtMenue: View {
                     }
                 }
             }
+            Section("Jahresbericht") {
+                ForEach(modell.berichtJahre, id: \.self) { jahr in
+                    Button(String(jahr)) {
+                        if let ergebnis = modell.jahresbericht(jahr) { erstelle(ergebnis) }
+                    }
+                }
+            }
             Divider()
             Button("Zeitraum …") {
                 #if os(macOS)
@@ -48,7 +55,7 @@ struct MonatsberichtMenue: View {
             }
         }
         .disabled(modell.monate.isEmpty)
-        .help("Monats- oder Wochenbericht des gewählten Kontos als PDF, zum Ablegen oder Weitergeben")
+        .help("Monats-, Wochen- oder Jahresbericht des gewählten Kontos als PDF, zum Ablegen oder Weitergeben")
         #if os(iOS)
         .sheet(item: $datei) { datei in
             BerichtVorschau(datei: datei)
