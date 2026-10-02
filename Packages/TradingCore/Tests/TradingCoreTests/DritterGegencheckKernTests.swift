@@ -2,7 +2,7 @@ import Foundation
 import Testing
 @testable import TradingCore
 
-/// Kern-Befunde aus dem dritten Gegencheck (Doc 49: G1, G4, G5, G7, G8). Sollwerte von Hand (02.10.2026).
+/// Kern-Befunde aus dem dritten Gegencheck (Doc 49: G1, G5, G8; G4 und G7 bringt AP12 in #177). Sollwerte von Hand (02.10.2026).
 private let gUTC = TimeZone(secondsFromGMT: 0)!
 
 private func gZeit(_ iso: String) -> Date {
@@ -45,27 +45,6 @@ private let btcTrades = (0..<4).map { i in
     let angleich = Waehrungsangleich([usdt], kontowaehrung: "USD", kurse: nil)
     #expect(angleich.ohneKurs.isEmpty)
     #expect(angleich.trades.map(\.profit) == [42])
-}
-
-@Test func g4KursauszugFuerKontoAusserhalbDesEuro() {
-    var kurse: [Journaltag: [String: Decimal]] = [:]
-    for tag in 1...31 { kurse[Journaltag(jahr: 2025, monat: 5, tag: tag)!] = ["CHF": 1, "USD": 2] }
-    let chf = Trade(id: "c", symbol: "NESN", side: .buy, lots: 1, openTime: gZeit("2025-05-20T09:00:00Z"),
-                    closeTime: gZeit("2025-05-20T12:00:00Z"), openPrice: 1, closePrice: 1, profit: 10)
-    let konten = [JournalExport.Kontodaten(broker: "C", kontonummer: "3333", waehrung: "CHF", trades: [chf])]
-    let auszug = JournalExport.referenzkursauszug(Referenzkurse(kurse: kurse), fuer: konten)
-    // 12. bis 21. Mai wie beim Fremdwährungs-Trade, nur CHF.
-    #expect(auszug.count == 10)
-    #expect(auszug.first?.tag == Journaltag("2025-05-12"))
-    #expect(auszug.last?.tag == Journaltag("2025-05-21"))
-    let nurCHF = auszug.allSatisfy { $0.kurse == ["CHF": 1] }
-    #expect(nurCHF)
-}
-
-@Test func g7NeueresFormatVorDemRest() {
-    // Eine Datei aus einer neueren App, deren Felder dieser Stand nicht lesen kann.
-    let json = #"{"format":99,"konten":"anders aufgebaut","zeitzone":"Europe/Berlin"}"#
-    #expect(throws: ExportFehler.neueresFormat(99)) { try JournalExport.lese(Data(json.utf8)) }
 }
 
 @Test func g8FreieTageSindKeinMonat() throws {
