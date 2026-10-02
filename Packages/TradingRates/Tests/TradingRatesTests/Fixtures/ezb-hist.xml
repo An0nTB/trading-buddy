@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Testdatei im Aufbau von eurofxref-hist.xml (EZB), neuester Tag zuerst. Erfundene Testwerte, keine echten Kurse.
+     25.09.2026 Freitag, 28.09.2026 Montag, 29.09.2026 Dienstag; 26./27.09. Wochenende ohne Kurs. -->
+<gesmes:Envelope xmlns:gesmes="http://www.gesmes.org/xml/2002-08-01" xmlns="http://www.ecb.int/vocabulary/2002-08-01/eurofxref">
+	<gesmes:subject>Reference rates</gesmes:subject>
+	<gesmes:Sender>
+		<gesmes:name>European Central Bank</gesmes:name>
+	</gesmes:Sender>
+	<Cube>
+		<Cube time="2026-09-29">
+			<Cube currency="USD" rate="1.1800"/>
+			<Cube currency="JPY" rate="170.12"/>
+			<Cube currency="GBP" rate="0.8700"/>
+		</Cube>
+		<Cube time="2026-09-28">
+			<Cube currency="USD" rate="1.1750"/>
+			<Cube currency="JPY" rate="169.80"/>
+			<Cube currency="GBP" rate="0.8690"/>
+		</Cube>
+		<Cube time="2026-09-25">
+			<Cube currency="USD" rate="1.1700"/>
+			<Cube currency="JPY" rate="169.00"/>
+			<Cube currency="GBP" rate="0.8680"/>
+			<Cube currency="XXX" rate="1,5"/>
+		</Cube>
+	</Cube>
+</gesmes:Envelope>
