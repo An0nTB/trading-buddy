@@ -16,12 +16,16 @@ extension Bereich {
     /// Bereiche, die sich als eigenes Fenster öffnen lassen: alle Seiten der Seitenleiste.
     static var abtrennbar: [Bereich] { journal + markt + daten }
 
+    /// Kleine Werkzeuge: starten angeheftet (Tim, 02.10.2026) und passen in schmale Fenster.
+    /// Ausdrücklich benannt, damit neue Bereiche unter „Markt“ (etwa Nachrichten) normal starten.
+    static let werkzeuge: [Bereich] = [.boersenuhr, .positionsrechner]
+
     /// Börsenuhr und Positionsrechner starten angeheftet (Tim, 02.10.2026).
-    var startetAngeheftet: Bool { Bereich.markt.contains(self) }
+    var startetAngeheftet: Bool { Bereich.werkzeuge.contains(self) }
 
     /// Kleine Bereiche passen in schmale Fenster, alle anderen brauchen Platz für Kacheln und Tabellen.
     var mindestgroesse: CGSize {
-        Bereich.markt.contains(self) ? CGSize(width: 320, height: 240) : CGSize(width: 560, height: 420)
+        Bereich.werkzeuge.contains(self) ? CGSize(width: 320, height: 240) : CGSize(width: 560, height: 420)
     }
 
     /// Schlüssel in den Einstellungen für „immer im Vordergrund“ je Bereich.
