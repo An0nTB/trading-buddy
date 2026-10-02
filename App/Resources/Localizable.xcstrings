@@ -938,6 +938,16 @@
         }
       }
     },
+    "%lld ohne Kurs nicht in den Summen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld without a rate not included in the totals"
+          }
+        }
+      }
+    },
     "%lld ohne Kauf" : {
       "localizations" : {
         "en" : {
@@ -1146,6 +1156,16 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "%lld Trades in %@ zum EZB-Kurs des Schlusstags in %@ umgerechnet (Näherung)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld trades in %2$@ converted to %3$@ at the ECB rate of the closing day (approximation)"
           }
         }
       }
