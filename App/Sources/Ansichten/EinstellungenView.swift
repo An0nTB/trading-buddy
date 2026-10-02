@@ -15,6 +15,10 @@ struct EinstellungenView: View {
                 Form { ErscheinungsbildFelder() }
                     .formStyle(.grouped)
             }
+            Tab("Börsen", systemImage: "clock") {
+                Form { BoersenEinstellungen() }
+                    .formStyle(.grouped)
+            }
             Tab("Konten", systemImage: "building.columns") {
                 KontenView()
             }
@@ -27,6 +31,12 @@ struct EinstellungenView: View {
         Form {
             Section("Erscheinungsbild") { ErscheinungsbildFelder() }
             Section("Allgemein") { AllgemeinFelder() }
+            Section("Börsenuhr") {
+                NavigationLink("Börsen verwalten") {
+                    Form { BoersenEinstellungen() }
+                        .navigationTitle("Börsen")
+                }
+            }
             Section("Claude") {
                 Text("Der Claude-Connector und der Export-Ordner laufen am Mac.")
             }
