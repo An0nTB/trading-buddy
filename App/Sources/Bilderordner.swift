@@ -103,10 +103,10 @@ enum Bilderordner {
     /// Ablegen). Ohne einen einzigen Verweis tut sie nichts: dann ist eher die Datenbank leer oder neu als
     /// der Ordner voller Waisen. Dateien, die bis `geschuetztBis` entstanden sind, bleiben (G16); ohne lesbares
     /// Erstelldatum bleibt die Datei ebenfalls. Läuft auf dem Hauptthread, damit kein gleichzeitiges Ablegen
-    /// dazwischenkommt.
+    /// dazwischenkommt. `basis` nur für Tests (App/Tests): ein Ordner im temporären Verzeichnis statt des echten.
     @MainActor
-    static func raeumeAuf(behalten: Set<String>, geschuetztBis: Date? = schutzzeitpunkt()) -> Int {
-        guard !behalten.isEmpty, let ordner = try? ordner() else { return 0 }
+    static func raeumeAuf(behalten: Set<String>, geschuetztBis: Date? = schutzzeitpunkt(), in basis: URL? = nil) -> Int {
+        guard !behalten.isEmpty, let ordner = basis ?? (try? Self.ordner()) else { return 0 }
         let dateisystem = FileManager.default
         guard let monate = try? dateisystem.contentsOfDirectory(at: ordner, includingPropertiesForKeys: nil) else {
             return 0
