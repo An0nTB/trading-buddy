@@ -47,6 +47,10 @@ private let zeit = ISO8601DateFormatter().date(from: "2026-10-02T18:30:15Z")!
     #expect(pruefung.geschlossenePositionen == 4)
     #expect(pruefung.ausfuehrungen > 0)
     #expect(pruefung.letzterImport != nil)
+    #expect(pruefung.letzterTrade != nil)
+    #expect(throws: SpeicherFehler.ungueltigerWert("\(datei.lastPathComponent) gibt es schon")) {
+        try quelle.sichere(nach: datei)
+    }
 
     // Wiederherstellen ersetzt den ganzen Inhalt, auch was nur im Ziel stand.
     let ziel = try Journal.imSpeicher()
