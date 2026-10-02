@@ -1,0 +1,47 @@
+name: Lokalisierung
+
+# Englisch als zweite Sprache (Paket 6, Doc 43): exportiert die Texte der App so, wie Xcode sie aus dem
+# Code liest, und zählt, welche noch kein Englisch haben. Kein Pflicht-Check; läuft nur, wenn sich die
+# App-Quellen, die Texte oder diese Datei ändern. Die Liste der fehlenden Texte steht im Log.
+on:
+  pull_request:
+    paths:
+      - "App/**"
+      - "project.yml"
+      - "scripts/lokalisierung_pruefen.py"
+      - ".github/workflows/lokalisierung.yml"
+  push:
+    branches: [main]
+    paths:
+      - "App/**"
+      - "project.yml"
+      - "scripts/lokalisierung_pruefen.py"
+      - ".github/workflows/lokalisierung.yml"
+
+jobs:
+  englisch:
+    name: Lokalisierung (Englisch)
+    runs-on: xcode-27
+    steps:
+      - uses: actions/checkout@v4
+      - name: XcodeGen installieren
+        run: brew install xcodegen
+      - name: Xcode-Projekt erzeugen
+        run: xcodegen generate
+      - name: Texte exportieren (macOS)
+        run: xcodebuild -exportLocalizations -project TradingBuddy.xcodeproj -localizationPath "$RUNNER_TEMP/loc-mac" -exportLanguage en -sdk macosx CODE_SIGNING_ALLOWED=NO
+      - name: Texte exportieren (iOS)
+        run: xcodebuild -exportLocalizations -project TradingBuddy.xcodeproj -localizationPath "$RUNNER_TEMP/loc-ios" -exportLanguage en -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO
+      - name: Englisch-Abdeckung macOS
+        run: python3 scripts/lokalisierung_pruefen.py "$RUNNER_TEMP/loc-mac" --liste
+      - name: Englisch-Abdeckung iOS
+        run: python3 scripts/lokalisierung_pruefen.py "$RUNNER_TEMP/loc-ios" --liste
+      - name: Textkatalog nach dem Export
+        run: git diff --stat
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lokalisierung
+          path: |
+            ${{ runner.temp }}/loc-mac
+            ${{ runner.temp }}/loc-ios
+            App/Resources/Localizable.xcstrings
