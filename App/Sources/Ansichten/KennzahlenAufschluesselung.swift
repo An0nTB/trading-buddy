@@ -129,10 +129,10 @@ struct AufschluesselungKarte: View {
 
     private func zeilen(_ wahl: Aufschluesselungswahl) -> [Gruppenzeile] {
         if let aufteilung = wahl.aufteilung {
-            return Kennzahlen.aufschluesseln(modell.trades, nach: aufteilung, zeitzone: .current)
+            return Kennzahlen.aufschluesseln(modell.angeglicheneTrades, nach: aufteilung, zeitzone: .current)
                 .map { Gruppenzeile(id: $0.schluessel, name: Gruppenname.text($0.schluessel, wahl), kennzahlen: $0.kennzahlen) }
         }
-        let gruppen = Dictionary(grouping: modell.trades) { modell.journaleintraege[$0.id]?.setup ?? Gruppenname.ohneSetup }
+        let gruppen = Dictionary(grouping: modell.angeglicheneTrades) { modell.journaleintraege[$0.id]?.setup ?? Gruppenname.ohneSetup }
         return gruppen.keys.sorted().map { schluessel in
             Gruppenzeile(id: schluessel, name: Gruppenname.text(schluessel, wahl),
                          kennzahlen: Kennzahlen(trades: gruppen[schluessel] ?? []))
@@ -236,7 +236,7 @@ struct ReihenfolgeKarte: View {
     private func gruppen(_ aufteilung: Aufteilung) -> [Gruppenzeile] {
         guard aufteilung == .nachVorherigem else { return tradeNummern() }
         let reihenfolge = ["erster", "nachGewinn", "nachVerlust", "nachBreakeven"]
-        return Kennzahlen.aufschluesseln(modell.trades, nach: aufteilung, zeitzone: .current)
+        return Kennzahlen.aufschluesseln(modell.angeglicheneTrades, nach: aufteilung, zeitzone: .current)
             .sorted { (reihenfolge.firstIndex(of: $0.schluessel) ?? 9) < (reihenfolge.firstIndex(of: $1.schluessel) ?? 9) }
             .map { Gruppenzeile(id: $0.schluessel, name: Gruppenname.reihenfolge($0.schluessel), kennzahlen: $0.kennzahlen) }
     }
@@ -250,7 +250,7 @@ struct ReihenfolgeKarte: View {
         var zaehler: [Date: Int] = [:]
         var jeNummer: [Int: [Trade]] = [:]
         var ohneUhrzeit: [Trade] = []
-        for trade in modell.trades.sorted(by: { ($0.openTime, $0.id) < ($1.openTime, $1.id) }) {
+        for trade in modell.angeglicheneTrades.sorted(by: { ($0.openTime, $0.id) < ($1.openTime, $1.id) }) {
             guard !trade.nurDatum else {
                 ohneUhrzeit.append(trade)
                 continue
