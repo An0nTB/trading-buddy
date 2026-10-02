@@ -27,12 +27,21 @@ struct FragBradBlatt: View {
     }
 
     private var vorlagen: [FragBradVorlage] {
-        FragBradVorlage.verfuegbar(mitTrade: anfrage.trade != nil, mitTag: anfrage.tag != nil)
+        FragBradVorlage.verfuegbar(mitTrade: anfrage.trade != nil, mitTag: anfrage.tag != nil,
+                                   mitSymbol: symbol != nil)
+    }
+
+    private var ton: FragBradTon { Ton(rawValue: tonWert) == .sachlich ? .sachlich : .henry }
+
+    /// Wert für „Wert analysieren“: ausdrücklich gewählt, sonst Symbol des Trades, sonst Instrument im Filter.
+    private var symbol: String? { anfrage.symbol ?? anfrage.trade?.symbol ?? modell.instrument }
+
+    private var kontext: FragBradKontext {
+        FragBradKontextAusModell.kontext(modell, trade: anfrage.trade, tag: anfrage.tag, symbol: symbol)
     }
 
     private var text: String? {
-        FragBrad.text(vorlage, kontext: FragBradKontextAusModell.kontext(modell, trade: anfrage.trade, tag: anfrage.tag),
-                      freieFrage: freieFrage, ton: Ton(rawValue: tonWert) == .sachlich ? .sachlich : .henry, zeitzone: modell.zeitzone)
+        FragBrad.text(vorlage, kontext: kontext, freieFrage: freieFrage, ton: ton, zeitzone: modell.zeitzone)
     }
 
     var body: some View {
@@ -45,6 +54,12 @@ struct FragBradBlatt: View {
             if vorlage == .frei {
                 TextField("Deine Frage an Henry", text: $freieFrage, axis: .vertical)
                     .lineLimit(3...8)
+            }
+            if vorlage == .analyse {
+                Text(FragBrad.inkognitoHinweis(ton)).font(.callout)
+                if !kontext.mitKursverlauf {
+                    Text(FragBrad.ohneKursverlaufHinweis).font(.callout).foregroundStyle(.secondary)
+                }
             }
             vorschau
             if let meldung {
@@ -90,6 +105,8 @@ struct FragBradBlatt: View {
     #if os(macOS)
     private func oeffne() {
         guard let text else { return }
+        // Analyse: zusätzlich kopieren, falls der Klick auf Inkognito das vorbefüllte Feld leert (Doc 38).
+        if vorlage.kopiertMit { FragBradOeffner.kopiere(text) }
         if FragBradOeffner.oeffneClaude(text) {
             schliessen()
         } else {
@@ -107,9 +124,13 @@ struct FragBradBlatt: View {
 /// Kontext für die Frage aus dem gemeinsamen Filter: Konto, Monat, Instrument.
 @MainActor
 enum FragBradKontextAusModell {
-    static func kontext(_ modell: AppModell, trade: Trade?, tag: Date?) -> FragBradKontext {
+    static func kontext(_ modell: AppModell, trade: Trade?, tag: Date?, symbol: String? = nil) -> FragBradKontext {
         var kontext = FragBradKontext(konto: modell.konto.map { kurzname($0, unter: modell.konten) },
                                       instrument: modell.instrument)
+        if let symbol {
+            kontext.symbol = symbol
+            kontext.mitKursverlauf = modell.kurse.verlaeufe.verlaeufe[symbol] != nil
+        }
         if case .monat(let anfang) = modell.zeitraum {
             var kalender = Calendar(identifier: .gregorian)
             kalender.timeZone = modell.zeitzone
