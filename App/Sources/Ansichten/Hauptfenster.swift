@@ -141,6 +141,7 @@ struct Seitenleiste: View {
         #if os(macOS)
         .frame(minWidth: 900, minHeight: 600)
         #endif
+        .fragBradBlatt() // Frag Brad (Doc 31)
     }
 
     private var auswahl: Binding<Bereich?> {
