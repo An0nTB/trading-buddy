@@ -27,11 +27,11 @@ struct FragBradBlatt: View {
     }
 
     private var vorlagen: [FragBradVorlage] {
-        FragBradVorlage.allCases.filter { !$0.brauchtTrade || anfrage.trade != nil }
+        FragBradVorlage.verfuegbar(mitTrade: anfrage.trade != nil, mitTag: anfrage.tag != nil)
     }
 
     private var text: String? {
-        FragBrad.text(vorlage, kontext: FragBradKontextAusModell.kontext(modell, trade: anfrage.trade),
+        FragBrad.text(vorlage, kontext: FragBradKontextAusModell.kontext(modell, trade: anfrage.trade, tag: anfrage.tag),
                       freieFrage: freieFrage, ton: tonWert == "sachlich" ? .sachlich : .brad, zeitzone: modell.zeitzone)
     }
 
@@ -107,7 +107,7 @@ struct FragBradBlatt: View {
 /// Kontext für die Frage aus dem gemeinsamen Filter: Konto, Monat, Instrument.
 @MainActor
 enum FragBradKontextAusModell {
-    static func kontext(_ modell: AppModell, trade: Trade?) -> FragBradKontext {
+    static func kontext(_ modell: AppModell, trade: Trade?, tag: Date?) -> FragBradKontext {
         var kontext = FragBradKontext(konto: modell.konto.map { kurzname($0, unter: modell.konten) },
                                       instrument: modell.instrument)
         if case .monat(let anfang) = modell.zeitraum {
@@ -116,6 +116,7 @@ enum FragBradKontextAusModell {
             kontext.von = anfang
             kontext.bis = kalender.date(byAdding: DateComponents(month: 1, day: -1), to: anfang)
         }
+        kontext.tag = tag
         if let trade {
             kontext.trade = FragBradTrade(symbol: trade.symbol, eroeffnet: trade.openTime,
                                           geschlossen: trade.closeTime, nurDatum: trade.nurDatum)
