@@ -49,16 +49,16 @@ struct FragBradBlatt: View {
             Text("Frag Henry").font(Schrift.titel)
             Text(Self.erklaerung).font(.callout).foregroundStyle(.secondary)
             Picker("Frage", selection: $vorlage) {
-                ForEach(vorlagen) { Text($0.titel).tag($0) }
+                ForEach(vorlagen) { Text(verbatim: $0.titel.uebersetzt).tag($0) }
             }
             if vorlage == .frei {
                 TextField("Deine Frage an Henry", text: $freieFrage, axis: .vertical)
                     .lineLimit(3...8)
             }
             if vorlage == .analyse {
-                Text(FragBrad.inkognitoHinweis(ton)).font(.callout)
+                Text(verbatim: FragBrad.inkognitoHinweis(ton).uebersetzt).font(.callout)
                 if !kontext.mitKursverlauf {
-                    Text(FragBrad.ohneKursverlaufHinweis).font(.callout).foregroundStyle(.secondary)
+                    Text(verbatim: FragBrad.ohneKursverlaufHinweis.uebersetzt).font(.callout).foregroundStyle(.secondary)
                 }
             }
             vorschau

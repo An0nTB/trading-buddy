@@ -14462,6 +14462,1282 @@
           }
         }
       }
+    },
+    "Neujahr" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New Year's Day"
+          }
+        }
+      }
+    },
+    "Karfreitag" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Good Friday"
+          }
+        }
+      }
+    },
+    "Ostermontag" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Easter Monday"
+          }
+        }
+      }
+    },
+    "Tag der Arbeit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Labour Day"
+          }
+        }
+      }
+    },
+    "Heiligabend" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Christmas Eve"
+          }
+        }
+      }
+    },
+    "1. Weihnachtstag" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Christmas Day"
+          }
+        }
+      }
+    },
+    "Silvester" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New Year's Eve"
+          }
+        }
+      }
+    },
+    "Juneteenth (Ersatztag)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Juneteenth (observed)"
+          }
+        }
+      }
+    },
+    "Independence Day (Ersatztag)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Independence Day (observed)"
+          }
+        }
+      }
+    },
+    "Christmas Day (Ersatztag)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Christmas Day (observed)"
+          }
+        }
+      }
+    },
+    "Boxing Day (Ersatztag)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Boxing Day (observed)"
+          }
+        }
+      }
+    },
+    "Letzter Handelstag des Jahres" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last trading day of the year"
+          }
+        }
+      }
+    },
+    "Tag nach Thanksgiving" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Day after Thanksgiving"
+          }
+        }
+      }
+    },
+    "Vom Nutzer angelegt." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Created by the user."
+          }
+        }
+      }
+    },
+    "Annahme: Devisenhandel von Sonntag 17:00 bis Freitag 17:00 New Yorker Zeit, die übliche Marktkonvention; es gibt keine Börse und keine offizielle Quelle für den außerbörslichen Devisenmarkt." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Assumption: currency trading from Sunday 17:00 to Friday 17:00 New York time, the usual market convention; there is no exchange and no official source for the over-the-counter currency market."
+          }
+        }
+      }
+    },
+    "Die kurze tägliche Pause vieler Broker um 17:00 New York ist nicht abgebildet." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The short daily break of many brokers at 17:00 New York is not modelled."
+          }
+        }
+      }
+    },
+    "Feiertage sind nicht gepflegt; viele Broker schließen am 25.12. und 01.01. Das gilt je Broker und ist noch zu prüfen." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holidays are not maintained; many brokers close on 25 Dec and 1 Jan. This varies by broker and is still to be checked."
+          }
+        }
+      }
+    },
+    "Kryptobörsen handeln rund um die Uhr an allen Tagen (R1 Abschnitt 6). Wartungspausen einzelner Börsen sind nicht abgebildet." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Crypto exchanges trade around the clock on all days (R1 section 6). Maintenance breaks of individual exchanges are not modelled."
+          }
+        }
+      }
+    },
+    "Handelszeit ist der fortlaufende Handel im Orderbuch SETS 08:00 bis 16:30; Auktionen sind nicht abgebildet." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trading hours are continuous trading in the SETS order book, 08:00 to 16:30; auctions are not modelled."
+          }
+        }
+      }
+    },
+    "Feiertage 2026 und 2027 am 01.10.2026 mit den Bank Holidays von GOV.UK abgeglichen: stimmen überein. Die Seite der LSE ließ sich nicht maschinell lesen." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holidays 2026 and 2027 checked against the GOV.UK bank holidays on 1 Oct 2026: they match. The LSE page could not be read by machine."
+          }
+        }
+      }
+    },
+    "Frühschluss 12:30 am 24.12. und 31.12. ist Annahme aus exchange_calendars, noch zu prüfen." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Early close at 12:30 on 24 Dec and 31 Dec is an assumption from exchange_calendars, still to be checked."
+          }
+        }
+      }
+    },
+    "Standard ist der Kernhandel 09:30 bis 16:00; vorbörslich, nachbörslich und Nacht rechnet die Uhr nur, wenn sie zugeschaltet sind (Sitzungsart)." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The default is core trading 09:30 to 16:00; the clock counts pre-market, after-hours and overnight only when they are switched on (session type)."
+          }
+        }
+      }
+    },
+    "Verkürzte Tage enden 13:00 Ortszeit." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shortened days end at 13:00 local time."
+          }
+        }
+      }
+    },
+    "2026 am 01.10.2026 mit nasdaq.com abgeglichen: stimmt überein. 2027 steht dort noch nicht; übernommen von NYSE (Annahme, beide folgen demselben US-Kalender)." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2026 checked against nasdaq.com on 1 Oct 2026: it matches. 2027 is not listed there yet; taken from NYSE (assumption, both follow the same US calendar)."
+          }
+        }
+      }
+    },
+    "Vorbörslich 04:00 bis 09:30, nachbörslich 16:00 bis 20:00, Nacht 21:00 bis 04:00 New York ab Sonntag 06.12.2026 (Nasdaq-FAQ 2026); Start unter Vorbehalt der SIP-Bereitschaft und SEC-Freigaben. Die Uhr rechnet standardmäßig nur den Kernhandel." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pre-market 04:00 to 09:30, after-hours 16:00 to 20:00, overnight 21:00 to 04:00 New York from Sunday 6 Dec 2026 (Nasdaq FAQ 2026); start subject to SIP readiness and SEC approvals. By default the clock counts only core trading."
+          }
+        }
+      }
+    },
+    "Die Nachtsitzung gehört zum Folgetag (Handelstag = Ende); sie entfällt in der Nacht vor einem Feiertag und beginnt am Abend des Feiertags (Nasdaq-FAQ)." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The overnight session belongs to the following day (trading day = end); it is dropped in the night before a holiday and starts on the evening of the holiday (Nasdaq FAQ)."
+          }
+        }
+      }
+    },
+    "Annahme, nicht geprüft: An verkürzten Tagen entfällt der nachbörsliche Handel, der vorbörsliche bleibt." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Assumption, not checked: on shortened days after-hours trading is dropped, pre-market remains."
+          }
+        }
+      }
+    },
+    "Handelszeit ist die Kernsitzung 09:30 bis 16:00; vor- und nachbörslicher Handel ist nicht abgebildet." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trading hours are the core session 09:30 to 16:00; pre-market and after-hours trading are not modelled."
+          }
+        }
+      }
+    },
+    "Feiertage und Frühschlüsse 2026 und 2027 am 01.10.2026 mit nyse.com abgeglichen: stimmen überein." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holidays and early closes 2026 and 2027 checked against nyse.com on 1 Oct 2026: they match."
+          }
+        }
+      }
+    },
+    "Handelszeit ist der fortlaufende Handel 09:00 bis 17:30; Eröffnungs- und Schlussauktion sind nicht abgebildet." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trading hours are continuous trading 09:00 to 17:30; opening and closing auctions are not modelled."
+          }
+        }
+      }
+    },
+    "2026 deckt sich mit den Beispielwerten in R1 Abschnitt 6." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2026 matches the example values in R1 section 6."
+          }
+        }
+      }
+    },
+    "Fallen 2027 der 01.05. und der 25./26.12. auf ein Wochenende, entfallen sie als Handelstag ohnehin." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "If 1 May and 25/26 Dec 2027 fall on a weekend, they are no trading days anyway."
+          }
+        }
+      }
+    },
+    "Handelsfreie Tage 2026 und 2027 am 01.10.2026 mit der Seite der Deutschen Börse abgeglichen: stimmen überein." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non-trading days 2026 and 2027 checked against the Deutsche Börse page on 1 Oct 2026: they match."
+          }
+        }
+      }
+    },
+    "Verkürzter Schluss 14:00 am 30.12. ist Annahme aus exchange_calendars; die Börse schreibt für den 30.12.2026 nur „gegebenenfalls abweichende Handelszeiten“ (Rundschreiben)." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shortened close at 14:00 on 30 Dec is an assumption from exchange_calendars; for 30 Dec 2026 the exchange only states “possibly different trading hours” (circular)."
+          }
+        }
+      }
+    },
+    "BoE-Zinsentscheid" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BoE rate decision"
+          }
+        }
+      }
+    },
+    "BoJ-Zinsentscheid" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BoJ rate decision"
+          }
+        }
+      }
+    },
+    "EZB-Zinsentscheid" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ECB rate decision"
+          }
+        }
+      }
+    },
+    "Fed-Zinsentscheid" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fed rate decision"
+          }
+        }
+      }
+    },
+    "SNB-Zinsentscheid" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SNB rate decision"
+          }
+        }
+      }
+    },
+    "US-Arbeitsmarktbericht" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "US jobs report"
+          }
+        }
+      }
+    },
+    "US-Verbraucherpreise" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "US consumer prices"
+          }
+        }
+      }
+    },
+    "Feiertag Euroraum: Karfreitag" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday euro area: Good Friday"
+          }
+        }
+      }
+    },
+    "Feiertag Euroraum: Neujahr" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday euro area: New Year's Day"
+          }
+        }
+      }
+    },
+    "Feiertag Euroraum: Ostermontag" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday euro area: Easter Monday"
+          }
+        }
+      }
+    },
+    "Feiertag Euroraum: Tag der Arbeit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday euro area: Labour Day"
+          }
+        }
+      }
+    },
+    "Feiertag Euroraum: Weihnachten" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday euro area: Christmas Day"
+          }
+        }
+      }
+    },
+    "Feiertag Euroraum: Zweiter Weihnachtstag" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday euro area: Boxing Day"
+          }
+        }
+      }
+    },
+    "Feiertag Großbritannien: Boxing Day" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday UK: Boxing Day"
+          }
+        }
+      }
+    },
+    "Feiertag Großbritannien: Boxing Day (Ersatztag)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday UK: Boxing Day (substitute day)"
+          }
+        }
+      }
+    },
+    "Feiertag Großbritannien: Early May Bank Holiday" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday UK: Early May Bank Holiday"
+          }
+        }
+      }
+    },
+    "Feiertag Großbritannien: Karfreitag" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday UK: Good Friday"
+          }
+        }
+      }
+    },
+    "Feiertag Großbritannien: Neujahr" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday UK: New Year's Day"
+          }
+        }
+      }
+    },
+    "Feiertag Großbritannien: Ostermontag" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday UK: Easter Monday"
+          }
+        }
+      }
+    },
+    "Feiertag Großbritannien: Spring Bank Holiday" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday UK: Spring Bank Holiday"
+          }
+        }
+      }
+    },
+    "Feiertag Großbritannien: Summer Bank Holiday" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday UK: Summer Bank Holiday"
+          }
+        }
+      }
+    },
+    "Feiertag Großbritannien: Weihnachten" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday UK: Christmas Day"
+          }
+        }
+      }
+    },
+    "Feiertag Großbritannien: Weihnachten (Ersatztag)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday UK: Christmas Day (substitute day)"
+          }
+        }
+      }
+    },
+    "Feiertag Japan: Bankfeiertag" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday Japan: Bank Holiday"
+          }
+        }
+      }
+    },
+    "Feiertag Japan: Ersatzfeiertag" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday Japan: Substitute Holiday"
+          }
+        }
+      }
+    },
+    "Feiertag Japan: Frühlings-Tagundnachtgleiche" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday Japan: Vernal Equinox Day"
+          }
+        }
+      }
+    },
+    "Feiertag Japan: Geburtstag des Kaisers" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday Japan: Emperor's Birthday"
+          }
+        }
+      }
+    },
+    "Feiertag Japan: Herbst-Tagundnachtgleiche" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday Japan: Autumnal Equinox Day"
+          }
+        }
+      }
+    },
+    "Feiertag Japan: Kindertag" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday Japan: Children's Day"
+          }
+        }
+      }
+    },
+    "Feiertag Japan: Kulturtag" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday Japan: Culture Day"
+          }
+        }
+      }
+    },
+    "Feiertag Japan: Neujahr" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday Japan: New Year's Day"
+          }
+        }
+      }
+    },
+    "Feiertag Japan: Showa-Tag" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday Japan: Showa Day"
+          }
+        }
+      }
+    },
+    "Feiertag Japan: Staatsgründung" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday Japan: National Foundation Day"
+          }
+        }
+      }
+    },
+    "Feiertag Japan: Tag der Achtung vor dem Alter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday Japan: Respect for the Aged Day"
+          }
+        }
+      }
+    },
+    "Feiertag Japan: Tag der Berge" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday Japan: Mountain Day"
+          }
+        }
+      }
+    },
+    "Feiertag Japan: Tag der Volljährigkeit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday Japan: Coming of Age Day"
+          }
+        }
+      }
+    },
+    "Feiertag Japan: Tag des Dankes für die Arbeit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday Japan: Labour Thanksgiving Day"
+          }
+        }
+      }
+    },
+    "Feiertag Japan: Tag des Grüns" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday Japan: Greenery Day"
+          }
+        }
+      }
+    },
+    "Feiertag Japan: Tag des Meeres" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday Japan: Marine Day"
+          }
+        }
+      }
+    },
+    "Feiertag Japan: Tag des Sports" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday Japan: Sports Day"
+          }
+        }
+      }
+    },
+    "Feiertag Japan: Verfassungstag" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday Japan: Constitution Memorial Day"
+          }
+        }
+      }
+    },
+    "Feiertag Japan: Volksfeiertag" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday Japan: Citizens' Holiday"
+          }
+        }
+      }
+    },
+    "Feiertag USA: Columbus Day" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday USA: Columbus Day"
+          }
+        }
+      }
+    },
+    "Feiertag USA: Independence Day" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday USA: Independence Day"
+          }
+        }
+      }
+    },
+    "Feiertag USA: Juneteenth" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday USA: Juneteenth"
+          }
+        }
+      }
+    },
+    "Feiertag USA: Labor Day" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday USA: Labor Day"
+          }
+        }
+      }
+    },
+    "Feiertag USA: Martin Luther King Jr. Day" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday USA: Martin Luther King Jr. Day"
+          }
+        }
+      }
+    },
+    "Feiertag USA: Memorial Day" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday USA: Memorial Day"
+          }
+        }
+      }
+    },
+    "Feiertag USA: Neujahr" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday USA: New Year's Day"
+          }
+        }
+      }
+    },
+    "Feiertag USA: Thanksgiving" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday USA: Thanksgiving"
+          }
+        }
+      }
+    },
+    "Feiertag USA: Veterans Day" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday USA: Veterans Day"
+          }
+        }
+      }
+    },
+    "Feiertag USA: Washington's Birthday" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday USA: Washington's Birthday"
+          }
+        }
+      }
+    },
+    "Feiertag USA: Weihnachten" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holiday USA: Christmas Day"
+          }
+        }
+      }
+    },
+    "Bank Holiday England und Wales" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bank holiday England and Wales"
+          }
+        }
+      }
+    },
+    "Bankfeiertag der Fed (Fedwire geschlossen)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fed bank holiday (Fedwire closed)"
+          }
+        }
+      }
+    },
+    "mit Projektionen (SEP) und Pressekonferenz" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "with projections (SEP) and press conference"
+          }
+        }
+      }
+    },
+    "nur Sekundärquelle (financecalendar.com), SNB-Seite nennt den Termin noch nicht" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "secondary source only (financecalendar.com), the SNB page does not list the date yet"
+          }
+        }
+      }
+    },
+    "ungeprüft: TARGET-Schließtag nach Regel berechnet" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "unverified: TARGET closing day calculated by rule"
+          }
+        }
+      }
+    },
+    "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "unverified: calculated from the holiday and banking laws, equinoxes from memory"
+          }
+        }
+      }
+    },
+    "zweiter Sitzungstag; Uhrzeit nicht fest, ganzer Tag in Tokio" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "second meeting day; time not fixed, whole day in Tokyo"
+          }
+        }
+      }
+    },
+    "Monat auswerten" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Review the month"
+          }
+        }
+      }
+    },
+    "Woche auswerten" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Review the week"
+          }
+        }
+      }
+    },
+    "Größtes Leck finden" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Find the biggest leak"
+          }
+        }
+      }
+    },
+    "Setups vergleichen" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compare setups"
+          }
+        }
+      }
+    },
+    "Diesen Trade einordnen" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Assess this trade"
+          }
+        }
+      }
+    },
+    "Diesen Tag einordnen" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Assess this day"
+          }
+        }
+      }
+    },
+    "Ziel aus dem Review prüfen" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check the goal from the review"
+          }
+        }
+      }
+    },
+    "Wert analysieren" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Analyse value"
+          }
+        }
+      }
+    },
+    "Eigene Frage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Own question"
+          }
+        }
+      }
+    },
+    "Solche Gespräche bleiben besser unter uns. In Claude zuerst Inkognito einschalten, dann senden. Die Frage liegt zusätzlich in der Zwischenablage." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Such conversations are best kept between us. Switch on incognito in Claude first, then send. The question is also on the clipboard."
+          }
+        }
+      }
+    },
+    "In Claude zuerst Inkognito einschalten. Inkognito-Chats landen nicht im Verlauf und nicht in Claudes Erinnerung. Die Frage liegt zusätzlich in der Zwischenablage." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Switch on incognito in Claude first. Incognito chats do not end up in the history or in Claude's memory. The question is also on the clipboard."
+          }
+        }
+      }
+    },
+    "Für diesen Wert liegt kein Kursverlauf vor. Henry beschreibt nur deine eigenen Trades und die Nachrichten." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "There is no price history for this instrument. Henry describes only your own trades and the news."
+          }
+        }
+      }
+    },
+    "CFD oder Devisenpaar des Brokers: Jeder Broker stellt eigene Kurse, ein freier neutraler Kurs fehlt (R1). Eine eigene Zuordnung auf den Basiswert ist möglich und gilt als Näherung." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Broker CFD or currency pair: every broker sets its own prices, a free neutral price is missing (R1). Your own mapping to the underlying is possible and counts as an approximation."
+          }
+        }
+      }
+    },
+    "Krypto-CFD des Brokers, Kurs von Kraken als Näherung." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Broker crypto CFD, Kraken price as an approximation."
+          }
+        }
+      }
+    },
+    "Krypto-CFD des Brokers, Kurs von Binance als Näherung." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Broker crypto CFD, Binance price as an approximation."
+          }
+        }
+      }
+    },
+    "Symbol nicht eindeutig erkannt. Bitte selbst zuordnen." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Symbol not clearly recognised. Please map it yourself."
+          }
+        }
+      }
+    },
+    "ISIN ohne Börsenkürzel. Bitte das Kürzel selbst zuordnen (US-Aktien über Alpaca); deutsche Kurse sind noch nicht angebunden." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ISIN without a ticker. Please map the ticker yourself (US stocks via Alpaca); German prices are not connected yet."
+          }
+        }
+      }
+    },
+    "Kurs in USDT statt USD (Binance führt kein USD)." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Price in USDT instead of USD (Binance has no USD)."
+          }
+        }
+      }
+    },
+    "Schlüssel fehlt" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Key missing"
+          }
+        }
+      }
+    },
+    "Antwort nicht lesbar" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Response not readable"
+          }
+        }
+      }
+    },
+    "Keine Kerzen geliefert" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No candles delivered"
+          }
+        }
+      }
+    },
+    "Zeitfenster länger als 31 Tage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Time window longer than 31 days"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
