@@ -5,17 +5,37 @@ import TradingCore
 // Rückblick, Verfassung, Trades des Tages, Screenshots, verpasste Trades, dazu die Karten Planwirkung
 // und Verpasste Trades. Notiz und verpasste Trades gelten für alle Konten, Trades für das gewählte Konto.
 
-/// Seite „Tag“. Die Ablage ist bis zur Migration v8 (AP9) flüchtig; dann reicht AP11 die echte hinein.
+/// Seite „Tag“: speichert im Journal (Migration v8, AP9). Nur wenn die Datenbank nicht geöffnet
+/// werden konnte, arbeitet sie flüchtig und sagt das.
 struct TagView: View {
+    @Environment(AppModell.self) private var modell
+    @State private var ablage: (any TagAblage)?
+
+    var body: some View {
+        Group {
+            if let ablage {
+                TagSeite(ablage: ablage)
+            } else {
+                ProgressView()
+            }
+        }
+        .onAppear {
+            guard ablage == nil else { return }
+            ablage = modell.journal.map { JournalTagAblage($0) } ?? FluechtigeTagAblage.gemeinsam
+        }
+    }
+}
+
+/// Inhalt der Tagesseite gegen eine beliebige Ablage.
+struct TagSeite: View {
     @Environment(AppModell.self) private var modell
     @State private var tagModell: TagModell
     #if os(iOS)
     @Environment(\.horizontalSizeClass) private var breite
     #endif
 
-    init(ablage: (any TagAblage)? = nil) {
-        _tagModell = State(initialValue: TagModell(ablage: ablage ?? FluechtigeTagAblage.gemeinsam,
-                                                   zeitzone: .current))
+    init(ablage: any TagAblage) {
+        _tagModell = State(initialValue: TagModell(ablage: ablage, zeitzone: .current))
     }
 
     var body: some View {
@@ -23,7 +43,7 @@ struct TagView: View {
             VStack(alignment: .leading, spacing: Abstand.kachelAbstand) {
                 TagKopf(tagModell: tagModell)
                 if !tagModell.ablage.dauerhaft {
-                    Label("Vorschau: Die Speicherung der Tagesseite kommt mit dem nächsten Speicher-Update. Bis dahin gehen Einträge beim Beenden der App verloren.",
+                    Label("Die Datenbank ließ sich nicht öffnen. Einträge auf dieser Seite gehen beim Beenden der App verloren.",
                           systemImage: "exclamationmark.circle")
                         .font(Schrift.beschriftung)
                         .foregroundStyle(.secondary)
