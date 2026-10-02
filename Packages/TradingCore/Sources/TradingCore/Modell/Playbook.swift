@@ -1,7 +1,7 @@
 import Foundation
 
 /// Karte eines Setups im Playbook (Doc 18, F3; R5 Kapitel 10 Abschnitt 3).
-/// Der Name verbindet die Karte mit dem Feld „Setup“ im Journal. Gespeichert in TradingStore (Migration v6).
+/// Der Name verbindet die Karte mit dem Feld „Setup“ im Journal. Gespeichert in TradingStore (Migration v7).
 public struct Setup: Codable, Sendable, Equatable {
     /// R5: neue Setups erst nach einer Testphase übernehmen, schwache pausieren; Wechsel mit Datum.
     public enum Status: String, Codable, Sendable, CaseIterable {
