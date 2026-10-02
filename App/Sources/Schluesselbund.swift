@@ -3,98 +3,77 @@ import Security
 import TradingQuotes
 
 /// Alpaca-Schlüssel im Schlüsselbund der App (P10, Stand-Doc 20: Schlüssel nie in Dateien, Eingabe in den
-/// Einstellungen). Ein Eintrag als generisches Passwort, Dienst und Konto fest; am Mac im Anmelde-Schlüsselbund,
-/// am iPhone im geschützten Schlüsselbund der App. Dazu Textschlüssel anderer Dienste (Marketaux, Doc 26).
+/// Einstellungen). Ein Eintrag als generisches Passwort, Dienst und Konto fest. Dazu Textschlüssel anderer
+/// Dienste (Marketaux, Doc 26). Die Ablage ist austauschbar (Paket A7): Ohne Angabe der Schlüsselbund des
+/// Systems, in den App-Tests `SpeicherSchluesselablage`. Die statischen Kurzformen nutzen immer das System.
 struct Schluesselbund: AlpacaSchluesselquelle {
     static let dienst = "de.timbock.journal.alpaca"
     static let konto = "alpaca"
+    static let dienstMarketaux = "de.timbock.journal.marketaux"
+    static let kontoText = "token"
+
+    let ablage: any Schluesselablage
+
+    init(ablage: any Schluesselablage = SystemSchluesselablage()) {
+        self.ablage = ablage
+    }
 
     func alpacaSchluessel() async throws -> AlpacaSchluessel? {
-        try Self.lies()
+        try lies()
     }
 
     /// Der gespeicherte Schlüssel; `nil`, wenn keiner eingetragen ist.
-    static func lies() throws -> AlpacaSchluessel? {
-        var abfrage = grundabfrage()
-        abfrage[kSecReturnData as String] = true
-        abfrage[kSecMatchLimit as String] = kSecMatchLimitOne
-        var ergebnis: CFTypeRef?
-        let status = SecItemCopyMatching(abfrage as CFDictionary, &ergebnis)
-        if status == errSecItemNotFound { return nil }
-        guard status == errSecSuccess, let daten = ergebnis as? Data else { throw Fehler.schluesselbund(status) }
+    func lies() throws -> AlpacaSchluessel? {
+        guard let daten = try ablage.lies(dienst: Self.dienst, konto: Self.konto) else { return nil }
         let eintrag = try JSONDecoder().decode(Eintrag.self, from: daten)
         return AlpacaSchluessel(schluesselID: eintrag.id, geheimnis: eintrag.geheimnis)
     }
 
-    /// Ersetzt den gespeicherten Schlüssel. Erst aktualisieren, nur ohne Eintrag neu anlegen:
-    /// Scheitert das Schreiben, bleibt der alte Schlüssel erhalten (Codex-Review 02.10.2026).
-    static func speichere(_ schluessel: AlpacaSchluessel) throws {
+    /// Ersetzt den gespeicherten Schlüssel; die Ablage des Systems aktualisiert erst und legt nur ohne Eintrag neu an.
+    func speichere(_ schluessel: AlpacaSchluessel) throws {
         let daten = try JSONEncoder().encode(Eintrag(id: schluessel.schluesselID, geheimnis: schluessel.geheimnis))
-        let aenderung = [kSecValueData as String: daten]
-        var status = SecItemUpdate(grundabfrage() as CFDictionary, aenderung as CFDictionary)
-        if status == errSecItemNotFound {
-            var eintrag = grundabfrage()
-            eintrag[kSecValueData as String] = daten
-            status = SecItemAdd(eintrag as CFDictionary, nil)
-        }
-        guard status == errSecSuccess else { throw Fehler.schluesselbund(status) }
+        try ablage.speichere(daten, dienst: Self.dienst, konto: Self.konto)
     }
 
-    static func loesche() throws {
-        let status = SecItemDelete(grundabfrage() as CFDictionary)
-        guard status == errSecSuccess || status == errSecItemNotFound else { throw Fehler.schluesselbund(status) }
+    func loesche() throws {
+        try ablage.loesche(dienst: Self.dienst, konto: Self.konto)
     }
 
-    static func vorhanden() -> Bool {
+    func vorhanden() -> Bool {
         ((try? lies()) ?? nil) != nil
     }
 
     // MARK: Textschlüssel anderer Dienste (Marketaux-Token für die Nachrichten, Doc 26)
 
-    static let dienstMarketaux = "de.timbock.journal.marketaux"
-    private static let kontoText = "token"
-
     /// Ein einzelner Schlüsseltext je Dienst; `nil`, wenn keiner eingetragen ist.
-    static func liesText(dienst: String) throws -> String? {
-        var abfrage = grundabfrage(dienst: dienst, konto: kontoText)
-        abfrage[kSecReturnData as String] = true
-        abfrage[kSecMatchLimit as String] = kSecMatchLimitOne
-        var ergebnis: CFTypeRef?
-        let status = SecItemCopyMatching(abfrage as CFDictionary, &ergebnis)
-        if status == errSecItemNotFound { return nil }
-        guard status == errSecSuccess, let daten = ergebnis as? Data else { throw Fehler.schluesselbund(status) }
-        return String(data: daten, encoding: .utf8)
+    func liesText(dienst: String) throws -> String? {
+        try ablage.lies(dienst: dienst, konto: Self.kontoText).flatMap { String(data: $0, encoding: .utf8) }
     }
 
-    /// Wie `speichere(_:)`: erst aktualisieren, nur ohne Eintrag neu anlegen, damit ein gescheitertes
-    /// Schreiben den alten Schlüssel nicht löscht (Gesamt-Gegencheck 02.10.2026).
-    static func speichereText(_ wert: String, dienst: String) throws {
-        let daten = Data(wert.utf8)
-        let abfrage = grundabfrage(dienst: dienst, konto: kontoText)
-        var status = SecItemUpdate(abfrage as CFDictionary, [kSecValueData as String: daten] as CFDictionary)
-        if status == errSecItemNotFound {
-            var eintrag = abfrage
-            eintrag[kSecValueData as String] = daten
-            status = SecItemAdd(eintrag as CFDictionary, nil)
-        }
-        guard status == errSecSuccess else { throw Fehler.schluesselbund(status) }
+    func speichereText(_ wert: String, dienst: String) throws {
+        try ablage.speichere(Data(wert.utf8), dienst: dienst, konto: Self.kontoText)
     }
 
-    static func loescheText(dienst: String) throws {
-        let status = SecItemDelete(grundabfrage(dienst: dienst, konto: kontoText) as CFDictionary)
-        guard status == errSecSuccess || status == errSecItemNotFound else { throw Fehler.schluesselbund(status) }
+    func loescheText(dienst: String) throws {
+        try ablage.loesche(dienst: dienst, konto: Self.kontoText)
     }
 
-    static func textVorhanden(dienst: String) -> Bool {
+    func textVorhanden(dienst: String) -> Bool {
         ((try? liesText(dienst: dienst)) ?? nil) != nil
     }
 
-    private static func grundabfrage(dienst: String = Schluesselbund.dienst,
-                                     konto: String = Schluesselbund.konto) -> [String: Any] {
-        [kSecClass as String: kSecClassGenericPassword,
-         kSecAttrService as String: dienst,
-         kSecAttrAccount as String: konto]
+    // MARK: Kurzformen für die Ansichten, immer mit dem Schlüsselbund des Systems
+
+    static func lies() throws -> AlpacaSchluessel? { try Schluesselbund().lies() }
+    static func speichere(_ schluessel: AlpacaSchluessel) throws { try Schluesselbund().speichere(schluessel) }
+    static func loesche() throws { try Schluesselbund().loesche() }
+    static func vorhanden() -> Bool { Schluesselbund().vorhanden() }
+    static func liesText(dienst: String) throws -> String? { try Schluesselbund().liesText(dienst: dienst) }
+    static func speichereText(_ wert: String, dienst: String) throws {
+        try Schluesselbund().speichereText(wert, dienst: dienst)
     }
+    static func loescheText(dienst: String) throws { try Schluesselbund().loescheText(dienst: dienst) }
+    static func textVorhanden(dienst: String) -> Bool { Schluesselbund().textVorhanden(dienst: dienst) }
 
     private struct Eintrag: Codable {
         var id: String

@@ -24,16 +24,18 @@ enum Katalog {
              description: "Auswertung einer Woche (auch Kalenderwoche), eines Monats oder freier Tage wie der Wochenbericht der App: Kennzahlen mit Vorzeitraum, Ergebnis je Tag, Kosten, Symbole, Fehlermuster, Verstöße gegen die eigenen Handelsregeln und Prop-Firm-Grenzen, Muster mit Zufallsprüfung, auffällige Trades, Ausstieg (MAE und MFE aus Kerzen der App), Plan und verpasste Trades, Ziele früherer Reviews mit Istwert, Steuer-Orientierung je Topf seit Jahresbeginn, dazu das Rezept für die Antwort. Für Fragen wie „Wie lief mein Mai?“. Ohne Zeitraum gilt der letzte Monat mit Trades.",
              inputSchema: schema(zeitraum), annotations: nurLesen),
         Tool(name: "hole_aufschluesselung",
-             description: "Kennzahlen je Gruppe: Symbol, Richtung, Wochentag, Stunde, Trade-Nummer am Tag, Ergebnis des vorherigen Trades, Haltedauer oder eigene Journalangaben (Setup, Regeltreue, Zustand).",
+             description: "Kennzahlen je Gruppe: Symbol, Produktart (laut Broker), Richtung, Wochentag, Stunde, Trade-Nummer am Tag, Ergebnis des vorherigen Trades, Haltedauer oder eigene Journalangaben (Setup, Regeltreue, Zustand).",
              inputSchema: schema(zeitraum.merging(
                  ["dimension": text("Wonach aufgeteilt wird", werte: Aufschluesselung.alleWerte)]) { $1 },
                  pflicht: ["dimension"]),
              annotations: nurLesen),
         Tool(name: "hole_trades",
-             description: "Einzelne Trades eines Zeitraums mit Journalangaben (Setup, Regeltreue, Zustand, Grund) und, wenn die App Kerzen hat, MAE und MFE, wahlweise nur die eines Fehlermusters, sortiert nach bestem oder schlechtestem Ergebnis.",
+             description: "Einzelne Trades eines Zeitraums mit Journalangaben (Setup, Regeltreue, Zustand, Grund), Produktart und, wenn die App Kerzen hat, MAE und MFE, wahlweise nur bestimmte Tickets, ein Symbol oder die Trades eines Fehlermusters, sortiert nach bestem oder schlechtestem Ergebnis.",
              inputSchema: schema(zeitraum.merging([
                  "auswahl": text("Sortierung, Vorgabe chronologisch", werte: Tradeauswahl.allCases.map(\.rawValue)),
                  "muster": text("Nur Trades dieses Fehlermusters", werte: Fehlermuster.allCases.map(\.rawValue)),
+                 "ticket": text("Nur diese Tickets (erste Spalte der Trade-Liste), mehrere mit Komma; ohne Zeitraum gelten ihre Monate"),
+                 "symbol": text("Nur Trades dieses Symbols, z. B. BTCUSD"),
                  "anzahl": .object(["type": .string("integer"),
                                     "description": .string("Höchstens so viele Trades, 1 bis 50, Vorgabe 10")])
              ]) { $1 }),
@@ -127,7 +129,7 @@ enum Ausfuehrung {
                 let muster = argumente["muster"].flatMap(Fehlermuster.init(rawValue:))
                 let anzahl = argumente["anzahl"].flatMap { Int($0) } ?? 10
                 return antwort(Ausgabe.trades(try Anfrage.lies(argumente, export: export), auswahl: auswahl,
-                                              muster: muster, anzahl: anzahl))
+                                              muster: muster, anzahl: anzahl, symbol: argumente["symbol"]))
             default:
                 return antwort("Unbekanntes Werkzeug \(name)", fehler: true)
             }
@@ -154,7 +156,7 @@ enum Ausfuehrung {
 
 let server = Server(
     name: "trading-buddy",
-    version: "0.12.0",
+    version: "0.13.1",
     capabilities: .init(prompts: .init(listChanged: false), tools: .init(listChanged: false))
 )
 
