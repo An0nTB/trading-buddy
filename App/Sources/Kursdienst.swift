@@ -105,7 +105,7 @@ final class Kursdienst {
         }
     }
 
-    /// Lädt Tageskerzen der letzten 12 Monate für diese Journal-Symbole (eigene Trades und Merkliste), höchstens
+    /// Lädt Tageskerzen der letzten 13 Monate für diese Journal-Symbole (eigene Trades und Merkliste), höchstens
     /// einmal in 20 Stunden; sonst gilt der Zwischenspeicher. Netz nur bei eingeschalteten Kursen, wie beim Beobachter.
     func ladeVerlaeufe(fuer journalSymbole: [String], jetzt: Date = Date()) async {
         if verlaeufe.geladen == nil, let gespeichert = verlaufsspeicher.lies() { verlaeufe = gespeichert }
