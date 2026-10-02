@@ -4,9 +4,11 @@ import TradingCore
 /// Texte, die die Werkzeuge an Claude zurückgeben. Knapp und mit Stichprobe,
 /// damit Claude nichts nachrechnen oder schätzen muss.
 public enum Ausgabe {
-    /// Monats- oder Wochenauswertung mit Vergleich und Rezept (Werkzeug `hole_auswertung`).
+    /// Monats-, Wochen- oder Spannenauswertung mit Vergleich und Rezept (Werkzeug `hole_auswertung`), gerechnet über
+    /// `Zeitraumbericht` wie die Berichte der App.
     public static func auswertung(_ anfrage: Anfrage) -> String {
-        let a = anfrage.auswertung()
+        let b = anfrage.bericht()
+        let a = b.auswertung
         let zone = anfrage.zeitzone
         let k = a.kennzahlen, v = a.kennzahlenVorzeitraum
         let titel = Format.zeitraum(a.zeitraum, zone), vorTitel = Format.zeitraum(a.vorzeitraum, zone)
@@ -31,6 +33,7 @@ public enum Ausgabe {
         t.append(Format.tabelle(["Kennzahl", titel, vorTitel], ergebnis))
         t.append("Max. Drawdown \(Format.zahl(a.kapitalverlauf.maxDrawdown)), längste Serien "
             + "\(a.kapitalverlauf.laengsteGewinnserie) Gewinne und \(a.kapitalverlauf.laengsteVerlustserie) Verluste.")
+        t.append(contentsOf: anfrage.tagesabschnitt(b))
 
         let kommission = a.trades.map(\.commission).reduce(0, +), swap = a.trades.map(\.swap).reduce(0, +)
         let steuern = a.trades.map(\.taxes).reduce(0, +)
@@ -43,6 +46,7 @@ public enum Ausgabe {
         if steuern != 0 {
             t.append("Steuern sind Abzüge und Erstattungen laut Broker-Export, keine Steuerberechnung.")
         }
+        t.append(contentsOf: anfrage.steuerabschnitt(b))
 
         let symbole = Kennzahlen.aufschluesseln(a.trades, nach: .symbol, zeitzone: zone)
             .sorted { ($0.kennzahlen.netto, $0.schluessel) > ($1.kennzahlen.netto, $1.schluessel) }
@@ -69,9 +73,9 @@ public enum Ausgabe {
             if abdeckung.zustand > 0 { t.append(journaltabelle(anfrage, a.trades, .zustand)) }
         }
 
-        let regeln = anfrage.regelabschnitt(a.trades)
+        let regeln = anfrage.regelabschnitt(a.trades, propFirm: anfrage.propFirmzeile(b))
         t.append(contentsOf: regeln)
-        let muster = anfrage.musterabschnitt(a.trades)
+        let muster = anfrage.musterabschnitt(a.trades, vorgegeben: b.muster)
         t.append(contentsOf: muster)
         t.append(contentsOf: anfrage.ausstiegsabschnitt(a.trades))
 
