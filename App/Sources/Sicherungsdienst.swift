@@ -161,16 +161,31 @@ enum Sicherungsdienst {
 
     /// Sichert zuerst den aktuellen Stand in `Application Support/Trading Buddy/Vor Wiederherstellung`, spielt
     /// dann die Sicherung ein und holt fehlende Screenshots aus dem Bilder-Spiegel neben der Datei zurück.
+    /// Den Spiegel darf die Sandbox nur lesen, wenn er im gemerkten Sicherungsordner liegt; die gewählte Datei
+    /// allein öffnet ihren Nachbarordner nicht (dritter Gegencheck G17). Danach sind alle vorhandenen Bilder vor
+    /// dem Aufräumen geschützt, auch die, die nur der beiseitegelegte Stand kennt (G16).
     static func stelleWiederHer(_ datei: URL, journal: Journal, jetzt: Date = .now) async throws -> String {
-        try await Task.detached(priority: .userInitiated) {
+        let ordner = gemerkterOrdner()
+        return try await Task.detached(priority: .userInitiated) {
             let vorher = try journal.sichereInOrdner(vorWiederherstellungOrdner(), jetzt: jetzt, behalte: 5)
             let zugriff = datei.startAccessingSecurityScopedResource()
-            defer { if zugriff { datei.stopAccessingSecurityScopedResource() } }
+            let ordnerZugriff = ordner?.startAccessingSecurityScopedResource() ?? false
+            defer {
+                if zugriff { datei.stopAccessingSecurityScopedResource() }
+                if ordnerZugriff { ordner?.stopAccessingSecurityScopedResource() }
+            }
             try journal.stelleWiederHer(aus: datei)
             let spiegel = datei.deletingLastPathComponent()
                 .appending(path: bilderUnterordner, directoryHint: .isDirectory)
+            let lesbar = (try? FileManager.default.contentsOfDirectory(at: spiegel, includingPropertiesForKeys: nil)) != nil
             let bilder = (try? Bilderordner.ordner()).map { kopiereFehlende(von: spiegel, nach: $0) } ?? 0
-            return String(localized: "Wiederhergestellt aus \(datei.lastPathComponent), \(bilder) Bilder zurückgeholt. Der vorherige Stand liegt in \(vorher.path).")
+            Bilderordner.schuetzeBestand()
+            let ergebnis = String(localized: "Wiederhergestellt aus \(datei.lastPathComponent), \(bilder) Bilder zurückgeholt. Der vorherige Stand liegt in \(vorher.path).")
+            // Fehlt der Ordner nur, weil es nie Bilder gab: kein Hinweis. Außerhalb des gemerkten Ordners ist er
+            // in der Sandbox sicher gesperrt.
+            let imOrdner = ordner.map { datei.standardizedFileURL.path.hasPrefix($0.standardizedFileURL.path + "/") } ?? false
+            guard !lesbar, !imOrdner else { return ergebnis }
+            return ergebnis + " " + String(localized: "Der Ordner „Bilder“ neben der Sicherung war nicht lesbar. Liegt die Sicherung nicht im gewählten Sicherungsordner, diesen Ordner zuerst wählen und die Sicherung erneut einspielen, dann kommen die Screenshots mit.")
         }.value
     }
 
