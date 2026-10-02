@@ -1,0 +1,458 @@
+{
+  "format": 1,
+  "jahr": 2027,
+  "stand": "2026-10-02",
+  "vollstaendig": [
+    "zinsentscheid"
+  ],
+  "quellen": [
+    "https://www.bankofengland.co.uk/monetary-policy/upcoming-mpc-dates und https://www.bankofengland.co.uk/news/2024/september/monetary-policy-committee-dates-for-2025 (abgerufen 02.10.2026); 12 Uhr laut Monetary Policy Summary",
+    "https://www.boj.or.jp/en/mopo/mpmsche_minu/index.htm und past.htm (abgerufen 02.10.2026); keine feste Uhrzeit",
+    "https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.en.html und https://www.ecb.europa.eu/press/tvservices/webcast/html/index.en.html (abgerufen 02.10.2026); Uhrzeit 14:15 laut https://www.ecb.europa.eu/press/govcdec/html/index.en.html",
+    "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm (abgerufen 02.10.2026); Uhrzeit: FOMC-Statement 29.07.2026 „2:00 p.m. EDT“",
+    "https://www.snb.ch/en/the-snb/mandates-goals/monetary-policy/decisions und Event-Schedule (abgerufen 02.10.2026); 09:30 laut Event-Schedule 2027"
+  ],
+  "hinweise": [
+    "Zeiten in Ortszeit der Zeitzone; Termine ohne Uhrzeit gelten den ganzen Tag dort.",
+    "Fed: jeder Termin gilt als vorläufig, bis die vorige Sitzung ihn bestätigt (Fed-Kalender).",
+    "BLS hat die US-Termine 2027 noch nicht veröffentlicht."
+  ],
+  "termine": [
+    {
+      "id": "boj-2027-01-22",
+      "art": "zinsentscheid",
+      "institution": "boj",
+      "titel": "BoJ-Zinsentscheid",
+      "datum": "2027-01-22",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "hinweis": "zweiter Sitzungstag; Uhrzeit nicht fest, ganzer Tag in Tokio"
+    },
+    {
+      "id": "fed-2027-01-27",
+      "art": "zinsentscheid",
+      "institution": "fed",
+      "titel": "Fed-Zinsentscheid",
+      "datum": "2027-01-27",
+      "uhrzeit": "14:00",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ]
+    },
+    {
+      "id": "boe-2027-02-04",
+      "art": "zinsentscheid",
+      "institution": "boe",
+      "titel": "BoE-Zinsentscheid",
+      "datum": "2027-02-04",
+      "uhrzeit": "12:00",
+      "zeitzone": "Europe/London",
+      "waehrungen": [
+        "GBP"
+      ]
+    },
+    {
+      "id": "ezb-2027-02-04",
+      "art": "zinsentscheid",
+      "institution": "ezb",
+      "titel": "EZB-Zinsentscheid",
+      "datum": "2027-02-04",
+      "uhrzeit": "14:15",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "EUR"
+      ]
+    },
+    {
+      "id": "boj-2027-03-18",
+      "art": "zinsentscheid",
+      "institution": "boj",
+      "titel": "BoJ-Zinsentscheid",
+      "datum": "2027-03-18",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "hinweis": "zweiter Sitzungstag; Uhrzeit nicht fest, ganzer Tag in Tokio"
+    },
+    {
+      "id": "fed-2027-03-17",
+      "art": "zinsentscheid",
+      "institution": "fed",
+      "titel": "Fed-Zinsentscheid",
+      "datum": "2027-03-17",
+      "uhrzeit": "14:00",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "hinweis": "mit Projektionen (SEP) und Pressekonferenz"
+    },
+    {
+      "id": "snb-2027-03-18",
+      "art": "zinsentscheid",
+      "institution": "snb",
+      "titel": "SNB-Zinsentscheid",
+      "datum": "2027-03-18",
+      "uhrzeit": "09:30",
+      "zeitzone": "Europe/Zurich",
+      "waehrungen": [
+        "CHF"
+      ]
+    },
+    {
+      "id": "boe-2027-03-18",
+      "art": "zinsentscheid",
+      "institution": "boe",
+      "titel": "BoE-Zinsentscheid",
+      "datum": "2027-03-18",
+      "uhrzeit": "12:00",
+      "zeitzone": "Europe/London",
+      "waehrungen": [
+        "GBP"
+      ]
+    },
+    {
+      "id": "ezb-2027-03-18",
+      "art": "zinsentscheid",
+      "institution": "ezb",
+      "titel": "EZB-Zinsentscheid",
+      "datum": "2027-03-18",
+      "uhrzeit": "14:15",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "EUR"
+      ]
+    },
+    {
+      "id": "boj-2027-04-28",
+      "art": "zinsentscheid",
+      "institution": "boj",
+      "titel": "BoJ-Zinsentscheid",
+      "datum": "2027-04-28",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "hinweis": "zweiter Sitzungstag; Uhrzeit nicht fest, ganzer Tag in Tokio"
+    },
+    {
+      "id": "fed-2027-04-28",
+      "art": "zinsentscheid",
+      "institution": "fed",
+      "titel": "Fed-Zinsentscheid",
+      "datum": "2027-04-28",
+      "uhrzeit": "14:00",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ]
+    },
+    {
+      "id": "boe-2027-04-29",
+      "art": "zinsentscheid",
+      "institution": "boe",
+      "titel": "BoE-Zinsentscheid",
+      "datum": "2027-04-29",
+      "uhrzeit": "12:00",
+      "zeitzone": "Europe/London",
+      "waehrungen": [
+        "GBP"
+      ]
+    },
+    {
+      "id": "ezb-2027-04-29",
+      "art": "zinsentscheid",
+      "institution": "ezb",
+      "titel": "EZB-Zinsentscheid",
+      "datum": "2027-04-29",
+      "uhrzeit": "14:15",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "EUR"
+      ]
+    },
+    {
+      "id": "fed-2027-06-09",
+      "art": "zinsentscheid",
+      "institution": "fed",
+      "titel": "Fed-Zinsentscheid",
+      "datum": "2027-06-09",
+      "uhrzeit": "14:00",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "hinweis": "mit Projektionen (SEP) und Pressekonferenz"
+    },
+    {
+      "id": "ezb-2027-06-10",
+      "art": "zinsentscheid",
+      "institution": "ezb",
+      "titel": "EZB-Zinsentscheid",
+      "datum": "2027-06-10",
+      "uhrzeit": "14:15",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "EUR"
+      ]
+    },
+    {
+      "id": "boj-2027-06-11",
+      "art": "zinsentscheid",
+      "institution": "boj",
+      "titel": "BoJ-Zinsentscheid",
+      "datum": "2027-06-11",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "hinweis": "zweiter Sitzungstag; Uhrzeit nicht fest, ganzer Tag in Tokio"
+    },
+    {
+      "id": "boe-2027-06-17",
+      "art": "zinsentscheid",
+      "institution": "boe",
+      "titel": "BoE-Zinsentscheid",
+      "datum": "2027-06-17",
+      "uhrzeit": "12:00",
+      "zeitzone": "Europe/London",
+      "waehrungen": [
+        "GBP"
+      ]
+    },
+    {
+      "id": "snb-2027-06-24",
+      "art": "zinsentscheid",
+      "institution": "snb",
+      "titel": "SNB-Zinsentscheid",
+      "datum": "2027-06-24",
+      "uhrzeit": "09:30",
+      "zeitzone": "Europe/Zurich",
+      "waehrungen": [
+        "CHF"
+      ]
+    },
+    {
+      "id": "boj-2027-07-22",
+      "art": "zinsentscheid",
+      "institution": "boj",
+      "titel": "BoJ-Zinsentscheid",
+      "datum": "2027-07-22",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "hinweis": "zweiter Sitzungstag; Uhrzeit nicht fest, ganzer Tag in Tokio"
+    },
+    {
+      "id": "ezb-2027-07-22",
+      "art": "zinsentscheid",
+      "institution": "ezb",
+      "titel": "EZB-Zinsentscheid",
+      "datum": "2027-07-22",
+      "uhrzeit": "14:15",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "EUR"
+      ]
+    },
+    {
+      "id": "fed-2027-07-28",
+      "art": "zinsentscheid",
+      "institution": "fed",
+      "titel": "Fed-Zinsentscheid",
+      "datum": "2027-07-28",
+      "uhrzeit": "14:00",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ]
+    },
+    {
+      "id": "boe-2027-07-29",
+      "art": "zinsentscheid",
+      "institution": "boe",
+      "titel": "BoE-Zinsentscheid",
+      "datum": "2027-07-29",
+      "uhrzeit": "12:00",
+      "zeitzone": "Europe/London",
+      "waehrungen": [
+        "GBP"
+      ]
+    },
+    {
+      "id": "ezb-2027-09-09",
+      "art": "zinsentscheid",
+      "institution": "ezb",
+      "titel": "EZB-Zinsentscheid",
+      "datum": "2027-09-09",
+      "uhrzeit": "14:15",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "EUR"
+      ]
+    },
+    {
+      "id": "fed-2027-09-15",
+      "art": "zinsentscheid",
+      "institution": "fed",
+      "titel": "Fed-Zinsentscheid",
+      "datum": "2027-09-15",
+      "uhrzeit": "14:00",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "hinweis": "mit Projektionen (SEP) und Pressekonferenz"
+    },
+    {
+      "id": "boe-2027-09-16",
+      "art": "zinsentscheid",
+      "institution": "boe",
+      "titel": "BoE-Zinsentscheid",
+      "datum": "2027-09-16",
+      "uhrzeit": "12:00",
+      "zeitzone": "Europe/London",
+      "waehrungen": [
+        "GBP"
+      ]
+    },
+    {
+      "id": "boj-2027-09-22",
+      "art": "zinsentscheid",
+      "institution": "boj",
+      "titel": "BoJ-Zinsentscheid",
+      "datum": "2027-09-22",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "hinweis": "zweiter Sitzungstag; Uhrzeit nicht fest, ganzer Tag in Tokio"
+    },
+    {
+      "id": "snb-2027-09-23",
+      "art": "zinsentscheid",
+      "institution": "snb",
+      "titel": "SNB-Zinsentscheid",
+      "datum": "2027-09-23",
+      "uhrzeit": "09:30",
+      "zeitzone": "Europe/Zurich",
+      "waehrungen": [
+        "CHF"
+      ]
+    },
+    {
+      "id": "fed-2027-10-27",
+      "art": "zinsentscheid",
+      "institution": "fed",
+      "titel": "Fed-Zinsentscheid",
+      "datum": "2027-10-27",
+      "uhrzeit": "14:00",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ]
+    },
+    {
+      "id": "ezb-2027-10-28",
+      "art": "zinsentscheid",
+      "institution": "ezb",
+      "titel": "EZB-Zinsentscheid",
+      "datum": "2027-10-28",
+      "uhrzeit": "14:15",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "EUR"
+      ]
+    },
+    {
+      "id": "boj-2027-10-29",
+      "art": "zinsentscheid",
+      "institution": "boj",
+      "titel": "BoJ-Zinsentscheid",
+      "datum": "2027-10-29",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "hinweis": "zweiter Sitzungstag; Uhrzeit nicht fest, ganzer Tag in Tokio"
+    },
+    {
+      "id": "boe-2027-11-04",
+      "art": "zinsentscheid",
+      "institution": "boe",
+      "titel": "BoE-Zinsentscheid",
+      "datum": "2027-11-04",
+      "uhrzeit": "12:00",
+      "zeitzone": "Europe/London",
+      "waehrungen": [
+        "GBP"
+      ]
+    },
+    {
+      "id": "fed-2027-12-08",
+      "art": "zinsentscheid",
+      "institution": "fed",
+      "titel": "Fed-Zinsentscheid",
+      "datum": "2027-12-08",
+      "uhrzeit": "14:00",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "hinweis": "mit Projektionen (SEP) und Pressekonferenz"
+    },
+    {
+      "id": "snb-2027-12-16",
+      "art": "zinsentscheid",
+      "institution": "snb",
+      "titel": "SNB-Zinsentscheid",
+      "datum": "2027-12-16",
+      "uhrzeit": "09:30",
+      "zeitzone": "Europe/Zurich",
+      "waehrungen": [
+        "CHF"
+      ]
+    },
+    {
+      "id": "boe-2027-12-16",
+      "art": "zinsentscheid",
+      "institution": "boe",
+      "titel": "BoE-Zinsentscheid",
+      "datum": "2027-12-16",
+      "uhrzeit": "12:00",
+      "zeitzone": "Europe/London",
+      "waehrungen": [
+        "GBP"
+      ]
+    },
+    {
+      "id": "ezb-2027-12-16",
+      "art": "zinsentscheid",
+      "institution": "ezb",
+      "titel": "EZB-Zinsentscheid",
+      "datum": "2027-12-16",
+      "uhrzeit": "14:15",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "EUR"
+      ]
+    },
+    {
+      "id": "boj-2027-12-17",
+      "art": "zinsentscheid",
+      "institution": "boj",
+      "titel": "BoJ-Zinsentscheid",
+      "datum": "2027-12-17",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "hinweis": "zweiter Sitzungstag; Uhrzeit nicht fest, ganzer Tag in Tokio"
+    }
+  ]
+}
