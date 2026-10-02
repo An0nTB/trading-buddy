@@ -241,6 +241,25 @@ enum Schema {
             }
         }
 
+        migrator.registerMigration("v4 Review-Ziele") { db in
+            // Ziele aus der Wochen- oder Monatsauswertung (Rezept Punkt 7) je Konto, damit das nächste
+            // Review sie aufgreift (Punkt 6). Zeitraum: von einschließlich, bis ausschließlich. Status als
+            // Text (offen, erreicht, verfehlt, verworfen), geprüft im Code. Zielwert als Text wie alle Beträge.
+            try db.create(table: "reviewziel") { t in
+                t.autoIncrementedPrimaryKey("id")
+                t.belongsTo("konto", onDelete: .cascade).notNull()
+                t.column("text", .text).notNull()
+                t.column("von", .datetime).notNull()
+                t.column("bis", .datetime).notNull()
+                t.column("messgroesse", .text)
+                t.column("zielwert", .text)
+                t.column("status", .text).notNull()
+                t.column("ergebnis", .text)
+                t.column("erstellt", .datetime).notNull()
+                t.column("geaendert", .datetime).notNull()
+            }
+        }
+
         return migrator
     }
 }
