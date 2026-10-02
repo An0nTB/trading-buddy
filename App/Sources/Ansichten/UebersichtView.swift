@@ -2,7 +2,7 @@ import Charts
 import SwiftUI
 import TradingCore
 
-/// Übersicht (Doc 10, Reihe 1 und 6): Filter, vier Kacheln, Kapitalkurve, Fehlermuster, letzte Trades.
+/// Übersicht (Doc 10, Reihe 1 und 6): Filter, vier Kacheln, Kapitalkurve, Fehlermuster, Review-Ziele, letzte Trades.
 struct UebersichtView: View {
     @Environment(AppModell.self) private var modell
     @Environment(\.thema) private var thema
@@ -16,6 +16,9 @@ struct UebersichtView: View {
                 Kopfzeile("Übersicht") { Filterleiste() }
                 if modell.alleTrades.isEmpty {
                     KeineTrades()
+                    if modell.konto != nil {
+                        ZieleKarte()
+                    }
                 } else {
                     HStack(spacing: Abstand.raster * 2) {
                         Kapsel(text: String(localized: "\(kennzahlen.anzahl) Trades"), betont: true)
@@ -39,6 +42,7 @@ struct UebersichtView: View {
                     }
                     Kapitalkurve(punkte: verlauf.punkte)
                     FehlermusterKarte()
+                    ZieleKarte()
                     LetzteTradesKarte()
                 }
                 Pflichthinweis()
