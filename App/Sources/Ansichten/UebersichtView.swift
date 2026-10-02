@@ -12,7 +12,7 @@ struct UebersichtView: View {
     var body: some View {
         let kennzahlen = modell.kennzahlen
         let verlauf = modell.kapitalverlauf
-        let waehrung = modell.waehrung
+        let waehrung = modell.summenwaehrung
         ScrollView {
             VStack(alignment: .leading, spacing: Abstand.kachelAbstand) {
                 Kopfzeile("Übersicht") { Filterleiste() }
@@ -82,7 +82,7 @@ struct MischwaehrungHinweis: View {
         let stand = modell.waehrungsstand
         if !stand.leer {
             let liste = stand.waehrungen.joined(separator: ", ")
-            let konto = modell.waehrung
+            let konto = modell.summenwaehrung
             let umgerechnet = String(localized:
                 "\(stand.umgerechnet) Trades in \(liste) zum EZB-Kurs des Schlusstags in \(konto) umgerechnet (Näherung)")
             let fehlend = String(localized: "\(stand.ohneKurs) ohne Kurs nicht in den Summen")
@@ -94,7 +94,7 @@ struct MischwaehrungHinweis: View {
     }
 }
 
-/// Filter Zeitraum und Instrument; Summen in Kontowährung, fremde Währungen zum EZB-Kurs umgerechnet (W3).
+/// Filter Zeitraum, Instrument und Anzeigewährung; fremde Währungen zum EZB-Kurs umgerechnet (W3, B4).
 struct Filterleiste: View {
     @Environment(AppModell.self) private var modell
     @Environment(\.thema) private var thema
@@ -114,12 +114,10 @@ struct Filterleiste: View {
                     Text(verbatim: symbol).tag(String?.some(symbol))
                 }
             }
-            Text(verbatim: modell.waehrung)
-                .font(Schrift.beschriftung)
-                .foregroundStyle(thema.textSchwach)
-                .padding(.horizontal, Abstand.raster * 2)
-                .padding(.vertical, Abstand.raster)
-                .background(thema.flaeche2, in: RoundedRectangle(cornerRadius: Abstand.radiusKnopf))
+            // Anzeigewährung per Klick (Entscheidung B4); umgerechnet zum EZB-Kurs des Schlusstags.
+            Auswahlknopf("Anzeigewährung", anzeige: modell.summenwaehrung, auswahl: $modell.anzeigewaehrung) {
+                anzeigewaehrungOptionen(modell)
+            }
         }
     }
 
@@ -132,6 +130,17 @@ struct Filterleiste: View {
 
     private var instrumentText: String {
         modell.instrument ?? String(localized: "Alle Instrumente")
+    }
+}
+
+/// Auswahl der Anzeigewährung: Kontowährung und die übrigen wählbaren Währungen (Filterleiste und Einstellungen).
+/// Als Funktion, nicht als eigene View, damit der Picker die Tags direkt sieht.
+@MainActor @ViewBuilder
+func anzeigewaehrungOptionen(_ modell: AppModell) -> some View {
+    let konto = modell.waehrung.uppercased()
+    Text("Kontowährung (\(konto))").tag(String?.none)
+    ForEach(modell.anzeigewaehrungen.filter { $0 != konto }, id: \.self) { code in
+        Text(verbatim: code).tag(String?.some(code))
     }
 }
 
@@ -200,7 +209,7 @@ struct FehlermusterKarte: View {
                         Text(verbatim: befund.muster.titel)
                             .foregroundStyle(thema.text)
                         Spacer()
-                        Text(verbatim: BefundText.kurz(befund, waehrung: modell.waehrung))
+                        Text(verbatim: BefundText.kurz(befund, waehrung: modell.summenwaehrung))
                             .font(Schrift.tabelle)
                             .foregroundStyle(thema.textSchwach)
                     }
