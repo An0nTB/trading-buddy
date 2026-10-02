@@ -1,11 +1,17 @@
 name: TradingNews
 
 # Börsennachrichten mit Merkliste: nur Linux, ohne echtes Netz (Tests mit aufgezeichneten Antworten).
-# Läuft bei jedem PR ohne Pfadfilter, damit der Job Pflicht-Check auf main werden kann.
+# Kein Pflicht-Check; läuft nur, wenn sich das Paket oder diese Datei ändert (wie TradingClock).
 on:
   pull_request:
+    paths:
+      - "Packages/TradingNews/**"
+      - ".github/workflows/trading-news.yml"
   push:
     branches: [main]
+    paths:
+      - "Packages/TradingNews/**"
+      - ".github/workflows/trading-news.yml"
 
 jobs:
   trading-news-linux:
