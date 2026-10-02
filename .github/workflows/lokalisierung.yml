@@ -39,6 +39,33 @@ jobs:
         run: python3 scripts/lokalisierung_pruefen.py "$RUNNER_TEMP/loc-mac" --liste
       - name: Englisch-Abdeckung iOS
         run: python3 scripts/lokalisierung_pruefen.py "$RUNNER_TEMP/loc-ios" --liste
+      # Englische Startprobe: App mit Sprache Englisch acht Sekunden laufen lassen und prüfen,
+      # dass das Paket eine englische Lokalisierung mit übersetzten Texten trägt.
+      - name: Bauen für macOS (Startprobe Englisch)
+        run: xcodebuild -project TradingBuddy.xcodeproj -scheme TradingBuddy -destination 'generic/platform=macOS' -derivedDataPath build CODE_SIGNING_ALLOWED=NO build -quiet
+      - name: Englische Lokalisierung im App-Paket
+        run: |
+          APP="$(find build/Build/Products -maxdepth 2 -name '*.app' | head -1)"
+          ls "$APP/Contents/Resources" | grep lproj
+          test -d "$APP/Contents/Resources/en.lproj"
+          plutil -convert json -o "$RUNNER_TEMP/en.json" "$APP/Contents/Resources/en.lproj/Localizable.strings"
+          python3 -c "import json,sys; d=json.load(open(sys.argv[1])); print(len(d), 'englische Texte'); assert d.get('Einstellungen') == 'Settings', d.get('Einstellungen')" "$RUNNER_TEMP/en.json"
+      - name: Startprobe macOS auf Englisch
+        run: |
+          APP="$(find build/Build/Products -maxdepth 2 -name '*.app' | head -1)"
+          BIN="$APP/Contents/MacOS/$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$APP/Contents/Info.plist")"
+          HEIM="$RUNNER_TEMP/heim-en"
+          mkdir -p "$HEIM"
+          CFFIXED_USER_HOME="$HEIM" "$BIN" -AppleLanguages '(en)' > "$RUNNER_TEMP/start-en.log" 2>&1 &
+          PID=$!
+          sleep 8
+          if ! kill -0 "$PID" 2>/dev/null; then
+            echo "App hat sich auf Englisch nach weniger als 8 s beendet"
+            cat "$RUNNER_TEMP/start-en.log"
+            exit 1
+          fi
+          kill "$PID"
+          echo "Startprobe Englisch: läuft nach 8 s"
       - name: Textkatalog nach dem Export
         run: git diff --stat
       - uses: actions/upload-artifact@v4
