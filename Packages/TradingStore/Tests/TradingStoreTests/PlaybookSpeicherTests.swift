@@ -135,7 +135,7 @@ private let pullback = Setup(name: "Pullback", kriterien: [Kriterium(id: "k1", t
     #expect(gespeichert.ohneSetup.anzahl == 1)
 }
 
-@Test func ungueltigeEingabenWerdenAbgelehnt() throws {
+@Test func ungueltigeSetupsWerdenAbgelehnt() throws {
     let journal = try Journal.imSpeicher()
     let k = try konto(journal)
     let karte = try journal.speichereSetup(pullback)
