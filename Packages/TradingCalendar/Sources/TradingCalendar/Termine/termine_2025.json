@@ -5,7 +5,8 @@
   "vollstaendig": [
     "zinsentscheid",
     "arbeitsmarkt",
-    "inflation"
+    "inflation",
+    "feiertag"
   ],
   "quellen": [
     "https://www.bls.gov/schedule/news_release/empsit.htm, cpi.htm, https://www.bls.gov/schedule/2025/home.htm (abgerufen 02.10.2026)",
@@ -13,14 +14,95 @@
     "https://www.boj.or.jp/en/mopo/mpmsche_minu/index.htm und past.htm (abgerufen 02.10.2026); keine feste Uhrzeit",
     "https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.en.html und https://www.ecb.europa.eu/press/tvservices/webcast/html/index.en.html (abgerufen 02.10.2026); Uhrzeit 14:15 laut https://www.ecb.europa.eu/press/govcdec/html/index.en.html",
     "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm (abgerufen 02.10.2026); Uhrzeit: FOMC-Statement 29.07.2026 „2:00 p.m. EDT“",
-    "https://www.snb.ch/en/the-snb/mandates-goals/monetary-policy/decisions und Event-Schedule (abgerufen 02.10.2026); 09:30 laut Event-Schedule 2027"
+    "https://www.snb.ch/en/the-snb/mandates-goals/monetary-policy/decisions und Event-Schedule (abgerufen 02.10.2026); 09:30 laut Event-Schedule 2027",
+    "Feiertage USA: 5 U.S.C. 6103 nach Regel, Samstagsregel laut Fed K.8 https://www.federalreserve.gov/aboutthefed/k8.htm (abgerufen 02.10.2026)",
+    "Feiertage Großbritannien: https://www.gov.uk/bank-holidays.json (abgerufen 02.10.2026), gleich mit TradingClock lse.json",
+    "Feiertage Euroraum: TARGET-Schließtage nach Regel (ungeprüft)",
+    "Feiertage Japan: Feiertagsgesetz und Bankgesetz nach Regel (ungeprüft)"
   ],
   "hinweise": [
+    "Feiertage nur an Werktagen; Art feiertag deckt USD, EUR, GBP und JPY ab, CHF fehlt noch.",
     "Zeiten in Ortszeit der Zeitzone; Termine ohne Uhrzeit gelten den ganzen Tag dort.",
     "Fed: jeder Termin gilt als vorläufig, bis die vorige Sitzung ihn bestätigt (Fed-Kalender).",
     "SNB 09:30 für 2025 und 2026 ist Einschätzung nach dem Event-Schedule 2027."
   ],
   "termine": [
+    {
+      "id": "feiertag-jpy-2025-01-01",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Neujahr",
+      "datum": "2025-01-01",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+    },
+    {
+      "id": "feiertag-eur-2025-01-01",
+      "art": "feiertag",
+      "institution": "ezb",
+      "titel": "Feiertag Euroraum: Neujahr",
+      "datum": "2025-01-01",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "EUR"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: TARGET-Schließtag nach Regel berechnet"
+    },
+    {
+      "id": "feiertag-gbp-2025-01-01",
+      "art": "feiertag",
+      "institution": "boe",
+      "titel": "Feiertag Großbritannien: Neujahr",
+      "datum": "2025-01-01",
+      "zeitzone": "Europe/London",
+      "waehrungen": [
+        "GBP"
+      ],
+      "hinweis": "Bank Holiday England und Wales"
+    },
+    {
+      "id": "feiertag-usd-2025-01-01",
+      "art": "feiertag",
+      "institution": "fed",
+      "titel": "Feiertag USA: Neujahr",
+      "datum": "2025-01-01",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "hinweis": "Bankfeiertag der Fed (Fedwire geschlossen)"
+    },
+    {
+      "id": "feiertag-jpy-2025-01-02",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Bankfeiertag",
+      "datum": "2025-01-02",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+    },
+    {
+      "id": "feiertag-jpy-2025-01-03",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Bankfeiertag",
+      "datum": "2025-01-03",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+    },
     {
       "id": "bls-nfp-2025-01-10",
       "art": "arbeitsmarkt",
@@ -34,6 +116,19 @@
       ]
     },
     {
+      "id": "feiertag-jpy-2025-01-13",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Tag der Volljährigkeit",
+      "datum": "2025-01-13",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+    },
+    {
       "id": "bls-cpi-2025-01-15",
       "art": "inflation",
       "institution": "bls",
@@ -44,6 +139,18 @@
       "waehrungen": [
         "USD"
       ]
+    },
+    {
+      "id": "feiertag-usd-2025-01-20",
+      "art": "feiertag",
+      "institution": "fed",
+      "titel": "Feiertag USA: Martin Luther King Jr. Day",
+      "datum": "2025-01-20",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "hinweis": "Bankfeiertag der Fed (Fedwire geschlossen)"
     },
     {
       "id": "boj-2025-01-24",
@@ -106,6 +213,19 @@
       ]
     },
     {
+      "id": "feiertag-jpy-2025-02-11",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Staatsgründung",
+      "datum": "2025-02-11",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+    },
+    {
       "id": "bls-cpi-2025-02-12",
       "art": "inflation",
       "institution": "bls",
@@ -116,6 +236,31 @@
       "waehrungen": [
         "USD"
       ]
+    },
+    {
+      "id": "feiertag-usd-2025-02-17",
+      "art": "feiertag",
+      "institution": "fed",
+      "titel": "Feiertag USA: Washington's Birthday",
+      "datum": "2025-02-17",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "hinweis": "Bankfeiertag der Fed (Fedwire geschlossen)"
+    },
+    {
+      "id": "feiertag-jpy-2025-02-24",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Ersatzfeiertag",
+      "datum": "2025-02-24",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
     },
     {
       "id": "ezb-2025-03-06",
@@ -164,6 +309,19 @@
         "JPY"
       ],
       "hinweis": "zweiter Sitzungstag; Uhrzeit nicht fest, ganzer Tag in Tokio"
+    },
+    {
+      "id": "feiertag-jpy-2025-03-20",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Frühlings-Tagundnachtgleiche",
+      "datum": "2025-03-20",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
     },
     {
       "id": "fed-2025-03-19",
@@ -239,6 +397,69 @@
       ]
     },
     {
+      "id": "feiertag-eur-2025-04-18",
+      "art": "feiertag",
+      "institution": "ezb",
+      "titel": "Feiertag Euroraum: Karfreitag",
+      "datum": "2025-04-18",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "EUR"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: TARGET-Schließtag nach Regel berechnet"
+    },
+    {
+      "id": "feiertag-gbp-2025-04-18",
+      "art": "feiertag",
+      "institution": "boe",
+      "titel": "Feiertag Großbritannien: Karfreitag",
+      "datum": "2025-04-18",
+      "zeitzone": "Europe/London",
+      "waehrungen": [
+        "GBP"
+      ],
+      "hinweis": "Bank Holiday England und Wales"
+    },
+    {
+      "id": "feiertag-eur-2025-04-21",
+      "art": "feiertag",
+      "institution": "ezb",
+      "titel": "Feiertag Euroraum: Ostermontag",
+      "datum": "2025-04-21",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "EUR"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: TARGET-Schließtag nach Regel berechnet"
+    },
+    {
+      "id": "feiertag-gbp-2025-04-21",
+      "art": "feiertag",
+      "institution": "boe",
+      "titel": "Feiertag Großbritannien: Ostermontag",
+      "datum": "2025-04-21",
+      "zeitzone": "Europe/London",
+      "waehrungen": [
+        "GBP"
+      ],
+      "hinweis": "Bank Holiday England und Wales"
+    },
+    {
+      "id": "feiertag-jpy-2025-04-29",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Showa-Tag",
+      "datum": "2025-04-29",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+    },
+    {
       "id": "boj-2025-05-01",
       "art": "zinsentscheid",
       "institution": "boj",
@@ -251,6 +472,19 @@
       "hinweis": "zweiter Sitzungstag; Uhrzeit nicht fest, ganzer Tag in Tokio"
     },
     {
+      "id": "feiertag-eur-2025-05-01",
+      "art": "feiertag",
+      "institution": "ezb",
+      "titel": "Feiertag Euroraum: Tag der Arbeit",
+      "datum": "2025-05-01",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "EUR"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: TARGET-Schließtag nach Regel berechnet"
+    },
+    {
       "id": "bls-nfp-2025-05-02",
       "art": "arbeitsmarkt",
       "institution": "bls",
@@ -261,6 +495,44 @@
       "waehrungen": [
         "USD"
       ]
+    },
+    {
+      "id": "feiertag-jpy-2025-05-05",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Kindertag",
+      "datum": "2025-05-05",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+    },
+    {
+      "id": "feiertag-gbp-2025-05-05",
+      "art": "feiertag",
+      "institution": "boe",
+      "titel": "Feiertag Großbritannien: Early May Bank Holiday",
+      "datum": "2025-05-05",
+      "zeitzone": "Europe/London",
+      "waehrungen": [
+        "GBP"
+      ],
+      "hinweis": "Bank Holiday England und Wales"
+    },
+    {
+      "id": "feiertag-jpy-2025-05-06",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Ersatzfeiertag",
+      "datum": "2025-05-06",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
     },
     {
       "id": "fed-2025-05-07",
@@ -297,6 +569,30 @@
       "waehrungen": [
         "USD"
       ]
+    },
+    {
+      "id": "feiertag-gbp-2025-05-26",
+      "art": "feiertag",
+      "institution": "boe",
+      "titel": "Feiertag Großbritannien: Spring Bank Holiday",
+      "datum": "2025-05-26",
+      "zeitzone": "Europe/London",
+      "waehrungen": [
+        "GBP"
+      ],
+      "hinweis": "Bank Holiday England und Wales"
+    },
+    {
+      "id": "feiertag-usd-2025-05-26",
+      "art": "feiertag",
+      "institution": "fed",
+      "titel": "Feiertag USA: Memorial Day",
+      "datum": "2025-05-26",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "hinweis": "Bankfeiertag der Fed (Fedwire geschlossen)"
     },
     {
       "id": "ezb-2025-06-05",
@@ -360,6 +656,18 @@
       "hinweis": "mit Projektionen (SEP) und Pressekonferenz"
     },
     {
+      "id": "feiertag-usd-2025-06-19",
+      "art": "feiertag",
+      "institution": "fed",
+      "titel": "Feiertag USA: Juneteenth",
+      "datum": "2025-06-19",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "hinweis": "Bankfeiertag der Fed (Fedwire geschlossen)"
+    },
+    {
       "id": "snb-2025-06-19",
       "art": "zinsentscheid",
       "institution": "snb",
@@ -396,6 +704,18 @@
       ]
     },
     {
+      "id": "feiertag-usd-2025-07-04",
+      "art": "feiertag",
+      "institution": "fed",
+      "titel": "Feiertag USA: Independence Day",
+      "datum": "2025-07-04",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "hinweis": "Bankfeiertag der Fed (Fedwire geschlossen)"
+    },
+    {
       "id": "bls-cpi-2025-07-15",
       "art": "inflation",
       "institution": "bls",
@@ -406,6 +726,19 @@
       "waehrungen": [
         "USD"
       ]
+    },
+    {
+      "id": "feiertag-jpy-2025-07-21",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Tag des Meeres",
+      "datum": "2025-07-21",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
     },
     {
       "id": "ezb-2025-07-24",
@@ -468,6 +801,19 @@
       ]
     },
     {
+      "id": "feiertag-jpy-2025-08-11",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Tag der Berge",
+      "datum": "2025-08-11",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+    },
+    {
       "id": "bls-cpi-2025-08-12",
       "art": "inflation",
       "institution": "bls",
@@ -478,6 +824,30 @@
       "waehrungen": [
         "USD"
       ]
+    },
+    {
+      "id": "feiertag-gbp-2025-08-25",
+      "art": "feiertag",
+      "institution": "boe",
+      "titel": "Feiertag Großbritannien: Summer Bank Holiday",
+      "datum": "2025-08-25",
+      "zeitzone": "Europe/London",
+      "waehrungen": [
+        "GBP"
+      ],
+      "hinweis": "Bank Holiday England und Wales"
+    },
+    {
+      "id": "feiertag-usd-2025-09-01",
+      "art": "feiertag",
+      "institution": "fed",
+      "titel": "Feiertag USA: Labor Day",
+      "datum": "2025-09-01",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "hinweis": "Bankfeiertag der Fed (Fedwire geschlossen)"
     },
     {
       "id": "bls-nfp-2025-09-05",
@@ -514,6 +884,19 @@
       "waehrungen": [
         "USD"
       ]
+    },
+    {
+      "id": "feiertag-jpy-2025-09-15",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Tag der Achtung vor dem Alter",
+      "datum": "2025-09-15",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
     },
     {
       "id": "fed-2025-09-17",
@@ -553,6 +936,19 @@
       "hinweis": "zweiter Sitzungstag; Uhrzeit nicht fest, ganzer Tag in Tokio"
     },
     {
+      "id": "feiertag-jpy-2025-09-23",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Herbst-Tagundnachtgleiche",
+      "datum": "2025-09-23",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+    },
+    {
       "id": "snb-2025-09-25",
       "art": "zinsentscheid",
       "institution": "snb",
@@ -563,6 +959,31 @@
       "waehrungen": [
         "CHF"
       ]
+    },
+    {
+      "id": "feiertag-jpy-2025-10-13",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Tag des Sports",
+      "datum": "2025-10-13",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+    },
+    {
+      "id": "feiertag-usd-2025-10-13",
+      "art": "feiertag",
+      "institution": "fed",
+      "titel": "Feiertag USA: Columbus Day",
+      "datum": "2025-10-13",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "hinweis": "Bankfeiertag der Fed (Fedwire geschlossen)"
     },
     {
       "id": "bls-cpi-2025-10-24",
@@ -613,6 +1034,19 @@
       ]
     },
     {
+      "id": "feiertag-jpy-2025-11-03",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Kulturtag",
+      "datum": "2025-11-03",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+    },
+    {
       "id": "boe-2025-11-06",
       "art": "zinsentscheid",
       "institution": "boe",
@@ -625,6 +1059,18 @@
       ]
     },
     {
+      "id": "feiertag-usd-2025-11-11",
+      "art": "feiertag",
+      "institution": "fed",
+      "titel": "Feiertag USA: Veterans Day",
+      "datum": "2025-11-11",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "hinweis": "Bankfeiertag der Fed (Fedwire geschlossen)"
+    },
+    {
       "id": "bls-nfp-2025-11-20",
       "art": "arbeitsmarkt",
       "institution": "bls",
@@ -635,6 +1081,31 @@
       "waehrungen": [
         "USD"
       ]
+    },
+    {
+      "id": "feiertag-jpy-2025-11-24",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Ersatzfeiertag",
+      "datum": "2025-11-24",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+    },
+    {
+      "id": "feiertag-usd-2025-11-27",
+      "art": "feiertag",
+      "institution": "fed",
+      "titel": "Feiertag USA: Thanksgiving",
+      "datum": "2025-11-27",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "hinweis": "Bankfeiertag der Fed (Fedwire geschlossen)"
     },
     {
       "id": "fed-2025-12-10",
@@ -720,6 +1191,81 @@
         "JPY"
       ],
       "hinweis": "zweiter Sitzungstag; Uhrzeit nicht fest, ganzer Tag in Tokio"
+    },
+    {
+      "id": "feiertag-eur-2025-12-25",
+      "art": "feiertag",
+      "institution": "ezb",
+      "titel": "Feiertag Euroraum: Weihnachten",
+      "datum": "2025-12-25",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "EUR"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: TARGET-Schließtag nach Regel berechnet"
+    },
+    {
+      "id": "feiertag-gbp-2025-12-25",
+      "art": "feiertag",
+      "institution": "boe",
+      "titel": "Feiertag Großbritannien: Weihnachten",
+      "datum": "2025-12-25",
+      "zeitzone": "Europe/London",
+      "waehrungen": [
+        "GBP"
+      ],
+      "hinweis": "Bank Holiday England und Wales"
+    },
+    {
+      "id": "feiertag-usd-2025-12-25",
+      "art": "feiertag",
+      "institution": "fed",
+      "titel": "Feiertag USA: Weihnachten",
+      "datum": "2025-12-25",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "hinweis": "Bankfeiertag der Fed (Fedwire geschlossen)"
+    },
+    {
+      "id": "feiertag-eur-2025-12-26",
+      "art": "feiertag",
+      "institution": "ezb",
+      "titel": "Feiertag Euroraum: Zweiter Weihnachtstag",
+      "datum": "2025-12-26",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "EUR"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: TARGET-Schließtag nach Regel berechnet"
+    },
+    {
+      "id": "feiertag-gbp-2025-12-26",
+      "art": "feiertag",
+      "institution": "boe",
+      "titel": "Feiertag Großbritannien: Boxing Day",
+      "datum": "2025-12-26",
+      "zeitzone": "Europe/London",
+      "waehrungen": [
+        "GBP"
+      ],
+      "hinweis": "Bank Holiday England und Wales"
+    },
+    {
+      "id": "feiertag-jpy-2025-12-31",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Bankfeiertag",
+      "datum": "2025-12-31",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
     }
   ]
 }
