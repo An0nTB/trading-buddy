@@ -1,4 +1,5 @@
 import SwiftUI
+import TradingAssistant
 import TradingCore
 
 // Tagesseite (P7, Doc 18 F4, Entwurf design/Tagesseite_Entwurf.png vom 02.10.2026): Plan vor dem Handel,
@@ -133,6 +134,7 @@ struct TagKopf: View {
                 DatePicker("Datum", selection: datum, displayedComponents: .date)
                     .labelsHidden()
                     .datePickerStyle(.compact)
+                FragBradKnopf(.tag, tag: tagModell.tag.beginn(in: tagModell.zeitzone)) // Frag Brad (Doc 31)
             }
             .buttonStyle(.bordered)
         }
