@@ -76,326 +76,6 @@
         }
       }
     },
-    "%lld neue Ausführungen" : {
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld new execution"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld new executions"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "%lld neue Trades" : {
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld new trade"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld new trades"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "Beobachtet %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Watching %@"
-          }
-        }
-      }
-    },
-    "Binance-Transaktionsverlauf: Den liest die App nicht, bitte die Trade History exportieren." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Binance transaction history: the app does not read it, please export the trade history."
-          }
-        }
-      }
-    },
-    "Datei nicht lesbar." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "File not readable."
-          }
-        }
-      }
-    },
-    "Datei zu groß für einen Kontoauszug." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "File too large for an account statement."
-          }
-        }
-      }
-    },
-    "Excel-Datei, aber keine XTB-Kontohistorie." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Excel file, but not an XTB account history."
-          }
-        }
-      }
-    },
-    "Format nicht erkannt." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Format not recognised."
-          }
-        }
-      }
-    },
-    "Format nicht erkannt: weder Text noch Excel." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Format not recognised: neither text nor Excel."
-          }
-        }
-      }
-    },
-    "Ignorieren" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ignore"
-          }
-        }
-      }
-    },
-    "Import abgebrochen: bitte im Blatt prüfen." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import stopped: please check in the sheet."
-          }
-        }
-      }
-    },
-    "Import-Ordner beobachten" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Watch import folder"
-          }
-        }
-      }
-    },
-    "Import-Ordner: wartet auf dich" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import folder: waiting for you"
-          }
-        }
-      }
-    },
-    "Kein Zugriff auf den Ordner, bitte neu wählen." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No access to the folder, please choose it again."
-          }
-        }
-      }
-    },
-    "Mehrere Konten bei %@: bitte das Konto wählen." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Several accounts at %@: please choose the account."
-          }
-        }
-      }
-    },
-    "Neue Auszüge in diesem Ordner importiert die App selbst, wenn das Konto schon angelegt ist und eindeutig passt. Bei einem neuen Konto, mehreren passenden Konten oder unbekanntem Format fragt sie auf der Seite Import nach. Die Dateien bleiben liegen; schon importierte erkennt die App wieder." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The app imports new statements in this folder by itself when the account already exists and matches clearly. For a new account, several matching accounts or an unknown format it asks on the Import page. The files stay where they are; the app recognises files it has already imported."
-          }
-        }
-      }
-    },
-    "Neues Konto bei %@: bitte einmal von Hand importieren." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "New account at %@: please import once by hand."
-          }
-        }
-      }
-    },
-    "Neues Konto bei XTB: bitte einmal von Hand importieren." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "New account at XTB: please import once by hand."
-          }
-        }
-      }
-    },
-    "Noch kein Konto bei %@: bitte einmal von Hand importieren." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No account at %@ yet: please import once by hand."
-          }
-        }
-      }
-    },
-    "Noch kein Ordner gewählt." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No folder chosen yet."
-          }
-        }
-      }
-    },
-    "Ordner" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Folder"
-          }
-        }
-      }
-    },
-    "Ordner nicht erreichbar, bitte neu wählen." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Folder not reachable, please choose it again."
-          }
-        }
-      }
-    },
-    "Ordner wählen" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choose folder"
-          }
-        }
-      }
-    },
-    "Prüfen" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Review"
-          }
-        }
-      }
-    },
-    "schon importiert, nichts geändert" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "already imported, nothing changed"
-          }
-        }
-      }
-    },
-    "Serverzeit des Kontos unbekannt: bitte im Blatt wählen." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Server time of the account unknown: please choose it in the sheet."
-          }
-        }
-      }
-    },
-    "XTB-Datei ohne Kontonummer: bitte im Blatt angeben." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "XTB file without account number: please enter it in the sheet."
-          }
-        }
-      }
-    },
-    "XTB-Kontohistorie nicht lesbar." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "XTB account history not readable."
-          }
-        }
-      }
-    },
-    "Zuletzt aus dem Import-Ordner: %@, %@, %@" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Zuletzt aus dem Import-Ordner: %1$@, %2$@, %3$@"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Last from the import folder: %1$@, %2$@, %3$@"
-          }
-        }
-      }
-    },
     "–" : {
       "localizations" : {
         "en" : {
@@ -1258,6 +938,50 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld with violation"
+          }
+        }
+      }
+    },
+    "%lld neue Ausführungen" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld new execution"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld new executions"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld neue Trades" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld new trade"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld new trades"
+                }
+              }
+            }
           }
         }
       }
@@ -2870,6 +2594,16 @@
         }
       }
     },
+    "Beobachtet %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Watching %@"
+          }
+        }
+      }
+    },
     "berechnet" : {
       "localizations" : {
         "en" : {
@@ -3062,6 +2796,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Binance transaction history (Assets → Transaction History): the app does not read this file. Export under Orders → Spot Order → Trade History."
+          }
+        }
+      }
+    },
+    "Binance-Transaktionsverlauf: Den liest die App nicht, bitte die Trade History exportieren." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Binance transaction history: the app does not read it, please export the trade history."
           }
         }
       }
@@ -3434,12 +3178,32 @@
         }
       }
     },
+    "Datei nicht lesbar." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File not readable."
+          }
+        }
+      }
+    },
     "Datei wählen" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Choose file"
+          }
+        }
+      }
+    },
+    "Datei zu groß für einen Kontoauszug." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File too large for an account statement."
           }
         }
       }
@@ -4814,6 +4578,16 @@
         }
       }
     },
+    "Excel-Datei, aber keine XTB-Kontohistorie." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Excel file, but not an XTB account history."
+          }
+        }
+      }
+    },
     "Export-Ordner" : {
       "localizations" : {
         "en" : {
@@ -5193,6 +4967,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Format not recognised: not a MetaTrader 4 statement (HTML), not a CSV export from Trade Republic, Scalable, Kraken, Binance, Coinbase or Bitpanda and not an XTB account history (Excel)."
+          }
+        }
+      }
+    },
+    "Format nicht erkannt: weder Text noch Excel." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Format not recognised: neither text nor Excel."
+          }
+        }
+      }
+    },
+    "Format nicht erkannt." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Format not recognised."
           }
         }
       }
@@ -6423,6 +6217,16 @@
         }
       }
     },
+    "Ignorieren" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ignore"
+          }
+        }
+      }
+    },
     "Im Browser öffnen" : {
       "localizations" : {
         "en" : {
@@ -6529,6 +6333,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Import"
+          }
+        }
+      }
+    },
+    "Import abgebrochen: bitte im Blatt prüfen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import stopped: please check in the sheet."
+          }
+        }
+      }
+    },
+    "Import-Ordner beobachten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Watch import folder"
+          }
+        }
+      }
+    },
+    "Import-Ordner: wartet auf dich" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import folder: waiting for you"
           }
         }
       }
@@ -7187,6 +7021,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No goal touches this month."
+          }
+        }
+      }
+    },
+    "Kein Zugriff auf den Ordner, bitte neu wählen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No access to the folder, please choose it again."
           }
         }
       }
@@ -8607,6 +8451,16 @@
         }
       }
     },
+    "Mehrere Konten bei %@: bitte das Konto wählen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Several accounts at %@: please choose the account."
+          }
+        }
+      }
+    },
     "Meine Währungen" : {
       "localizations" : {
         "en" : {
@@ -9551,6 +9405,16 @@
         }
       }
     },
+    "Neue Auszüge in diesem Ordner importiert die App selbst, wenn das Konto schon angelegt ist und eindeutig passt. Bei einem neuen Konto, mehreren passenden Konten oder unbekanntem Format fragt sie auf der Seite Import nach. Die Dateien bleiben liegen; schon importierte erkennt die App wieder." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The app imports new statements in this folder by itself when the account already exists and matches clearly. For a new account, several matching accounts or an unknown format it asks on the Import page. The files stay where they are; the app recognises files it has already imported."
+          }
+        }
+      }
+    },
     "Neue Karte" : {
       "localizations" : {
         "en" : {
@@ -9567,6 +9431,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "New account"
+          }
+        }
+      }
+    },
+    "Neues Konto bei %@: bitte einmal von Hand importieren." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New account at %@: please import once by hand."
+          }
+        }
+      }
+    },
+    "Neues Konto bei XTB: bitte einmal von Hand importieren." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New account at XTB: please import once by hand."
           }
         }
       }
@@ -9733,6 +9617,16 @@
         }
       }
     },
+    "Noch kein Konto bei %@: bitte einmal von Hand importieren." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No account at %@ yet: please import once by hand."
+          }
+        }
+      }
+    },
     "Noch kein Konto importiert." : {
       "localizations" : {
         "en" : {
@@ -9749,6 +9643,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No account yet."
+          }
+        }
+      }
+    },
+    "Noch kein Ordner gewählt." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No folder chosen yet."
           }
         }
       }
@@ -10251,6 +10155,36 @@
         }
       }
     },
+    "Ordner" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Folder"
+          }
+        }
+      }
+    },
+    "Ordner nicht erreichbar, bitte neu wählen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Folder not reachable, please choose it again."
+          }
+        }
+      }
+    },
+    "Ordner wählen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose folder"
+          }
+        }
+      }
+    },
     "Orientierung, kein Steuerbescheid. Ohne Steuersatz, Sparer-Pauschbetrag, Verlustvorträge und Teilfreistellung. Ergebnis je Trade = Kursergebnis + Kommission + Swap. Krypto-Haltefrist und Freigrenze stehen auf der Steuer-Seite der App." : {
       "localizations" : {
         "en" : {
@@ -10473,6 +10407,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Percent of account"
+          }
+        }
+      }
+    },
+    "Prüfen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Review"
           }
         }
       }
@@ -11125,6 +11069,16 @@
         }
       }
     },
+    "schon importiert, nichts geändert" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "already imported, nothing changed"
+          }
+        }
+      }
+    },
     "Schreib zuerst deine Frage." : {
       "localizations" : {
         "en" : {
@@ -11227,6 +11181,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Server time of the file"
+          }
+        }
+      }
+    },
+    "Serverzeit des Kontos unbekannt: bitte im Blatt wählen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Server time of the account unknown: please choose it in the sheet."
           }
         }
       }
@@ -13901,6 +13865,26 @@
         }
       }
     },
+    "XTB-Datei ohne Kontonummer: bitte im Blatt angeben." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "XTB file without account number: please enter it in the sheet."
+          }
+        }
+      }
+    },
+    "XTB-Kontohistorie nicht lesbar." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "XTB account history not readable."
+          }
+        }
+      }
+    },
     "z. B. 2 R oder das Vortageshoch" : {
       "localizations" : {
         "en" : {
@@ -14369,6 +14353,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Random share: how often a randomly drawn group of the same size shows a difference at least as large (1,000 draws). Small means: hard to explain by chance. With several comparisons, a small value also occurs by chance."
+          }
+        }
+      }
+    },
+    "Zuletzt aus dem Import-Ordner: %@, %@, %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Zuletzt aus dem Import-Ordner: %1$@, %2$@, %3$@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last from the import folder: %1$@, %2$@, %3$@"
           }
         }
       }
