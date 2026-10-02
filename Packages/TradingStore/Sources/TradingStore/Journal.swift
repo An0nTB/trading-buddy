@@ -243,6 +243,22 @@ public final class Journal: Sendable {
         }
     }
 
+    /// Offene Positionen laut dem jüngsten MT4-Auszug eines Kontos (größter Stichtag), mit diesem Auszug.
+    /// Nur eine Momentaufnahme, nie über Auszüge summiert. Leere Liste: Der Auszug zeigt keine offene Position.
+    /// `nil`: Für das Konto gibt es keinen MT4-Auszug (andere Importer liefern keine offenen Positionen).
+    public func offenePositionenLetzterAuszug(konto: Konto) throws
+        -> (importlauf: Importlauf, positionen: [OpenPosition])? {
+        try db.read { db in
+            guard let lauf = try Importlauf
+                .filter(Column("kontoId") == konto.id! && Column("importer") == Self.mt4Importer)
+                .order(Column("stichtag").desc, Column("id").desc).fetchOne(db)
+            else { return nil }
+            let positionen = try OffenZeile.filter(Column("importlaufId") == lauf.id!)
+                .order(Column("ticket")).fetchAll(db).map { try $0.modell() }
+            return (lauf, positionen)
+        }
+    }
+
     /// Wartende Orders laut einem Import.
     public func wartendeOrders(importlauf: Importlauf) throws -> [WorkingOrder] {
         try db.read { db in
