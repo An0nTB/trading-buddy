@@ -1,0 +1,12 @@
+"You can use this transaction report to inform your likely tax obligations. For US customers, Sells, Converts, Rewards Income, Learning Rewards, and Donations are taxable events. For final tax obligations, please consult your tax advisor."
+
+
+
+Transactions
+User,SYNTHETISCH,0000
+
+Timestamp,Transaction Type,Asset,Quantity Transacted,Spot Price Currency,Spot Price at Transaction,Subtotal,Total (inclusive of fees and/or spread),Fees and/or Spread,Notes
+2022-01-10T08:00:00Z,Buy,BTC,0.01,EUR,40000.00,400.00,405.99,5.99,Bought 0.01 BTC for €405.99 EUR
+2022-02-14T16:20:00Z,Sell,BTC,0.01,EUR,38000.00,380.00,374.34,5.66,Sold 0.01 BTC for €374.34 EUR
+2022-03-01T00:00:00Z,Coinbase Earn,XLM,10,EUR,0.20,2.00,2.00,0.00,Received 10 XLM from Coinbase Earn
+2022-03-02T09:00:00Z,Send,XLM,10,EUR,0.21,,,,Sent 10 XLM to synthetische Adresse
