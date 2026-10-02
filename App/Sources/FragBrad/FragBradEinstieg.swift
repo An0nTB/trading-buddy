@@ -9,6 +9,9 @@ struct FragBradAnfrage: Identifiable {
     var trade: Trade?
     /// Handelstag von der Tagesseite.
     var tag: Date?
+    /// Wert für „Wert analysieren“ (Menü „Analyse“, AP11). Ohne Angabe nimmt das Blatt das Symbol des Trades
+    /// oder das Instrument im Filter.
+    var symbol: String?
 }
 
 /// Zustand der Einstiege eines Fensters (Menü, Rechtsklick, Knöpfe). Je Fenster ein eigenes Objekt, damit das Blatt
@@ -18,8 +21,10 @@ struct FragBradAnfrage: Identifiable {
 final class FragBradZustand {
     var anfrage: FragBradAnfrage?
 
-    func frage(_ vorlage: FragBradVorlage = .monat, trade: Trade? = nil, tag: Date? = nil) {
-        anfrage = FragBradAnfrage(vorlage: trade == nil ? vorlage : .trade, trade: trade, tag: tag)
+    /// Mit Trade startet das Blatt bei „Diesen Trade einordnen“, außer bei `.analyse` (Analyse des Trade-Symbols).
+    func frage(_ vorlage: FragBradVorlage = .monat, trade: Trade? = nil, tag: Date? = nil, symbol: String? = nil) {
+        let start = trade == nil || vorlage == .analyse ? vorlage : .trade
+        anfrage = FragBradAnfrage(vorlage: start, trade: trade, tag: tag, symbol: symbol)
     }
 }
 

@@ -46,6 +46,7 @@ let september = FragBradKontext(konto: "XTB …1234", von: zeit("2026-09-01 00:0
     var kontext = september
     kontext.trade = trade
     kontext.tag = zeit("2026-09-12 12:00")
+    kontext.symbol = "BTCUSD"
     for vorlage in FragBradVorlage.allCases {
         for ton in FragBradTon.allCases {
             let text = FragBrad.text(vorlage, kontext: kontext, freieFrage: "Was lief gut?", ton: ton, zeitzone: berlin)
@@ -135,7 +136,53 @@ let september = FragBradKontext(konto: "XTB …1234", von: zeit("2026-09-01 00:0
     #expect(!FragBradVorlage.verfuegbar(mitTrade: false, mitTag: false).contains(.tag))
     #expect(FragBradVorlage.verfuegbar(mitTrade: true, mitTag: false).contains(.trade))
     #expect(FragBradVorlage.verfuegbar(mitTrade: false, mitTag: true).contains(.tag))
-    #expect(FragBradVorlage.verfuegbar(mitTrade: true, mitTag: true).count == FragBradVorlage.allCases.count)
+    #expect(!FragBradVorlage.verfuegbar(mitTrade: true, mitTag: true).contains(.analyse))
+    #expect(FragBradVorlage.verfuegbar(mitTrade: false, mitTag: false, mitSymbol: true).contains(.analyse))
+    #expect(FragBradVorlage.verfuegbar(mitTrade: true, mitTag: true, mitSymbol: true).count
+        == FragBradVorlage.allCases.count)
+}
+
+@Test func analyseNenntNurSymbolUndZwoelfMonate() throws {
+    var kontext = september
+    kontext.instrument = "DAX"
+    kontext.symbol = " BTCUSD "
+    let text = try #require(FragBrad.text(.analyse, kontext: kontext, ton: .sachlich, zeitzone: berlin))
+    #expect(text == """
+        Beschreibe den Wert BTCUSD über die letzten 12 Monate: Kursverlauf, Schwankung, Abstand zu Hoch und Tief, \
+        größter Rückgang, Nachrichten der letzten 7 Tage und meine eigenen Trades in diesem Wert. Nutze dafür \
+        hole_kursanalyse und hole_nachrichten. Nur beschreiben, keine Prognose.
+
+        Konto: XTB …1234.
+
+        \(FragBrad.rahmen)
+        """)
+    // Monatsfilter und Instrument der Seite gelten für die Analyse nicht.
+    #expect(!text.contains("Zeitraum:") && !text.contains("DAX"))
+}
+
+@Test func analyseOhneKursverlaufFragtNurNachNachrichtenUndTrades() throws {
+    var kontext = FragBradKontext(symbol: "SAP", mitKursverlauf: false)
+    kontext.konto = nil
+    let text = try #require(FragBrad.text(.analyse, kontext: kontext, ton: .henry, zeitzone: berlin))
+    #expect(text.hasPrefix("Beschreibe den Wert SAP über die letzten 12 Monate: Nachrichten der letzten 7 Tage"))
+    #expect(!text.contains("Schwankung") && !text.contains("Hoch und Tief"))
+    #expect(text.contains("Nur beschreiben, keine Prognose."))
+    #expect(text.hasSuffix(FragBrad.tonHenry))
+}
+
+@Test func analyseOhneSymbolLiefertNichts() {
+    #expect(FragBrad.text(.analyse, kontext: september, ton: .henry, zeitzone: berlin) == nil)
+    let leer = FragBradKontext(symbol: "  ")
+    #expect(FragBrad.text(.analyse, kontext: leer, ton: .henry, zeitzone: berlin) == nil)
+}
+
+@Test func nurDieAnalyseKopiertMitUndNenntInkognito() {
+    #expect(FragBradVorlage.allCases.filter(\.kopiertMit) == [.analyse])
+    for ton in FragBradTon.allCases {
+        #expect(FragBrad.inkognitoHinweis(ton).contains("Inkognito einschalten"))
+        #expect(FragBrad.inkognitoHinweis(ton).hasSuffix("Die Frage liegt zusätzlich in der Zwischenablage."))
+    }
+    #expect(FragBrad.inkognitoHinweis(.henry).hasPrefix("Solche Gespräche bleiben besser unter uns."))
 }
 
 @Test func emojiAusVielenCodepunktenSprengenDieGrenzeNicht() throws {
