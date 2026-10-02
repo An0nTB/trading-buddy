@@ -13930,6 +13930,126 @@
           }
         }
       }
+    },
+    "Tageswechsel 00:00 Serverzeit (GMT+2/+3), hier als Europe/Athens." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Day change 00:00 server time (GMT+2/+3), here as Europe/Athens."
+          }
+        }
+      }
+    },
+    "Ob die nachgezogene Grenze beim Startkapital stehen bleibt, nennt die Seite nicht; hier läuft sie weiter." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The page does not say whether the trailing limit stops at the starting capital; here it keeps trailing."
+          }
+        }
+      }
+    },
+    "Kein Tageslimit. Ob und wo die nachgezogene Grenze stehen bleibt, nennt die Seite nicht." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No daily limit. The page does not say whether or where the trailing limit stops."
+          }
+        }
+      }
+    },
+    "Zeitzone des Tageswechsels nennt die Seite nicht; hier Serverzeit als Europe/Athens angenommen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The page does not name the time zone of the day change; server time as Europe/Athens is assumed here."
+          }
+        }
+      }
+    },
+    "Tagesverlust-Grenze pausiert bei Topstep nur, darum hier aus. Gewinnziel aus dem Dashboard eintragen; die Konsistenzregel bezieht Topstep aufs Gewinnziel, das kennt die Prüfung noch nicht. Glattstellen bis 15:10 Chicago prüft die App erst ab 17:00." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "At Topstep the daily loss limit only pauses trading, so it is off here. Enter the profit target from the dashboard; Topstep applies the consistency rule to the profit target, which the check does not know yet. Closing positions by 15:10 Chicago is checked by the app only from 17:00."
+          }
+        }
+      }
+    },
+    "Gesamtgrenze aus dem Dashboard eintragen; sie friert bei Start plus 100 ein. Glattstellen bis 16:59 New York prüft die App erst ab 18:00." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter the overall limit from the dashboard; it freezes at start plus 100. Closing positions by 16:59 New York is checked by the app only from 18:00."
+          }
+        }
+      }
+    },
+    "%@ (in %@)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ (in %2$@)"
+          }
+        }
+      }
+    },
+    "%@ bis %@ · %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ to %2$@ · %3$@"
+          }
+        }
+      }
+    },
+    "%lld von 5" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld of 5"
+          }
+        }
+      }
+    },
+    "Fehler %d" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error %d"
+          }
+        }
+      }
+    },
+    " · %lld von %lld erledigt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : " · %1$lld of %2$lld done"
+          }
+        }
+      }
+    },
+    "Kapitel %lld · %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chapter %1$lld · %2$@"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

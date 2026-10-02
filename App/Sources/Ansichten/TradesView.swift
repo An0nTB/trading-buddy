@@ -618,7 +618,7 @@ struct JournalAnzeige: View {
                     if let regeltreue = eintrag.regeltreue {
                         angabe("Regeltreue", regeltreue ? String(localized: "Ja") : String(localized: "Nein"))
                     }
-                    if let zustand = eintrag.zustand { angabe("Zustand", "\(zustand) von 5") }
+                    if let zustand = eintrag.zustand { angabe("Zustand", String(localized: "\(zustand) von 5")) }
                     if let marktumfeld = eintrag.marktumfeld { angabe("Marktumfeld", marktumfeld) }
                     if let grund = eintrag.grund { angabe("Grund", grund) }
                 }
