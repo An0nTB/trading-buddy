@@ -544,15 +544,16 @@ final class AppModell {
     }
 
     /// Verstöße gegen die eigenen Regeln, immer über alle Trades des Kontos (in Kontowährung, W3) und nicht über
-    /// den Filter: „Trades je Tag“ und „Tagesverlust“ zählen den ganzen Tag, nicht nur ein Instrument.
+    /// den Filter: „Trades je Tag“ und „Tagesverlust“ zählen den ganzen Tag, nicht nur ein Instrument. Trades ohne
+    /// EZB-Kurs zählen bei den Zählregeln mit, ihre Beträge nicht (G1, TradingCore 0.22.0).
     var verstoesse: [Regelverstoss] {
-        Regelpruefung.pruefe(angleich.trades, regeln: regeln, zeitzone: zeitzone, manuell: manuellVerletzt)
+        Regelpruefung.pruefe(angleich, regeln: regeln, zeitzone: zeitzone, manuell: manuellVerletzt)
     }
 
     /// Der letzte Handelstag im gewählten Zeitraum, Grundlage der Regel-Ampel.
     var letzterTagesstand: Regelpruefung.Tagesstand? {
         let kalender = self.kalender
-        let staende = Regelpruefung.tagesstaende(angleich.trades, regeln: regeln, zeitzone: zeitzone, manuell: manuellVerletzt)
+        let staende = Regelpruefung.tagesstaende(angleich, regeln: regeln, zeitzone: zeitzone, manuell: manuellVerletzt)
         return staende.last { stand in
             if case .monat(let monat) = zeitraum { return monatsanfang(stand.tag, kalender) == monat }
             return true
