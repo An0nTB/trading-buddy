@@ -52,6 +52,9 @@ targets:
         MARKETING_VERSION: "0.1.0"
         CURRENT_PROJECT_VERSION: "1"
         GENERATE_INFOPLIST_FILE: YES
+        # Sichtbarer Name „Brad“ (Tim 02.10.2026): Xcode mischt App/Info.plist (CFBundleName, CFBundleDisplayName)
+        # in die erzeugte Info.plist; PRODUCT_NAME, Bundle-ID und Pfade bleiben „Trading Buddy“.
+        INFOPLIST_FILE: App/Info.plist
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.finance
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         # iPad: weitere Fenster erlauben (P12 Eigene Fenster, Doc 27)
