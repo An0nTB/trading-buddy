@@ -7369,12 +7369,12 @@
         }
       }
     },
-    "Kontowährung, Umrechnung folgt" : {
+    "Kontowährung; fremde Währungen zum EZB-Kurs umgerechnet" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Account currency, conversion to follow"
+            "value" : "Account currency; other currencies converted at the ECB rate"
           }
         }
       }
