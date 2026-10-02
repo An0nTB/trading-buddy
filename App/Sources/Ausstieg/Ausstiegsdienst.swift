@@ -21,6 +21,9 @@ final class Ausstiegsdienst {
 
     private let speicher: Zeitkerzenspeicher
     private var bestandGeladen = false
+    /// Letzter Schreibauftrag. Jeder neue wartet auf ihn, damit Abruf und Import nicht gleichzeitig dieselbe
+    /// Monatsdatei oder `bestand.json` schreiben.
+    private var schreibkette: Task<Void, Never>?
 
     init(speicher: Zeitkerzenspeicher = Zeitkerzenspeicher()) {
         self.speicher = speicher
@@ -42,9 +45,9 @@ final class Ausstiegsdienst {
     /// - Parameter quelle: Herkunft für die Anzeige, z. B. „MT4“, „Alpaca“, „Binance“.
     func uebernimm(_ kerzen: [Zeitkerze], symbol: String, quelle: String, fenster: DateInterval? = nil) async throws {
         let speicher = self.speicher
-        let neu = try await Task.detached {
+        let neu = try await nacheinander {
             try speicher.speichere(kerzen, symbol: symbol, quelle: quelle, fenster: fenster)
-        }.value
+        }
         bestand.removeAll { $0.symbol == symbol }
         if let neu { bestand.append(neu) }
         bestand.sort { $0.symbol < $1.symbol }
@@ -54,9 +57,20 @@ final class Ausstiegsdienst {
 
     func loesche(symbol: String) async throws {
         let speicher = self.speicher
-        try await Task.detached { try speicher.loesche(symbol: symbol) }.value
+        try await nacheinander { try speicher.loesche(symbol: symbol) }
         bestand.removeAll { $0.symbol == symbol }
         stand += 1
+    }
+
+    /// Führt einen Schreibauftrag abseits des Hauptthreads aus, erst nach dem vorigen.
+    private func nacheinander<T: Sendable>(_ arbeit: @escaping @Sendable () throws -> T) async throws -> T {
+        let vorher = schreibkette
+        let auftrag = Task.detached { () throws -> T in
+            await vorher?.value
+            return try arbeit()
+        }
+        schreibkette = Task { _ = try? await auftrag.value }
+        return try await auftrag.value
     }
 
     /// Analyse eines Trades; `nil` ohne Uhrzeit oder ohne Kerze in der Haltedauer.
