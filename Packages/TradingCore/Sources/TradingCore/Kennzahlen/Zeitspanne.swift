@@ -36,6 +36,30 @@ public struct Zeitspanne: Sendable, Equatable {
         return Zeitspanne(von: woche.start, bis: woche.end)
     }
 
+    /// Kalenderwoche nach ISO 8601 (Montag bis Sonntag, Woche 1 enthält den ersten Donnerstag).
+    /// `nil` für Wochen, die es im Jahr nicht gibt (Woche 53 in Jahren mit 52 Wochen).
+    public static func kalenderwoche(jahr: Int, woche: Int, zeitzone: TimeZone) -> Zeitspanne? {
+        let k = isoKalender(zeitzone)
+        // Woche 1 ist die Woche mit dem 4. Januar; von dort in ganzen Wochen weiter.
+        guard (1...53).contains(woche),
+              let vierter = k.date(from: DateComponents(year: jahr, month: 1, day: 4)),
+              let ersteWoche = k.dateInterval(of: .weekOfYear, for: vierter),
+              let montag = k.date(byAdding: .day, value: 7 * (woche - 1), to: ersteWoche.start),
+              k.component(.yearForWeekOfYear, from: montag) == jahr,
+              let bis = k.date(byAdding: .day, value: 7, to: montag) else { return nil }
+        return Zeitspanne(von: montag, bis: bis)
+    }
+
+    /// Jahr und Nummer der ISO-Kalenderwoche, wenn die Spanne genau eine solche Woche ist, sonst `nil`.
+    /// Für Titel und Dateinamen wie „2026-W40“.
+    public func kalenderwoche(zeitzone: TimeZone) -> (jahr: Int, woche: Int)? {
+        let k = Self.isoKalender(zeitzone)
+        let c = k.dateComponents([.yearForWeekOfYear, .weekOfYear], from: von)
+        guard let jahr = c.yearForWeekOfYear, let woche = c.weekOfYear,
+              Self.kalenderwoche(jahr: jahr, woche: woche, zeitzone: zeitzone) == self else { return nil }
+        return (jahr, woche)
+    }
+
     /// Ganze Tage von `vonTag` bis einschließlich `bisTag`.
     /// `nil` bei ungültigem Datum (etwa 30. Februar) oder wenn `bisTag` vor `vonTag` liegt.
     public static func tage(von vonTag: DateComponents, bis bisTag: DateComponents,
@@ -65,6 +89,12 @@ public struct Zeitspanne: Sendable, Equatable {
 
     private static func kalender(_ zeitzone: TimeZone) -> Calendar {
         var k = Calendar(identifier: .gregorian)
+        k.timeZone = zeitzone
+        return k
+    }
+
+    private static func isoKalender(_ zeitzone: TimeZone) -> Calendar {
+        var k = Calendar(identifier: .iso8601)
         k.timeZone = zeitzone
         return k
     }
