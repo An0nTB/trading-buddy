@@ -13,18 +13,22 @@ public struct Handelsregeln: Codable, Sendable, Equatable {
     public var stoppNachVerlusten: Int?
     /// Höchstes Risiko je Trade (Abstand Einstieg bis Stop); auch ein Verlust darüber zählt als Verstoß.
     public var maxRisikoJeTrade: Decimal?
+    /// Regeln einer Prop-Firm, wenn das Konto eine Challenge oder ein finanziertes Konto ist.
+    public var propFirm: PropFirmRegeln?
 
     public init(maxTagesverlust: Decimal? = nil, maxTradesJeTag: Int? = nil, stoppNachVerlusten: Int? = nil,
-                maxRisikoJeTrade: Decimal? = nil) {
+                maxRisikoJeTrade: Decimal? = nil, propFirm: PropFirmRegeln? = nil) {
         self.maxTagesverlust = maxTagesverlust
         self.maxTradesJeTag = maxTradesJeTag
         self.stoppNachVerlusten = stoppNachVerlusten
         self.maxRisikoJeTrade = maxRisikoJeTrade
+        self.propFirm = propFirm
     }
 
     /// Keine Regel gesetzt: Die App zeigt dann keine Ampel und keine Disziplin-Kurve.
     public var leer: Bool {
         maxTagesverlust == nil && maxTradesJeTag == nil && stoppNachVerlusten == nil && maxRisikoJeTrade == nil
+            && propFirm == nil
     }
 }
 
