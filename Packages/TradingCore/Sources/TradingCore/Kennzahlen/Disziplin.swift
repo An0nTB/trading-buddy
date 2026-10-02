@@ -22,8 +22,10 @@ public struct Disziplin: Sendable, Equatable {
     public var nettoRegeltreu: Decimal
     public var nettoVerletzt: Decimal
 
-    public init(trades: [Trade], verstoesse: [Regelverstoss]) {
-        let betroffen = Set(verstoesse.map(\.trade))
+    /// - Parameter propFirm: Verstöße gegen Prop-Firm-Regeln (Doc 18 F10, Tim 02.10.2026 Antwort 12d);
+    ///   ein Trade mit eigenem oder Prop-Firm-Verstoß zählt einmal als verletzt.
+    public init(trades: [Trade], verstoesse: [Regelverstoss], propFirm: [PropFirmPruefung.Verstoss] = []) {
+        let betroffen = Set(verstoesse.map(\.trade)).union(propFirm.map(\.trade))
         let sortiert = trades.sorted { ($0.closeTime, $0.id) < ($1.closeTime, $1.id) }
         var kapital: Decimal = 0
         var wert = 0
