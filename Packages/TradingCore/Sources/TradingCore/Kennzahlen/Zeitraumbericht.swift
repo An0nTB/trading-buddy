@@ -97,7 +97,8 @@ public struct Zeitraumbericht: Sendable {
     public var tradesOhneUhrzeit: Int { auswertung.trades.filter(\.nurDatum).count }
 
     private static func tage(_ trades: [Trade], zeitzone: TimeZone) -> [Tagesergebnis] {
-        let nachTag = Dictionary(grouping: trades) { Journaltag($0.closeTime, zeitzone: zeitzone) }
+        let kalender = Journaltag.gregorianisch(zeitzone)
+        let nachTag = Dictionary(grouping: trades) { Journaltag($0.schlusstag(kalender), zeitzone: zeitzone) }
         var ergebnis: [Tagesergebnis] = []
         for (tag, liste) in nachTag {
             let netto = liste.reduce(Decimal(0)) { $0 + $1.netProfit }
