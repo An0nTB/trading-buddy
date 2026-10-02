@@ -4,7 +4,8 @@ import Foundation
 /// der Connector liest sie und rechnet mit demselben Rechenkern.
 /// Enthält je Konto die abgeschlossenen Trades, die Zeitpunkte gelöschter Orders und die
 /// eigenen Journalangaben je Trade, die Ziele früherer Reviews und die eigenen Handelsregeln, dazu Tagesnotizen
-/// und verpasste Trades, auf Wunsch Überschriften der Nachrichten; keine Rohzeilen, keine Kontonamen und keine Bilder.
+/// und verpasste Trades, auf Wunsch Überschriften der Nachrichten und Tageskerzen geladener Kurse; keine Rohzeilen,
+/// keine Kontonamen und keine Bilder.
 public struct JournalExport: Sendable, Equatable, Codable {
     public static let dateiname = "trading-buddy-export.json"
     /// Erhöhen, wenn ein älterer Connector den neuen Aufbau falsch lesen würde.
@@ -17,8 +18,8 @@ public struct JournalExport: Sendable, Equatable, Codable {
     /// Zeitzone des Nutzers (z. B. „Europe/Berlin“) für Monatsgrenzen, Wochentag und Stunde.
     public var zeitzone: String
     public var konten: [Kontodaten]
-    /// Tonfall der App („henry“, früher „bro“, oder „sachlich“), damit Claude denselben Ton nimmt. Fehlt in älteren Dateien;
-    /// dann gilt sachlich.
+    /// Tonfall der App („henry“, früher „bro“, oder „sachlich“), damit Claude denselben Ton nimmt.
+    /// Fehlt in älteren Dateien; dann gilt sachlich.
     public var ton: String?
     /// Persona-Ton der App „Henry“ (Entscheidung 49, 02.10.2026).
     public static let tonHenry = "henry"
@@ -33,6 +34,8 @@ public struct JournalExport: Sendable, Equatable, Codable {
     public var verpassteTrades: [Verpasst]?
     /// Nachrichten der letzten Tage, neueste zuerst; nur wenn die Nachrichten in der App eingeschaltet sind.
     public var nachrichten: [Meldung]?
+    /// Tageskerzen geladener Werte, nach Symbol; fehlt ohne Kursverlauf in der App (Doc 38).
+    public var kursverlauf: [Kursreihe]?
 
     public struct Kontodaten: Sendable, Equatable, Codable {
         public var broker: String
@@ -107,7 +110,8 @@ public struct JournalExport: Sendable, Equatable, Codable {
     }
 
     public init(konten: [Kontodaten], zeitzone: TimeZone, erstellt: Date = .now, ton: String? = nil,
-                tagesnotizen: [Notiz] = [], verpassteTrades: [Verpasst] = [], nachrichten: [Meldung] = []) {
+                tagesnotizen: [Notiz] = [], verpassteTrades: [Verpasst] = [], nachrichten: [Meldung] = [],
+                kursverlauf: [Kursreihe] = []) {
         format = Self.aktuellesFormat
         self.erstellt = erstellt
         rechenkern = TradingCore.version
@@ -119,6 +123,9 @@ public struct JournalExport: Sendable, Equatable, Codable {
         self.verpassteTrades = verpassteTrades.isEmpty ? nil : verpassteTrades.sorted { ($0.zeit, $0.id) < ($1.zeit, $1.id) }
         let meldungen = nachrichten.sorted { ($0.zeit, $1.link) > ($1.zeit, $0.link) }.prefix(Self.nachrichtenHoechstens)
         self.nachrichten = meldungen.isEmpty ? nil : Array(meldungen)
+        let reihen = kursverlauf.filter { !$0.kerzen.isEmpty }.sorted { $0.symbol < $1.symbol }
+            .prefix(Self.kursreihenHoechstens)
+        self.kursverlauf = reihen.isEmpty ? nil : Array(reihen)
     }
 
     /// Zeitzone des Nutzers; UTC, falls der Name unbekannt ist.
