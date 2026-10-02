@@ -44,6 +44,7 @@ let september = FragBradKontext(konto: "XTB …1234", von: zeit("2026-09-01 00:0
                               geschlossen: zeit("2026-09-12 15:05"), nurDatum: false)
     var kontext = september
     kontext.trade = trade
+    kontext.tag = zeit("2026-09-12 12:00")
     for vorlage in FragBradVorlage.allCases {
         for ton in FragBradTon.allCases {
             let text = FragBrad.text(vorlage, kontext: kontext, freieFrage: "Was lief gut?", ton: ton, zeitzone: berlin)
@@ -116,4 +117,22 @@ let september = FragBradKontext(konto: "XTB …1234", von: zeit("2026-09-01 00:0
     // Anthropic kürzt den Text bei rund 14.000 Zeichen (Hilfe-Artikel, 30.06.2026).
     #expect(text.count < 14_000)
     #expect(FragBrad.link(text) != nil)
+}
+
+@Test func tagVorlageNenntDenTagAlsZeitraum() throws {
+    var kontext = september
+    kontext.tag = zeit("2026-09-17 15:00")
+    let text = try #require(FragBrad.text(.tag, kontext: kontext, ton: .sachlich, zeitzone: berlin))
+    #expect(text.hasPrefix("Ordne meinen Handelstag am 17.09.2026 ein:"))
+    #expect(text.contains("Zeitraum: 2026-09-17 bis 2026-09-17."))
+    #expect(!text.contains("2026-09-01"))
+    #expect(FragBrad.text(.tag, kontext: september, ton: .sachlich, zeitzone: berlin) == nil)
+}
+
+@Test func verfuegbareVorlagenJeEinstieg() {
+    #expect(!FragBradVorlage.verfuegbar(mitTrade: false, mitTag: false).contains(.trade))
+    #expect(!FragBradVorlage.verfuegbar(mitTrade: false, mitTag: false).contains(.tag))
+    #expect(FragBradVorlage.verfuegbar(mitTrade: true, mitTag: false).contains(.trade))
+    #expect(FragBradVorlage.verfuegbar(mitTrade: false, mitTag: true).contains(.tag))
+    #expect(FragBradVorlage.verfuegbar(mitTrade: true, mitTag: true).count == FragBradVorlage.allCases.count)
 }
