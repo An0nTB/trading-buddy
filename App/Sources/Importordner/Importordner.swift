@@ -325,6 +325,17 @@ final class Importordner {
                                        zonen: [Int64: TimeZone], bekannteHashes: Set<String>) -> [Ausgang] {
         var ergebnis: [Ausgang] = []
         var hashes = bekannteHashes
+        // Bekannte Vorgänge je Konto für die Überschneidungsprüfung (G21), nur bei Bedarf gelesen.
+        var vorgaengeJeKonto: [Int64: Set<String>] = [:]
+        func vorgaenge(_ konto: Konto) -> Set<String> {
+            guard let id = konto.id else { return [] }
+            if let bekannt = vorgaengeJeKonto[id] { return bekannt }
+            let bewegungen = try? journal.kontobewegungen(konto: konto)
+            let menge = Set((bewegungen?.ausfuehrungen.map(\.id) ?? []) + (bewegungen?.geldbewegungen.map(\.id) ?? [])
+                + (bewegungen?.kapitalmassnahmen.map(\.id) ?? []))
+            vorgaengeJeKonto[id] = menge
+            return menge
+        }
         for k in kandidaten {
             func frage(_ grund: String) {
                 ergebnis.append(.rueckfrage(Rueckfrage(id: k.signatur, dateiname: k.name, url: k.url, grund: grund)))
@@ -344,7 +355,8 @@ final class Importordner {
                 continue
             }
             let entscheidung = Importordnerregel.entscheide(daten: daten, dateiname: k.name, konten: konten,
-                                                            zeitzone: { $0.id.flatMap { zonen[$0] } })
+                                                            zeitzone: { $0.id.flatMap { zonen[$0] } },
+                                                            vorgaenge: vorgaenge)
             do {
                 guard let gespeichert = try importiere(entscheidung, daten: daten, dateiname: k.name, journal: journal)
                 else {
@@ -352,6 +364,7 @@ final class Importordner {
                     continue
                 }
                 hashes.insert(hash)
+                if case .csv(_, let konto) = entscheidung, let id = konto.id { vorgaengeJeKonto[id] = nil }
                 ergebnis.append(.erledigt(signatur: k.signatur, name: k.name, hash: hash, meldung: text(gespeichert),
                                           gespeichert: gespeichert.status == .gespeichert))
             } catch {
