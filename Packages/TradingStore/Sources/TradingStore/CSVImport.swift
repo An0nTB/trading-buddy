@@ -272,7 +272,7 @@ extension Journal {
                     vergleich.rohzeile = a.rohzeile
                     vergleich.zeit = gleicheZeit(vergleich.zeit, a.zeit)
                     vergleich.produktart = a.produktart
-                    if let produktart, vergleich == a {
+                    if vergleich == a {
                         zaehler.ausfuehrungenBekannt += 1
                         if produktart.rawValue != alt.produktart {
                             try AusfuehrungZeile.filter(Column("kontoId") == kontoId && Column("vorgangId") == a.id)
