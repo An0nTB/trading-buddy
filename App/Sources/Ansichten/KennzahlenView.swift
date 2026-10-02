@@ -12,8 +12,8 @@ struct KennzahlenView: View {
         let verlauf = modell.kapitalverlauf
         let waehrung = modell.waehrung
         let muster = modell.musterJeTrade
-        let mitRegelbruch = modell.trades.filter { muster[$0.id] != nil }
-        let ohneRegelbruch = modell.trades.filter { muster[$0.id] == nil }
+        let mitRegelbruch = modell.angeglicheneTrades.filter { muster[$0.id] != nil }
+        let ohneRegelbruch = modell.angeglicheneTrades.filter { muster[$0.id] == nil }
         ScrollView {
             VStack(alignment: .leading, spacing: Abstand.kachelAbstand) {
                 Kopfzeile("Kennzahlen") {
@@ -29,6 +29,7 @@ struct KennzahlenView: View {
                     HStack(spacing: Abstand.raster * 2) {
                         Kapsel(text: String(localized: "\(kennzahlen.anzahl) Trades"), betont: true)
                         StichprobenHinweis(anzahl: kennzahlen.anzahl)
+                        MischwaehrungHinweis() // Umrechnung und fehlende Kurse (Doc 40 W3)
                     }
                     LazyVGrid(columns: Raster.kacheln, spacing: Abstand.kachelAbstand) {
                         Kachel(titel: "Netto",

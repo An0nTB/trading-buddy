@@ -77,24 +77,35 @@ final class AppModell {
     /// `ladeEZBKurse()` liest den Zwischenspeicher und fragt die EZB nur, wenn der Kurs von heute fehlt.
     var ezb: EZBKurse.Stand = .leer
 
-    init() {
-        do {
-            let geoeffnet = try Journal(pfad: Self.datenbankpfad())
-            journal = geoeffnet
-            nachrichten.verbinde(geoeffnet)
+    /// Öffnet das Journal unter `Application Support`; ohne Datenbank bleibt `journal` leer und `fehler` gesetzt.
+    convenience init() {
+        let geoeffnet = Result { try Journal(pfad: Self.datenbankpfad()) }
+        self.init(journal: try? geoeffnet.get())
+        if case .failure(let error) = geoeffnet { fehler = error.localizedDescription }
+    }
+
+    /// Mit Journal von außen. `nebenwirkungen: false` für Tests (App/Tests): kein Export in den Ordner des
+    /// Nutzers und kein EZB-Abruf, sonst überschriebe ein Testlauf am Mac die echte Exportdatei.
+    init(journal: Journal?, nebenwirkungen: Bool = true) {
+        self.nebenwirkungen = nebenwirkungen
+        if let journal {
+            self.journal = journal
+            nachrichten.verbinde(journal)
             schliesseAbgelaufeneZiele()
             laden()
             exportiere()
-        } catch {
-            fehler = error.localizedDescription
         }
-        Task { await ladeEZBKurse() }
+        if nebenwirkungen { Task { await ladeEZBKurse() } }
     }
+
+    /// `false` nur in Tests: kein Export, kein EZB-Abruf.
+    private let nebenwirkungen: Bool
 
     /// EZB-Kurse nachladen, wenn der letzte erfolgreiche Abruf älter als einen Tag ist (lange Laufzeit) oder der
     /// Start ohne Netz war; höchstens ein Versuch je Stunde. `EZBKurse.laden()` fragt die EZB nur außerhalb der
     /// Ruhezeit, sonst liest es nur den Zwischenspeicher (Zweiter Gegencheck X6).
     private func ladeEZBKurseFallsVeraltet() {
+        guard nebenwirkungen else { return }
         let jetzt = Date()
         if let versuch = ezbVersuch, jetzt.timeIntervalSince(versuch) < 60 * 60 { return }
         let veraltet = ezb.abgerufen.map { jetzt.timeIntervalSince($0) > 24 * 60 * 60 } ?? true
@@ -107,6 +118,7 @@ final class AppModell {
     /// und nur bei eingeschalteten Kursen, sonst gilt sein Zwischenspeicher.
     private var verlaufVersuch: Date?
     private func ladeKursverlaeufe() {
+        guard nebenwirkungen else { return }
         let jetzt = Date()
         if let versuch = verlaufVersuch, jetzt.timeIntervalSince(versuch) < 60 * 60 { return }
         verlaufVersuch = jetzt
@@ -126,14 +138,47 @@ final class AppModell {
         return kalender
     }
 
-    /// Trades nach Zeitraum und Instrument: Grundlage aller Zahlen in der Oberfläche.
-    var trades: [Trade] {
+    /// Trades nach Zeitraum und Instrument in ihrer Originalwährung: Grundlage der Listen (Einzelbeträge, W1).
+    var trades: [Trade] { gefiltert(alleTrades) }
+
+    /// Trades nach Zeitraum und Instrument in Kontowährung: Grundlage aller Summen (Kennzahlen, Kapitalverlauf,
+    /// Disziplin, Fehlermuster; Doc 40 W3). Trades ohne Kurs am Schlusstag fehlen hier, `waehrungsstand` zählt sie.
+    var angeglicheneTrades: [Trade] { gefiltert(angleich.trades) }
+
+    private func gefiltert(_ trades: [Trade]) -> [Trade] {
         let kalender = self.kalender
-        return alleTrades.filter { trade in
+        return trades.filter { trade in
             if let instrument, trade.symbol != instrument { return false }
             if case .monat(let monat) = zeitraum, monatsanfang(trade.closeTime, kalender) != monat { return false }
             return true
         }
+    }
+
+    /// Alle Trades des Kontos in Kontowährung (Kern 0.19.0 `Waehrungsangleich`; Tim 02.10.2026 13:07 UTC „Umrechnen“):
+    /// Fremdwährungsbeträge zum EZB-Referenzkurs am Schlusstag (Näherung, wie die Steuer-Orientierung), Trades ohne
+    /// Kurs bleiben außen vor. Neu gerechnet nach jedem Trade-Aufbau und nach jedem EZB-Abruf.
+    private(set) var angleich = Waehrungsangleich([], kontowaehrung: "EUR", kurse: nil)
+
+    private func gleicheWaehrungenAn() {
+        angleich = Waehrungsangleich(alleTrades, kontowaehrung: waehrung, kurse: ezb.kurse)
+    }
+
+    /// Was die Umrechnung im gewählten Zeitraum getan hat: Grundlage des Mischwährungshinweises.
+    struct Waehrungsstand: Equatable {
+        var umgerechnet = 0
+        var ohneKurs = 0
+        var waehrungen: [String] = []
+        var leer: Bool { umgerechnet == 0 && ohneKurs == 0 }
+    }
+
+    var waehrungsstand: Waehrungsstand {
+        let ohne = Set(angleich.ohneKurs.map(\.id))
+        var stand = Waehrungsstand(waehrungen: angleich.fremdwaehrungen)
+        for trade in trades {
+            if angleich.umgerechnet.contains(trade.id) { stand.umgerechnet += 1 }
+            if ohne.contains(trade.id) { stand.ohneKurs += 1 }
+        }
+        return stand
     }
 
     /// Gelöschte Pending Orders im gewählten Zeitraum (für die Stornoquote), Instrumentfilter gilt mit.
@@ -154,10 +199,10 @@ final class AppModell {
 
     var symbole: [String] { Set(alleTrades.map(\.symbol)).sorted() }
 
-    var kennzahlen: Kennzahlen { Kennzahlen(trades: trades) }
-    var kapitalverlauf: Kapitalverlauf { Kapitalverlauf(trades: trades) }
+    var kennzahlen: Kennzahlen { Kennzahlen(trades: angeglicheneTrades) }
+    var kapitalverlauf: Kapitalverlauf { Kapitalverlauf(trades: angeglicheneTrades) }
     var befunde: [Befund] {
-        Fehlermuster.pruefe(trades, geloeschteOrders: geloeschteOrders, zeitzone: zeitzone)
+        Fehlermuster.pruefe(angeglicheneTrades, geloeschteOrders: geloeschteOrders, zeitzone: zeitzone)
     }
 
     /// Trades nach Schlusszeit, neueste zuerst.
@@ -261,6 +306,7 @@ final class AppModell {
     private func aktualisiereTrades() {
         alleTrades = (positionen.map(Trade.init) + positionsbildung.trades)
             .map { $0.mitJournal(journaleintraege[$0.id]) }
+        gleicheWaehrungenAn()
     }
 
     /// Stop, wie er im Export steht, auch wenn im Journal ein anderer nachgetragen ist.
@@ -394,6 +440,9 @@ final class AppModell {
         ezbVersuch = Date()
         defer { ezbLaedt = false }
         ezb = await EZBKurse().laden()
+        gleicheWaehrungenAn()
+        // Der Export trägt die EZB-Kurse sofort (AP12, 02.10.2026 14:44 UTC), nicht erst nach dem nächsten Import.
+        exportiere()
     }
 
     /// Ob das Konto Krypto-Ausführungen hat; dann zeigt die Steuerseite die Haltefrist.
@@ -401,10 +450,7 @@ final class AppModell {
 
     /// Währungen der Trades, die von der Kontowährung abweichen (Kern 0.17.0 `Trade.waehrung`, Gegencheck A4),
     /// alphabetisch; leer bei MetaTrader und XTB, deren Trades in Kontowährung stehen.
-    var fremdwaehrungen: [String] {
-        let konto = waehrung.uppercased()
-        return Set(alleTrades.map { $0.waehrung(kontowaehrung: konto) }).subtracting([konto]).sorted()
-    }
+    var fremdwaehrungen: [String] { angleich.fremdwaehrungen }
 
     /// Krypto-Haltefrist im Jahr: FIFO je Coin über alle Ausführungen des Kontos.
     func kryptoJahr(_ jahr: Int) -> KryptoHaltefrist.Jahr {
@@ -440,16 +486,16 @@ final class AppModell {
         Set(journaleintraege.values.filter { $0.regeltreue == false }.map(\.ticket))
     }
 
-    /// Verstöße gegen die eigenen Regeln, immer über alle Trades des Kontos und nicht über den Filter:
-    /// „Trades je Tag“ und „Tagesverlust“ zählen den ganzen Tag, nicht nur ein Instrument.
+    /// Verstöße gegen die eigenen Regeln, immer über alle Trades des Kontos (in Kontowährung, W3) und nicht über
+    /// den Filter: „Trades je Tag“ und „Tagesverlust“ zählen den ganzen Tag, nicht nur ein Instrument.
     var verstoesse: [Regelverstoss] {
-        Regelpruefung.pruefe(alleTrades, regeln: regeln, zeitzone: zeitzone, manuell: manuellVerletzt)
+        Regelpruefung.pruefe(angleich.trades, regeln: regeln, zeitzone: zeitzone, manuell: manuellVerletzt)
     }
 
     /// Der letzte Handelstag im gewählten Zeitraum, Grundlage der Regel-Ampel.
     var letzterTagesstand: Regelpruefung.Tagesstand? {
         let kalender = self.kalender
-        let staende = Regelpruefung.tagesstaende(alleTrades, regeln: regeln, zeitzone: zeitzone, manuell: manuellVerletzt)
+        let staende = Regelpruefung.tagesstaende(angleich.trades, regeln: regeln, zeitzone: zeitzone, manuell: manuellVerletzt)
         return staende.last { stand in
             if case .monat(let monat) = zeitraum { return monatsanfang(stand.tag, kalender) == monat }
             return true
@@ -465,12 +511,12 @@ final class AppModell {
     /// Disziplin-Kurve der gefilterten Trades; die Verstöße stammen aus der Prüfung über alle Trades,
     /// Prop-Firm-Verstöße zählen mit (TradingCore 0.16.0; ein Trade mit beiden Arten zählt einmal).
     var disziplin: Disziplin {
-        Disziplin(trades: trades, verstoesse: verstoesse, propFirm: propFirmErgebnis?.verstoesse ?? [])
+        Disziplin(trades: angeglicheneTrades, verstoesse: verstoesse, propFirm: propFirmErgebnis?.verstoesse ?? [])
     }
 
     /// Stand der Challenge über alle Trades des Kontos; `nil` ohne Prop-Firm-Regeln.
     var propFirmErgebnis: PropFirmPruefung.Ergebnis? {
-        regeln.propFirm.map { PropFirmPruefung.pruefe(alleTrades, regeln: $0) }
+        regeln.propFirm.map { PropFirmPruefung.pruefe(angleich.trades, regeln: $0) }
     }
 
     /// Ersetzt die Regeln des gewählten Kontos. Die Speicherung lehnt Grenzen ab, die keine sind
@@ -640,6 +686,7 @@ final class AppModell {
 
     /// Schreibt die Exportdatei für den Claude-Connector neu (AP12), nur am Mac.
     func exportiere() {
+        guard nebenwirkungen else { return }
         #if os(macOS)
         exportStand = ExportOrdner.schreibe(journal, zeitzone: zeitzone)
         #endif
