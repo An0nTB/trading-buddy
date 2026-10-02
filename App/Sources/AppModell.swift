@@ -401,8 +401,11 @@ final class AppModell {
         return alleTrades.filter { kalender.startOfDay(for: $0.openTime) == tag }
     }
 
-    /// Disziplin-Kurve der gefilterten Trades; die Verstöße stammen aus der Prüfung über alle Trades.
-    var disziplin: Disziplin { Disziplin(trades: trades, verstoesse: verstoesse) }
+    /// Disziplin-Kurve der gefilterten Trades; die Verstöße stammen aus der Prüfung über alle Trades,
+    /// Prop-Firm-Verstöße zählen mit (TradingCore 0.16.0; ein Trade mit beiden Arten zählt einmal).
+    var disziplin: Disziplin {
+        Disziplin(trades: trades, verstoesse: verstoesse, propFirm: propFirmErgebnis?.verstoesse ?? [])
+    }
 
     /// Stand der Challenge über alle Trades des Kontos; `nil` ohne Prop-Firm-Regeln.
     var propFirmErgebnis: PropFirmPruefung.Ergebnis? {
