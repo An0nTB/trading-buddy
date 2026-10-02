@@ -84,6 +84,33 @@ extension Journal {
         }
     }
 
+    /// Setzt offene Ziele, deren Zeitraum vorbei ist (`bis <= jetzt`), auf `verfehlt` und gibt sie zurück
+    /// (Tim 02.10.2026). Ohne `konto` für alle Konten. Ein leeres Ergebnis wird „Frist abgelaufen, nicht als
+    /// erreicht abgehakt“. Ob der Zielwert erreicht wurde, kann der Speicher nicht messen, die Messgröße ist
+    /// frei benannt; wer ein abgelaufenes Ziel nachträglich als erreicht abhakt, setzt `erreicht` direkt.
+    @discardableResult
+    public func schliesseAbgelaufeneZiele(konto: Konto? = nil, jetzt: Date = Date()) throws -> [Reviewziel] {
+        try schreibe { db in
+            var anfrage = ZielZeile.filter(Column("status") == Reviewziel.Status.offen.rawValue && Column("bis") <= jetzt)
+            if let konto { anfrage = anfrage.filter(Column("kontoId") == konto.id!) }
+            var geschlossen: [Reviewziel] = []
+            for var zeile in try anfrage.order(Column("von"), Column("id")).fetchAll(db) {
+                zeile.status = Reviewziel.Status.verfehlt.rawValue
+                if zeile.ergebnis?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true {
+                    zeile.ergebnis = Self.fristAbgelaufen
+                }
+                zeile.geaendert = jetzt
+                try zeile.update(db)
+                guard let gespeichert = try ZielZeile.fetchOne(db, key: zeile.id!) else { continue }
+                geschlossen.append(try gespeichert.modell())
+            }
+            return geschlossen
+        }
+    }
+
+    /// Ergebnistext für Ziele, die `schliesseAbgelaufeneZiele` auf `verfehlt` setzt.
+    public static let fristAbgelaufen = "Frist abgelaufen, nicht als erreicht abgehakt"
+
     /// Entfernt ein Ziel, falls vorhanden.
     public func loescheZiel(id: Int64) throws {
         try schreibe { db in _ = try ZielZeile.deleteOne(db, key: id) }
