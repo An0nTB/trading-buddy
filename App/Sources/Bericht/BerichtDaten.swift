@@ -32,9 +32,9 @@ struct BerichtKontext {
         return broker + " · " + String(localized: "Konto …\(ende)")
     }
 
-    /// Dateiname ohne Kontonummer, z. B. „Brad Monatsbericht 2026-03.pdf“.
+    /// Dateiname ohne Kontonummer, z. B. „Henry Monatsbericht 2026-03.pdf“.
     var dateiname: String {
-        String(format: "Brad Monatsbericht %04d-%02d.pdf", jahr, monat)
+        String(format: "Henry Monatsbericht %04d-%02d.pdf", jahr, monat)
     }
 }
 
