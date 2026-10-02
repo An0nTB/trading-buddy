@@ -11669,12 +11669,12 @@
         }
       }
     },
-    "Ticketnummer, Zeiten, Instrument, Richtung, Lots, Kurse, Stop und Ziel, Kommission, Swap, Steuern (falls der Broker sie meldet), Ergebnis, Zeitpunkte gelöschter Orders, Journal (Stop, Setup, Regeltreue, Zustand, Marktumfeld, Grund), Ziele aus Reviews, eigene Handelsregeln, Tagesnotizen und verpasste Trades (ohne Bilder), Tonfall, Broker, Kontowährung, Zeitzone und die letzten vier Stellen der Kontonummer. Nicht: Name, volle Kontonummer, Saldo." : {
+    "Ticketnummer, Zeiten, Instrument, Richtung, Lots, Kurse, Stop und Ziel, Kommission, Swap, Steuern (falls der Broker sie meldet), Ergebnis, Zeitpunkte gelöschter Orders, Journal (Stop, Setup, Regeltreue, Zustand, Marktumfeld, Grund), Ziele aus Reviews, eigene Handelsregeln, Tagesnotizen und verpasste Trades (ohne Bilder), Ausstiegsanalysen (falls Kerzen geladen), Nachrichten der letzten sieben Tage (falls eingeschaltet), Tageskerzen geladener Werte, EZB-Referenzkurse für Trades in fremder Währung, Tonfall, Broker, Kontowährung, Zeitzone und die letzten vier Stellen der Kontonummer. Nicht: Name, volle Kontonummer, Saldo." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ticket number, times, instrument, direction, lots, prices, stop and target, commission, swap, taxes (if the broker reports them), result, times of deleted orders, journal (stop, setup, rule compliance, condition, market environment, reason), goals from reviews, own trading rules, daily notes and missed trades (without images), tone, broker, account currency, time zone and the last four digits of the account number. Not: name, full account number, balance."
+            "value" : "Ticket number, times, instrument, direction, lots, prices, stop and target, commission, swap, taxes (if the broker reports them), result, times of deleted orders, journal (stop, setup, rule compliance, condition, market environment, reason), goals from reviews, own trading rules, daily notes and missed trades (without images), exit analyses (if candles are loaded), news of the last seven days (if switched on), daily candles of loaded instruments, ECB reference rates for trades in a foreign currency, tone, broker, account currency, time zone and the last four digits of the account number. Not: name, full account number, balance."
           }
         }
       }
