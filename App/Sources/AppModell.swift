@@ -174,6 +174,11 @@ final class AppModell {
 
     func waehleKonto(_ id: Int64?) {
         kontoId = id
+        // Filter gehören zum Konto: ein Monat oder Symbol des alten Kontos zeigt im neuen nur „Noch keine Trades“
+        // (Gegencheck A3, Doc 36).
+        zeitraum = .alle
+        instrument = nil
+        musterFilter = nil
         laden()
     }
 
@@ -257,6 +262,9 @@ final class AppModell {
                 try journal.speichereJournal(neu)
                 journaleintraege[eintrag.ticket] = neu
             }
+            // Die Checkliste hängt am Setup-Namen des Journals: nach Änderung oder Löschung neu lesen,
+            // sonst rechnet die Playbook-Auswertung mit dem alten Setup (Gegencheck A1, Doc 36).
+            checklisten = try journal.checklisten(konto: konto)
             aktualisiereTrades()
             // Der Connector bekommt Stop und Journalangaben im selben Stand wie die App.
             exportiere()
@@ -457,8 +465,11 @@ final class AppModell {
         playbook = try journal.playbook()
         if let konto {
             journaleintraege = try journal.journaleintraege(konto: konto)
+            checklisten = try journal.checklisten(konto: konto)
             aktualisiereTrades()
         }
+        // Der Connector liest Setup-Namen aus dem Export (Gegencheck A6).
+        exportiere()
         return gespeichert
     }
 
