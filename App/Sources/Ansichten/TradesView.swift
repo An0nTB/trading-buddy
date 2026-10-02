@@ -241,6 +241,12 @@ struct TradesView: View {
             .width(min: 170, ideal: 220)
             .customizationID("hinweise")
         }
+        .contextMenu(forSelectionType: String.self) { ids in
+            // Frag Brad (Doc 31): nur bei genau einem Trade
+            if ids.count == 1, let id = ids.first, let zeile = liste.first(where: { $0.id == id }) {
+                FragBradMenuePunkt(trade: zeile.trade)
+            }
+        }
     }
 
     /// Stop wie in der R-Spalte gerechnet: aus dem Journal (Punkt) oder aus dem Export; „–“ ohne Stop.

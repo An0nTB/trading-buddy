@@ -5,20 +5,19 @@ import TradingStore
 // Review-Ziele (Rezept Punkt 6 und 7, Entscheidung 28 vom 02.10.2026): Nach jeder Wochen- oder
 // Monatsauswertung genau ein messbares Ziel für den nächsten Zeitraum; das nächste Review hakt es ab.
 // Gespeichert je Konto in TradingStore (Migration v4, AP9 #37), gelesen von Export und Connector (AP12);
-// eingegeben wird es nur hier. Ort in der App: Karte auf der Übersicht und Blatt „Review-Ziele“,
-// kein eigener Eintrag in der Seitenleiste (Aufbau A bleibt; Tim kann das ändern).
+// eingegeben wird es nur hier. Ort in der App: Karte auf der Übersicht und die Seite „Ziele“ in der
+// Seitenleiste (ZieleView.swift; Tim 02.10.2026 03:20 UTC). Hier liegen die gemeinsamen Bausteine.
 
 /// Karte auf der Übersicht: offene Ziele des Kontos; im Monatsfilter die Ziele, die den Monat berühren.
 struct ZieleKarte: View {
     @AppStorage(Ton.schluessel) private var ton = Ton.bro
     @Environment(AppModell.self) private var modell
     @Environment(\.thema) private var thema
-    @State private var alleSichtbar = false
     @State private var neuesZiel = false
 
     var body: some View {
         let ziele = sichtbareZiele
-        Karte("Review-Ziele", aktion: { alleSichtbar = true }) {
+        Karte("Review-Ziele", aktion: { modell.bereich = .ziele }) {
             if ziele.isEmpty {
                 Text(verbatim: leerText)
                     .font(Schrift.fliesstext)
@@ -33,7 +32,6 @@ struct ZieleKarte: View {
                 .foregroundStyle(thema.akzent)
                 .disabled(modell.konto == nil)
         }
-        .sheet(isPresented: $alleSichtbar) { ZieleBlatt() }
         .sheet(isPresented: $neuesZiel) { ZielFormular() }
     }
 
@@ -146,7 +144,7 @@ struct Statuskapsel: View {
     }
 }
 
-/// Welche Ziele das Blatt zeigt.
+/// Welche Karten die Seite „Ziele“ zeigt.
 enum Zielfilter: CaseIterable, Hashable {
     case offen, erledigt, alle
 
@@ -164,66 +162,6 @@ enum Zielfilter: CaseIterable, Hashable {
         case .erledigt: ziel.status != .offen
         case .alle: true
         }
-    }
-}
-
-/// Blatt mit allen Zielen des Kontos: Filter, Liste, neues Ziel.
-struct ZieleBlatt: View {
-    @Environment(AppModell.self) private var modell
-    @Environment(\.thema) private var thema
-    @Environment(\.dismiss) private var schliessen
-    @State private var filter: Zielfilter = .offen
-    @State private var neuesZiel = false
-
-    var body: some View {
-        NavigationStack {
-            VStack(alignment: .leading, spacing: Abstand.kachelAbstand) {
-                Picker("Anzeigen", selection: $filter) {
-                    ForEach(Zielfilter.allCases, id: \.self) { filter in
-                        Text(filter.titel).tag(filter)
-                    }
-                }
-                .pickerStyle(.segmented)
-                .labelsHidden()
-                if gefiltert.isEmpty {
-                    ContentUnavailableView("Kein Ziel in dieser Auswahl", systemImage: "target",
-                                           description: Text("Nach dem Review: genau ein messbares Ziel für den nächsten Zeitraum."))
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else {
-                    List {
-                        ForEach(gefiltert, id: \.id) { ziel in
-                            ZielZeile(ziel: ziel)
-                                .padding(.vertical, Abstand.raster)
-                        }
-                    }
-                    .listStyle(.plain)
-                }
-                Text("Rezept Punkt 6 und 7: Das nächste Review hakt das Ziel ab und setzt genau ein neues. Export und Claude-Connector lesen die Ziele mit.")
-                    .font(Schrift.beschriftung)
-                    .foregroundStyle(thema.textSchwach)
-            }
-            .padding(Abstand.seitenrand)
-            .navigationTitle("Review-Ziele")
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button("Neues Ziel", systemImage: "plus") { neuesZiel = true }
-                        .disabled(modell.konto == nil)
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Fertig") { schliessen() }
-                }
-            }
-            .sheet(isPresented: $neuesZiel) { ZielFormular() }
-        }
-        #if os(macOS)
-        .frame(minWidth: 620, minHeight: 480)
-        #endif
-    }
-
-    /// Offene Ziele frühester Beginn zuerst, erledigte neueste zuerst.
-    private var gefiltert: [Reviewziel] {
-        let passende = modell.ziele.filter(filter.passt)
-        return filter == .offen ? passende : passende.sorted { $0.von > $1.von }
     }
 }
 
@@ -268,45 +206,72 @@ enum Zielzeitraum: CaseIterable, Hashable {
     }
 }
 
-/// Formular für ein neues Ziel; die Speicherung prüft Text und Zeitraum noch einmal.
+/// Eingaben für ein neues Ziel, gemeinsam für das Blatt `ZielFormular` und die Karte „Neues Ziel“ der Seite.
+struct ZielEntwurf {
+    var text = ""
+    var zeitraum: Zielzeitraum = .naechsteWoche
+    var von = Calendar.current.startOfDay(for: Date())
+    var bisEinschliesslich = Calendar.current.date(byAdding: .day, value: 6, to: Calendar.current.startOfDay(for: Date())) ?? Date()
+    var messgroesse = ""
+    var zielwert: Decimal?
+
+    var spanne: (von: Date, bis: Date) {
+        zeitraum.spanne(von: von, bisEinschliesslich: bisEinschliesslich)
+    }
+
+    var gueltig: Bool {
+        !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && spanne.von < spanne.bis
+    }
+
+    /// Noch nichts eingetragen (für den Knopf „Leeren“).
+    var leer: Bool {
+        text.isEmpty && messgroesse.isEmpty && zielwert == nil && zeitraum == .naechsteWoche
+    }
+
+    /// Das Ziel zum Speichern; die Speicherung prüft Text und Zeitraum noch einmal.
+    var ziel: Reviewziel {
+        let spanne = self.spanne
+        let messung = messgroesse.trimmingCharacters(in: .whitespacesAndNewlines)
+        return Reviewziel(text: text.trimmingCharacters(in: .whitespacesAndNewlines),
+                          von: spanne.von, bis: spanne.bis,
+                          messgroesse: messung.isEmpty ? nil : messung, zielwert: zielwert)
+    }
+}
+
+/// Blatt „Neues Ziel“ (Übersicht, Kopfzeile der Seite, iPhone).
 struct ZielFormular: View {
     @Environment(AppModell.self) private var modell
     @Environment(\.thema) private var thema
     @Environment(\.dismiss) private var schliessen
-    @State private var text = ""
-    @State private var zeitraum: Zielzeitraum = .naechsteWoche
-    @State private var von = Calendar.current.startOfDay(for: Date())
-    @State private var bisEinschliesslich = Calendar.current.date(byAdding: .day, value: 6, to: Calendar.current.startOfDay(for: Date())) ?? Date()
-    @State private var messgroesse = ""
-    @State private var zielwert: Decimal?
+    @State private var entwurf = ZielEntwurf()
     @State private var fehler: String?
 
     var body: some View {
         NavigationStack {
             Form {
                 Section("Ziel") {
-                    TextField("z. B. Höchstens 2 Revanche-Trades", text: $text, axis: .vertical)
+                    TextField("z. B. Höchstens 2 Revanche-Trades", text: $entwurf.text, axis: .vertical)
                         .lineLimit(2...4)
                     Text("Genau ein messbares Ziel je Zeitraum (Rezept Punkt 7), so formuliert, dass das nächste Review es mit einer Zahl prüfen kann.")
                         .font(Schrift.beschriftung)
                         .foregroundStyle(thema.textSchwach)
                 }
                 Section("Zeitraum") {
-                    Picker("Zeitraum", selection: $zeitraum) {
+                    Picker("Zeitraum", selection: $entwurf.zeitraum) {
                         ForEach(Zielzeitraum.allCases, id: \.self) { wahl in
                             Text(wahl.titel).tag(wahl)
                         }
                     }
-                    if zeitraum == .eigener {
-                        DatePicker("Von", selection: $von, displayedComponents: .date)
-                        DatePicker("Bis einschließlich", selection: $bisEinschliesslich, in: von..., displayedComponents: .date)
+                    if entwurf.zeitraum == .eigener {
+                        DatePicker("Von", selection: $entwurf.von, displayedComponents: .date)
+                        DatePicker("Bis einschließlich", selection: $entwurf.bisEinschliesslich, in: entwurf.von..., displayedComponents: .date)
                     } else {
-                        LabeledContent("Gilt", value: Zielformat.zeitraum(von: spanne.von, bis: spanne.bis))
+                        LabeledContent("Gilt", value: Zielformat.zeitraum(von: entwurf.spanne.von, bis: entwurf.spanne.bis))
                     }
                 }
                 Section("Messung (freiwillig)") {
-                    TextField("Messgröße, z. B. Revanche-Trades", text: $messgroesse)
-                    TextField("Zielwert, z. B. 2", value: $zielwert, format: .number.precision(.fractionLength(0...2)))
+                    TextField("Messgröße, z. B. Revanche-Trades", text: $entwurf.messgroesse)
+                    TextField("Zielwert, z. B. 2", value: $entwurf.zielwert, format: .number.precision(.fractionLength(0...2)))
                 }
                 if let fehler {
                     Section {
@@ -323,7 +288,7 @@ struct ZielFormular: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Anlegen") { anlegen() }
-                        .disabled(!gueltig)
+                        .disabled(!entwurf.gueltig)
                 }
             }
         }
@@ -332,22 +297,9 @@ struct ZielFormular: View {
         #endif
     }
 
-    private var spanne: (von: Date, bis: Date) {
-        zeitraum.spanne(von: von, bisEinschliesslich: bisEinschliesslich)
-    }
-
-    private var gueltig: Bool {
-        !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && spanne.von < spanne.bis
-    }
-
     private func anlegen() {
-        let spanne = self.spanne
-        let messung = messgroesse.trimmingCharacters(in: .whitespacesAndNewlines)
-        let ziel = Reviewziel(text: text.trimmingCharacters(in: .whitespacesAndNewlines),
-                              von: spanne.von, bis: spanne.bis,
-                              messgroesse: messung.isEmpty ? nil : messung, zielwert: zielwert)
         do {
-            try modell.legeZielAn(ziel)
+            try modell.legeZielAn(entwurf.ziel)
             schliessen()
         } catch {
             fehler = Zielfehler.text(error)

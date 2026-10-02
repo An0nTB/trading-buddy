@@ -73,6 +73,7 @@ final class AppModell {
             let geoeffnet = try Journal(pfad: Self.datenbankpfad())
             journal = geoeffnet
             nachrichten.verbinde(geoeffnet)
+            schliesseAbgelaufeneZiele()
             laden()
             exportiere()
         } catch {
@@ -280,6 +281,20 @@ final class AppModell {
         guard let journal, let konto, let id = ziel.id else { return }
         do {
             try journal.loescheZiel(id: id)
+            ziele = try journal.ziele(konto: konto)
+            exportiere()
+        } catch {
+            fehler = Zielfehler.text(error)
+        }
+    }
+
+    /// Setzt offene Ziele mit abgelaufener Frist in allen Konten auf „verfehlt“ (AP9 #75, Tim 02.10.2026) und lädt die
+    /// Ziele des Kontos neu, wenn sich etwas geändert hat. Die App ruft das beim Start und beim Öffnen der Seite „Ziele“.
+    func schliesseAbgelaufeneZiele() {
+        guard let journal else { return }
+        do {
+            let geschlossen = try journal.schliesseAbgelaufeneZiele()
+            guard !geschlossen.isEmpty, let konto else { return }
             ziele = try journal.ziele(konto: konto)
             exportiere()
         } catch {
