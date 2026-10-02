@@ -31,3 +31,18 @@ import Testing
     unbekannt.grund = "neuerGrund"
     #expect(unbekannt.modell == nil)
 }
+
+@Test func ergebnisRAlsTextUndFruehereZahlLesbar() throws {
+    let erstellt = Date(timeIntervalSince1970: 1_746_428_400)
+    let v = JournalExport.Verpasst(id: "v1", zeit: erstellt, symbol: "DAX", seite: "buy", grund: "zoegern",
+                                   ergebnisR: Decimal(string: "1.25"))
+    let export = JournalExport(konten: [], zeitzone: .current, erstellt: erstellt, verpassteTrades: [v])
+    let json = String(decoding: try export.json(), as: UTF8.self)
+    #expect(json.contains("\"ergebnisR\":\"1.25\""))
+    let gelesen = try JournalExport.lese(Data(json.utf8))
+    #expect(gelesen.verpassteTrades == [v])
+    // Exportdateien vor diesem Stand schrieben eine JSON-Zahl.
+    let alt = json.replacingOccurrences(of: "\"ergebnisR\":\"1.25\"", with: "\"ergebnisR\":2")
+    let altGelesen = try JournalExport.lese(Data(alt.utf8))
+    #expect(altGelesen.verpassteTrades?.first?.ergebnisR == 2)
+}
