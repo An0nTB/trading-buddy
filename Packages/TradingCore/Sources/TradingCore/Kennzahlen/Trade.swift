@@ -87,6 +87,14 @@ public struct Trade: Sendable, Equatable, Identifiable {
         guard let risk else { return nil }
         return netProfit / risk
     }
+
+    /// Wurde `self` sicher geschlossen, bevor `t` eröffnet wurde? Ohne Uhrzeit (`nurDatum`) auf einer
+    /// der beiden Seiten zählt nur ein früherer Kalendertag, weil die Reihenfolge am selben Tag unbekannt ist.
+    func sicherGeschlossen(vor t: Trade, kalender: Calendar) -> Bool {
+        guard id != t.id, closeTime <= t.openTime else { return false }
+        guard nurDatum || t.nurDatum else { return true }
+        return kalender.startOfDay(for: closeTime) < kalender.startOfDay(for: t.openTime)
+    }
 }
 
 extension Decimal {

@@ -19,7 +19,7 @@ public enum Regelpruefung {
             let tagesTrades = jeTag[tag]!
             for (nummer, t) in tagesTrades.enumerated() {
                 var arten: [Regelverstoss.Art] = []
-                let vorher = geschlossenVor(t, in: geschlossenJeTag[tag] ?? [])
+                let vorher = geschlossenVor(t, in: geschlossenJeTag[tag] ?? [], kalender: kalender)
                 if let max = regeln.maxTradesJeTag, nummer >= max { arten.append(.tradesJeTag) }
                 if let max = regeln.maxTagesverlust {
                     let netto = vorher.map(\.netProfit).reduce(0, +)
@@ -71,9 +71,10 @@ public enum Regelpruefung {
         return Dictionary(grouping: nachSchluss) { kalender.startOfDay(for: $0.closeTime) }
     }
 
-    /// Trades, die am Tag von `t` vor seiner Eröffnung geschlossen wurden, gleich wann eröffnet; nach Schlusszeit.
-    static func geschlossenVor(_ t: Trade, in geschlossenAmTag: [Trade]) -> [Trade] {
-        geschlossenAmTag.filter { $0.id != t.id && $0.closeTime <= t.openTime }
+    /// Trades, die am Tag von `t` sicher vor seiner Eröffnung geschlossen wurden, gleich wann eröffnet;
+    /// nach Schlusszeit. Ohne Uhrzeit ist die Reihenfolge am selben Tag unbekannt, solche zählen nicht.
+    static func geschlossenVor(_ t: Trade, in geschlossenAmTag: [Trade], kalender: Calendar) -> [Trade] {
+        geschlossenAmTag.filter { $0.sicherGeschlossen(vor: t, kalender: kalender) }
     }
 
     /// Verluste am Ende der Folge, ohne Unterbrechung durch einen Gewinner oder Breakeven.
