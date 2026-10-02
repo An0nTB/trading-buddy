@@ -107,10 +107,11 @@ struct AlpacaLeser: Nachrichtenleser {
             kurs.brief = e.ap?.wert
             teile.blatt = zeit
         }
-        // Ein Kurs ist so alt wie sein ältester Teil; `istVeraltet` warnt dann auch bei altem Kursblatt.
-        let vorhanden: [Date?] = [kurs.letzter == nil ? nil : teile.abschluss,
-                                  kurs.geld == nil && kurs.brief == nil ? nil : teile.blatt]
-        kurs.zeit = vorhanden.compactMap { $0 }.min() ?? zeit
+        // Die Zeit folgt dem Teil, mit dem bewertet wird (`bewertungskurs`): dem Kursblatt, sonst dem Abschluss.
+        // Ein frischer Abschluss macht ein altes Kursblatt nicht frisch, und seltene IEX-Abschlüsse
+        // lassen ein frisches Kursblatt nicht veralten (Gegencheck Q1, 02.10.2026).
+        let mitBlatt = kurs.geld != nil || kurs.brief != nil
+        kurs.zeit = (mitBlatt ? teile.blatt : teile.abschluss) ?? zeit
         stand[symbol] = kurs
         zeiten[symbol] = teile
         return kurs.preis == nil ? nil : kurs
