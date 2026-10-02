@@ -59,7 +59,7 @@ import TradingStore
 
     /// Ganzer Lauf: bekannte Datei erledigt, Kraken ohne Konto in der Liste, nach Anlage des Kontos
     /// importiert die App eine neue Kraken-Datei still und vergisst die erledigten nicht.
-    @Test func ordnerLaufImportiertStillUndFragtNach() throws {
+    @Test func ordnerLaufImportiertStillUndFragtNach() async throws {
         let ordner = FileManager.default.temporaryDirectory.appending(path: "importordner-\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: ordner, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: ordner) }
@@ -72,7 +72,7 @@ import TradingStore
         let spaeter = Date.now.addingTimeInterval(60)
 
         let beobachtung = Importordner(speicher: speicher)
-        beobachtung.pruefeTestweise(ordner, modell: m, jetzt: spaeter)
+        await beobachtung.pruefeTestweise(ordner, modell: m, jetzt: spaeter)
         #expect(beobachtung.rueckfragen.map(\.dateiname) == ["kraken-a.csv"])
         #expect(m.importe.count == 1)
 
@@ -80,14 +80,14 @@ import TradingStore
         _ = try m.importiereCSV(daten: Data(T.kraken(kennung: "A").utf8), dateiname: "kraken-a.csv",
                                 kontonummer: "Spot", kontoname: "Spot", waehrung: "USD", zeitzone: .gmt)
         try Data(T.kraken(kennung: "B").utf8).write(to: ordner.appending(path: "kraken-b.csv"))
-        beobachtung.pruefe(jetzt: spaeter)
+        await beobachtung.pruefe(jetzt: spaeter)
         #expect(beobachtung.rueckfragen.isEmpty)
         #expect(m.importe.count == 3)
         #expect(beobachtung.zuletzt.first?.dateiname == "kraken-b.csv")
         #expect(m.konten.count == 2)
 
         // Zweiter Lauf ändert nichts.
-        beobachtung.pruefe(jetzt: spaeter)
+        await beobachtung.pruefe(jetzt: spaeter)
         #expect(m.importe.count == 3)
         #expect(beobachtung.zuletzt.count == 1)
     }
@@ -104,7 +104,34 @@ import TradingStore
         #expect(zwei.contains(" · "))
     }
 
-    @Test func ignorierteDateiKommtNichtWieder() throws {
+    /// G20: Nach einem Wiederherstellen (hier: frisches Journal) fehlt der Import; die gemerkte Datei gilt
+    /// nicht mehr als erledigt und wird erneut still importiert.
+    @Test func nachWiederherstellenWirdErneutImportiert() async throws {
+        let ordner = FileManager.default.temporaryDirectory.appending(path: "importordner-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: ordner, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ordner) }
+        let speicher = try #require(UserDefaults(suiteName: "importordner-\(UUID().uuidString)"))
+        func modellMitKraken() throws -> AppModell {
+            let m = AppModell(journal: try Journal.imSpeicher(), nebenwirkungen: false)
+            _ = try m.importiereCSV(daten: Data(T.kraken(kennung: "A").utf8), dateiname: "kraken-a.csv",
+                                    kontonummer: "Spot", kontoname: "Spot", waehrung: "USD", zeitzone: .gmt)
+            return m
+        }
+        try Data(T.kraken(kennung: "B").utf8).write(to: ordner.appending(path: "kraken-b.csv"))
+        let spaeter = Date.now.addingTimeInterval(60)
+        let beobachtung = Importordner(speicher: speicher)
+
+        let vorher = try modellMitKraken()
+        await beobachtung.pruefeTestweise(ordner, modell: vorher, jetzt: spaeter)
+        #expect(vorher.importe.count == 2)
+
+        let nachher = try modellMitKraken()
+        await beobachtung.pruefeTestweise(ordner, modell: nachher, jetzt: spaeter)
+        #expect(nachher.importe.count == 2)
+        #expect(beobachtung.rueckfragen.isEmpty)
+    }
+
+    @Test func ignorierteDateiKommtNichtWieder() async throws {
         let ordner = FileManager.default.temporaryDirectory.appending(path: "importordner-\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: ordner, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: ordner) }
@@ -112,10 +139,10 @@ import TradingStore
         let m = AppModell(journal: try Journal.imSpeicher(), nebenwirkungen: false)
         try Data("Hallo".utf8).write(to: ordner.appending(path: "notiz.txt"))
         let beobachtung = Importordner(speicher: speicher)
-        beobachtung.pruefeTestweise(ordner, modell: m, jetzt: Date.now.addingTimeInterval(60))
+        await beobachtung.pruefeTestweise(ordner, modell: m, jetzt: Date.now.addingTimeInterval(60))
         let rueckfrage = try #require(beobachtung.rueckfragen.first)
         beobachtung.ignoriere(rueckfrage)
-        beobachtung.pruefe(jetzt: Date.now.addingTimeInterval(60))
+        await beobachtung.pruefe(jetzt: Date.now.addingTimeInterval(60))
         #expect(beobachtung.rueckfragen.isEmpty)
     }
 }
