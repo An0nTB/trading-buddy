@@ -424,9 +424,25 @@ struct JournalEingabe: View {
             }
             Karte("Journal") {
                 LabeledContent("Setup") {
-                    TextField("z. B. Ausbruch", text: text(\.setup))
-                        .textFieldStyle(.roundedBorder)
-                        .focused($fokus, equals: .setup)
+                    HStack(spacing: Abstand.raster) {
+                        TextField("z. B. Ausbruch", text: text(\.setup))
+                            .textFieldStyle(.roundedBorder)
+                            .focused($fokus, equals: .setup)
+                        if !modell.playbook.isEmpty {
+                            // Karte aus dem Playbook wählen; freier Text bleibt möglich (Setups ohne Karte).
+                            Menu {
+                                ForEach(modell.playbook, id: \.name) { karte in
+                                    Button(action: { waehleSetup(karte.name) }) { Text(verbatim: karte.name) }
+                                }
+                            } label: {
+                                Image(systemName: "book.closed")
+                            }
+                            .menuStyle(.button)
+                            .buttonStyle(.borderless)
+                            .fixedSize()
+                            .help("Setup aus dem Playbook wählen")
+                        }
+                    }
                 }
                 if !modell.bekannteSetups.isEmpty {
                     Text(verbatim: String(localized: "Bisher: ") + modell.bekannteSetups.joined(separator: ", "))
@@ -469,6 +485,7 @@ struct JournalEingabe: View {
                     .font(Schrift.beschriftung)
                     .foregroundStyle(thema.textSchwach)
             }
+            ChecklisteKarte(trade: trade, setupName: eintrag.bereinigt.setup)
         }
         .onChange(of: eintrag.regeltreue) { speichern() }
         .onChange(of: eintrag.zustand) { speichern() }
@@ -499,12 +516,94 @@ struct JournalEingabe: View {
         guard !bereinigt.gleicheAngaben(wie: modell.journaleintraege[bereinigt.ticket]) else { return }
         modell.speichereJournal(bereinigt)
     }
+
+    private func waehleSetup(_ name: String) {
+        eintrag.setup = name
+        speichern()
+    }
+}
+
+/// Karte des Setups aus dem Playbook zum Trade (Doc 18 F3, Doc 23): Status, Kriterien als Häkchen, Regeln der
+/// Karte. Häkchen speichern sofort (AP9 #59, `setzeCheckliste`), das Setup landet dabei im Journal.
+struct ChecklisteKarte: View {
+    let trade: Trade
+    let setupName: String?
+    @Environment(AppModell.self) private var modell
+    @Environment(\.thema) private var thema
+
+    var body: some View {
+        if let karte = modell.setupKarte(setupName) {
+            let erfuellt = modell.checklisten[trade.id]?.erfuellt ?? []
+            let anzahl = karte.kriterien.filter { erfuellt.contains($0.id) }.count
+            Karte(verbatim: String(localized: "Checkliste \(karte.name)")) {
+                HStack(spacing: Abstand.raster * 2) {
+                    Kapsel(text: Setupformat.status(karte.status), betont: karte.status == .aktiv)
+                    Text(verbatim: String(localized: "\(anzahl) von \(karte.kriterien.count) erfüllt"))
+                        .font(Schrift.beschriftung)
+                        .foregroundStyle(thema.textSchwach)
+                }
+                if karte.kriterien.isEmpty {
+                    Text("Die Karte hat noch keine Kriterien. Ergänze sie unter Einstellungen › Playbook.")
+                        .font(Schrift.beschriftung)
+                        .foregroundStyle(thema.textSchwach)
+                } else {
+                    ForEach(karte.kriterien, id: \.id) { kriterium in
+                        Toggle(isOn: haken(kriterium, karte: karte)) {
+                            Text(verbatim: kriterium.text)
+                                .foregroundStyle(thema.text)
+                        }
+                        .toggleStyle(.checkbox)
+                    }
+                }
+                regeln(karte)
+            }
+        } else if let setupName, !setupName.isEmpty {
+            Text("Zu „\(setupName)“ gibt es keine Karte im Playbook. Lege sie unter Einstellungen › Playbook an, dann kannst du hier Kriterien abhaken.")
+                .font(Schrift.beschriftung)
+                .foregroundStyle(thema.textSchwach)
+        }
+    }
+
+    private func haken(_ kriterium: Kriterium, karte: Setup) -> Binding<Bool> {
+        Binding(
+            get: { modell.checklisten[trade.id]?.erfuellt.contains(kriterium.id) ?? false },
+            set: { an in
+                var liste = modell.checklisten[trade.id] ?? Checkliste(setup: karte.name)
+                liste.setup = karte.name
+                if an { liste.erfuellt.insert(kriterium.id) } else { liste.erfuellt.remove(kriterium.id) }
+                modell.setzeCheckliste(liste, trade: trade)
+            }
+        )
+    }
+
+    @ViewBuilder
+    private func regeln(_ karte: Setup) -> some View {
+        if karte.stopRegel != nil || karte.zielRegel != nil || karte.marktumfeld != nil {
+            VStack(alignment: .leading, spacing: Abstand.raster) {
+                if let stop = karte.stopRegel { regelZeile("Stop", stop) }
+                if let ziel = karte.zielRegel { regelZeile("Ziel", ziel) }
+                if let umfeld = karte.marktumfeld { regelZeile("Umfeld", umfeld) }
+            }
+        }
+    }
+
+    private func regelZeile(_ titel: LocalizedStringKey, _ wert: String) -> some View {
+        HStack(alignment: .top, spacing: Abstand.raster) {
+            Text(titel)
+                .foregroundStyle(thema.textSchwach)
+                .frame(width: 48, alignment: .leading)
+            Text(verbatim: wert)
+                .foregroundStyle(thema.text)
+        }
+        .font(Schrift.beschriftung)
+    }
 }
 #else
 /// iPhone: Journal nur lesen (Doc 10, iPhone V1). Eintragen geht am Mac.
 struct JournalAnzeige: View {
     let trade: Trade
     let eintrag: Journaleintrag?
+    @Environment(AppModell.self) private var modell
     @Environment(\.thema) private var thema
 
     var body: some View {
@@ -518,6 +617,9 @@ struct JournalAnzeige: View {
                     if let zustand = eintrag.zustand { angabe("Zustand", "\(zustand) von 5") }
                     if let marktumfeld = eintrag.marktumfeld { angabe("Marktumfeld", marktumfeld) }
                     if let grund = eintrag.grund { angabe("Grund", grund) }
+                }
+                if let karte = modell.setupKarte(eintrag.setup), !karte.kriterien.isEmpty {
+                    checkliste(karte)
                 }
             } else if trade.stopLoss == nil {
                 Text("Keine Journalangaben, Stop fehlt. Eintragen geht am Mac.")
@@ -541,6 +643,25 @@ struct JournalAnzeige: View {
                 .multilineTextAlignment(.trailing)
         }
         .font(Schrift.fliesstext)
+    }
+
+    /// Kriterien der Playbook-Karte mit den am Mac gesetzten Häkchen (Doc 18 F3), nur lesen.
+    private func checkliste(_ karte: Setup) -> some View {
+        let erfuellt = modell.checklisten[trade.id]?.erfuellt ?? []
+        return VStack(alignment: .leading, spacing: Abstand.raster) {
+            Text(verbatim: String(localized: "Checkliste \(karte.name) · \(karte.kriterien.filter { erfuellt.contains($0.id) }.count) von \(karte.kriterien.count) erfüllt"))
+                .font(Schrift.beschriftung)
+                .foregroundStyle(thema.textSchwach)
+            ForEach(karte.kriterien, id: \.id) { kriterium in
+                Label {
+                    Text(verbatim: kriterium.text).foregroundStyle(thema.text)
+                } icon: {
+                    Image(systemName: erfuellt.contains(kriterium.id) ? "checkmark.circle.fill" : "circle")
+                        .foregroundStyle(erfuellt.contains(kriterium.id) ? thema.gewinn : thema.textSchwach)
+                }
+                .font(Schrift.beschriftung)
+            }
+        }
     }
 }
 #endif
