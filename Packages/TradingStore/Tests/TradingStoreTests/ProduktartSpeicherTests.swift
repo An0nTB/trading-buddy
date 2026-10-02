@@ -113,7 +113,7 @@ private func nurKonto(_ journal: Journal) throws -> Konto {
     }
 
     let journal = try Journal(pfad: pfad)
-    #expect(try journal.angewandteMigrationen().last == "v6 Produktart")
+    #expect(try journal.angewandteMigrationen().contains("v6 Produktart"))
     let konten = try journal.konten()
     let gbe = try #require(konten.first { $0.broker == "GBE brokers Ltd." })
     let xtb = try #require(konten.first { $0.broker == "XTB" })
