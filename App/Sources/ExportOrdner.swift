@@ -1,6 +1,7 @@
 #if os(macOS)
 import Foundation
 import TradingCore
+import TradingNews
 import TradingStore
 
 /// Ordner, in den die App Daten für den Claude-Connector schreibt.
@@ -56,7 +57,29 @@ enum ExportOrdner {
         let verpasst = try journal.verpassteTrades(von: .distantPast, bis: .distantFuture)
         return JournalExport(konten: konten, zeitzone: zeitzone, ton: ton,
                              tagesnotizen: notizen.map(JournalExport.Notiz.init),
-                             verpassteTrades: verpasst.map(JournalExport.Verpasst.init))
+                             verpassteTrades: verpasst.map(JournalExport.Verpasst.init),
+                             nachrichten: nachrichten(journal))
+    }
+
+    /// Meldungen der letzten Tage aus dem Zwischenspeicher der Nachrichtenseite, mit den passenden Begriffen der
+    /// Merkliste (gleiche Zuordnung wie die Seite). Nur wenn die Nachrichten eingeschaltet sind; ohne Zwischenspeicher
+    /// keine Meldungen. Der Nachrichtendienst schreibt den Export nach jedem Abruf neu.
+    private static func nachrichten(_ journal: Journal, jetzt: Date = .now) -> [JournalExport.Meldung] {
+        guard UserDefaults.standard.bool(forKey: Nachrichtendienst.schluesselAktiv) else { return [] }
+        let seit = jetzt.addingTimeInterval(-Double(JournalExport.nachrichtenTage) * 86_400)
+        let meldungen = Zwischenspeicher(datei: Nachrichtendienst.zwischenspeicherDatei).lies(jetzt: jetzt)
+            .filter { $0.zeit >= seit }
+        let eintraege = ((try? journal.merkliste()) ?? []).filter { $0.status == .aktiv }
+        let gruppen = Zuordnung.gruppiert(meldungen, nach: eintraege.map(Nachrichtendienst.begriff))
+        var begriffe: [String: [String]] = [:]
+        for eintrag in eintraege {
+            let name = eintrag.anzeigename.isEmpty ? eintrag.begriff : eintrag.anzeigename
+            for m in gruppen[Nachrichtendienst.begriff(eintrag)] ?? [] { begriffe[m.id, default: []].append(name) }
+        }
+        return meldungen.map { m in
+            JournalExport.Meldung(titel: m.titel, anriss: m.anriss, quelle: m.quelle, link: m.link.absoluteString,
+                                  zeit: m.zeit, symbole: m.symbole, merkliste: begriffe[m.id] ?? [])
+        }
     }
 
     /// Abgeschlossene Trades eines Kontos wie in der App: Positionen aus MetaTrader und XTB,

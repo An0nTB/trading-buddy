@@ -4,7 +4,7 @@ import Foundation
 /// der Connector liest sie und rechnet mit demselben Rechenkern.
 /// Enthält je Konto die abgeschlossenen Trades, die Zeitpunkte gelöschter Orders und die
 /// eigenen Journalangaben je Trade, die Ziele früherer Reviews und die eigenen Handelsregeln, dazu Tagesnotizen
-/// und verpasste Trades; keine Rohzeilen, keine Kontonamen und keine Bilder.
+/// und verpasste Trades, auf Wunsch Überschriften der Nachrichten; keine Rohzeilen, keine Kontonamen und keine Bilder.
 public struct JournalExport: Sendable, Equatable, Codable {
     public static let dateiname = "trading-buddy-export.json"
     /// Erhöhen, wenn ein älterer Connector den neuen Aufbau falsch lesen würde.
@@ -26,6 +26,8 @@ public struct JournalExport: Sendable, Equatable, Codable {
     public var tagesnotizen: [Notiz]?
     /// Verpasste Trades mit Grund, nach Zeit sortiert; gelten für alle Konten. Fehlt wie `tagesnotizen`.
     public var verpassteTrades: [Verpasst]?
+    /// Nachrichten der letzten Tage, neueste zuerst; nur wenn die Nachrichten in der App eingeschaltet sind.
+    public var nachrichten: [Meldung]?
 
     public struct Kontodaten: Sendable, Equatable, Codable {
         public var broker: String
@@ -100,7 +102,7 @@ public struct JournalExport: Sendable, Equatable, Codable {
     }
 
     public init(konten: [Kontodaten], zeitzone: TimeZone, erstellt: Date = .now, ton: String? = nil,
-                tagesnotizen: [Notiz] = [], verpassteTrades: [Verpasst] = []) {
+                tagesnotizen: [Notiz] = [], verpassteTrades: [Verpasst] = [], nachrichten: [Meldung] = []) {
         format = Self.aktuellesFormat
         self.erstellt = erstellt
         rechenkern = TradingCore.version
@@ -110,6 +112,8 @@ public struct JournalExport: Sendable, Equatable, Codable {
         let notizen = tagesnotizen.filter { !$0.istLeer }.sorted { $0.tag < $1.tag }
         self.tagesnotizen = notizen.isEmpty ? nil : notizen
         self.verpassteTrades = verpassteTrades.isEmpty ? nil : verpassteTrades.sorted { ($0.zeit, $0.id) < ($1.zeit, $1.id) }
+        let meldungen = nachrichten.sorted { ($0.zeit, $1.link) > ($1.zeit, $0.link) }.prefix(Self.nachrichtenHoechstens)
+        self.nachrichten = meldungen.isEmpty ? nil : Array(meldungen)
     }
 
     /// Zeitzone des Nutzers; UTC, falls der Name unbekannt ist.
