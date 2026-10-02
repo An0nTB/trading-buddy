@@ -108,7 +108,7 @@ public struct XLSXMappe: Sendable {
                 inWert = false
             case .text(let text) where inWert:
                 wert += text
-            case .ende("c"):
+            case .ende("c") where spalte < Self.genutzteSpalten:
                 let text = typ == "s" ? Int(wert).flatMap { texte.indices.contains($0) ? texte[$0] : nil } ?? "" : wert
                 while zeile.count <= spalte { zeile.append("") }
                 zeile[spalte] = text
@@ -124,6 +124,9 @@ public struct XLSXMappe: Sendable {
     /// Grenzen von Excel: Zeile 1 048 576, Spalte XFD.
     static let hoechsteZeile = 1_048_576
     static let spaltenzahl = 16_384
+    /// Broker-Exporte nutzen weit unter 100 Spalten. Zellen dahinter werden übergangen, damit eine
+    /// einzelne Zelle in Spalte XFD nicht jede Zeile auf 16 384 Felder aufbläht (Einschätzung, Doc 36 K7).
+    static let genutzteSpalten = 1_024
 
     /// „B5“ → 1, „AA7“ → 26. Nur A bis Z, höchstens drei Buchstaben und bis Spalte XFD; sonst `nil`.
     static func spaltenIndex(_ zelle: String) -> Int? {

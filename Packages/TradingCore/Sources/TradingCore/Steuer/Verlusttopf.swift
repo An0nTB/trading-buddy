@@ -73,14 +73,15 @@ public enum Steuerorientierung {
                               kurse: Referenzkurse? = nil) -> [Topfsumme] {
         let jahre = kalender(in: zeitzone)
         let imJahr = trades.filter { jahre.component(.year, from: $0.closeTime) == jahr }
-        let euro = kontowaehrung.uppercased() == "EUR"
         var summen: [Verlusttopf: Topfsumme] = [:]
         for t in imJahr {
             let topf = Verlusttopf(t.produktart)
             var s = summen[topf] ?? Topfsumme(topf: topf, jahr: jahr)
             s.anzahl += 1
-            let inEuro: Decimal? = euro ? ergebnis(t)
-                : kurse?.inEuro(ergebnis(t), waehrung: kontowaehrung, am: t.closeTime, zeitzone: zeitzone)
+            // Je Trade seine Währung: BTC/USD auf einem Euro-Konto ist kein Euro-Betrag (Gegencheck K1).
+            let waehrung = t.waehrung(kontowaehrung: kontowaehrung)
+            let inEuro: Decimal? = waehrung == "EUR" ? ergebnis(t)
+                : kurse?.inEuro(ergebnis(t), waehrung: waehrung, am: t.closeTime, zeitzone: zeitzone)
             if let e = inEuro {
                 if e > 0 { s.gewinne += e } else { s.verluste += e }
                 if t.produktart == .cfd { s.davonCFD += e }
