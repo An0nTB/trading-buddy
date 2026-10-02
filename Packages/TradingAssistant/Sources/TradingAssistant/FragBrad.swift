@@ -2,7 +2,7 @@ import Foundation
 
 /// Fragevorlagen für „Frag Henry“ (Entwurf design/FragBrad_Entwurf.md, V1 bis V7).
 public enum FragBradVorlage: String, CaseIterable, Sendable, Identifiable {
-    case monat, woche, groesstesLeck, setups, trade, tag, ziel, frei
+    case monat, woche, groesstesLeck, setups, trade, tag, ziel, analyse, frei
 
     public var id: String { rawValue }
 
@@ -15,6 +15,7 @@ public enum FragBradVorlage: String, CaseIterable, Sendable, Identifiable {
         case .trade: "Diesen Trade einordnen"
         case .tag: "Diesen Tag einordnen"
         case .ziel: "Ziel aus dem Review prüfen"
+        case .analyse: "Wert analysieren"
         case .frei: "Eigene Frage"
         }
     }
@@ -25,9 +26,18 @@ public enum FragBradVorlage: String, CaseIterable, Sendable, Identifiable {
     /// „Diesen Tag einordnen“ braucht einen Tag (Tagesseite).
     public var brauchtTag: Bool { self == .tag }
 
-    /// Vorlagen, die zum Einstieg passen: Trade- und Tagesfrage nur, wenn der Einstieg sie mitgibt.
-    public static func verfuegbar(mitTrade: Bool, mitTag: Bool) -> [FragBradVorlage] {
-        allCases.filter { (!$0.brauchtTrade || mitTrade) && (!$0.brauchtTag || mitTag) }
+    /// „Wert analysieren“ braucht ein Symbol (Doc 38, Paket A4).
+    public var brauchtSymbol: Bool { self == .analyse }
+
+    /// Analysen gehören in einen Inkognito-Chat; den kann der Link nicht einschalten. Darum legt die App die Frage
+    /// zusätzlich in die Zwischenablage, falls der Klick auf Inkognito das vorbefüllte Feld leert.
+    public var kopiertMit: Bool { self == .analyse }
+
+    /// Vorlagen, die zum Einstieg passen: Trade-, Tages- und Wertfrage nur, wenn der Einstieg sie mitgibt.
+    public static func verfuegbar(mitTrade: Bool, mitTag: Bool, mitSymbol: Bool = false) -> [FragBradVorlage] {
+        allCases.filter {
+            (!$0.brauchtTrade || mitTrade) && (!$0.brauchtTag || mitTag) && (!$0.brauchtSymbol || mitSymbol)
+        }
     }
 }
 
@@ -64,15 +74,22 @@ public struct FragBradKontext: Sendable, Equatable {
     public var trade: FragBradTrade?
     /// Ein Handelstag (Tagesseite), beliebige Zeit an diesem Tag.
     public var tag: Date?
+    /// Der Wert für „Wert analysieren“, etwa „BTCUSD“.
+    public var symbol: String?
+    /// Liegt für `symbol` ein Kursverlauf vor? Ohne (deutsche Aktien, CFDs, Devisen in v1) fragt die Analyse nur
+    /// nach Nachrichten und eigenen Trades.
+    public var mitKursverlauf: Bool
 
     public init(konto: String? = nil, von: Date? = nil, bis: Date? = nil, instrument: String? = nil,
-                trade: FragBradTrade? = nil, tag: Date? = nil) {
+                trade: FragBradTrade? = nil, tag: Date? = nil, symbol: String? = nil, mitKursverlauf: Bool = true) {
         self.konto = konto
         self.von = von
         self.bis = bis
         self.instrument = instrument
         self.trade = trade
         self.tag = tag
+        self.symbol = symbol
+        self.mitKursverlauf = mitKursverlauf
     }
 }
 
@@ -91,6 +108,25 @@ public enum FragBrad {
     /// Tonbitte bei Ton „Henry“ (Old Money, Doc 02 Zeile 49); Zahlen und Warnungen bleiben sachlich.
     public static let tonHenry = "Antworte im Ton von Henry: ruhig, trocken und höflich, wie ein Vermögensverwalter "
         + "alter Schule, ohne Slang. Zahlen, Steuer, Regelverstöße und Warnungen bitte sachlich."
+
+    /// Monate, über die „Wert analysieren“ den Kursverlauf beschreibt (Doc 38: Tageskerzen der letzten 12 Monate).
+    public static let analyseMonate = 12
+
+    /// Hinweis im Blatt bei „Wert analysieren“, je Ton (Texte von Tim freigegeben 02.10.2026 12:44 UTC).
+    public static func inkognitoHinweis(_ ton: FragBradTon) -> String {
+        switch ton {
+        case .henry:
+            "Solche Gespräche bleiben besser unter uns. In Claude zuerst Inkognito einschalten, dann senden. "
+                + "Die Frage liegt zusätzlich in der Zwischenablage."
+        case .sachlich:
+            "In Claude zuerst Inkognito einschalten. Inkognito-Chats landen nicht im Verlauf und nicht in Claudes "
+                + "Erinnerung. Die Frage liegt zusätzlich in der Zwischenablage."
+        }
+    }
+
+    /// Hinweis im Blatt, wenn für den Wert kein Kursverlauf vorliegt.
+    public static let ohneKursverlaufHinweis = "Für diesen Wert liegt kein Kursverlauf vor. Henry beschreibt nur "
+        + "deine eigenen Trades und die Nachrichten."
 
     /// Der ganze Fragetext. Leere Zeilen trennen Frage, Kontext, Rahmen und Ton.
     /// - Returns: `nil`, wenn die Vorlage einen Trade braucht und keiner da ist, oder die eigene Frage leer ist.
@@ -155,6 +191,17 @@ public enum FragBrad {
                 + "und Fehlermuster."
         case .ziel:
             return "Wie stehe ich beim Ziel aus meinem letzten Review?"
+        case .analyse:
+            guard let symbol = kontext.symbol?.trimmingCharacters(in: .whitespacesAndNewlines), !symbol.isEmpty else {
+                return nil
+            }
+            let inhalt = kontext.mitKursverlauf
+                ? "Kursverlauf, Schwankung, Abstand zu Hoch und Tief, größter Rückgang, Nachrichten der letzten "
+                    + "7 Tage und meine eigenen Trades in diesem Wert."
+                : "Nachrichten der letzten 7 Tage und meine eigenen Trades in diesem Wert; einen Kursverlauf "
+                    + "gibt es dafür nicht."
+            return "Beschreibe den Wert \(symbol) über die letzten \(analyseMonate) Monate: \(inhalt) "
+                + "Nutze dafür hole_kursanalyse und hole_nachrichten. Nur beschreiben, keine Prognose."
         case .frei:
             let text = bereinigt(freieFrage)
             return text.isEmpty ? nil : text
@@ -172,10 +219,10 @@ public enum FragBrad {
         } else if vorlage == .tag, let tag = kontext.tag {
             let iso = isoTag(tag, zeitzone: zeitzone)
             saetze.append("Zeitraum: \(iso) bis \(iso).")
-        } else if vorlage != .woche, let von = kontext.von, let bis = kontext.bis {
+        } else if vorlage != .woche, vorlage != .analyse, let von = kontext.von, let bis = kontext.bis {
             saetze.append("Zeitraum: \(isoTag(von, zeitzone: zeitzone)) bis \(isoTag(bis, zeitzone: zeitzone)).")
         }
-        if vorlage != .trade, let instrument = kontext.instrument {
+        if vorlage != .trade, vorlage != .analyse, let instrument = kontext.instrument {
             saetze.append("Mich interessiert vor allem \(instrument).")
         }
         return saetze.joined(separator: " ")
