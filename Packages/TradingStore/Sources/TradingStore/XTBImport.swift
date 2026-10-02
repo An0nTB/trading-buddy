@@ -84,7 +84,7 @@ extension Journal {
                     vergleich.openTime = gleicheZeit(vergleich.openTime, p.openTime)
                     vergleich.closeTime = gleicheZeit(vergleich.closeTime, p.closeTime)
                     vergleich.produktart = p.produktart
-                    if let produktart, vergleich == p {
+                    if vergleich == p {
                         ergebnis.geschlosseneBekannt += 1
                         try Self.ergaenzeProduktart(db, alt, produktart)
                     } else {
