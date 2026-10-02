@@ -136,6 +136,20 @@ private struct BoersenEintrag: View {
                     .font(Schrift.beschriftung)
                     .foregroundStyle(thema.textSchwach)
                     .lineLimit(2)
+                let zusatz = boerse.verfuegbareSitzungsarten.filter { $0 != .kern }
+                if !zusatz.isEmpty {
+                    // Entscheidung U8: Kernhandel immer, Zusatzsitzungen je Börse zuschaltbar.
+                    HStack(spacing: Abstand.raster * 2) {
+                        Text("Mitrechnen:")
+                            .font(Schrift.beschriftung)
+                            .foregroundStyle(thema.textSchwach)
+                        ForEach(zusatz, id: \.self) { art in
+                            Toggle(isOn: sitzungsartBinding(art)) { Text(verbatim: art.titel) }
+                                .toggleStyle(.button)
+                                .font(Schrift.beschriftung)
+                        }
+                    }
+                }
             }
             Spacer()
             if sichtbar {
@@ -153,6 +167,11 @@ private struct BoersenEintrag: View {
             Button("Einrichten…", action: einrichten)
         }
         .buttonStyle(.borderless)
+    }
+
+    private func sitzungsartBinding(_ art: Sitzungsart) -> Binding<Bool> {
+        Binding(get: { modell.boersen.sitzungsarten(boerse.id).contains(art) },
+                set: { modell.boersen.setzeSitzungsart(art, boerse: boerse.id, an: $0) })
     }
 }
 
@@ -212,6 +231,10 @@ private struct Sitzungszeile: Identifiable {
     var beginn = Sitzungszeile.datum(9, 0)
     var ende = Sitzungszeile.datum(17, 30)
     var endeNachTagen = 0
+    /// Kernhandel oder Zusatzsitzung; bleibt beim Bearbeiten mitgelieferter Zeiten erhalten.
+    var art: Sitzungsart = .kern
+    /// Erster Tag der Sitzung (Nasdaq-Nacht ab 06.12.2026); nicht bearbeitbar, bleibt erhalten.
+    var gueltigAb: Kalendertag?
 
     static let utc: Calendar = {
         var kalender = Calendar(identifier: .gregorian)
@@ -226,12 +249,14 @@ private struct Sitzungszeile: Identifiable {
         beginn = Self.datum(zeit.beginn.stunde, zeit.beginn.minute)
         ende = Self.datum(zeit.ende.stunde, zeit.ende.minute)
         endeNachTagen = zeit.endeNachTagen
+        art = zeit.art
+        gueltigAb = zeit.gueltigAb
     }
 
     func handelszeit() throws -> Handelszeit {
         let geordnet = Wochentag.allCases.filter { tage.contains($0) }
         return Handelszeit(tage: geordnet, beginn: try Self.uhrzeit(beginn), ende: try Self.uhrzeit(ende),
-                           endeNachTagen: endeNachTagen)
+                           endeNachTagen: endeNachTagen, art: art, gueltigAb: gueltigAb)
     }
 
     static func datum(_ stunde: Int, _ minute: Int) -> Date {
@@ -299,6 +324,11 @@ private struct BoerseEinrichten: View {
                         Text("Feiertage der Börse gelten weiter. Für Sitzungen über Mitternacht das Ende auf den Folgetag setzen. Mehrere Sitzungen für Mittagspausen.")
                             .font(Schrift.beschriftung)
                             .foregroundStyle(thema.textSchwach)
+                        if (vorhandene?.verfuegbareSitzungsarten.count ?? 1) > 1 {
+                            Text("Diese Börse hat Zusatzsitzungen (vor- oder nachbörslich, Nacht). Eigene Zeiten ersetzen alle Sitzungen; die Art je Zeile entscheidet, ob die Schalter in der Liste sie zuschalten.")
+                                .font(Schrift.beschriftung)
+                                .foregroundStyle(thema.textSchwach)
+                        }
                     }
                 }
                 if let vorhandene, !verwaltung.auswahl.kalender.isEmpty {
@@ -405,6 +435,19 @@ private struct SitzungsEditor: View {
                 Stepper(endeText, value: $zeile.endeNachTagen, in: 0...6)
             }
             .environment(\.timeZone, Sitzungszeile.utc.timeZone)
+            HStack(spacing: Abstand.kachelAbstand) {
+                Picker("Art", selection: $zeile.art) {
+                    ForEach(Sitzungsart.allCases, id: \.self) { art in
+                        Text(verbatim: art.titel).tag(art)
+                    }
+                }
+                .pickerStyle(.menu)
+                if let ab = zeile.gueltigAb {
+                    Text(verbatim: String(localized: "gilt ab \(Boersenformat.tag(ab))"))
+                        .font(Schrift.beschriftung)
+                        .foregroundStyle(thema.textSchwach)
+                }
+            }
         }
         .padding(.vertical, Abstand.raster)
     }
