@@ -12,17 +12,13 @@ extension Anfrage {
     /// Verstöße der Trades in `trades`, geprüft über den ganzen Tag. Anzahl-Regeln („Trades je Tag“,
     /// „Stopp nach Verlusten“) und Journal-Verstöße zählen alle Trades des Kontos in jeder Währung wie in der App;
     /// Betragsgrenzen nur die Trades dieser Antwort, denn Beträge verschiedener Währungen gehören nicht in eine Summe.
+    /// Dieselbe Prüfung wie in der App über `ohneBetrag` (Rechenkern 0.22.0, Dritter Gegencheck G1 und G2).
     func verstoesse(_ trades: [Trade]) -> [Regelverstoss] {
         let ids = Set(trades.map(\.id))
-        let regeln = konto.regeln ?? Handelsregeln()
-        var anzahl = regeln
-        anzahl.maxTagesverlust = nil
-        anzahl.maxRisikoJeTrade = nil
-        let betrag = Handelsregeln(maxTagesverlust: regeln.maxTagesverlust, maxRisikoJeTrade: regeln.maxRisikoJeTrade)
-        let imKonto = konto.trades + andereWaehrungen.values.flatMap { $0 }
-        let nachAnzahl = Regelpruefung.pruefe(imKonto, regeln: anzahl, zeitzone: zeitzone, manuell: manuellVerletzt)
-        let nachBetrag = Regelpruefung.pruefe(konto.trades, regeln: betrag, zeitzone: zeitzone)
-        return (nachAnzahl + nachBetrag).filter { ids.contains($0.trade) }
+        let andere = andereWaehrungen.values.flatMap { $0 }
+        return Regelpruefung.pruefe(konto.trades + andere, regeln: konto.regeln ?? Handelsregeln(),
+                                    zeitzone: zeitzone, manuell: manuellVerletzt, ohneBetrag: Set(andere.map(\.id)))
+            .filter { ids.contains($0.trade) }
     }
 
     /// Abschnitt „Eigene Handelsregeln“; leer, wenn weder Regeln noch Journal-Verstöße vorliegen.

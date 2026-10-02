@@ -42,8 +42,8 @@ public struct Anfrage: Sendable {
         if wunsch.isEmpty, let kurse = export.angleichskurse, konto.trades.contains(where: {
             $0.waehrung(kontowaehrung: kontowaehrung) != kontowaehrung
         }) {
-            let angleich = Waehrungsangleich(konto.trades, kontowaehrung: kontowaehrung, kurse: kurse,
-                                             zeitzone: export.nutzerZeitzone)
+            // Kurstag in deutscher Zeit wie in App und Bericht (Dritter Gegencheck G6).
+            let angleich = Waehrungsangleich(konto.trades, kontowaehrung: kontowaehrung, kurse: kurse)
             for t in konto.trades where angleich.umgerechnet.contains(t.id) {
                 umgerechnet[t.waehrung(kontowaehrung: kontowaehrung), default: 0] += 1
             }
