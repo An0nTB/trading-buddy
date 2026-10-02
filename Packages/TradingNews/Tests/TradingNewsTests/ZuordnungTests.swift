@@ -78,13 +78,16 @@ import Testing
 
 @Test func budgetJeTag() {
     var budget = Abrufbudget(grenzeJeTag: 2, jetzt: zeit("2026-10-02T22:00:00Z"))
-    #expect(budget.buche(jetzt: zeit("2026-10-02T22:00:00Z")))
-    #expect(budget.buche(jetzt: zeit("2026-10-02T23:00:00Z")))
-    #expect(!budget.buche(jetzt: zeit("2026-10-02T23:59:59Z")))
+    let erster = budget.buche(jetzt: zeit("2026-10-02T22:00:00Z"))
+    let zweiter = budget.buche(jetzt: zeit("2026-10-02T23:00:00Z"))
+    let dritter = budget.buche(jetzt: zeit("2026-10-02T23:59:59Z"))
+    #expect(erster && zweiter)
+    #expect(!dritter)
     #expect(budget.rest(jetzt: zeit("2026-10-02T23:59:59Z")) == 0)
     // Neuer Tag in UTC.
     #expect(budget.rest(jetzt: zeit("2026-10-03T00:00:00Z")) == 2)
-    #expect(budget.buche(jetzt: zeit("2026-10-03T00:00:00Z")))
+    let neuerTag = budget.buche(jetzt: zeit("2026-10-03T00:00:00Z"))
+    #expect(neuerTag)
     #expect(budget.verbraucht == 1)
 }
 
