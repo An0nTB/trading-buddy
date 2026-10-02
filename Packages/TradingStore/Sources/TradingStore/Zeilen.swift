@@ -94,6 +94,7 @@ struct GeschlossenZeile: Codable, FetchableRecord, PersistableRecord {
     var commission: Decimal
     var swap: Decimal
     var profit: Decimal
+    var produktart: String
 
     init(kontoId: Int64, importlaufId: Int64, _ p: ClosedPosition) {
         self.kontoId = kontoId
@@ -112,13 +113,14 @@ struct GeschlossenZeile: Codable, FetchableRecord, PersistableRecord {
         commission = p.commission
         swap = p.swap
         profit = p.profit
+        produktart = p.produktart.rawValue
     }
 
     func modell() throws -> ClosedPosition {
         ClosedPosition(ticket: ticket, rohzeile: rohzeile, side: try seite(side), lots: lots, symbol: symbol,
                        openTime: openTime, openPrice: openPrice, stopLoss: stopLoss,
                        takeProfit: takeProfit, closeTime: closeTime, closePrice: closePrice,
-                       commission: commission, swap: swap, profit: profit)
+                       commission: commission, swap: swap, profit: profit, produktart: try art(produktart))
     }
 }
 
@@ -177,6 +179,7 @@ struct OffenZeile: Codable, FetchableRecord, PersistableRecord {
     var commission: Decimal
     var swap: Decimal
     var profit: Decimal
+    var produktart: String
 
     init(importlaufId: Int64, _ p: OpenPosition) {
         self.importlaufId = importlaufId
@@ -193,13 +196,14 @@ struct OffenZeile: Codable, FetchableRecord, PersistableRecord {
         commission = p.commission
         swap = p.swap
         profit = p.profit
+        produktart = p.produktart.rawValue
     }
 
     func modell() throws -> OpenPosition {
         OpenPosition(ticket: ticket, rohzeile: rohzeile, side: try seite(side), lots: lots, symbol: symbol,
                      openTime: openTime, openPrice: openPrice, stopLoss: stopLoss,
                      takeProfit: takeProfit, currentPrice: currentPrice,
-                     commission: commission, swap: swap, profit: profit)
+                     commission: commission, swap: swap, profit: profit, produktart: try art(produktart))
     }
 }
 
@@ -246,4 +250,18 @@ private func seite(_ text: String) throws -> Side {
 private func auftragsart(_ text: String) throws -> OrderType {
     guard let wert = OrderType(rawValue: text) else { throw SpeicherFehler.unbekannterWert(text) }
     return wert
+}
+
+func art(_ text: String) throws -> Produktart {
+    guard let wert = Produktart(rawValue: text) else { throw SpeicherFehler.unbekannterWert(text) }
+    return wert
+}
+
+/// Produktart eines schon gespeicherten Vorgangs nach einem erneuten Import. `unbekannt` auf einer Seite ist
+/// keine Abweichung (ältere Importe und Exporte ohne Angabe kennen sie nicht); die bekannte Art gilt.
+/// `nil`, wenn beide Seiten verschiedene bekannte Arten nennen.
+func vereinteProduktart(_ alt: Produktart, _ neu: Produktart) -> Produktart? {
+    if alt == neu || neu == .unbekannt { return alt }
+    if alt == .unbekannt { return neu }
+    return nil
 }
