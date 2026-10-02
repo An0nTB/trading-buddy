@@ -57,14 +57,14 @@ def soll(zeilen):
             geld.append((tid, typ, betrag, -fee)); kasse += betrag - fee
         elif typ in ("buy", "sell") and fiat in GELD:
             gebuehr = -fee if feeasset == fiat else D(0)
-            if fee != 0 and feeasset != fiat: hinweise.append((n, f"Gebühr {asset} in {feeasset}"))
+            if fee != 0 and feeasset != fiat: hinweise.append((n, f"{asset}/{fiat} {typ} Gebühr {feeasset}"))
             betrag = -(af + gebuehr) if typ == "buy" else af - gebuehr
             verbucht.append((tid, f"{asset}/{fiat}", typ, betrag, gebuehr)); kasse += betrag + gebuehr
-            if tax != 0: hinweise.append((n, f"Steuer {asset} {r[16]} {fiat}"))
+            if tax != 0: hinweise.append((n, f"{asset}/{fiat} {typ} Steuer {r[16]} {fiat}"))
         elif typ in ("reward", "rewards") and fiat in GELD and af > 0:
             verbucht.append((tid, f"{asset}/{fiat}", "buy", -af, D(0))); geld.append((tid, "zinsen", af, D(0)))
         else:
-            hinweise.append((n, f"{typ} {asset}/{fiat}" if typ in ("buy", "sell") else f"{typ} {asset}"))
+            hinweise.append((n, f"{asset}/{fiat} {typ}" if typ in ("buy", "sell") else f"{typ} {asset}"))
     return kasse, verbucht, geld, hinweise
 
 for name, zeilen in [("neu", NEU), ("alt", ALT)]:
