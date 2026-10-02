@@ -3,140 +3,6 @@ import TradingCore
 import TradingStore
 import UniformTypeIdentifiers
 
-/// Serverzeitzone eines MT4-Auszugs. Sie steht nicht in der Datei; die App fragt sie ab
-/// (Entscheidung 14: Vorgabe UTC+3 im Sommer, UTC+2 im Winter).
-enum Serverzeit: String, CaseIterable, Identifiable {
-    case osteuropa = "Europe/Athens"
-    case mitteleuropa = "Europe/Berlin"
-    case london = "Europe/London"
-    case utc = "UTC"
-    case newYork = "America/New_York"
-
-    static let vorgabe = Serverzeit.osteuropa
-
-    var id: String { rawValue }
-    var zeitzone: TimeZone { TimeZone(identifier: rawValue) ?? .gmt }
-
-    var name: LocalizedStringKey {
-        switch self {
-        case .osteuropa: "UTC+2 Winter / UTC+3 Sommer (Vorgabe, viele MT4-Broker)"
-        case .mitteleuropa: "UTC+1 / UTC+2 (Mitteleuropa)"
-        case .london: "UTC+0 / UTC+1 (London)"
-        case .utc: "UTC ohne Sommerzeit"
-        case .newYork: "UTC−5 / UTC−4 (New York)"
-        }
-    }
-
-    /// Ohne den MT4-Zusatz, für den XTB-Auszug (dort ist deutsche Ortszeit die Vorgabe, eine Annahme).
-    var kurzname: LocalizedStringKey {
-        switch self {
-        case .osteuropa: "UTC+2 / UTC+3 (Osteuropa)"
-        case .mitteleuropa: "UTC+1 / UTC+2 (Mitteleuropa, Vorgabe)"
-        case .london: "UTC+0 / UTC+1 (London)"
-        case .utc: "UTC ohne Sommerzeit"
-        case .newYork: "UTC−5 / UTC−4 (New York)"
-        }
-    }
-}
-
-/// Gelesene Datei vor dem Speichern: Grundlage des Import-Blatts.
-struct ImportVorschau: Identifiable {
-    let id = UUID()
-    let daten: Data
-    let dateiname: String
-}
-
-/// Importer, die noch gegen keine echte Datei liefen, nur gegen öffentliche Beispiele (Stand-Doc 16,
-/// Entscheidung 01.10.2026): Die App kennzeichnet sie als „ungeprüft“, bis eine echte Datei durchlief.
-enum Importer {
-    static let ungeprueft: Set<String> = [Journal.tradeRepublicImporter, Journal.scalableImporter, Journal.xtbImporter,
-                                          Journal.krakenImporter, Journal.binanceImporter, Journal.coinbaseImporter,
-                                          Journal.bitpandaImporter]
-    /// Broker-Name der XTB-Konten, wie `Journal.importiereXTB` ihn speichert.
-    static let xtbBroker = "XTB"
-
-    static func istUngeprueft(_ name: String) -> Bool { ungeprueft.contains(name) }
-}
-
-/// Broker und Kryptobörsen, deren CSV-Export die App liest. Namen wie in `Konto.broker` der Speicherung
-/// (`Journal.importiereCSV` erkennt dieselben Köpfe).
-enum CSVBroker {
-    case tradeRepublic, scalable, kraken, binance, coinbase, bitpanda
-
-    var name: String {
-        switch self {
-        case .tradeRepublic: "Trade Republic"
-        case .scalable: "Scalable Capital"
-        case .kraken: "Kraken"
-        case .binance: "Binance"
-        case .coinbase: "Coinbase"
-        case .bitpanda: "Bitpanda"
-        }
-    }
-
-    /// Kryptobörse: Paare gegen Geldwährung oder Stablecoin werden Trades, der Rest Hinweise (Doc 19).
-    var istKrypto: Bool {
-        switch self {
-        case .tradeRepublic, .scalable: false
-        case .kraken, .binance, .coinbase, .bitpanda: true
-        }
-    }
-
-    /// Bezeichnung des Exports, wie die Börse ihn nennt.
-    var exportName: String {
-        switch self {
-        case .tradeRepublic, .scalable: String(localized: "Transaktionsexport (CSV)")
-        case .kraken: String(localized: "Trade-Export (CSV)")
-        case .binance: String(localized: "Spot-Trade-Export (CSV)")
-        case .coinbase: String(localized: "Transaktionsbericht (CSV)")
-        case .bitpanda: String(localized: "Transaktionsverlauf (CSV)")
-        }
-    }
-
-    /// Zeitzone der Zeiten in der Datei (Stand-Doc 16, Doc 19): Scalable schreibt deutsche Ortszeit,
-    /// alle anderen UTC oder Zeiten mit Versatz; die Speicherung nutzt den Wert nur für Scalable.
-    var zeitzone: TimeZone {
-        switch self {
-        case .scalable: TimeZone(identifier: "Europe/Berlin") ?? .current
-        case .tradeRepublic, .kraken, .binance, .coinbase, .bitpanda: .gmt
-        }
-    }
-
-    var zeitzoneText: LocalizedStringKey {
-        switch self {
-        case .scalable: "Deutsche Ortszeit laut Datei"
-        case .bitpanda: "Zeit mit Zeitzonen-Versatz laut Datei; die App zeigt deine Zeitzone"
-        case .tradeRepublic, .kraken, .binance, .coinbase: "UTC laut Datei; die App zeigt deine Zeitzone"
-        }
-    }
-
-    /// Zeile „Kosten“ im Import-Blatt.
-    var kostenText: LocalizedStringKey {
-        switch self {
-        case .tradeRepublic, .scalable:
-            "Gebühr und Steuer je Vorgang aus dem Export; im Trade anteilig aus seinen Käufen"
-        case .kraken, .coinbase:
-            "Gebühr je Vorgang in der Gegenwährung aus dem Export; im Trade anteilig aus seinen Käufen"
-        case .binance:
-            "Gebühr in der Gegenwährung oder im Coin (zum Kurs umgerechnet); Gebühr in BNB wird nicht verbucht und steht als Hinweis"
-        case .bitpanda:
-            "Spread steckt im Preis; Gebühr in BEST oder Krypto wird nicht verbucht und steht als Hinweis"
-        }
-    }
-
-    /// Vorgabe für die Bezeichnung eines neuen Kontos, wenn die Datei keines nennt.
-    var kontoVorgabe: String {
-        istKrypto ? String(localized: "Spot") : String(localized: "Depot")
-    }
-}
-
-/// Was die App in der gewählten Datei erkannt hat. Erkannt wird am Inhalt, nicht am Dateinamen.
-enum ErkannteDatei {
-    case mt4(MT4Statement)
-    case csv(CSVBroker, Kontobewegungen)
-    case xtb(XTBAuszug)
-}
-
 /// Import (Doc 10, Abschnitt 7): Liste der bisherigen Importe, „Datei wählen“ öffnet das Blatt mit Prüfung.
 struct ImportView: View {
     @AppStorage(Ton.schluessel) private var ton = Ton.henry
@@ -331,13 +197,6 @@ struct ImportBlatt: View {
         case neu
     }
 
-    private struct Pruefung: Identifiable {
-        let id: String
-        let lautAuszug: Decimal
-        let berechnet: Decimal
-        var stimmt: Bool { lautAuszug == berechnet }
-    }
-
     var body: some View {
         VStack(alignment: .leading, spacing: Abstand.kachelAbstand) {
             Text(verbatim: vorschau.dateiname)
@@ -405,7 +264,7 @@ struct ImportBlatt: View {
         let abweichungen = auszug.pruefe()
         let anzeigeWaehrung = konto?.waehrung ?? waehrung
 
-        Text(verbatim: erkennungMT4(auszug))
+        Text(verbatim: Importlesung.erkennung(auszug))
             .font(Schrift.fliesstext)
             .foregroundStyle(thema.textSchwach)
 
@@ -462,7 +321,7 @@ struct ImportBlatt: View {
             }
             .font(Schrift.beschriftung)
             .foregroundStyle(thema.textSchwach)
-            ForEach(pruefungen(auszug)) { pruefung in
+            ForEach(Importlesung.pruefungen(auszug)) { pruefung in
                 GridRow {
                     Text(verbatim: pruefung.id).foregroundStyle(thema.text)
                     Text(verbatim: Format.zahl(pruefung.lautAuszug)).font(Schrift.tabelle)
@@ -526,7 +385,7 @@ struct ImportBlatt: View {
         let tradeListe = tradeWaehrungen.joined(separator: ", ")
 
         HStack(spacing: Abstand.raster * 2) {
-            Text(verbatim: erkennungCSV(broker, bewegungen))
+            Text(verbatim: Importlesung.erkennung(broker, bewegungen))
                 .font(Schrift.fliesstext)
                 .foregroundStyle(thema.textSchwach)
             Kapsel(text: String(localized: "ungeprüft"), betont: true)
@@ -668,10 +527,10 @@ struct ImportBlatt: View {
         let anzeigeWaehrung = auszug.waehrung ?? konto?.waehrung ?? waehrung
         let einAus = auszug.kasse.geldbewegungen.filter { $0.art == .einzahlung || $0.art == .auszahlung }
             .map { $0.betrag + $0.gebuehr + $0.steuer }.reduce(Decimal(0), +)
-        let summenpruefung = xtbPruefungen(auszug)
+        let summenpruefung = Importlesung.pruefungen(auszug)
 
         HStack(spacing: Abstand.raster * 2) {
-            Text(verbatim: erkennungXTB(auszug))
+            Text(verbatim: Importlesung.erkennung(auszug))
                 .font(Schrift.fliesstext)
                 .foregroundStyle(thema.textSchwach)
             Kapsel(text: String(localized: "ungeprüft"), betont: true)
@@ -700,7 +559,7 @@ struct ImportBlatt: View {
                         Text(verbatim: "\(konto.broker) · \(konto.kontoname) (\(String(localized: "bestehend")), \(konto.waehrung))")
                             .foregroundStyle(thema.text)
                     } else if auszug.konto != nil {
-                        Text(verbatim: "\(Importer.xtbBroker) · \(String(localized: "Konto")) \(maskiert(nummer)) (\(String(localized: "neu")))")
+                        Text(verbatim: "\(Importer.xtbBroker) · \(String(localized: "Konto")) \(Importlesung.maskiert(nummer)) (\(String(localized: "neu")))")
                             .foregroundStyle(thema.text)
                     } else {
                         Text(verbatim: Importer.xtbBroker).foregroundStyle(thema.text)
@@ -801,40 +660,6 @@ struct ImportBlatt: View {
         auszug.konto ?? xtbKontonummer.trimmingCharacters(in: .whitespaces)
     }
 
-    private func maskiert(_ nummer: String) -> String {
-        "••••" + String(nummer.suffix(4))
-    }
-
-    private func erkennungXTB(_ auszug: XTBAuszug) -> String {
-        let zeiten = auszug.positionen.map(\.closeTime) + auszug.kasse.geldbewegungen.map(\.zeit)
-        var text = String(localized: "Erkannt: XTB Kontohistorie (Excel)")
-        if let konto = auszug.konto {
-            text += " · " + String(localized: "Konto \(maskiert(konto))")
-        }
-        if let von = zeiten.min(), let bis = zeiten.max() {
-            text += " · " + String(localized: "\(Format.datum(von)) bis \(Format.datum(bis))")
-        }
-        return text
-    }
-
-    /// Summenzeilen „Total“ der Datei gegen die gelesenen Zeilen, wie die Speicherung sie prüft.
-    private func xtbPruefungen(_ auszug: XTBAuszug) -> [Pruefung] {
-        var liste: [Pruefung] = []
-        if let summe = auszug.positionenLautSumme {
-            let p = auszug.positionen
-            liste.append(Pruefung(id: String(localized: "Kommission gesamt"), lautAuszug: summe.commission,
-                                  berechnet: p.reduce(Decimal(0)) { $0 + $1.commission }))
-            liste.append(Pruefung(id: String(localized: "Swap gesamt"), lautAuszug: summe.swap,
-                                  berechnet: p.reduce(Decimal(0)) { $0 + $1.swap }))
-            liste.append(Pruefung(id: String(localized: "Ergebnis gesamt (Gross P/L)"), lautAuszug: summe.profit,
-                                  berechnet: p.reduce(Decimal(0)) { $0 + $1.profit }))
-        }
-        if let kasse = auszug.kasseLautSumme {
-            liste.append(Pruefung(id: String(localized: "Kasse gesamt"), lautAuszug: kasse, berechnet: auszug.kassenwirkung))
-        }
-        return liste
-    }
-
     private var claudeSatz: some View {
         Text("Später an Claude gehen: Zeiten, Instrument, Richtung, Lots, Kurse, Kosten, Ergebnis, Journal. Nicht: Kontonummer, Name, Saldo.")
             .font(Schrift.beschriftung)
@@ -843,28 +668,12 @@ struct ImportBlatt: View {
 
     // MARK: Zustand
 
-    private var knopfText: String {
-        switch erkannt {
-        case .mt4(let auszug)?: String(localized: "\(auszug.closedPositions.count) Trades importieren")
-        case .csv(_, let bewegungen)?: String(localized: "\(bewegungen.ausfuehrungen.count) Ausführungen importieren")
-        case .xtb(let auszug)?: String(localized: "\(auszug.positionen.count) Trades importieren")
-        case nil: String(localized: "Importieren")
-        }
-    }
+    private var knopfText: String { Importlesung.knopfText(erkannt) }
 
     private var importierbar: Bool {
-        switch erkannt {
-        case .mt4(let auszug)?:
-            auszug.pruefe().isEmpty
-        case .csv(_, let bewegungen)?:
-            (bewegungen.ausfuehrungen.count + bewegungen.geldbewegungen.count + bewegungen.kapitalmassnahmen.count) > 0
-                && kontoGueltig
-        case .xtb(let auszug)?:
-            (auszug.positionen.count + auszug.kasse.geldbewegungen.count) > 0
-                && !xtbNummer(auszug).isEmpty && xtbPruefungen(auszug).allSatisfy(\.stimmt)
-        case nil:
-            false
-        }
+        var nummer = ""
+        if case .xtb(let auszug)? = erkannt { nummer = xtbNummer(auszug) }
+        return Importlesung.importierbar(erkannt, kontoGueltig: kontoGueltig, xtbNummer: nummer)
     }
 
     private var kontoGueltig: Bool {
@@ -882,12 +691,6 @@ struct ImportBlatt: View {
     private func gewaehltesKonto(_ konten: [Konto]) -> Konto? {
         if case .bestehend(let id)? = kontowahl { return konten.first { $0.id == id } }
         return nil
-    }
-
-    private func erkennungMT4(_ auszug: MT4Statement) -> String {
-        let art = auszug.kind == .daily ? String(localized: "Tagesauszug") : String(localized: "Monatsauszug")
-        let nummer = "••••" + String(auszug.accountNumber.suffix(4))
-        return String(localized: "Erkannt: MetaTrader 4 \(art) · \(auszug.broker) · Konto \(nummer) · Stichtag \(Format.datum(auszug.reportTime))")
     }
 
     /// Zeile „Produktart“ für Dateien ohne Art (Scalable, XTB; TradingStore #96): gilt nur für Zeilen, deren Art der
@@ -911,73 +714,14 @@ struct ImportBlatt: View {
         }
     }
 
-    private func erkennungCSV(_ broker: CSVBroker, _ bewegungen: Kontobewegungen) -> String {
-        let zeiten = bewegungen.ausfuehrungen.map(\.zeit) + bewegungen.geldbewegungen.map(\.zeit)
-            + bewegungen.kapitalmassnahmen.map(\.zeit)
-        var text = String(localized: "Erkannt: \(broker.name) \(broker.exportName)")
-        if let von = zeiten.min(), let bis = zeiten.max() {
-            text += " · " + String(localized: "\(Format.datum(von)) bis \(Format.datum(bis))")
-        }
-        return text
-    }
-
-    private func pruefungen(_ auszug: MT4Statement) -> [Pruefung] {
-        var liste = [
-            Pruefung(id: String(localized: "Closed Trade P/L"),
-                     lautAuszug: auszug.closedTradePL,
-                     berechnet: auszug.closedPositions.reduce(Decimal(0)) { $0 + $1.netProfit }),
-            Pruefung(id: String(localized: "Kommission gesamt"),
-                     lautAuszug: auszug.closedTotals.commission,
-                     berechnet: auszug.closedPositions.reduce(Decimal(0)) { $0 + $1.commission }),
-        ]
-        if let vortag = auszug.summary.previousBalance {
-            liste.append(Pruefung(id: String(localized: "Kontostand"),
-                                  lautAuszug: auszug.summary.balance,
-                                  berechnet: vortag + auszug.summary.closedTradePL + auszug.summary.depositWithdrawal))
-        }
-        return liste
-    }
-
-    /// Erkennt das Format am Inhalt: erst XTB (Excel), dann die CSV-Köpfe von Trade Republic, Scalable,
-    /// Kraken, Binance, Coinbase und Bitpanda (dieselbe Reihenfolge wie `Journal.importiereCSV`),
-    /// sonst MetaTrader 4 (HTML).
+    /// Liest die Datei über `Importlesung` (testbar ohne Ansicht, Doc 44) und setzt die Kontovorgabe.
     private func lies() {
         erkannt = nil
         lesefehler = nil
-        do {
-            if XTBAuszug.erkennt(vorschau.daten) {
-                let auszug = try XTBAuszug.lies(vorschau.daten, zeitzone: xtbZeit.zeitzone)
-                erkannt = .xtb(auszug)
-            } else if vorschau.dateiname.lowercased().hasSuffix(".xlsx") {
-                lesefehler = String(localized: "Excel-Datei ohne Blatt „Closed Position History“: kein XTB-Kontoauszug aus xStation 5.")
-            } else if let text = String(data: vorschau.daten, encoding: .utf8) {
-                if TradeRepublicCSV.erkennt(text) {
-                    let bewegungen = try TradeRepublicCSV.lies(text)
-                    erkannt = .csv(.tradeRepublic, bewegungen)
-                } else if ScalableCSV.erkennt(text) {
-                    let bewegungen = try ScalableCSV.lies(text, zeitzone: CSVBroker.scalable.zeitzone)
-                    erkannt = .csv(.scalable, bewegungen)
-                } else if KrakenCSV.erkennt(text) {
-                    erkannt = .csv(.kraken, try KrakenCSV.lies(text))
-                } else if BinanceCSV.erkennt(text) {
-                    erkannt = .csv(.binance, try BinanceCSV.lies(text))
-                } else if BinanceCSV.istTransaktionsverlauf(text) {
-                    lesefehler = String(localized: "Binance-Transaktionsverlauf (Assets → Transaction History): Den liest die App nicht. Exportiere unter Orders → Spot Order → Trade History.")
-                } else if CoinbaseCSV.erkennt(text) {
-                    erkannt = .csv(.coinbase, try CoinbaseCSV.lies(text))
-                } else if BitpandaCSV.erkennt(text) {
-                    erkannt = .csv(.bitpanda, try BitpandaCSV.lies(text))
-                } else {
-                    let auszug = try MT4Statement.parse(html: text, serverZeitzone: serverzeit.zeitzone)
-                    erkannt = .mt4(auszug)
-                }
-            } else {
-                lesefehler = String(localized: "Die Datei ist weder Text (UTF-8) noch eine Excel-Datei.")
-            }
-        } catch MT4ImportFehler.keinMT4Auszug {
-            lesefehler = String(localized: "Format nicht erkannt: kein MetaTrader-4-Auszug (HTML), kein CSV-Export von Trade Republic, Scalable, Kraken, Binance, Coinbase oder Bitpanda und keine XTB-Kontohistorie (Excel).")
-        } catch {
-            lesefehler = fehlertext(error)
+        switch Importlesung.lies(vorschau.daten, dateiname: vorschau.dateiname,
+                                 serverzeit: serverzeit.zeitzone, xtbZeit: xtbZeit.zeitzone) {
+        case .erkannt(let datei): erkannt = datei
+        case .fehler(let text): lesefehler = text
         }
         if case .csv(let broker, _)? = erkannt, kontowahl == nil {
             // Vorgabe: das erste Konto dieses Brokers, sonst ein neues namens „Depot“ (Börsen: „Spot“).
@@ -1009,7 +753,7 @@ struct ImportBlatt: View {
                 let bestehend = modell.bekanntesKonto(broker: Importer.xtbBroker, kontonummer: nummer)
                 ergebnis = try modell.importiereXTB(daten: vorschau.daten, dateiname: vorschau.dateiname,
                                                     kontonummer: auszug.konto == nil ? nummer : nil,
-                                                    kontoname: bestehend?.kontoname ?? String(localized: "Konto \(maskiert(nummer))"),
+                                                    kontoname: bestehend?.kontoname ?? String(localized: "Konto \(Importlesung.maskiert(nummer))"),
                                                     waehrung: auszug.waehrung == nil ? (bestehend?.waehrung ?? waehrung) : nil,
                                                     zeitzone: xtbZeit.zeitzone, produktartVorgabe: produktartVorgabe)
             case nil:
@@ -1017,7 +761,7 @@ struct ImportBlatt: View {
             }
             speicherfehler = nil
         } catch {
-            speicherfehler = fehlertext(error)
+            speicherfehler = Importlesung.fehlertext(error)
         }
     }
 
@@ -1038,100 +782,5 @@ struct ImportBlatt: View {
             }
             return String(localized: "\(gespeichert) \(ergebnis.geschlosseneNeu) neue Trades, \(ergebnis.geschlosseneBekannt) schon bekannt, \(ergebnis.geloeschteNeu) gelöschte Orders.")
         }
-    }
-
-    private func fehlertext(_ error: any Error) -> String {
-        if let fehler = error as? SpeicherFehler {
-            switch fehler {
-            case .keinText:
-                return String(localized: "Die Datei ist kein Text (UTF-8).")
-            case .auszugWidersprichtSeinenSummen(let liste):
-                return String(localized: "Der Auszug widerspricht seinen eigenen Summen: \(liste.joined(separator: ", "))")
-            case .andereKontowaehrung(let gespeichert, let angegeben):
-                return String(localized: "Das Konto ist mit \(gespeichert) angelegt, nicht mit \(angegeben).")
-            case .abweichenderDatensatz(let tickets):
-                return String(localized: "Vorgänge mit anderen Werten als beim früheren Import: \(tickets.joined(separator: ", "))")
-            case .unbekannterWert(let wert):
-                return String(localized: "Unbekannter Wert in der Datenbank: \(wert)")
-            case .ungueltigerWert(let wert):
-                return String(localized: "Eingabe außerhalb des erlaubten Bereichs: \(wert)")
-            }
-        }
-        if let fehler = error as? CSVImportFehler {
-            switch fehler {
-            case .unbekanntesFormat(let kopf):
-                return String(localized: "CSV-Format nicht erkannt. Spalten der Datei: \(kopf.prefix(6).joined(separator: ", "))")
-            case .fehlendeSpalte(let name):
-                return String(localized: "Spalte fehlt in der Datei: \(name)")
-            case .ungueltigeZahl(let zeile, let text):
-                return String(localized: "Ungültige Zahl in Zeile \(zeile): \(text)")
-            case .ungueltigeZeit(let zeile, let text):
-                return String(localized: "Ungültige Zeit in Zeile \(zeile): \(text)")
-            }
-        }
-        if let fehler = error as? XLSXFehler {
-            switch fehler {
-            case .keineXLSX:
-                return String(localized: "Die Datei ist kein Excel-Archiv (XLSX).")
-            case .fehlenderTeil(let name):
-                return String(localized: "Die Excel-Datei ist unvollständig, es fehlt: \(name)")
-            case .fehlendesBlatt(let name):
-                return String(localized: "Blatt fehlt in der Excel-Datei: \(name)")
-            }
-        }
-        if let fehler = error as? MT4ImportFehler {
-            switch fehler {
-            case .keinMT4Auszug:
-                return String(localized: "Kein MetaTrader-4-Auszug: weder „Daily Confirmation“ noch „Monthly Statement“ im Titel.")
-            case .unbekannteZeile(let abschnitt, let ticket, _):
-                return String(localized: "Unbekannte Zeile im Abschnitt \(abschnitt), Ticket \(ticket).")
-            case .unerwarteteSpalten(let abschnitt, let gefunden):
-                return String(localized: "Unerwartete Spalten im Abschnitt \(abschnitt): \(gefunden.joined(separator: ", "))")
-            case .ungueltigeZahl(let text):
-                return String(localized: "Ungültige Zahl: \(text)")
-            case .ungueltigeZeit(let text):
-                return String(localized: "Ungültige Zeit: \(text)")
-            case .unbekannteAuftragsart(let text):
-                return String(localized: "Unbekannte Auftragsart: \(text)")
-            case .fehlenderWert(let name):
-                return String(localized: "Fehlender Wert: \(name)")
-            }
-        }
-        return error.localizedDescription
-    }
-}
-
-/// Summen je Währung für die Import-Vorschau (Gegencheck A4): Kontowährung zuerst, Fremdwährungen alphabetisch,
-/// nichts umgerechnet. Vorher wurden USD, USDT und EUR einer Kraken- oder Binance-Datei als Kontowährung addiert.
-struct Waehrungssummen {
-    let kontowaehrung: String
-    private var summen: [String: Decimal] = [:]
-
-    init(_ posten: [(String, Decimal)], kontowaehrung: String) {
-        self.kontowaehrung = kontowaehrung.uppercased()
-        for (waehrung, betrag) in posten { summen[waehrung.uppercased(), default: 0] += betrag }
-    }
-
-    /// Fremdwährungen mit Posten, alphabetisch.
-    var fremde: [String] { summen.keys.filter { $0 != kontowaehrung }.sorted() }
-
-    /// Summe in Kontowährung, 0 ohne Posten darin.
-    var kontowaehrungText: String { Format.betrag(summen[kontowaehrung] ?? 0, kontowaehrung) }
-
-    /// Summen der Fremdwährungen als Text, leer ohne Fremdwährung.
-    private var fremdeText: String {
-        fremde.map { Format.betrag(summen[$0] ?? 0, $0) }.joined(separator: ", ")
-    }
-
-    /// Alle Summen in einer Zeile, Kontowährung zuerst.
-    var alleText: String {
-        fremde.isEmpty ? kontowaehrungText : kontowaehrungText + " · " + fremdeText
-    }
-
-    /// Zusatz einer Kachel: der gegebene Text, bei Fremdwährungen ergänzt um deren Summen.
-    func zusatz(_ text: String) -> String {
-        if fremde.isEmpty { return text }
-        let dazu = fremdeText
-        return text + " · " + String(localized: "dazu \(dazu)")
     }
 }
