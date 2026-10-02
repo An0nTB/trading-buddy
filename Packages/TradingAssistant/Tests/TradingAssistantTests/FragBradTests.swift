@@ -137,3 +137,18 @@ let september = FragBradKontext(konto: "XTB …1234", von: zeit("2026-09-01 00:0
     #expect(FragBradVorlage.verfuegbar(mitTrade: false, mitTag: true).contains(.tag))
     #expect(FragBradVorlage.verfuegbar(mitTrade: true, mitTag: true).count == FragBradVorlage.allCases.count)
 }
+
+@Test func emojiAusVielenCodepunktenSprengenDieGrenzeNicht() throws {
+    // Familie aus vier Personen: ein Zeichen, elf UTF-16-Einheiten. Nach Zeichen gekürzt wären es 16.500 Einheiten,
+    // dann schnitte Claude bei rund 14.000 den Rahmen ohne Anlageberatung ab (Gesamt-Gegencheck F2).
+    let familie = "\u{1F468}\u{200D}\u{1F469}\u{200D}\u{1F467}\u{200D}\u{1F466}"
+    #expect(familie.count == 1 && familie.utf16.count == 11)
+    let frage = String(repeating: familie, count: 3_000)
+    let gekuerzt = FragBrad.bereinigt(frage)
+    #expect(gekuerzt.utf16.count <= FragBrad.freitextGrenze)
+    #expect(gekuerzt.utf16.count > FragBrad.freitextGrenze - 11)
+    #expect(gekuerzt.allSatisfy { $0 == Character(familie) })
+    let text = try #require(FragBrad.text(.frei, kontext: september, freieFrage: frage, ton: .henry, zeitzone: berlin))
+    #expect(text.utf16.count < 2_500)
+    #expect(text.hasSuffix(FragBrad.tonHenry))
+}
