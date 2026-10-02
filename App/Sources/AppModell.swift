@@ -54,6 +54,8 @@ final class AppModell {
     let kurse = Kursdienst()
     /// Wirtschaftstermine (Paket TradingCalendar, Stand-Doc 25): nächste Termine und „über Termin gehalten“ (Doc 18 F9).
     let termine = Termindienst()
+    /// Nachrichten und Merkliste (Doc 26); Standard aus, nichts davon läuft beim Start.
+    let nachrichten = Nachrichtendienst()
 
     // Zustand der Oberfläche
     var bereich: Bereich = .uebersicht
@@ -68,7 +70,9 @@ final class AppModell {
 
     init() {
         do {
-            journal = try Journal(pfad: Self.datenbankpfad())
+            let geoeffnet = try Journal(pfad: Self.datenbankpfad())
+            journal = geoeffnet
+            nachrichten.verbinde(geoeffnet)
             laden()
             exportiere()
         } catch {
