@@ -50,10 +50,11 @@ struct TagSeite: View {
                         .foregroundStyle(.secondary)
                 }
                 if zweiSpalten {
+                    // Beide Spalten gleich breit, ohne Mindestbreite (Startabsturz-Regeln: keine harten Breiten).
+                    // Vorher drückte layoutPriority(1) links die rechte Spalte auf Fingerbreite (Tim 02.10.2026).
                     HStack(alignment: .top, spacing: Abstand.kachelAbstand) {
                         linkeSpalte
                             .frame(maxWidth: .infinity)
-                            .layoutPriority(1)
                         rechteSpalte
                             .frame(maxWidth: .infinity)
                     }
