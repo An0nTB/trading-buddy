@@ -4,6 +4,16 @@
     "" : {
 
     },
+    " · %lld von %lld erledigt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : " · %1$lld of %2$lld done"
+          }
+        }
+      }
+    },
     " · Feiertage nur bis %@ gepflegt" : {
       "localizations" : {
         "en" : {
@@ -164,6 +174,26 @@
         }
       }
     },
+    "„Kurse abrufen“ braucht eingeschaltete Kurse in den Einstellungen. MetaTrader-Kurse lassen sich am Mac immer importieren." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Fetch prices” needs prices switched on in Settings. MetaTrader prices can always be imported on the Mac."
+          }
+        }
+      }
+    },
+    "„Kurse abrufen“ holt Minutenkurse für Krypto (Binance) und US-Aktien (Alpaca) für Trades ohne Analyse. Für CFDs und Devisen gibt es keine freien Kurse; dafür den MetaTrader-Export importieren." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Fetch prices” loads minute prices for crypto (Binance) and US stocks (Alpaca) for trades without an analysis. There are no free prices for CFDs and currencies; for those, import the MetaTrader export."
+          }
+        }
+      }
+    },
     "„Regelsperre“ heißt: deine eigene Regel hat den Trade verboten. Er zählt als gewollt verpasst und nicht zum entgangenen Ergebnis." : {
       "localizations" : {
         "en" : {
@@ -196,6 +226,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@ · for %2$lld trades with stop"
+          }
+        }
+      }
+    },
+    "%@ (in %@)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ (in %2$@)"
           }
         }
       }
@@ -324,6 +364,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@ to %2$@"
+          }
+        }
+      }
+    },
+    "%@ bis %@ · %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ to %2$@ · %3$@"
           }
         }
       }
@@ -1222,6 +1272,28 @@
         }
       }
     },
+    "%lld Trades liefen länger als 31 Tage; dafür ruft die App keine Minutenkurse ab." : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld trade ran longer than 31 days; the app does not fetch minute prices for it."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld trades ran longer than 31 days; the app does not fetch minute prices for them."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "%lld Trades mit %@ je Trade, übrige %lld mit %@. Zufallsanteil %@." : {
       "localizations" : {
         "de" : {
@@ -1560,6 +1632,16 @@
         }
       }
     },
+    "%lld von 5" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld of 5"
+          }
+        }
+      }
+    },
     "%lld vorläufig" : {
       "localizations" : {
         "en" : {
@@ -1842,6 +1924,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fetch: %@"
+          }
+        }
+      }
+    },
+    "Abruf: %lld Trades geladen, %lld ohne freie Minutenkurse (CFD, Devisen, ohne Uhrzeit), %lld noch nicht abgeschlossen (bis eine Stunde nach dem Ausstieg)." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fetch: %1$lld trades loaded, %2$lld without free minute prices (CFD, currencies, no time of day), %3$lld not yet complete (until one hour after the exit)."
           }
         }
       }
@@ -4585,6 +4677,16 @@
         }
       }
     },
+    "Fehler %d" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error %d"
+          }
+        }
+      }
+    },
     "Fehlermuster" : {
       "localizations" : {
         "en" : {
@@ -4967,6 +5069,16 @@
         }
       }
     },
+    "Für dieses Symbol sind keine Minutenkurse gespeichert. Abruf oder Import auf der Seite „Ausstieg“." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No minute prices are stored for this symbol. Fetch or import on the “Exit” page."
+          }
+        }
+      }
+    },
     "Für dieses Symbol sind keine Minutenkurse gespeichert. Import auf der Seite „Ausstieg“." : {
       "localizations" : {
         "en" : {
@@ -5159,6 +5271,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Overall limit"
+          }
+        }
+      }
+    },
+    "Gesamtgrenze aus dem Dashboard eintragen; sie friert bei Start plus 100 ein. Glattstellen bis 16:59 New York prüft die App erst ab 18:00." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter the overall limit from the dashboard; it freezes at start plus 100. Closing positions by 16:59 New York is checked by the app only from 18:00."
           }
         }
       }
@@ -6443,6 +6565,16 @@
         }
       }
     },
+    "Kapitel %lld · %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chapter %1$lld · %2$@"
+          }
+        }
+      }
+    },
     "Kapitel nicht gefunden. Die Datei fehlt im App-Paket." : {
       "localizations" : {
         "en" : {
@@ -6675,6 +6807,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "no day over the limit"
+          }
+        }
+      }
+    },
+    "Kein Tageslimit. Ob und wo die nachgezogene Grenze stehen bleibt, nennt die Seite nicht." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No daily limit. The page does not say whether or where the trailing limit stops."
           }
         }
       }
@@ -7369,16 +7511,6 @@
         }
       }
     },
-    "Kontowährung; fremde Währungen zum EZB-Kurs umgerechnet" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Account currency; other currencies converted at the ECB rate"
-          }
-        }
-      }
-    },
     "Kontraktgröße" : {
       "localizations" : {
         "en" : {
@@ -7663,6 +7795,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Prices"
+          }
+        }
+      }
+    },
+    "Kurse abrufen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fetch prices"
           }
         }
       }
@@ -9311,6 +9453,16 @@
         }
       }
     },
+    "Noch keine Kurse gespeichert. „Kurse abrufen“ holt Minutenkurse für Krypto und US-Aktien. Für CFDs und Devisen gibt es keine freien Kurse; dafür am Mac den MetaTrader-Export (Verlaufszentrum, M1) importieren." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No prices stored yet. “Fetch prices” loads minute prices for crypto and US stocks. There are no free prices for CFDs and currencies; for those, import the MetaTrader export (History Center, M1) on the Mac."
+          }
+        }
+      }
+    },
     "Noch keine Kurse gespeichert. Am Mac: MetaTrader, Extras, Verlaufszentrum, Symbol und M1 wählen, Exportieren; die CSV-Datei hier importieren." : {
       "localizations" : {
         "en" : {
@@ -9487,6 +9639,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ø R"
+          }
+        }
+      }
+    },
+    "Ob die nachgezogene Grenze beim Startkapital stehen bleibt, nennt die Seite nicht; hier läuft sie weiter." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The page does not say whether the trailing limit stops at the starting capital; here it keeps trailing."
           }
         }
       }
@@ -11589,12 +11751,32 @@
         }
       }
     },
+    "Tagesverlust-Grenze pausiert bei Topstep nur, darum hier aus. Gewinnziel aus dem Dashboard eintragen; die Konsistenzregel bezieht Topstep aufs Gewinnziel, das kennt die Prüfung noch nicht. Glattstellen bis 15:10 Chicago prüft die App erst ab 17:00." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "At Topstep the daily loss limit only pauses trading, so it is off here. Enter the profit target from the dashboard; Topstep applies the consistency rule to the profit target, which the check does not know yet. Closing positions by 15:10 Chicago is checked by the app only from 17:00."
+          }
+        }
+      }
+    },
     "Tageswechsel" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Day change"
+          }
+        }
+      }
+    },
+    "Tageswechsel 00:00 Serverzeit (GMT+2/+3), hier als Europe/Athens." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Day change 00:00 server time (GMT+2/+3), here as Europe/Athens."
           }
         }
       }
@@ -11665,16 +11847,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ticket %@"
-          }
-        }
-      }
-    },
-    "Ticketnummer, Zeiten, Instrument, Richtung, Lots, Kurse, Stop und Ziel, Kommission, Swap, Steuern (falls der Broker sie meldet), Ergebnis, Zeitpunkte gelöschter Orders, Journal (Stop, Setup, Regeltreue, Zustand, Marktumfeld, Grund), Ziele aus Reviews, eigene Handelsregeln, Tagesnotizen und verpasste Trades (ohne Bilder), Ausstiegsanalysen (falls Kerzen geladen), Nachrichten der letzten sieben Tage (falls eingeschaltet), Tageskerzen geladener Werte, EZB-Referenzkurse für Trades in fremder Währung, Tonfall, Broker, Kontowährung, Zeitzone und die letzten vier Stellen der Kontonummer. Nicht: Name, volle Kontonummer, Saldo." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ticket number, times, instrument, direction, lots, prices, stop and target, commission, swap, taxes (if the broker reports them), result, times of deleted orders, journal (stop, setup, rule compliance, condition, market environment, reason), goals from reviews, own trading rules, daily notes and missed trades (without images), exit analyses (if candles are loaded), news of the last seven days (if switched on), daily candles of loaded instruments, ECB reference rates for trades in a foreign currency, tone, broker, account currency, time zone and the last four digits of the account number. Not: name, full account number, balance."
           }
         }
       }
@@ -13635,6 +13807,16 @@
         }
       }
     },
+    "Zeitzone des Tageswechsels nennt die Seite nicht; hier Serverzeit als Europe/Athens angenommen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The page does not name the time zone of the day change; server time as Europe/Athens is assumed here."
+          }
+        }
+      }
+    },
     "Ziel" : {
       "localizations" : {
         "en" : {
@@ -13931,122 +14113,22 @@
         }
       }
     },
-    "Tageswechsel 00:00 Serverzeit (GMT+2/+3), hier als Europe/Athens." : {
+    "Kontowährung; fremde Währungen zum EZB-Kurs umgerechnet" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Day change 00:00 server time (GMT+2/+3), here as Europe/Athens."
+            "value" : "Account currency; other currencies converted at the ECB rate"
           }
         }
       }
     },
-    "Ob die nachgezogene Grenze beim Startkapital stehen bleibt, nennt die Seite nicht; hier läuft sie weiter." : {
+    "Ticketnummer, Zeiten, Instrument, Richtung, Lots, Kurse, Stop und Ziel, Kommission, Swap, Steuern (falls der Broker sie meldet), Ergebnis, Zeitpunkte gelöschter Orders, Journal (Stop, Setup, Regeltreue, Zustand, Marktumfeld, Grund), Ziele aus Reviews, eigene Handelsregeln, Tagesnotizen und verpasste Trades (ohne Bilder), Ausstiegsanalysen (falls Kerzen geladen), Nachrichten der letzten sieben Tage (falls eingeschaltet), Tageskerzen geladener Werte, EZB-Referenzkurse für Trades in fremder Währung, Tonfall, Broker, Kontowährung, Zeitzone und die letzten vier Stellen der Kontonummer. Nicht: Name, volle Kontonummer, Saldo." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The page does not say whether the trailing limit stops at the starting capital; here it keeps trailing."
-          }
-        }
-      }
-    },
-    "Kein Tageslimit. Ob und wo die nachgezogene Grenze stehen bleibt, nennt die Seite nicht." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No daily limit. The page does not say whether or where the trailing limit stops."
-          }
-        }
-      }
-    },
-    "Zeitzone des Tageswechsels nennt die Seite nicht; hier Serverzeit als Europe/Athens angenommen." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The page does not name the time zone of the day change; server time as Europe/Athens is assumed here."
-          }
-        }
-      }
-    },
-    "Tagesverlust-Grenze pausiert bei Topstep nur, darum hier aus. Gewinnziel aus dem Dashboard eintragen; die Konsistenzregel bezieht Topstep aufs Gewinnziel, das kennt die Prüfung noch nicht. Glattstellen bis 15:10 Chicago prüft die App erst ab 17:00." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "At Topstep the daily loss limit only pauses trading, so it is off here. Enter the profit target from the dashboard; Topstep applies the consistency rule to the profit target, which the check does not know yet. Closing positions by 15:10 Chicago is checked by the app only from 17:00."
-          }
-        }
-      }
-    },
-    "Gesamtgrenze aus dem Dashboard eintragen; sie friert bei Start plus 100 ein. Glattstellen bis 16:59 New York prüft die App erst ab 18:00." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enter the overall limit from the dashboard; it freezes at start plus 100. Closing positions by 16:59 New York is checked by the app only from 18:00."
-          }
-        }
-      }
-    },
-    "%@ (in %@)" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ (in %2$@)"
-          }
-        }
-      }
-    },
-    "%@ bis %@ · %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ to %2$@ · %3$@"
-          }
-        }
-      }
-    },
-    "%lld von 5" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld of 5"
-          }
-        }
-      }
-    },
-    "Fehler %d" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Error %d"
-          }
-        }
-      }
-    },
-    " · %lld von %lld erledigt" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : " · %1$lld of %2$lld done"
-          }
-        }
-      }
-    },
-    "Kapitel %lld · %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chapter %1$lld · %2$@"
+            "value" : "Ticket number, times, instrument, direction, lots, prices, stop and target, commission, swap, taxes (if the broker reports them), result, times of deleted orders, journal (stop, setup, rule compliance, condition, market environment, reason), goals from reviews, own trading rules, daily notes and missed trades (without images), exit analyses (if candles are loaded), news of the last seven days (if switched on), daily candles of loaded instruments, ECB reference rates for trades in a foreign currency, tone, broker, account currency, time zone and the last four digits of the account number. Not: name, full account number, balance."
           }
         }
       }
