@@ -40,6 +40,11 @@ enum Format {
         formatiert(zeitpunkt, zeitzone, mitZeit ? "dd.MM.yyyy HH:mm" : "dd.MM.yyyy")
     }
 
+    /// Kurzer Wochentag, z. B. „Mo.“.
+    static func wochentag(_ zeitpunkt: Date, _ zeitzone: TimeZone) -> String {
+        formatiert(zeitpunkt, zeitzone, "EE")
+    }
+
     /// Ganzer Monat als „Mai 2025“, sonst „12.05.2025 bis 18.05.2025“ (beide Tage einschließlich).
     static func zeitraum(_ z: Zeitspanne, _ zeitzone: TimeZone) -> String {
         if Zeitspanne.monat(mit: z.von, zeitzone: zeitzone) == z {

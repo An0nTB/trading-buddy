@@ -117,7 +117,7 @@ jobs:
           BIN="$(swift build -c release --show-bin-path)"
           ORDNER="$RUNNER_TEMP/export"
           mkdir -p "$ORDNER"
-          "$BIN/tb-export" --ziel "$ORDNER" ../TradingCore/Tests/TradingCoreTests/Fixtures/MT4/*.html
+          "$BIN/tb-export" --ziel "$ORDNER" --trades-je-tag 3 ../TradingCore/Tests/TradingCoreTests/Fixtures/MT4/*.html
           (
             echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"ci","version":"1"}}}'
             echo '{"jsonrpc":"2.0","method":"notifications/initialized"}'
@@ -128,6 +128,8 @@ jobs:
             echo '{"jsonrpc":"2.0","id":6,"method":"prompts/get","params":{"name":"monatsauswertung","arguments":{"monat":"2025-05"}}}'
             echo '{"jsonrpc":"2.0","id":7,"method":"tools/call","params":{"name":"hole_trades","arguments":{"monat":"2025-05","anzahl":1e100}}}'
             echo '{"jsonrpc":"2.0","id":8,"method":"tools/list"}'
+            echo '{"jsonrpc":"2.0","id":9,"method":"tools/call","params":{"name":"hole_notizen","arguments":{"monat":"2025-05"}}}'
+            echo '{"jsonrpc":"2.0","id":10,"method":"tools/call","params":{"name":"hole_nachrichten","arguments":{"tage":3}}}'
             sleep 3
           ) | TB_EXPORT_DIR="$ORDNER" perl -e 'alarm 20; exec @ARGV' "$BIN/trading-buddy-mcp" > antwort.txt || true
           cat antwort.txt
@@ -141,6 +143,10 @@ jobs:
           grep -q "hole_auswertung mit monat=2025-05" antwort.txt
           grep -q "Brad · Trades" antwort.txt
           grep -q '"id":8' antwort.txt
+          grep -q "Brad · Notizen" antwort.txt
+          grep -q "## Eigene Handelsregeln" antwort.txt
+          grep -q "Handelsregeln eingetragen" antwort.txt
+          grep -q "In der App sind die Nachrichten aus" antwort.txt
       - name: Server meldet fehlenden Export-Ordner
         run: |
           BIN="$(swift build -c release --show-bin-path)"
