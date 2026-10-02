@@ -126,7 +126,6 @@ struct Seitenleiste: View {
             BereichInhalt(bereich: modell.bereich)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(thema.grund)
-                .fensterSymbol(modell.bereich) // P12 Eigene Fenster
         }
         #if os(macOS)
         .frame(minWidth: 900, minHeight: 600)
