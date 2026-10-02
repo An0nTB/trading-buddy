@@ -391,7 +391,7 @@ struct Firmenvorlage: Identifiable, Sendable {
     private static let ftmo = "ftmo.com/en/trading-objectives"
     private static let fundedNext = "fundednext.com/general-rules/cfds/trading-objectives"
     private static let the5ers = "help.the5ers.com"
-    private static let serverzeit = "Tageswechsel 00:00 Serverzeit (GMT+2/+3), hier als Europe/Athens."
+    private static let serverzeit = String(localized: "Tageswechsel 00:00 Serverzeit (GMT+2/+3), hier als Europe/Athens.")
 
     static let alle: [Firmenvorlage] = [
         Firmenvorlage(firma: "FTMO", name: "2-Step Challenge (Phase 1)", geprueft: true, quelle: ftmo,
@@ -403,7 +403,7 @@ struct Firmenvorlage: Identifiable, Sendable {
         Firmenvorlage(firma: "FTMO", name: "1-Step Challenge", geprueft: true, quelle: ftmo,
                       tagesverlustProzent: 3, gesamtverlustProzent: 10, gesamtverlustart: .nachgezogenTagesende,
                       gewinnzielProzent: 10, konsistenzMaxAnteil: 0.5, konsistenzbezug: .summeGewinntage,
-                      bemerkung: "Ob die nachgezogene Grenze beim Startkapital stehen bleibt, nennt die Seite nicht; hier läuft sie weiter."),
+                      bemerkung: String(localized: "Ob die nachgezogene Grenze beim Startkapital stehen bleibt, nennt die Seite nicht; hier läuft sie weiter.")),
         Firmenvorlage(firma: "FTMO", name: "1-Step Account", geprueft: true, quelle: ftmo,
                       tagesverlustProzent: 3, gesamtverlustProzent: 10, gesamtverlustart: .nachgezogenTagesende,
                       konsistenzMaxAnteil: 0.5, konsistenzbezug: .summeGewinntage),
@@ -424,25 +424,25 @@ struct Firmenvorlage: Identifiable, Sendable {
                       mindestHandelstage: 5, handelstagzaehlung: .ergebnis, bemerkung: serverzeit),
         Firmenvorlage(firma: "FundedNext", name: "Stellar Instant", geprueft: true, quelle: fundedNext,
                       zeitzone: "Europe/Athens", gesamtverlustProzent: 6, gesamtverlustart: .nachgezogenTagesende,
-                      bemerkung: "Kein Tageslimit. Ob und wo die nachgezogene Grenze stehen bleibt, nennt die Seite nicht."),
+                      bemerkung: String(localized: "Kein Tageslimit. Ob und wo die nachgezogene Grenze stehen bleibt, nennt die Seite nicht.")),
         Firmenvorlage(firma: "The5ers", name: "High Stakes Step 1", geprueft: true, quelle: the5ers,
                       zeitzone: "Europe/Athens", tagesverlustProzent: 5, gesamtverlustProzent: 10, gewinnzielProzent: 10,
                       mindestHandelstage: 3, handelstagzaehlung: .gewinntag, mindestTagesgewinnProzent: 0.5,
-                      bemerkung: "Zeitzone des Tageswechsels nennt die Seite nicht; hier Serverzeit als Europe/Athens angenommen."),
+                      bemerkung: String(localized: "Zeitzone des Tageswechsels nennt die Seite nicht; hier Serverzeit als Europe/Athens angenommen.")),
         Firmenvorlage(firma: "The5ers", name: "High Stakes Step 2", geprueft: true, quelle: the5ers,
                       zeitzone: "Europe/Athens", tagesverlustProzent: 5, gesamtverlustProzent: 10, gewinnzielProzent: 5,
                       mindestHandelstage: 3, handelstagzaehlung: .gewinntag, mindestTagesgewinnProzent: 0.5,
-                      bemerkung: "Zeitzone des Tageswechsels nennt die Seite nicht; hier Serverzeit als Europe/Athens angenommen."),
+                      bemerkung: String(localized: "Zeitzone des Tageswechsels nennt die Seite nicht; hier Serverzeit als Europe/Athens angenommen.")),
         Firmenvorlage(firma: "Topstep", name: "50K Combine", geprueft: false, quelle: "help.topstep.com",
                       startkapital: 50_000, zeitzone: "America/Chicago", tageswechselMinuten: 17 * 60,
                       gesamtverlustBetrag: 2_000, gesamtverlustart: .nachgezogenTagesende, einfrieren: .startkapital,
                       handelstagzaehlung: .gewinntag, keinHaltenUeberTageswechsel: true, keinHaltenUeberWochenende: true,
-                      bemerkung: "Tagesverlust-Grenze pausiert bei Topstep nur, darum hier aus. Gewinnziel aus dem Dashboard eintragen; die Konsistenzregel bezieht Topstep aufs Gewinnziel, das kennt die Prüfung noch nicht. Glattstellen bis 15:10 Chicago prüft die App erst ab 17:00."),
+                      bemerkung: String(localized: "Tagesverlust-Grenze pausiert bei Topstep nur, darum hier aus. Gewinnziel aus dem Dashboard eintragen; die Konsistenzregel bezieht Topstep aufs Gewinnziel, das kennt die Prüfung noch nicht. Glattstellen bis 15:10 Chicago prüft die App erst ab 17:00.")),
         Firmenvorlage(firma: "Apex", name: "Konto mit EOD-Drawdown", geprueft: false, quelle: "apextraderfunding.com/help-center",
                       startkapital: 50_000, zeitzone: "America/New_York", tageswechselMinuten: 18 * 60,
                       gesamtverlustart: .nachgezogenTagesende, einfrieren: .startPlus(100),
                       handelstagzaehlung: .gewinntag, konsistenzMaxAnteil: 0.5,
                       keinHaltenUeberTageswechsel: true, keinHaltenUeberWochenende: true,
-                      bemerkung: "Gesamtgrenze aus dem Dashboard eintragen; sie friert bei Start plus 100 ein. Glattstellen bis 16:59 New York prüft die App erst ab 18:00."),
+                      bemerkung: String(localized: "Gesamtgrenze aus dem Dashboard eintragen; sie friert bei Start plus 100 ein. Glattstellen bis 16:59 New York prüft die App erst ab 18:00.")),
     ]
 }

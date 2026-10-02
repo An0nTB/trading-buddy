@@ -435,8 +435,7 @@ struct KryptoKarte: View {
                         Text(verbatim: los.coin + " " + Format.zahl(los.menge, stellen: 4))
                             .font(Schrift.fliesstext)
                             .foregroundStyle(thema.text)
-                        Text(verbatim: Format.datum(los.kaufzeit) + " bis " + Format.datum(los.verkaufzeit)
-                             + " · " + Steuertext.tage(von: los.kaufzeit, bis: los.verkaufzeit))
+                        Text("\(Format.datum(los.kaufzeit)) bis \(Format.datum(los.verkaufzeit)) · \(Steuertext.tage(von: los.kaufzeit, bis: los.verkaufzeit))")
                             .font(Schrift.beschriftung)
                             .foregroundStyle(thema.textSchwach)
                     }

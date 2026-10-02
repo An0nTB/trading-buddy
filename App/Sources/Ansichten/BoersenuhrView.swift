@@ -306,7 +306,7 @@ enum Boersenformat {
         } else {
             tag = zeitpunkt.formatted(.dateTime.weekday(.abbreviated).day(.twoDigits).month(.twoDigits)) + ", " + uhr
         }
-        return "\(tag) (in \(Format.dauer(zeitpunkt.timeIntervalSince(jetzt))))"
+        return String(localized: "\(tag) (in \(Format.dauer(zeitpunkt.timeIntervalSince(jetzt))))")
     }
 
     static func tag(_ tag: Kalendertag?) -> String {
