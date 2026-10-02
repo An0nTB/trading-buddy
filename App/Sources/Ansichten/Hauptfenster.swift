@@ -93,35 +93,42 @@ struct Seitenleiste: View {
 
     var body: some View {
         NavigationSplitView {
-            List(selection: auswahl) {
-                Section("Journal") {
-                    ForEach(Bereich.journal) { bereich in
-                        Label(bereich.titel, systemImage: bereich.symbol)
-                            .listItemTint(thema.akzent)
-                            .tag(bereich)
-                            .inNeuemFenster(bereich) // P12 Eigene Fenster
+            // Konto-Zeile unter der List statt als safeAreaInset: Der Inset ließ AppKit die Seitenleiste bei jedem
+            // Layout-Pass neu messen (Startabsturz 02.10.2026, Update-Constraints-Schleife; Befund Codex und AP11).
+            VStack(spacing: 0) {
+                List(selection: auswahl) {
+                    Section("Journal") {
+                        ForEach(Bereich.journal) { bereich in
+                            Label(bereich.titel, systemImage: bereich.symbol)
+                                .listItemTint(thema.akzent)
+                                .tag(bereich)
+                                .inNeuemFenster(bereich) // P12 Eigene Fenster
+                        }
+                    }
+                    Section("Markt") {
+                        ForEach(Bereich.markt) { bereich in
+                            Label(bereich.titel, systemImage: bereich.symbol)
+                                .listItemTint(thema.akzent)
+                                .tag(bereich)
+                                .inNeuemFenster(bereich) // P12 Eigene Fenster
+                        }
+                    }
+                    Section("Daten") {
+                        ForEach(Bereich.daten) { bereich in
+                            Label(bereich.titel, systemImage: bereich.symbol)
+                                .listItemTint(thema.akzent)
+                                .tag(bereich)
+                                .inNeuemFenster(bereich) // P12 Eigene Fenster
+                        }
                     }
                 }
-                Section("Markt") {
-                    ForEach(Bereich.markt) { bereich in
-                        Label(bereich.titel, systemImage: bereich.symbol)
-                            .listItemTint(thema.akzent)
-                            .tag(bereich)
-                            .inNeuemFenster(bereich) // P12 Eigene Fenster
-                    }
-                }
-                Section("Daten") {
-                    ForEach(Bereich.daten) { bereich in
-                        Label(bereich.titel, systemImage: bereich.symbol)
-                            .listItemTint(thema.akzent)
-                            .tag(bereich)
-                            .inNeuemFenster(bereich) // P12 Eigene Fenster
-                    }
-                }
+                .listStyle(.sidebar)
+                Divider()
+                KontoZeile()
+                    .fixedSize(horizontal: false, vertical: true)
             }
             .navigationTitle("Trading Buddy")
             .navigationSplitViewColumnWidth(min: 180, ideal: Abstand.seitenleiste)
-            .safeAreaInset(edge: .bottom) { KontoZeile() }
         } detail: {
             BereichInhalt(bereich: modell.bereich)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
