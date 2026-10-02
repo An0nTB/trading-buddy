@@ -186,3 +186,25 @@ let krakenDoku = #"{"error":[],"result":{"XXBTZUSD":[[1688671200,"30306.1","3030
     #expect(stand.verlaeufe["ETH"] == alt)
     #expect(stand.fehler["ETH"] == "Keine Kerzen geliefert")
 }
+
+/// Gegencheck P1 Nr. 3: Ein dauerhafter Fehler holt nach einer Stunde nur das fehlerhafte Symbol neu,
+/// nicht alle; der Zeitpunkt des vollen Ladens bleibt.
+@Test func nachFehlerWirdNurDasFehlerhafteSymbolNeuGeholt() {
+    let btc = Kursverlauf(journalSymbol: "BTC", quelle: "kraken", quellSymbol: "BTC/EUR", kerzen: [], geladen: empfangen)
+    let stand = Verlaufsstand(verlaeufe: ["BTC": btc], fehler: ["AAPL.US": "Schlüssel fehlt"], geladen: empfangen)
+    let symbole = ["BTC", "AAPL.US", "ETH"]
+    #expect(stand.zuErneuern(symbole, jetzt: empfangen.addingTimeInterval(600)) == ["ETH"])
+    let spaeter = empfangen.addingTimeInterval(2 * 3600)
+    #expect(stand.zuErneuern(symbole, jetzt: spaeter) == ["AAPL.US", "ETH"])
+    let teil = Verlaufsstand(verlaeufe: [:], fehler: ["AAPL.US": "Schlüssel fehlt"], geladen: spaeter)
+    let neu = stand.ergaenzt(um: teil, symbole: ["AAPL.US"], jetzt: spaeter)
+    #expect(neu.geladen == empfangen)
+    #expect(neu.letzterVersuch == spaeter)
+    #expect(neu.verlaeufe["BTC"] == btc)
+    #expect(neu.zuErneuern(["BTC", "AAPL.US"], jetzt: spaeter.addingTimeInterval(1800)).isEmpty)
+    #expect(neu.zuErneuern(["BTC", "AAPL.US"], jetzt: spaeter.addingTimeInterval(3600)) == ["AAPL.US"])
+    // Nach 20 Stunden alles, und der neue Stand ersetzt den alten ganz.
+    let morgen = empfangen.addingTimeInterval(21 * 3600)
+    #expect(neu.zuErneuern(["BTC", "AAPL.US"], jetzt: morgen) == ["BTC", "AAPL.US"])
+    #expect(neu.ergaenzt(um: teil, symbole: ["BTC", "AAPL.US"], jetzt: morgen) == teil)
+}

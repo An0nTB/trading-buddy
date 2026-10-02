@@ -1,6 +1,7 @@
 import Foundation
 import Security
 import Testing
+import TradingCore
 import TradingQuotes
 @testable import Trading_Buddy
 
@@ -53,7 +54,9 @@ import TradingQuotes
         #expect(!dienst.aktiv)
         await dienst.ladeVerlaeufe(fuer: ["BTC/EUR"])
         #expect(dienst.verlaeufe.geladen == nil)
-        let ergebnis = await dienst.ladeMinutenkerzen(fuer: [])
+        let trade = Trade(id: "t1", symbol: "BTC/EUR", side: .buy, lots: 1, openTime: Date(timeIntervalSince1970: 1_700_000_000),
+                          closeTime: Date(timeIntervalSince1970: 1_700_000_600), openPrice: 100, closePrice: 101, profit: 1)
+        let ergebnis = await dienst.ladeMinutenkerzen(fuer: [trade])
         #expect(ergebnis == Minutenabruf())
     }
 }

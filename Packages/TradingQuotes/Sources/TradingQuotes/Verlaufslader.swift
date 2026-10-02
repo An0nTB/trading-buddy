@@ -5,25 +5,49 @@ public struct Verlaufsstand: Sendable, Equatable, Codable {
     public var verlaeufe: [String: Kursverlauf]
     /// Fehler je Journal-Symbol als Text; ein älterer Verlauf bleibt dann in `verlaeufe` stehen.
     public var fehler: [String: String]
-    /// Zeitpunkt des letzten Ladens, `nil` vor dem ersten.
+    /// Zeitpunkt des letzten vollständigen Ladens, `nil` vor dem ersten.
     public var geladen: Date?
+    /// Zeitpunkt des letzten Teilabrufs nach Fehlern (Gegencheck P1 Nr. 3); `nil`, solange es keinen gab.
+    public var letzterVersuch: Date?
 
     public static let leer = Verlaufsstand(verlaeufe: [:], fehler: [:], geladen: nil)
 
-    public init(verlaeufe: [String: Kursverlauf], fehler: [String: String], geladen: Date?) {
+    public init(verlaeufe: [String: Kursverlauf], fehler: [String: String], geladen: Date?, letzterVersuch: Date? = nil) {
         self.verlaeufe = verlaeufe
         self.fehler = fehler
         self.geladen = geladen
+        self.letzterVersuch = letzterVersuch
     }
 
     /// Einmal am Tag reicht: aktuell, wenn vor weniger als 20 Stunden geladen und jedes Symbol dabei war.
     /// Nach einem Fehler gibt es nach einer Stunde einen neuen Versuch (Gegencheck Q3).
     public func istAktuell(fuer symbole: [String], jetzt: Date) -> Bool {
-        guard let geladen else { return false }
-        let alter = jetzt.timeIntervalSince(geladen)
-        guard alter < 20 * 3600 else { return false }
-        if alter >= 3600, symbole.contains(where: { fehler[$0] != nil }) { return false }
-        return symbole.allSatisfy { verlaeufe[$0] != nil || fehler[$0] != nil }
+        zuErneuern(symbole, jetzt: jetzt).isEmpty
+    }
+
+    /// Symbole, die ein Abruf jetzt holen muss: nach 20 Stunden alle, sonst nur neue und, eine Stunde nach dem
+    /// letzten Versuch, die mit Fehler. So löst ein dauerhafter Fehler (etwa ohne Alpaca-Schlüssel) nicht jede
+    /// Stunde einen Abruf aller Symbole aus (Gegencheck P1 Nr. 3).
+    public func zuErneuern(_ symbole: [String], jetzt: Date) -> [String] {
+        guard let geladen, jetzt.timeIntervalSince(geladen) < 20 * 3600 else { return symbole }
+        let wiederholen = jetzt.timeIntervalSince(letzterVersuch ?? geladen) >= 3600
+        return symbole.filter { symbol in
+            if verlaeufe[symbol] == nil && fehler[symbol] == nil { return true }
+            return wiederholen && fehler[symbol] != nil
+        }
+    }
+
+    /// Arbeitet einen Abruf für `symbole` ein. War der Stand abgelaufen (siehe `zuErneuern`), ersetzt `neu` ihn
+    /// ganz; sonst gelten nur diese Symbole neu, `geladen` bleibt und `letzterVersuch` wird `jetzt`.
+    public func ergaenzt(um neu: Verlaufsstand, symbole: [String], jetzt: Date) -> Verlaufsstand {
+        guard let geladen, jetzt.timeIntervalSince(geladen) < 20 * 3600 else { return neu }
+        var stand = self
+        for symbol in symbole {
+            stand.verlaeufe[symbol] = neu.verlaeufe[symbol]
+            stand.fehler[symbol] = neu.fehler[symbol]
+        }
+        stand.letzterVersuch = jetzt
+        return stand
     }
 }
 
