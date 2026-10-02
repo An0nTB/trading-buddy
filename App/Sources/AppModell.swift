@@ -714,6 +714,17 @@ final class AppModell {
         return ergebnis
     }
 
+    /// MetaTrader-5-Handelsbericht (Doc 48); Nummer und Währung nur, wenn der Bericht sie nicht nennt.
+    func importiereMT5(daten: Data, dateiname: String, kontonummer: String?, kontoname: String?,
+                       waehrung: String?, serverZeitzone: TimeZone) throws -> ImportErgebnis {
+        guard let journal else { throw CocoaError(.fileNoSuchFile) }
+        let ergebnis = try journal.importiereMT5(datei: daten, dateiname: dateiname, kontonummer: kontonummer,
+                                                 kontoname: kontoname, kontowaehrung: waehrung,
+                                                 serverZeitzone: serverZeitzone)
+        nachImport(ergebnis)
+        return ergebnis
+    }
+
     // MARK: Produktart nachtragen (TradingStore #96)
 
     /// Wertpapiere des gewählten Kontos ohne Produktart (Scalable, XTB), nach Name.

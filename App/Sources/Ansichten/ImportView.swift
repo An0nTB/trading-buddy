@@ -12,7 +12,7 @@ struct ImportView: View {
     @State private var vorschau: ImportVorschau?
     @State private var lesefehler: String?
 
-    /// Dateitypen im Öffnen-Dialog: HTML (MetaTrader 4), CSV (Trade Republic, Scalable, Kryptobörsen), XLSX (XTB).
+    /// Dateitypen im Öffnen-Dialog: HTML (MetaTrader 4 und 5), CSV (Trade Republic, Scalable, IBKR, Kryptobörsen), XLSX (XTB).
     private var dateitypen: [UTType] {
         [.html, .plainText, .commaSeparatedText, .spreadsheet]
             + [UTType("org.openxmlformats.spreadsheetml.sheet"), UTType(filenameExtension: "xlsx")].compactMap { $0 }
@@ -42,7 +42,7 @@ struct ImportView: View {
             #endif
             if modell.importe.isEmpty {
                 ContentUnavailableView(ton.text("Noch kein Import", henry: "Ein Auszug, bitte."), systemImage: "square.and.arrow.down",
-                                       description: Text("Wähle einen Kontoauszug: MetaTrader 4 (HTML, GBE und andere Broker), den Transaktionsexport von Trade Republic oder Scalable Capital (CSV), den Trade- oder Transaktionsexport von Kraken, Binance, Coinbase oder Bitpanda (CSV) oder die Kontohistorie von XTB (Excel aus xStation 5)."))
+                                       description: Text("Wähle einen Kontoauszug: MetaTrader 4 oder 5 (HTML, GBE und andere Broker), den Transaktionsexport von Trade Republic oder Scalable Capital (CSV), das Activity Statement von Interactive Brokers (CSV), den Trade- oder Transaktionsexport von Kraken, Binance, Coinbase oder Bitpanda (CSV) oder die Kontohistorie von XTB (Excel aus xStation 5)."))
             } else {
                 List(modell.importe) { eintrag in
                     ImportZeile(eintrag: eintrag)
@@ -179,6 +179,8 @@ struct ImportBlatt: View {
     @State private var xtbZeit = Serverzeit.mitteleuropa
     /// Kontonummer für einen XTB-Auszug ohne Kontokopf.
     @State private var xtbKontonummer = ""
+    /// Kontonummer für einen MetaTrader-5-Bericht ohne Kontozeile.
+    @State private var mt5Kontonummer = ""
     @State private var waehrung = "EUR"
     @State private var erkannt: ErkannteDatei?
     @State private var kontowahl: Kontowahl?
@@ -211,6 +213,8 @@ struct ImportBlatt: View {
                         inhaltCSV(broker, bewegungen)
                     case .xtb(let auszug)?:
                         inhaltXTB(auszug)
+                    case .mt5(let bericht)?:
+                        inhaltMT5(bericht)
                     case nil:
                         if let lesefehler {
                             Label(lesefehler, systemImage: "exclamationmark.triangle")
@@ -655,6 +659,153 @@ struct ImportBlatt: View {
         claudeSatz
     }
 
+    // MARK: MetaTrader 5 (HTML, Doc 48)
+
+    @ViewBuilder
+    private func inhaltMT5(_ bericht: MT5Bericht) -> some View {
+        let nummer = mt5Nummer(bericht)
+        let broker = Importlesung.broker(bericht)
+        let konto = nummer.isEmpty ? nil : modell.bekanntesKonto(broker: broker, kontonummer: nummer)
+        let bekannt = nummer.isEmpty ? [] : modell.bekannteTickets(broker: broker, kontonummer: nummer)
+        let dubletten = bericht.positionen.filter { bekannt.contains($0.ticket) }.count
+        let ohneStop = bericht.positionen.filter { $0.stopLoss == nil }.count
+        let anzeigeWaehrung = bericht.waehrung ?? konto?.waehrung ?? waehrung
+        let einAus = bericht.kasse.geldbewegungen.filter { $0.art == .einzahlung || $0.art == .auszahlung }
+            .map { $0.betrag + $0.gebuehr + $0.steuer }.reduce(Decimal(0), +)
+
+        HStack(spacing: Abstand.raster * 2) {
+            Text(verbatim: Importlesung.erkennung(bericht))
+                .font(Schrift.fliesstext)
+                .foregroundStyle(thema.textSchwach)
+            Kapsel(text: String(localized: "ungeprüft"), betont: true)
+        }
+        Text("Dieser Importer lief noch gegen keine echte Datei, nur gegen nachgebaute Beispiele. Prüfe nach dem Import Lots und Beträge gegen den Bericht im Terminal.")
+            .font(Schrift.beschriftung)
+            .foregroundStyle(thema.textSchwach)
+
+        HStack(spacing: Abstand.kachelAbstand) {
+            Kachel(titel: "Trades", wert: "\(bericht.positionen.count)",
+                   zusatz: String(localized: "geschlossene Positionen"))
+            Kachel(titel: "Kassenoperationen", wert: "\(bericht.kasse.geldbewegungen.count)",
+                   zusatz: String(localized: "ohne Handel"))
+            Kachel(titel: "Ein-/Auszahlungen", wert: Format.betrag(einAus, anzeigeWaehrung))
+            Kachel(titel: "Schon bekannt", wert: "\(dubletten)")
+        }
+
+        Text("Konto und Zeit")
+            .font(.headline)
+            .foregroundStyle(thema.text)
+        Grid(alignment: .leading, horizontalSpacing: Abstand.kachelAbstand, verticalSpacing: Abstand.raster * 2) {
+            GridRow {
+                Text("Konto").foregroundStyle(thema.textSchwach)
+                HStack {
+                    if let konto {
+                        Text(verbatim: "\(konto.broker) · \(konto.kontoname) (\(String(localized: "bestehend")), \(konto.waehrung))")
+                            .foregroundStyle(thema.text)
+                    } else if bericht.konto != nil {
+                        Text(verbatim: "\(broker) · \(String(localized: "Konto")) \(Importlesung.maskiert(nummer)) (\(String(localized: "neu")))")
+                            .foregroundStyle(thema.text)
+                    } else {
+                        Text(verbatim: broker).foregroundStyle(thema.text)
+                        TextField("Kontonummer", text: $mt5Kontonummer)
+                            .textFieldStyle(.roundedBorder)
+                            .frame(width: 160)
+                    }
+                    if konto == nil {
+                        if let waehrung = bericht.waehrung {
+                            Text(verbatim: waehrung).foregroundStyle(thema.textSchwach)
+                        } else {
+                            Picker("Kontowährung", selection: $waehrung) {
+                                ForEach(Self.waehrungen, id: \.self) { Text(verbatim: $0).tag($0) }
+                            }
+                            .labelsHidden()
+                            .fixedSize()
+                        }
+                    }
+                }
+            }
+            GridRow {
+                Text("Serverzeit der Datei").foregroundStyle(thema.textSchwach)
+                Picker("Serverzeit", selection: $serverzeit) {
+                    ForEach(Serverzeit.allCases) { Text($0.name).tag($0) }
+                }
+                .labelsHidden()
+            }
+            GridRow {
+                Text("Kosten").foregroundStyle(thema.textSchwach)
+                Text("Kommission und Swap aus dem Bericht, nichts geschätzt").foregroundStyle(thema.text)
+            }
+        }
+        if bericht.konto == nil {
+            Text("Die Datei nennt keine Kontonummer. Gib dieselbe Nummer wie bei früheren Berichten dieses Kontos an, sonst zählt die App Positionen doppelt.")
+                .font(Schrift.beschriftung)
+                .foregroundStyle(thema.textSchwach)
+        }
+
+        Text("Prüfung gegen den Auszug")
+            .font(.headline)
+            .foregroundStyle(thema.text)
+        pruefRaster(Importlesung.pruefungen(bericht))
+
+        if !bericht.hinweise.isEmpty {
+            VStack(alignment: .leading, spacing: Abstand.raster) {
+                Text(verbatim: HinweisListe.anzahlText(bericht.hinweise.count) + ": " + String(localized: "Zeilen, die der Importer nicht sicher zuordnen kann"))
+                    .font(.headline)
+                    .foregroundStyle(thema.text)
+                HinweisListe(hinweise: bericht.hinweise)
+            }
+            .padding(Abstand.kachelInnen)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(thema.flaeche2, in: RoundedRectangle(cornerRadius: Abstand.radiusKachel))
+        }
+
+        if ohneStop > 0 {
+            Text("\(ohneStop) Trades ohne Stop im Export: ohne Stop kein R; Stop nachtragen geht im Inspektor.")
+                .font(Schrift.beschriftung)
+                .foregroundStyle(thema.textSchwach)
+        }
+
+        claudeSatz
+    }
+
+    /// Summenprüfung als Raster; leer mit Hinweis statt Tabelle.
+    @ViewBuilder
+    private func pruefRaster(_ liste: [Importlesung.Pruefung]) -> some View {
+        if liste.isEmpty {
+            Text("Die Datei hat keine Summenzeile; nichts zu vergleichen.")
+                .font(Schrift.beschriftung)
+                .foregroundStyle(thema.textSchwach)
+        } else {
+            Grid(alignment: .leading, horizontalSpacing: Abstand.kachelAbstand, verticalSpacing: Abstand.raster) {
+                GridRow {
+                    Text("Wert")
+                    Text("laut Auszug").gridColumnAlignment(.trailing)
+                    Text("berechnet").gridColumnAlignment(.trailing)
+                    Text("")
+                }
+                .font(Schrift.beschriftung)
+                .foregroundStyle(thema.textSchwach)
+                ForEach(liste) { pruefung in
+                    GridRow {
+                        Text(verbatim: pruefung.id).foregroundStyle(thema.text)
+                        Text(verbatim: Format.zahl(pruefung.lautAuszug)).font(Schrift.tabelle)
+                        Text(verbatim: Format.zahl(pruefung.berechnet)).font(Schrift.tabelle)
+                        if pruefung.stimmt {
+                            Text("stimmt").foregroundStyle(thema.gewinn)
+                        } else {
+                            Text("weicht ab").foregroundStyle(thema.verlust)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /// Kontonummer aus dem Bericht, sonst die eingegebene.
+    private func mt5Nummer(_ bericht: MT5Bericht) -> String {
+        bericht.konto ?? mt5Kontonummer.trimmingCharacters(in: .whitespaces)
+    }
+
     /// Kontonummer aus dem Kopf der Datei, sonst die eingegebene.
     private func xtbNummer(_ auszug: XTBAuszug) -> String {
         auszug.konto ?? xtbKontonummer.trimmingCharacters(in: .whitespaces)
@@ -672,8 +823,10 @@ struct ImportBlatt: View {
 
     private var importierbar: Bool {
         var nummer = ""
+        var mt5 = ""
         if case .xtb(let auszug)? = erkannt { nummer = xtbNummer(auszug) }
-        return Importlesung.importierbar(erkannt, kontoGueltig: kontoGueltig, xtbNummer: nummer)
+        if case .mt5(let bericht)? = erkannt { mt5 = mt5Nummer(bericht) }
+        return Importlesung.importierbar(erkannt, kontoGueltig: kontoGueltig, xtbNummer: nummer, mt5Nummer: mt5)
     }
 
     private var kontoGueltig: Bool {
@@ -725,7 +878,19 @@ struct ImportBlatt: View {
         }
         if case .csv(let broker, _)? = erkannt, kontowahl == nil {
             // Vorgabe: das erste Konto dieses Brokers, sonst ein neues namens „Depot“ (Börsen: „Spot“).
-            kontowahl = modell.konten(broker: broker.name).first.flatMap(\.id).map(Kontowahl.bestehend) ?? .neu
+            // IBKR nennt die Kontonummer: dann das Konto mit dieser Nummer, sonst ein neues mit ihr als Name.
+            let konten = modell.konten(broker: broker.name)
+            if broker == .ibkr, let text = String(data: vorschau.daten, encoding: .utf8) {
+                let kopf = IBKRCSV.konto(text)
+                if let nummer = kopf.nummer {
+                    kontowahl = konten.first { $0.kontonummer == nummer }.flatMap(\.id).map(Kontowahl.bestehend) ?? .neu
+                    if neuerKontoname.isEmpty { neuerKontoname = nummer }
+                }
+                if let w = kopf.waehrung { waehrung = w }
+            }
+            if kontowahl == nil {
+                kontowahl = konten.first.flatMap(\.id).map(Kontowahl.bestehend) ?? .neu
+            }
             if neuerKontoname.isEmpty { neuerKontoname = broker.kontoVorgabe }
         }
     }
@@ -756,6 +921,15 @@ struct ImportBlatt: View {
                                                     kontoname: bestehend?.kontoname ?? String(localized: "Konto \(Importlesung.maskiert(nummer))"),
                                                     waehrung: auszug.waehrung == nil ? (bestehend?.waehrung ?? waehrung) : nil,
                                                     zeitzone: xtbZeit.zeitzone, produktartVorgabe: produktartVorgabe)
+            case .mt5(let bericht)?:
+                // Wie XTB: Nummer und Währung nur, wenn der Bericht sie nicht nennt.
+                let nummer = mt5Nummer(bericht)
+                let bestehend = modell.bekanntesKonto(broker: Importlesung.broker(bericht), kontonummer: nummer)
+                ergebnis = try modell.importiereMT5(daten: vorschau.daten, dateiname: vorschau.dateiname,
+                                                    kontonummer: bericht.konto == nil ? nummer : nil,
+                                                    kontoname: bestehend?.kontoname ?? String(localized: "Konto \(Importlesung.maskiert(nummer))"),
+                                                    waehrung: bericht.waehrung == nil ? (bestehend?.waehrung ?? waehrung) : nil,
+                                                    serverZeitzone: serverzeit.zeitzone)
             case nil:
                 return
             }
@@ -777,6 +951,10 @@ struct ImportBlatt: View {
                 return String(localized: "\(gespeichert) \(z.ausfuehrungenNeu) neue Ausführungen (\(z.ausfuehrungenBekannt) bekannt), \(z.geldbewegungenNeu) Geldbewegungen, \(z.kapitalmassnahmenNeu) Kapitalmaßnahmen, \(z.verworfen) verworfen, \(z.hinweise) Hinweise.")
             }
             if case .xtb? = erkannt {
+                let z = ergebnis.csv
+                return String(localized: "\(gespeichert) \(ergebnis.geschlosseneNeu) neue Trades, \(ergebnis.geschlosseneBekannt) schon bekannt, \(z.geldbewegungenNeu) Kassenoperationen (\(z.geldbewegungenBekannt) bekannt), \(z.hinweise) Hinweise.")
+            }
+            if case .mt5? = erkannt {
                 let z = ergebnis.csv
                 return String(localized: "\(gespeichert) \(ergebnis.geschlosseneNeu) neue Trades, \(ergebnis.geschlosseneBekannt) schon bekannt, \(z.geldbewegungenNeu) Kassenoperationen (\(z.geldbewegungenBekannt) bekannt), \(z.hinweise) Hinweise.")
             }
