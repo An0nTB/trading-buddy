@@ -194,6 +194,7 @@ struct MT4KursimportBlatt: View {
         do {
             try await Ausstiegsdienst.geteilt.uebernimm(kerzen, symbol: symbol.trimmingCharacters(in: .whitespaces),
                                                         quelle: "MT4")
+            modell.exportiere()
             dismiss()
         } catch {
             speicherfehler = String(localized: "Speichern fehlgeschlagen: \(error.localizedDescription)")
