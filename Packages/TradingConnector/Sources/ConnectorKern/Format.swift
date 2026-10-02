@@ -45,13 +45,16 @@ enum Format {
         formatiert(zeitpunkt, zeitzone, "EE")
     }
 
-    /// Ganzer Monat als „Mai 2025“, sonst „12.05.2025 bis 18.05.2025“ (beide Tage einschließlich).
+    /// Ganzer Monat als „Mai 2025“, ISO-Woche als „KW 20/2025 (12.05.2025 bis 18.05.2025)“,
+    /// sonst „12.05.2025 bis 18.05.2025“ (beide Tage einschließlich).
     static func zeitraum(_ z: Zeitspanne, _ zeitzone: TimeZone) -> String {
         if Zeitspanne.monat(mit: z.von, zeitzone: zeitzone) == z {
             return formatiert(z.von, zeitzone, "LLLL yyyy")
         }
-        return "\(datum(z.von, zeitzone, mitZeit: false)) bis "
+        let tage = "\(datum(z.von, zeitzone, mitZeit: false)) bis "
             + datum(z.bis.addingTimeInterval(-1), zeitzone, mitZeit: false)
+        guard let kw = z.kalenderwoche(zeitzone: zeitzone) else { return tage }
+        return "KW \(kw.woche)/\(kw.jahr) (\(tage))"
     }
 
     private static func formatiert(_ zeitpunkt: Date, _ zeitzone: TimeZone, _ muster: String) -> String {
