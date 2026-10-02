@@ -14,8 +14,9 @@ struct FragBradBlatt: View {
     let anfrage: FragBradAnfrage
     @Environment(AppModell.self) private var modell
     @Environment(\.dismiss) private var schliessen
-    /// Ton-Schalter aus den Einstellungen (AP11); Standard „Brad“.
-    @AppStorage("ton") private var tonWert = FragBradTon.brad.rawValue
+    /// Ton-Schalter aus den Einstellungen (AP11, `Ton.swift`: Schlüssel `brad.ton`, Werte `bro` und `sachlich`,
+    /// Standard `bro`). Direkt gelesen, bis `Ton.aktuell` mit dem Brad-PR auf main ist.
+    @AppStorage("brad.ton") private var tonWert = "bro"
     @State private var vorlage: FragBradVorlage
     @State private var freieFrage = ""
     @State private var meldung: String?
@@ -31,7 +32,7 @@ struct FragBradBlatt: View {
 
     private var text: String? {
         FragBrad.text(vorlage, kontext: FragBradKontextAusModell.kontext(modell, trade: anfrage.trade),
-                      freieFrage: freieFrage, ton: FragBradTon(rawValue: tonWert) ?? .brad, zeitzone: modell.zeitzone)
+                      freieFrage: freieFrage, ton: tonWert == "sachlich" ? .sachlich : .brad, zeitzone: modell.zeitzone)
     }
 
     var body: some View {
