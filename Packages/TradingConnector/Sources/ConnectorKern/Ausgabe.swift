@@ -86,6 +86,11 @@ public enum Ausgabe {
                               : "- Nur \(k.anzahl) Trades (unter 30): nur beschreiben, nicht folgern.")
         t.append("- R nur für Trades mit Stop. Ein im Journal nachgetragener Stop beim Einstieg gilt; sonst der Stop "
             + "aus dem Export, bei MetaTrader der letzte Stand (nachgezogene Stops verfälschen R).")
+        let nurDatum = a.trades.filter(\.nurDatum).count
+        if nurDatum > 0 {
+            t.append("- \(nurDatum) von \(k.anzahl) Trades nur mit Datum gebucht (Trade Republic, Scalable): Uhrzeit und "
+                + "Haltedauer unbekannt, bei Stunde und Haltedauer unter „ohne Uhrzeit“, daraus kein Muster.")
+        }
         t.append("- Journal ausgefüllt im Zeitraum: Setup \(abdeckung.setup), Regeltreue \(abdeckung.regeltreue), "
             + "Zustand \(abdeckung.zustand), Grund \(abdeckung.grund) von \(k.anzahl) Trades. "
             + "Gründe einzelner Trades über hole_trades.")
