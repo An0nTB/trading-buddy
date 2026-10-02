@@ -24,11 +24,25 @@ public enum EZBKursdatei {
         let parser = XMLParser(data: daten)
         parser.delegate = sammler
         parser.shouldResolveExternalEntities = false
-        let vollstaendig = parser.parse()
+        // Nur `parse()` reicht nicht: FoundationXML unter Linux meldet eine abgeschnittene Datei als Erfolg.
+        // Deshalb zählt zusätzlich, ob das äußere Cube geschlossen wurde und die Datei mit dem
+        // Schluss-Tag des Wurzelelements endet (z. B. `</gesmes:Envelope>`).
+        let vollstaendig = parser.parse() && sammler.aeussererCubeGeschlossen && !sammler.fehler
+            && endetMitSchlussTag(daten, wurzel: sammler.wurzel)
         let kurse = sammler.kurse.filter { !$0.value.isEmpty }
         guard !kurse.isEmpty else { throw Fehler.keineKurse }
         guard vollstaendig else { throw Fehler.unvollstaendig }
         return kurse
+    }
+
+    /// Ob die Datei (ohne Leerraum am Ende) mit `</wurzel>` endet.
+    static func endetMitSchlussTag(_ daten: Data, wurzel: String?) -> Bool {
+        guard let wurzel, !wurzel.isEmpty else { return false }
+        var ende = daten.endIndex
+        while ende > daten.startIndex, [0x20, 0x09, 0x0A, 0x0D].contains(daten[daten.index(before: ende)]) {
+            ende = daten.index(before: ende)
+        }
+        return daten[daten.startIndex..<ende].reversed().starts(with: Array("</\(wurzel)>".utf8).reversed())
     }
 
     /// Dezimalzahl mit Punkt, unabhängig von der Spracheinstellung.
@@ -42,10 +56,18 @@ public enum EZBKursdatei {
     final class Sammler: NSObject, XMLParserDelegate {
         var kurse: [Journaltag: [String: Decimal]] = [:]
         private var tag: Journaltag?
+        /// Verschachtelung der Cube-Elemente: 1 = Hülle aller Tage, 2 = Tag, 3 = Kurs.
+        private var tiefe = 0
+        private(set) var aeussererCubeGeschlossen = false
+        private(set) var fehler = false
+        /// Name des Wurzelelements, wie er in der Datei steht.
+        private(set) var wurzel: String?
 
         func parser(_ parser: XMLParser, didStartElement name: String, namespaceURI: String?,
                     qualifiedName: String?, attributes: [String: String]) {
+            if wurzel == nil { wurzel = qualifiedName ?? name }
             guard name == "Cube" else { return }
+            tiefe += 1
             if let zeit = attributes["time"] {
                 tag = Journaltag(zeit)
                 if let tag, kurse[tag] == nil { kurse[tag] = [:] }
@@ -53,6 +75,16 @@ public enum EZBKursdatei {
                       let wert = EZBKursdatei.zahl(rate) {
                 kurse[tag, default: [:]][waehrung.uppercased()] = wert
             }
+        }
+
+        func parser(_ parser: XMLParser, didEndElement name: String, namespaceURI: String?, qualifiedName: String?) {
+            guard name == "Cube" else { return }
+            if tiefe == 1 { aeussererCubeGeschlossen = true }
+            tiefe -= 1
+        }
+
+        func parser(_ parser: XMLParser, parseErrorOccurred parseError: any Error) {
+            fehler = true
         }
     }
 }
