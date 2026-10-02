@@ -46,10 +46,21 @@ final class TagModell {
         laden()
     }
 
+    /// Lädt Notiz, verpasste Trades und Bilder des Tages; ersetzt den Entwurf. Nur beim Start und Tageswechsel.
     func laden() {
         do {
             gespeichert = try ablage.tagesnotiz(tag)
             entwurf = gespeichert ?? Tagesnotiz(tag: tag, erstellt: Date())
+        } catch {
+            fehler = error.localizedDescription
+        }
+        ladeEintraege()
+    }
+
+    /// Lädt nur verpasste Trades und Bilder neu; der Entwurf bleibt, auch wenn er noch nicht gespeichert ist
+    /// (Gesamt-Gegencheck 02.10.2026, Befund T1).
+    private func ladeEintraege() {
+        do {
             let spanne = tag.spanne(in: zeitzone)
             verpasst = try ablage.verpassteTrades(von: spanne.von, bis: spanne.bis)
             bilder = try ablage.bilder(tag: tag)
@@ -87,13 +98,13 @@ final class TagModell {
 
     func speichere(_ eintrag: VerpassterTrade) throws {
         try ablage.speichereVerpasstenTrade(eintrag)
-        laden()
+        ladeEintraege()
     }
 
     func loesche(_ eintrag: VerpassterTrade) {
         do {
             try ablage.loescheVerpasstenTrade(id: eintrag.id)
-            laden()
+            ladeEintraege()
         } catch {
             fehler = error.localizedDescription
         }
@@ -138,14 +149,14 @@ final class TagModell {
             }
         }
         fehler = ersterFehler
-        laden()
+        ladeEintraege()
     }
 
     func entferne(_ bild: Bildverweis) {
         do {
             try ablage.loescheBild(datei: bild.datei)
             Bilderordner.loesche(bild.datei)
-            laden()
+            ladeEintraege()
         } catch {
             fehler = error.localizedDescription
         }
