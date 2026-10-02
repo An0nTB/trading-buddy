@@ -12,6 +12,8 @@ public struct Anfrage: Sendable {
     public var kontowaehrung: String = ""
     /// Trades des Kontos in anderen Währungen, je Währung; sie stehen nicht in den Summen dieser Antwort.
     public var andereWaehrungen: [String: [Trade]] = [:]
+    /// Mit EZB-Referenzkursen in die Kontowährung umgerechnete Trades, Anzahl je Ursprungswährung.
+    public var umgerechnet: [String: Int] = [:]
 
     public var zeitzone: TimeZone { export.nutzerZeitzone }
     public var kontoname: String { export.kurzname(konto) }
@@ -19,12 +21,29 @@ public struct Anfrage: Sendable {
     /// Zeitraum aus `monat` („JJJJ-MM“), `woche` (ein Tag der Woche, „JJJJ-MM-TT“)
     /// oder `von` und `bis` („JJJJ-MM-TT“, beide einschließlich). Ohne Angabe:
     /// der letzte Monat mit Trades. Konto über `konto` (Endziffern oder Broker), bei nur einem Konto entbehrlich.
-    /// Währung über `waehrung`; ohne Angabe die Kontowährung, gibt es darin keine Trades, die häufigste.
+    /// Ohne `waehrung` rechnet sie Trades in fremder Währung mit den EZB-Kursen der Datei in die Kontowährung um
+    /// (`Waehrungsangleich` wie die App); ohne Kurs bleiben sie draußen. Mit `waehrung` oder ohne Kurse in der Datei
+    /// nur Trades dieser Währung; ohne Angabe die Kontowährung, gibt es darin keine Trades, die häufigste.
     public static func lies(_ argumente: [String: String], export: JournalExport) throws -> Anfrage {
         var konto = try waehleKonto(argumente["konto"], in: export)
         let kontowaehrung = konto.waehrung.uppercased()
-        let (waehrung, andere) = try waehleWaehrung(argumente["waehrung"], konto)
-        konto.trades = konto.trades.filter { $0.waehrung(kontowaehrung: kontowaehrung) == waehrung }
+        var (waehrung, andere) = try waehleWaehrung(argumente["waehrung"], konto)
+        var umgerechnet: [String: Int] = [:]
+        let wunsch = argumente["waehrung"]?.trimmingCharacters(in: .whitespaces) ?? ""
+        if wunsch.isEmpty, let kurse = export.angleichskurse, konto.trades.contains(where: {
+            $0.waehrung(kontowaehrung: kontowaehrung) != kontowaehrung
+        }) {
+            let angleich = Waehrungsangleich(konto.trades, kontowaehrung: kontowaehrung, kurse: kurse,
+                                             zeitzone: export.nutzerZeitzone)
+            for t in konto.trades where angleich.umgerechnet.contains(t.id) {
+                umgerechnet[t.waehrung(kontowaehrung: kontowaehrung), default: 0] += 1
+            }
+            andere = Dictionary(grouping: angleich.ohneKurs) { $0.waehrung(kontowaehrung: kontowaehrung) }
+            waehrung = kontowaehrung
+            konto.trades = angleich.trades
+        } else {
+            konto.trades = konto.trades.filter { $0.waehrung(kontowaehrung: kontowaehrung) == waehrung }
+        }
         konto.waehrung = waehrung
         if waehrung != kontowaehrung {
             // Ziele und Betragsgrenzen sind in Kontowährung eingetragen; gegen andere Beträge sind sie bedeutungslos.
@@ -57,7 +76,7 @@ public struct Anfrage: Sendable {
             vorgabe = "Kein Zeitraum angegeben, daher der letzte Monat mit Trades."
         }
         return Anfrage(export: export, konto: konto, zeitraum: zeitraum, vorgabe: vorgabe,
-                       kontowaehrung: kontowaehrung, andereWaehrungen: andere)
+                       kontowaehrung: kontowaehrung, andereWaehrungen: andere, umgerechnet: umgerechnet)
     }
 
     /// Gewählte Währung und die Trades der übrigen Währungen des Kontos.
