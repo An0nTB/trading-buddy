@@ -61,6 +61,7 @@ public enum Ausgabe {
              Format.prozent($0.kennzahlen.trefferquote), Format.r($0.kennzahlen.erwartungswertR)]
         }))
         if symbole.count > 10 { t.append("Weitere \(symbole.count - 10) Symbole über hole_aufschluesselung.") }
+        t.append(contentsOf: anfrage.produktartabschnitt(a.trades))
 
         t.append("\n## Fehlermuster (Regeln im Rechenkern, Schwellen vorläufig)")
         t.append(contentsOf: a.befunde.map { befund(a, $0) })
