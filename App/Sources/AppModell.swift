@@ -45,6 +45,8 @@ final class AppModell {
     let boersen = Boersenverwaltung()
     /// Review-Ziele des gewählten Kontos, nach Beginn sortiert (Rezept Punkt 6 und 7, Migration v4 aus AP9 #37).
     private(set) var ziele: [Reviewziel] = []
+    /// Handelsregeln des gewählten Kontos (P6; Migration v5 aus AP9 #54); ohne gespeicherte Regeln leer.
+    private(set) var regeln = Handelsregeln()
 
     // Zustand der Oberfläche
     var bereich: Bereich = .uebersicht
@@ -167,12 +169,14 @@ final class AppModell {
                 journaleintraege = try journal.journaleintraege(konto: konto)
                 alleGeloeschten = try journal.geloeschteOrders(konto: konto)
                 ziele = try journal.ziele(konto: konto)
+                regeln = try journal.handelsregeln(konto: konto)
             } else {
                 positionen = []
                 kontobewegungen = Kontobewegungen()
                 journaleintraege = [:]
                 alleGeloeschten = []
                 ziele = []
+                regeln = Handelsregeln()
             }
             positionsbildung = Positionsbildung.bilde(kontobewegungen.ausfuehrungen,
                                                       kapitalmassnahmen: kontobewegungen.kapitalmassnahmen)
@@ -257,6 +261,51 @@ final class AppModell {
         } catch {
             fehler = Zielfehler.text(error)
         }
+    }
+
+    // MARK: Handelsregeln (P6; geprüft nach dem Import, nicht live, Entscheidung E3)
+
+    /// Tickets, die im Journal als „nicht regeltreu“ stehen; sie zählen als Verstoß der Art `manuell`.
+    var manuellVerletzt: Set<String> {
+        Set(journaleintraege.values.filter { $0.regeltreue == false }.map(\.ticket))
+    }
+
+    /// Verstöße gegen die eigenen Regeln, immer über alle Trades des Kontos und nicht über den Filter:
+    /// „Trades je Tag“ und „Tagesverlust“ zählen den ganzen Tag, nicht nur ein Instrument.
+    var verstoesse: [Regelverstoss] {
+        Regelpruefung.pruefe(alleTrades, regeln: regeln, zeitzone: zeitzone, manuell: manuellVerletzt)
+    }
+
+    /// Der letzte Handelstag im gewählten Zeitraum, Grundlage der Regel-Ampel.
+    var letzterTagesstand: Regelpruefung.Tagesstand? {
+        let kalender = self.kalender
+        let staende = Regelpruefung.tagesstaende(alleTrades, regeln: regeln, zeitzone: zeitzone, manuell: manuellVerletzt)
+        return staende.last { stand in
+            if case .monat(let monat) = zeitraum { return monatsanfang(stand.tag, kalender) == monat }
+            return true
+        }
+    }
+
+    /// Trades, die an diesem Kalendertag (Zeitzone des Nutzers) eröffnet wurden.
+    func trades(eroeffnetAm tag: Date) -> [Trade] {
+        let kalender = self.kalender
+        return alleTrades.filter { kalender.startOfDay(for: $0.openTime) == tag }
+    }
+
+    /// Disziplin-Kurve der gefilterten Trades; die Verstöße stammen aus der Prüfung über alle Trades.
+    var disziplin: Disziplin { Disziplin(trades: trades, verstoesse: verstoesse) }
+
+    /// Stand der Challenge über alle Trades des Kontos; `nil` ohne Prop-Firm-Regeln.
+    var propFirmErgebnis: PropFirmPruefung.Ergebnis? {
+        regeln.propFirm.map { PropFirmPruefung.pruefe(alleTrades, regeln: $0) }
+    }
+
+    /// Ersetzt die Regeln des gewählten Kontos. Die Speicherung lehnt Grenzen ab, die keine sind
+    /// (Beträge und Anzahlen nicht über 0, leerer Prop-Firm-Name, unbekannte Zeitzone); leere Regeln löschen die Zeile.
+    func speichereRegeln(_ neu: Handelsregeln) throws {
+        guard let journal, let konto else { throw Regelfehler.keinKonto }
+        try journal.setzeHandelsregeln(neu, konto: konto)
+        regeln = try journal.handelsregeln(konto: konto)
     }
 
     /// Setups, die schon einmal eingetragen wurden, alphabetisch.
