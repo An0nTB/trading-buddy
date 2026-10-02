@@ -16,6 +16,9 @@ final class Boersenverwaltung {
     private(set) var verfuegbar: Boersenuhr?
     /// Letzter Fehler beim Laden oder Ändern, für die Anzeige; `nil`, wenn alles stimmt.
     private(set) var fehler: String?
+    /// Einträge der gespeicherten Auswahl, die die Uhr überspringt (TradingClock 0.3.1, `Boersenauswahl.probleme()`),
+    /// in Klartext; leer, wenn die Uhr alles so nimmt, wie es gespeichert ist.
+    private(set) var probleme: [String] = []
 
     /// Die mitgelieferten Börsen, wie sie im Paket stehen (für „Vorgabe wiederherstellen“).
     private let mitgeliefert: [Boerse]
@@ -222,6 +225,7 @@ final class Boersenverwaltung {
         do {
             verfuegbar = try Boersenuhr.verfuegbar(auswahl)
             uhr = try Boersenuhr.mit(auswahl)
+            probleme = try auswahl.probleme().map { Self.text($0) }
         } catch {
             verfuegbar = nil
             uhr = nil
