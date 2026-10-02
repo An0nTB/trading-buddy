@@ -35,6 +35,11 @@ struct PlanwirkungKarte: View {
                 if !wirkung.genugDaten {
                     Kapsel(text: String(localized: "Unter \(Planwirkung.mindestTage) Tagen je Seite: beschreibt nur, belegt nichts"))
                 }
+                if wirkung.tageUnklar > 0 {
+                    Text(verbatim: unklarText(wirkung.tageUnklar))
+                        .font(Schrift.beschriftung)
+                        .foregroundStyle(thema.textSchwach)
+                }
                 Text("Zählt, ob der Plan vor dem ersten Trade des Tages gespeichert war. Tage ohne Trades fallen heraus. Grundlage sind alle Trades des gewählten Kontos.")
                     .font(Schrift.beschriftung)
                     .foregroundStyle(thema.textSchwach)
@@ -44,6 +49,14 @@ struct PlanwirkungKarte: View {
                     .foregroundStyle(thema.textSchwach)
             }
         }
+    }
+
+    /// Tage nur mit Trades ohne Uhrzeit und Plan vom selben Tag (TradingCore 0.17.0): zählen auf keiner Seite.
+    private func unklarText(_ tage: Int) -> String {
+        let grund = String(localized: "Trades ohne Uhrzeit, Plan am selben Tag gespeichert.")
+        return tage == 1
+            ? String(localized: "1 Tag unklar: \(grund) Er zählt auf keiner Seite.")
+            : String(localized: "\(tage) Tage unklar: \(grund) Sie zählen auf keiner Seite.")
     }
 
     private func seite(titel: String, jeTag: Decimal?, trades: Int) -> some View {
