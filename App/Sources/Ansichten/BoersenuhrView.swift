@@ -151,7 +151,7 @@ private struct BoersenZeile: View {
                 .foregroundStyle(thema.textSchwach)
                 .lineLimit(1)
         }
-        .help(boerse.hinweise.joined(separator: " "))
+        .help(boerse.hinweise.map(\.uebersetzt).joined(separator: " "))
     }
 
     private var zustand: some View {
@@ -161,9 +161,9 @@ private struct BoersenZeile: View {
                 Kapsel(text: art.titel)
             }
             if let feiertag = status.feiertag {
-                Kapsel(text: String(localized: "Feiertag: \(feiertag)"))
+                Kapsel(text: String(localized: "Feiertag: \(feiertag.uebersetzt)"))
             } else if let verkuerzt = status.verkuerzt {
-                Kapsel(text: String(localized: "Verkürzt: \(verkuerzt)"))
+                Kapsel(text: String(localized: "Verkürzt: \(verkuerzt.uebersetzt)"))
             }
         }
         .lineLimit(1)
