@@ -26,6 +26,10 @@ struct EinstellungenView: View {
                 Form { RegelnEinstellungen() }
                     .formStyle(.grouped)
             }
+            Tab("Playbook", systemImage: "book.closed") {
+                Form { PlaybookEinstellungen() }
+                    .formStyle(.grouped)
+            }
             Tab("Kurse", systemImage: "chart.line.uptrend.xyaxis") {
                 Form { KurseEinstellungen() }
                     .formStyle(.grouped)
@@ -49,6 +53,12 @@ struct EinstellungenView: View {
                 NavigationLink("Handelsregeln und Prop-Firm") {
                     Form { RegelnEinstellungen() }
                         .navigationTitle("Regeln")
+                }
+            }
+            Section("Playbook") {
+                NavigationLink("Setup-Karten und Kriterien") {
+                    Form { PlaybookEinstellungen() }
+                        .navigationTitle("Playbook")
                 }
             }
             Section("Kurse") {
