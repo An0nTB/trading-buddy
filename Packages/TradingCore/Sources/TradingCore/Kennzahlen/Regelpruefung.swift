@@ -4,7 +4,8 @@ import Foundation
 /// Tagesgrenze ist der Kalendertag der Eröffnung in der Zeitzone des Nutzers, wie bei „Überhandeln“.
 /// Gezählt wird nur, was zum Eröffnungszeitpunkt schon feststand: Ergebnisse, die vorher am selben Tag
 /// geschlossen wurden, auch aus Positionen, die an einem früheren Tag eröffnet wurden.
-/// Ein Trade kann mehrere Regeln zugleich verletzen.
+/// Ein Trade kann mehrere Regeln zugleich verletzen. Teilverkäufe einer Position zählen bei
+/// „Trades je Tag“ und „Verluste in Folge“ als ein Trade (`positionsschluessel`).
 public enum Regelpruefung {
     public static func pruefe(_ trades: [Trade], regeln: Handelsregeln, zeitzone: TimeZone,
                               manuell: Set<String> = []) -> [Regelverstoss] {
@@ -17,7 +18,10 @@ public enum Regelpruefung {
 
         for tag in jeTag.keys.sorted() {
             let tagesTrades = jeTag[tag]!
-            for (nummer, t) in tagesTrades.enumerated() {
+            var eroeffnungen: [String] = []
+            for t in tagesTrades {
+                if !eroeffnungen.contains(t.positionsschluessel) { eroeffnungen.append(t.positionsschluessel) }
+                let nummer = eroeffnungen.firstIndex(of: t.positionsschluessel)!
                 var arten: [Regelverstoss.Art] = []
                 let vorher = geschlossenVor(t, in: geschlossenJeTag[tag] ?? [], kalender: kalender)
                 if let max = regeln.maxTradesJeTag, nummer >= max { arten.append(.tradesJeTag) }
@@ -60,7 +64,8 @@ public enum Regelpruefung {
         return Set(jeTag.keys).union(geschlossenJeTag.keys).sorted().map { tag in
             let nachSchluss = geschlossenJeTag[tag] ?? []
             let betroffen = Set(verstoesse.filter { $0.tag == tag }.map(\.trade))
-            return Tagesstand(tag: tag, trades: jeTag[tag]?.count ?? 0, netto: nachSchluss.map(\.netProfit).reduce(0, +),
+            let eroeffnungen = Set((jeTag[tag] ?? []).map(\.positionsschluessel)).count
+            return Tagesstand(tag: tag, trades: eroeffnungen, netto: nachSchluss.map(\.netProfit).reduce(0, +),
                               verlusteInFolge: verlusteInFolge(nachSchluss), verstoesse: betroffen.count)
         }
     }
@@ -78,7 +83,15 @@ public enum Regelpruefung {
     }
 
     /// Verluste am Ende der Folge, ohne Unterbrechung durch einen Gewinner oder Breakeven.
+    /// Teilverkäufe einer Position zählen zusammen, nach ihrem letzten Schluss.
     static func verlusteInFolge(_ nachSchluss: [Trade]) -> Int {
-        nachSchluss.reversed().prefix { $0.outcome == .loss }.count
+        var reihenfolge: [String] = []
+        var netto: [String: Decimal] = [:]
+        for t in nachSchluss {
+            reihenfolge.removeAll { $0 == t.positionsschluessel }
+            reihenfolge.append(t.positionsschluessel)
+            netto[t.positionsschluessel, default: 0] += t.netProfit
+        }
+        return reihenfolge.reversed().prefix { netto[$0]! < 0 }.count
     }
 }

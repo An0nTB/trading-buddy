@@ -54,7 +54,8 @@ public enum PropFirmPruefung {
         public var konsistenzAnteil: Decimal?
         /// Alle Ziele erreicht und kein Verstoß; `nil` ohne Gewinnziel.
         public var bestanden: Bool?
-        /// Handelstage mit Schluss, nach Tag; der letzte ist „heute“ für den Balken.
+        /// Nur Tage mit geschlossenem Trade, nach Tag. Der letzte Eintrag ist der letzte Tag mit Schluss,
+        /// nicht zwingend heute: Für den Tagesverlust-Balken prüft die App, ob `tag` heute ist.
         public var tage: [Tagesstand]
     }
 

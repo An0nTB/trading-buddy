@@ -76,13 +76,15 @@ extension Kennzahlen {
             return trades.map { $0.nurDatum ? Gruppe.ohneUhrzeit : Haltedauerklasse($0.holdingTime).rawValue }
         case .tradeNummerAmTag:
             var ergebnis = Array(repeating: "", count: trades.count)
-            var zaehler: [Date: Int] = [:]
+            var eroeffnungen: [Date: [String]] = [:]
             for i in trades.indices.sorted(by: { (trades[$0].openTime, trades[$0].id) < (trades[$1].openTime, trades[$1].id) }) {
                 // Ohne Uhrzeit ist die Reihenfolge am Tag unbekannt; solche Trades zählen nicht mit.
                 guard !trades[i].nurDatum else { ergebnis[i] = Gruppe.ohneUhrzeit; continue }
+                // Teilverkäufe einer Position tragen dieselbe Nummer.
                 let tag = kalender.startOfDay(for: trades[i].openTime)
-                zaehler[tag, default: 0] += 1
-                ergebnis[i] = String(zaehler[tag]!)
+                let schluessel = trades[i].positionsschluessel
+                if !eroeffnungen[tag, default: []].contains(schluessel) { eroeffnungen[tag, default: []].append(schluessel) }
+                ergebnis[i] = String(eroeffnungen[tag]!.firstIndex(of: schluessel)! + 1)
             }
             return ergebnis
         case .nachVorherigem:

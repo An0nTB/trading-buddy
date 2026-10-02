@@ -15,6 +15,7 @@ import Foundation
 /// unbelegt), Krypto-Ein- und -Auszahlung, transfer-Typen (Staking-Umbuchung, Airdrop), Fiat außerhalb
 /// der Geldwährungen. Staking-Erträge („rewards“, vor dem 14.06.2022 „transfer“ eingehend; CoinTaxman
 /// Issue 155) werden Kauf zum Marktwert plus Zinsen in gleicher Höhe.
+/// Produktart nur bei „Asset class“ Cryptocurrency `.krypto`, sonst `.unbekannt` (Aktien, ETFs, Metalle).
 /// Status: ungeprüft, bis eine echte Datei durchgelaufen ist.
 public enum BitpandaCSV {
     static let pflichtspalten = ["Transaction ID", "Timestamp", "Transaction Type", "In/Out", "Amount Fiat",
@@ -54,6 +55,9 @@ public enum BitpandaCSV {
 
             let geld = KryptoWerte.geldwaehrungen.contains(fiat)
             let fiatKlasse = feld("Asset class") == "Fiat"
+            // Bitpanda handelt auch Aktien, ETFs und Metalle. Nur Kryptowährungen sind sicher `.krypto`;
+            // andere Klassen bleiben ohne Art, bis der Nutzer sie zuordnet (Gegencheck K2, Klassennamen unbelegt).
+            let art: Produktart = feld("Asset class").lowercased().contains("crypto") ? .krypto : .unbekannt
             let handel = typ == "buy" || typ == "sell"
             // Hinweise zu Handelszeilen wie bei Kraken und Binance: „PAAR SEITE …“.
             let paarSeite = "\(KryptoWerte.kennung(asset, fiat)) \(typ)"
@@ -73,7 +77,7 @@ public enum BitpandaCSV {
                     seite: kauf ? .buy : .sell, menge: try zahl("Amount Asset"),
                     preis: try zahl("Asset market price"),
                     betrag: kauf ? -(betragFiat + gebuehr) : betragFiat - gebuehr, gebuehr: gebuehr,
-                    waehrung: fiat, produktart: .krypto, rohzeile: z))
+                    waehrung: fiat, produktart: art, rohzeile: z))
                 if let i = steuerSpalte, i < z.count, try KryptoWerte.zahl(z[i], zeile: zeile) != 0 {
                     hinweis("\(paarSeite) Steuer \(z[i].trimmingCharacters(in: .whitespaces)) \(fiat)")
                 }
@@ -81,7 +85,7 @@ public enum BitpandaCSV {
                 ergebnis.ausfuehrungen.append(Ausfuehrung(
                     id: id, zeit: zeit, kennung: KryptoWerte.kennung(asset, fiat), name: asset, seite: .buy,
                     menge: try zahl("Amount Asset"), preis: try zahl("Asset market price"),
-                    betrag: -betragFiat, waehrung: fiat, produktart: .krypto, rohzeile: z))
+                    betrag: -betragFiat, waehrung: fiat, produktart: art, rohzeile: z))
                 ergebnis.geldbewegungen.append(Geldbewegung(
                     id: "\(id)-ertrag", zeit: zeit, art: .zinsen, betrag: betragFiat, waehrung: fiat,
                     kennung: KryptoWerte.kennung(asset, fiat), rohzeile: z))
