@@ -2,7 +2,7 @@ import Foundation
 
 /// Fragevorlagen für „Frag Brad“ (Entwurf design/FragBrad_Entwurf.md, V1 bis V7).
 public enum FragBradVorlage: String, CaseIterable, Sendable, Identifiable {
-    case monat, woche, groesstesLeck, setups, trade, ziel, frei
+    case monat, woche, groesstesLeck, setups, trade, tag, ziel, frei
 
     public var id: String { rawValue }
 
@@ -13,6 +13,7 @@ public enum FragBradVorlage: String, CaseIterable, Sendable, Identifiable {
         case .groesstesLeck: "Größtes Leck finden"
         case .setups: "Setups vergleichen"
         case .trade: "Diesen Trade einordnen"
+        case .tag: "Diesen Tag einordnen"
         case .ziel: "Ziel aus dem Review prüfen"
         case .frei: "Eigene Frage"
         }
@@ -20,6 +21,14 @@ public enum FragBradVorlage: String, CaseIterable, Sendable, Identifiable {
 
     /// „Diesen Trade einordnen“ braucht einen gewählten Trade.
     public var brauchtTrade: Bool { self == .trade }
+
+    /// „Diesen Tag einordnen“ braucht einen Tag (Tagesseite).
+    public var brauchtTag: Bool { self == .tag }
+
+    /// Vorlagen, die zum Einstieg passen: Trade- und Tagesfrage nur, wenn der Einstieg sie mitgibt.
+    public static func verfuegbar(mitTrade: Bool, mitTag: Bool) -> [FragBradVorlage] {
+        allCases.filter { (!$0.brauchtTrade || mitTrade) && (!$0.brauchtTag || mitTag) }
+    }
 }
 
 /// Ton der Antwort, gleiche Werte wie der Einstellungsschalter „Ton“ (AP11).
@@ -53,14 +62,17 @@ public struct FragBradKontext: Sendable, Equatable {
     public var bis: Date?
     public var instrument: String?
     public var trade: FragBradTrade?
+    /// Ein Handelstag (Tagesseite), beliebige Zeit an diesem Tag.
+    public var tag: Date?
 
     public init(konto: String? = nil, von: Date? = nil, bis: Date? = nil, instrument: String? = nil,
-                trade: FragBradTrade? = nil) {
+                trade: FragBradTrade? = nil, tag: Date? = nil) {
         self.konto = konto
         self.von = von
         self.bis = bis
         self.instrument = instrument
         self.trade = trade
+        self.tag = tag
     }
 }
 
@@ -128,6 +140,10 @@ public enum FragBrad {
             guard let trade = kontext.trade else { return nil }
             return "Ordne meinen Trade \(trade.symbol) ein, \(tradezeit(trade, zeitzone: zeitzone)): "
                 + "Plan, Stop, Regeltreue und Fehlermuster."
+        case .tag:
+            guard let tag = kontext.tag else { return nil }
+            return "Ordne meinen Handelstag am \(deutscherTag(tag, zeitzone: zeitzone)) ein: Ergebnis, Regeltreue "
+                + "und Fehlermuster."
         case .ziel:
             return "Wie stehe ich beim Ziel aus meinem letzten Review?"
         case .frei:
@@ -144,6 +160,9 @@ public enum FragBrad {
         if vorlage == .trade, let trade = kontext.trade {
             let tag = isoTag(trade.geschlossen, zeitzone: zeitzone)
             saetze.append("Zeitraum: \(tag) bis \(tag).")
+        } else if vorlage == .tag, let tag = kontext.tag {
+            let iso = isoTag(tag, zeitzone: zeitzone)
+            saetze.append("Zeitraum: \(iso) bis \(iso).")
         } else if vorlage != .woche, let von = kontext.von, let bis = kontext.bis {
             saetze.append("Zeitraum: \(isoTag(von, zeitzone: zeitzone)) bis \(isoTag(bis, zeitzone: zeitzone)).")
         }

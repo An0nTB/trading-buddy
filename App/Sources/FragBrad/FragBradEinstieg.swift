@@ -7,6 +7,8 @@ struct FragBradAnfrage: Identifiable {
     let id = UUID()
     var vorlage: FragBradVorlage
     var trade: Trade?
+    /// Handelstag von der Tagesseite.
+    var tag: Date?
 }
 
 /// Gemeinsamer Zustand aller Einstiege (Menü, Rechtsklick auf einen Trade). Eigenes Objekt statt eines Felds im
@@ -16,8 +18,8 @@ final class FragBradZustand {
     static let shared = FragBradZustand()
     var anfrage: FragBradAnfrage?
 
-    func frage(_ vorlage: FragBradVorlage = .monat, trade: Trade? = nil) {
-        anfrage = FragBradAnfrage(vorlage: trade == nil ? vorlage : .trade, trade: trade)
+    func frage(_ vorlage: FragBradVorlage = .monat, trade: Trade? = nil, tag: Date? = nil) {
+        anfrage = FragBradAnfrage(vorlage: trade == nil ? vorlage : .trade, trade: trade, tag: tag)
     }
 }
 
@@ -46,6 +48,24 @@ struct FragBradMenuePunkt: View {
         Button("Frag Brad zu diesem Trade …", systemImage: "bubble.left.and.text.bubble.right") {
             FragBradZustand.shared.frage(trade: trade)
         }
+    }
+}
+
+/// Knopf „Frag Brad“ für Seitenköpfe (Kennzahlen, Fehlermuster, Tagesseite); startet mit passender Vorlage.
+struct FragBradKnopf: View {
+    let vorlage: FragBradVorlage
+    var tag: Date?
+
+    init(_ vorlage: FragBradVorlage, tag: Date? = nil) {
+        self.vorlage = vorlage
+        self.tag = tag
+    }
+
+    var body: some View {
+        Button("Frag Brad", systemImage: "bubble.left.and.text.bubble.right") {
+            FragBradZustand.shared.frage(vorlage, tag: tag)
+        }
+        .help("Frage zu dieser Seite in Claude Desktop vorbereiten")
     }
 }
 
