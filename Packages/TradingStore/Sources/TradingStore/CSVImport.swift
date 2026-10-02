@@ -23,6 +23,7 @@ struct AusfuehrungZeile: Codable, FetchableRecord, PersistableRecord {
     var waehrung: String
     var sparplan: Bool
     var rohzeile: [String]
+    var produktart: String
 
     init(kontoId: Int64, importlaufId: Int64, _ a: Ausfuehrung) {
         self.kontoId = kontoId
@@ -41,13 +42,15 @@ struct AusfuehrungZeile: Codable, FetchableRecord, PersistableRecord {
         waehrung = a.waehrung
         sparplan = a.sparplan
         rohzeile = a.rohzeile
+        produktart = a.produktart.rawValue
     }
 
     func modell() throws -> Ausfuehrung {
         guard let s = Side(rawValue: seite) else { throw SpeicherFehler.unbekannterWert(seite) }
         return Ausfuehrung(id: vorgangId, zeit: zeit, nurDatum: nurDatum, kennung: kennung, name: name, seite: s,
                            menge: menge, preis: preis, betrag: betrag, gebuehr: gebuehr, steuer: steuer,
-                           waehrung: waehrung, sparplan: sparplan, rohzeile: rohzeile)
+                           waehrung: waehrung, sparplan: sparplan, produktart: try art(produktart),
+                           rohzeile: rohzeile)
     }
 }
 
@@ -233,9 +236,19 @@ extension Journal {
             for a in bewegungen.ausfuehrungen {
                 if let alt = try bekannt(AusfuehrungZeile.self, a.id) {
                     var vergleich = try alt.modell()
+                    let produktart = vereinteProduktart(vergleich.produktart, a.produktart)
                     vergleich.rohzeile = a.rohzeile
                     vergleich.zeit = gleicheZeit(vergleich.zeit, a.zeit)
-                    if vergleich == a { zaehler.ausfuehrungenBekannt += 1 } else { abweichend.append(a.id) }
+                    vergleich.produktart = a.produktart
+                    if let produktart, vergleich == a {
+                        zaehler.ausfuehrungenBekannt += 1
+                        if produktart.rawValue != alt.produktart {
+                            try AusfuehrungZeile.filter(Column("kontoId") == kontoId && Column("vorgangId") == a.id)
+                                .updateAll(db, Column("produktart").set(to: produktart.rawValue))
+                        }
+                    } else {
+                        abweichend.append(a.id)
+                    }
                 } else {
                     try AusfuehrungZeile(kontoId: kontoId, importlaufId: laufId, a).insert(db)
                     zaehler.ausfuehrungenNeu += 1
