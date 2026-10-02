@@ -34,6 +34,9 @@ struct EinstellungenView: View {
                 Form { KurseEinstellungen() }
                     .formStyle(.grouped)
             }
+            Tab("Import", systemImage: "tray.and.arrow.down") {
+                ImportordnerFelder() // Import-Ordner beobachten (Doc 45)
+            }
             Tab("Claude", systemImage: "sparkles") {
                 ClaudeFelder()
             }
