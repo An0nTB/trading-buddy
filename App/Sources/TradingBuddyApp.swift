@@ -5,10 +5,13 @@ struct TradingBuddyApp: App {
     @State private var modell = AppModell()
 
     var body: some Scene {
-        WindowGroup(id: FensterID.haupt) {
+        // Ohne Kennung, damit AppKit die gespeicherte Fenstergröße des Nutzers wiederfindet; mit Standardgröße,
+        // damit ein neues Fenster nicht in Mindestgröße 900 x 600 startet (Startabsturz 02.10.2026, Layout-Schleife).
+        WindowGroup {
             MitThema { Hauptfenster() }
                 .environment(modell)
         }
+        .defaultSize(width: 1200, height: 780)
         #if os(macOS)
         .commands { FensterBefehle() } // P12 Eigene Fenster
         #endif
