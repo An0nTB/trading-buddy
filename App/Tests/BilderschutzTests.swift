@@ -22,4 +22,49 @@ import Testing
     @Test func ohneVerweiseWirdNichtsGeloescht() {
         #expect(Bilderordner.raeumeAuf(behalten: [], geschuetztBis: nil) == 0)
     }
+
+    #if os(macOS)
+    /// G16-Regression in einem eigenen Ordner: Verwaiste Bilder von vor dem Schutzzeitpunkt bleiben, ein verwaistes
+    /// neueres wird gelöscht, ein verwiesenes bleibt immer. Ohne Schutzzeitpunkt wird jedes verwaiste Bild gelöscht.
+    @Test func aufraeumenLoeschtNurUngeschuetzteVerwaisteBilder() throws {
+        let fm = FileManager.default
+        let basis = fm.temporaryDirectory.appending(path: "appt-bilder-\(UUID().uuidString)", directoryHint: .isDirectory)
+        defer { try? fm.removeItem(at: basis) }
+        let schutz = AppTestdaten.zeit(2026, 10, 1, 12)
+        func lege(_ datei: String, erstellt: Date) throws {
+            let url = basis.appending(path: datei)
+            try fm.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try Data("bild".utf8).write(to: url)
+            try fm.setAttributes([.creationDate: erstellt], ofItemAtPath: url.path)
+        }
+        func gibt(_ datei: String) -> Bool { fm.fileExists(atPath: basis.appending(path: datei).path) }
+        try lege("2026-09/alt.png", erstellt: schutz.addingTimeInterval(-3600))
+        try lege("2026-10/neu.png", erstellt: schutz.addingTimeInterval(3600))
+        try lege("2026-10/verwiesen.png", erstellt: schutz.addingTimeInterval(3600))
+        try lege("2026-10/notiz.txt", erstellt: schutz.addingTimeInterval(3600))
+        let behalten: Set<String> = ["2026-10/verwiesen.png"]
+
+        #expect(Bilderordner.raeumeAuf(behalten: behalten, geschuetztBis: schutz, in: basis) == 1)
+        #expect(gibt("2026-09/alt.png"))
+        #expect(!gibt("2026-10/neu.png"))
+        #expect(gibt("2026-10/verwiesen.png"))
+        #expect(gibt("2026-10/notiz.txt"))
+
+        #expect(Bilderordner.raeumeAuf(behalten: behalten, geschuetztBis: nil, in: basis) == 1)
+        #expect(!gibt("2026-09/alt.png"))
+        #expect(gibt("2026-10/verwiesen.png"))
+    }
+
+    /// Ohne Verweise bleibt auch ein eigener Ordner unangetastet.
+    @Test func ohneVerweiseBleibtEigenerOrdnerUnberuehrt() throws {
+        let fm = FileManager.default
+        let basis = fm.temporaryDirectory.appending(path: "appt-bilder-\(UUID().uuidString)", directoryHint: .isDirectory)
+        defer { try? fm.removeItem(at: basis) }
+        let url = basis.appending(path: "2026-10/waise.png")
+        try fm.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try Data("bild".utf8).write(to: url)
+        #expect(Bilderordner.raeumeAuf(behalten: [], geschuetztBis: nil, in: basis) == 0)
+        #expect(fm.fileExists(atPath: url.path))
+    }
+    #endif
 }
