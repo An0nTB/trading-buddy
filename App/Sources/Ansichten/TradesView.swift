@@ -116,7 +116,7 @@ struct TradesView: View {
                 #else
                 tradeTabelle(liste)
                 #endif
-                Summenzeile(trades: liste.map(\.trade), waehrung: modell.waehrung)
+                Summenzeile(trades: liste.map(\.trade))
                     .padding(.horizontal, Abstand.seitenrand)
                     .padding(.bottom, Abstand.kachelAbstand)
             }
@@ -228,7 +228,7 @@ struct TradesView: View {
             .alignment(.numeric)
             .customizationID("r")
             TableColumn("Netto", value: \.trade.netProfit) { zeile in
-                // Betrag in der Währung des Trades (Zweiter Gegencheck W1); die Summenzeile bleibt Kontowährung.
+                // Betrag in der Währung des Trades (Zweiter Gegencheck W1); die Summenzeile rechnet in die Anzeigewährung um (G9).
                 Text(verbatim: Format.geld(zeile.trade.netProfit, zeile.trade.waehrung(kontowaehrung: modell.waehrung)))
                     .monospacedDigit()
                     .foregroundStyle(thema.vorzeichen(zeile.trade.netProfit))
@@ -725,27 +725,36 @@ struct TradeZeile: View {
     }
 }
 
-/// Summenzeile unter Tabelle oder Liste: Anzahl, Ø R, Netto, Trades ohne Stop.
+/// Summenzeile unter Tabelle oder Liste: Anzahl, Ø R, Netto, Trades ohne Stop. Netto in der Anzeigewährung über die
+/// angeglichenen Trades (Dritter Gegencheck G9); Trades ohne EZB-Kurs fehlen in der Summe und stehen als Zahl daneben.
 struct Summenzeile: View {
     let trades: [Trade]
-    let waehrung: String
+    @Environment(AppModell.self) private var modell
     @Environment(\.thema) private var thema
 
     var body: some View {
-        let kennzahlen = Kennzahlen(trades: trades)
+        let ids = Set(trades.map(\.id))
+        let angeglichen = modell.anzeige.trades.filter { ids.contains($0.id) }
+        let kennzahlen = Kennzahlen(trades: angeglichen)
+        let ohneKurs = trades.count - angeglichen.count
         let ohneStop = trades.filter { $0.stopLoss == nil }.count
         HStack(spacing: Abstand.kachelAbstand) {
             Text("Summe")
                 .foregroundStyle(thema.textSchwach)
-            Text("\(kennzahlen.anzahl) Trades")
+            Text("\(trades.count) Trades")
                 .foregroundStyle(thema.textSchwach)
             Spacer()
             Text(verbatim: "Ø \(Format.r(kennzahlen.erwartungswertR))")
                 .font(Schrift.tabelle)
                 .foregroundStyle(thema.textSchwach)
-            Text(verbatim: Format.geld(kennzahlen.netto, waehrung))
+            Text(verbatim: Format.geld(kennzahlen.netto, modell.summenwaehrung))
                 .font(Schrift.tabelle.weight(.semibold))
                 .foregroundStyle(thema.vorzeichen(kennzahlen.netto))
+            if ohneKurs > 0 {
+                Text("\(ohneKurs) ohne Kurs")
+                    .font(Schrift.beschriftung)
+                    .foregroundStyle(thema.verlust)
+            }
             Text("\(ohneStop) ohne Stop")
                 .font(Schrift.beschriftung)
                 .foregroundStyle(thema.textSchwach)
