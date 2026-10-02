@@ -73,6 +73,7 @@ public enum Ausgabe {
         t.append(contentsOf: regeln)
         let muster = anfrage.musterabschnitt(a.trades)
         t.append(contentsOf: muster)
+        t.append(contentsOf: anfrage.ausstiegsabschnitt(a.trades))
 
         t.append("\n## Auffällige Trades")
         let beste = a.beste(3)
@@ -106,6 +107,7 @@ public enum Ausgabe {
             t.append("- Muster: keine Gruppe mit je 30 Trades in Gruppe und Rest, also frühestens ab 60 Trades im Zeitraum.")
         }
         t.append(anfrage.notizlage(a.trades))
+        if let ausstieg = anfrage.ausstiegslage(a.trades) { t.append(ausstieg) }
         if anfrage.konto.waehrung != anfrage.kontowaehrung, !anfrage.kontowaehrung.isEmpty {
             t.append("- Ziele früherer Reviews: gelten in der Kontowährung \(anfrage.kontowaehrung) und stehen nur in "
                 + "der Abfrage ohne waehrung.")

@@ -20,7 +20,7 @@ enum Katalog {
              description: "Welche Konten und welcher Zeitraum in Henry vorliegen. Zuerst aufrufen, wenn unklar ist, welche Daten es gibt.",
              inputSchema: schema([:]), annotations: nurLesen),
         Tool(name: "hole_auswertung",
-             description: "Wochen- oder Monatsauswertung: Kennzahlen mit Vorzeitraum, Kosten, Symbole, Fehlermuster, Verstöße gegen die eigenen Handelsregeln, Muster mit Zufallsprüfung, auffällige Trades, Plan und verpasste Trades, Ziele früherer Reviews mit Istwert, dazu das Rezept für die Antwort. Für Fragen wie „Wie lief mein Mai?“. Ohne Zeitraum gilt der letzte Monat mit Trades.",
+             description: "Wochen- oder Monatsauswertung: Kennzahlen mit Vorzeitraum, Kosten, Symbole, Fehlermuster, Verstöße gegen die eigenen Handelsregeln, Muster mit Zufallsprüfung, auffällige Trades, Ausstieg (MAE und MFE aus Kerzen der App), Plan und verpasste Trades, Ziele früherer Reviews mit Istwert, dazu das Rezept für die Antwort. Für Fragen wie „Wie lief mein Mai?“. Ohne Zeitraum gilt der letzte Monat mit Trades.",
              inputSchema: schema(zeitraum), annotations: nurLesen),
         Tool(name: "hole_aufschluesselung",
              description: "Kennzahlen je Gruppe: Symbol, Richtung, Wochentag, Stunde, Trade-Nummer am Tag, Ergebnis des vorherigen Trades, Haltedauer oder eigene Journalangaben (Setup, Regeltreue, Zustand).",
@@ -29,7 +29,7 @@ enum Katalog {
                  pflicht: ["dimension"]),
              annotations: nurLesen),
         Tool(name: "hole_trades",
-             description: "Einzelne Trades eines Zeitraums mit Journalangaben (Setup, Regeltreue, Zustand, Grund), wahlweise nur die eines Fehlermusters, sortiert nach bestem oder schlechtestem Ergebnis.",
+             description: "Einzelne Trades eines Zeitraums mit Journalangaben (Setup, Regeltreue, Zustand, Grund) und, wenn die App Kerzen hat, MAE und MFE, wahlweise nur die eines Fehlermusters, sortiert nach bestem oder schlechtestem Ergebnis.",
              inputSchema: schema(zeitraum.merging([
                  "auswahl": text("Sortierung, Vorgabe chronologisch", werte: Tradeauswahl.allCases.map(\.rawValue)),
                  "muster": text("Nur Trades dieses Fehlermusters", werte: Fehlermuster.allCases.map(\.rawValue)),
@@ -153,7 +153,7 @@ enum Ausfuehrung {
 
 let server = Server(
     name: "trading-buddy",
-    version: "0.10.0",
+    version: "0.11.0",
     capabilities: .init(prompts: .init(listChanged: false), tools: .init(listChanged: false))
 )
 
