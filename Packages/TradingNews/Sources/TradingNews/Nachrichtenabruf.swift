@@ -115,7 +115,23 @@ public actor Nachrichtenabruf {
         self.budget = budget
     }
 
+    /// Letzter angestoßener Lauf. Ein Actor gibt seine Sperre bei jedem `await` frei; ohne Reihenfolge könnte
+    /// die späte Antwort eines älteren Laufs den Stand eines neueren überschreiben (Codex-Befund, 02.10.2026).
+    private var letzterLauf: Task<Abrufergebnis, Never>?
+
+    /// Überlappende Aufrufe laufen nacheinander in der Reihenfolge ihres Aufrufs; jeder liefert sein eigenes
+    /// Ergebnis. Dank Mindestabstand lädt ein direkt folgender Lauf meist nichts neu.
     public func aktualisiere(begriffe: [Merkbegriff], jetzt: Date) async -> Abrufergebnis {
+        let vorher = letzterLauf
+        let lauf = Task {
+            _ = await vorher?.value
+            return await self.fuehreAus(begriffe: begriffe, jetzt: jetzt)
+        }
+        letzterLauf = lauf
+        return await lauf.value
+    }
+
+    private func fuehreAus(begriffe: [Merkbegriff], jetzt: Date) async -> Abrufergebnis {
         var fehler: [String: String] = [:]
 
         for feed in feeds {

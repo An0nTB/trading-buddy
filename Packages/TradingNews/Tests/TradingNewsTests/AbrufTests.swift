@@ -106,3 +106,58 @@ let finanzenFeed = Feed(quelle: "finanzen.net", titel: "News",
     let ergebnis = await abruf.aktualisiere(begriffe: [Merkbegriff(art: .symbol, text: "TSLA")], jetzt: jetzt)
     #expect(ergebnis.fehler["Marketaux"] == "Marketaux: Zugang abgelehnt (401), Schlüssel prüfen")
 }
+
+/// Hält die erste Antwort zurück, bis der Test sie freigibt; alle weiteren kommen sofort.
+actor GesteuertesLaden: Laden {
+    private var antworten: [Antwort]
+    private var sperre: CheckedContinuation<Void, Never>?
+    private(set) var anzahl = 0
+
+    init(_ antworten: [Antwort]) {
+        self.antworten = antworten
+    }
+
+    var ersteWartet: Bool { sperre != nil }
+
+    func lade(_ anfrage: Anfrage) async throws -> Antwort {
+        anzahl += 1
+        let antwort = antworten.removeFirst()
+        if anzahl == 1 {
+            await withCheckedContinuation { sperre = $0 }
+        }
+        return antwort
+    }
+
+    func gibFrei() {
+        sperre?.resume()
+        sperre = nil
+    }
+}
+
+func feed(_ titel: String) -> Antwort {
+    let xml = """
+    <rss version="2.0"><channel><item><title>\(titel)</title><link>https://example.org/\(titel)</link>\
+    <pubDate>Fri, 02 Oct 2026 06:00:00 GMT</pubDate></item></channel></rss>
+    """
+    return Antwort(status: 200, daten: Data(xml.utf8))
+}
+
+@Test func spaeteAlteAntwortUeberschreibtNeuereNicht() async throws {
+    let laden = GesteuertesLaden([feed("Alt"), feed("Neu")])
+    let abruf = Nachrichtenabruf(laden: laden, feeds: [finanzenFeed], budget: Abrufbudget(grenzeJeTag: 100, jetzt: jetzt))
+
+    async let erster = abruf.aktualisiere(begriffe: [], jetzt: jetzt)
+    while !(await laden.ersteWartet) { await Task.yield() }
+    // Zweiter Lauf 20 Minuten später, während der erste noch auf seine Antwort wartet.
+    async let zweiter = abruf.aktualisiere(begriffe: [], jetzt: jetzt.addingTimeInterval(20 * 60))
+    try await Task.sleep(nanoseconds: 50_000_000)
+    await laden.gibFrei()
+
+    let (eins, zwei) = await (erster, zweiter)
+    #expect(eins.meldungen.map(\.titel) == ["Alt"])
+    #expect(zwei.meldungen.map(\.titel) == ["Neu"])
+    #expect(await laden.anzahl == 2)
+    // Der Stand danach ist der neuere, nicht die späte alte Antwort.
+    let danach = await abruf.aktualisiere(begriffe: [], jetzt: jetzt.addingTimeInterval(21 * 60))
+    #expect(danach.meldungen.map(\.titel) == ["Neu"])
+}
