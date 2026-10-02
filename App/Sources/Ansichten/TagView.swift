@@ -23,14 +23,27 @@ struct TagView: View {
         .onAppear {
             guard ablage == nil else { return }
             ablage = modell.journal.map { JournalTagAblage($0) } ?? FluechtigeTagAblage.gemeinsam
+            raeumeBilderAuf()
         }
     }
+
+    /// Einmal je App-Start: Bilddateien ohne Verweis entfernen (Doc 28, offener Punkt; Tim 02.10.2026).
+    private func raeumeBilderAuf() {
+        guard !Self.aufgeraeumt, let journal = modell.journal,
+              let behalten = try? journal.bilddateien() else { return }
+        Self.aufgeraeumt = true
+        _ = Bilderordner.raeumeAuf(behalten: behalten)
+    }
+
+    @MainActor private static var aufgeraeumt = false
 }
 
 /// Inhalt der Tagesseite gegen eine beliebige Ablage.
 struct TagSeite: View {
     @Environment(AppModell.self) private var modell
     @State private var tagModell: TagModell
+    /// Stand von `tagModell.aenderungen`, der schon im Export steht.
+    @State private var exportiert = 0
     #if os(iOS)
     @Environment(\.horizontalSizeClass) private var breite
     #endif
@@ -50,8 +63,8 @@ struct TagSeite: View {
                         .foregroundStyle(.secondary)
                 }
                 if zweiSpalten {
-                    // Beide Spalten gleich breit, ohne Mindestbreite (Startabsturz-Regeln: keine harten Breiten).
-                    // Vorher drückte layoutPriority(1) links die rechte Spalte auf Fingerbreite (Tim 02.10.2026).
+                    // Beide Spalten gleich breit, ohne Mindestbreite (Regeln zum Startabsturz).
+                    // Vorher drückte layoutPriority(1) die rechte Spalte zusammen (Tim 02.10.2026).
                     HStack(alignment: .top, spacing: Abstand.kachelAbstand) {
                         linkeSpalte
                             .frame(maxWidth: .infinity)
@@ -67,7 +80,11 @@ struct TagSeite: View {
             }
             .padding(Abstand.seitenrand)
         }
-        .onDisappear { tagModell.sichere() }
+        .task(id: tagModell.aenderungen) { await exportiereNachPause() }
+        .onDisappear {
+            tagModell.sichere()
+            exportiereGeaendert()
+        }
         .alert("Fehler", isPresented: fehlerSichtbar) {
             Button("OK") { tagModell.fehler = nil }
         } message: {
@@ -110,6 +127,19 @@ struct TagSeite: View {
 
     private var fehlerSichtbar: Binding<Bool> {
         Binding(get: { tagModell.fehler != nil }, set: { if !$0 { tagModell.fehler = nil } })
+    }
+
+    /// Schreibt den Export erst nach einer Pause, damit nicht jedes automatische Sichern ihn neu schreibt.
+    private func exportiereNachPause() async {
+        try? await Task.sleep(for: .seconds(3))
+        guard !Task.isCancelled else { return }
+        exportiereGeaendert()
+    }
+
+    private func exportiereGeaendert() {
+        guard tagModell.aenderungen != exportiert else { return }
+        exportiert = tagModell.aenderungen
+        modell.exportiere()
     }
 }
 
@@ -256,7 +286,7 @@ struct TagTradesKarte: View {
     let trades: [Trade]
     @Environment(AppModell.self) private var modell
     @Environment(\.thema) private var thema
-    @AppStorage(Ton.schluessel) private var ton = Ton.bro
+    @AppStorage(Ton.schluessel) private var ton = Ton.henry
 
     var body: some View {
         Karte("Trades an diesem Tag") {
@@ -273,7 +303,7 @@ struct TagTradesKarte: View {
                             Text(verbatim: "\(Format.uhrzeit(trade.openTime)) · \(trade.symbol) \(Format.richtung(trade.side))")
                                 .foregroundStyle(thema.text)
                             Spacer()
-                            Text(verbatim: Format.geld(trade.netProfit, modell.waehrung))
+                            Text(verbatim: Format.geld(trade.netProfit, trade.waehrung(kontowaehrung: modell.waehrung)))
                                 .font(Schrift.tabelle)
                                 .foregroundStyle(thema.vorzeichen(trade.netProfit))
                         }
@@ -283,23 +313,42 @@ struct TagTradesKarte: View {
                     .help("In Trades zeigen")
                     Divider()
                 }
-                HStack {
-                    Text("Netto").fontWeight(.semibold)
-                    Spacer()
-                    Text(verbatim: Format.geld(netto, modell.waehrung))
-                        .font(Schrift.tabelle.weight(.semibold))
-                        .foregroundStyle(thema.vorzeichen(netto))
+                ForEach(netto, id: \.waehrung) { summe in
+                    HStack {
+                        if netto.count == 1 {
+                            Text("Netto").fontWeight(.semibold)
+                        } else {
+                            Text("Netto \(summe.waehrung)").fontWeight(.semibold)
+                        }
+                        Spacer()
+                        Text(verbatim: Format.geld(summe.betrag, summe.waehrung))
+                            .font(Schrift.tabelle.weight(.semibold))
+                            .foregroundStyle(thema.vorzeichen(summe.betrag))
+                    }
                 }
             }
         }
     }
 
-    private var netto: Decimal { trades.map(\.netProfit).reduce(0, +) }
+    /// Netto je Währung im Original, nie ein Originalbetrag mit dem Zeichen der Kontowährung (zweiter
+    /// Gegencheck W1). Umrechnen in die Kontowährung folgt mit TradingCore 0.19.0 (#125).
+    private var netto: [Summe] {
+        let konto = modell.waehrung
+        let gruppen = Dictionary(grouping: trades) { $0.waehrung(kontowaehrung: konto) }
+        return gruppen.keys.sorted().map { code in
+            Summe(waehrung: code, betrag: gruppen[code, default: []].map(\.netProfit).reduce(0, +))
+        }
+    }
+
+    private struct Summe {
+        let waehrung: String
+        let betrag: Decimal
+    }
 
     /// Text Nr. 11 in der Fassung für Henry (Tim 02.10.2026 11:04 UTC); passt auf jeden Tag.
     private var leerText: String {
         guard modell.konto != nil else { return String(localized: "Noch kein Konto importiert.") }
         return ton.text("Keine Trades an diesem Tag im gewählten Konto.",
-                        bro: "Kein Handel an diesem Tag. Geduld ist auch eine Position.")
+                        henry: "Kein Handel an diesem Tag. Geduld ist auch eine Position.")
     }
 }
