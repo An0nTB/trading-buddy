@@ -2,7 +2,16 @@ import SwiftUI
 
 @main
 struct TradingBuddyApp: App {
-    @State private var modell = AppModell()
+    @State private var modell = Self.startmodell()
+
+    /// Unter den App-Tests (⌘U, TEST_HOST startet die App) ohne Journal und ohne Nebenwirkungen: kein Export, keine
+    /// Sicherung, kein Import-Ordner, kein EZB-Abruf (Dritter Gegencheck G27). Sonst das echte Journal.
+    private static func startmodell() -> AppModell {
+        if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil {
+            return AppModell(journal: nil, nebenwirkungen: false)
+        }
+        return AppModell()
+    }
 
     var body: some Scene {
         // Ohne Kennung, damit AppKit die gespeicherte Fenstergröße des Nutzers wiederfindet; mit Standardgröße,
