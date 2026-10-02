@@ -83,6 +83,7 @@ struct Hauptfenster: View {
         } message: {
             Text(verbatim: modell.fehler ?? "")
         }
+        .fragBradBlatt() // Frag Henry (Doc 31): an der Wurzel, damit es auch in der Tab-Leiste am iPhone wirkt
     }
 
     private var fehlerSichtbar: Binding<Bool> {
@@ -141,7 +142,6 @@ struct Seitenleiste: View {
         #if os(macOS)
         .frame(minWidth: 900, minHeight: 600)
         #endif
-        .fragBradBlatt() // Frag Brad (Doc 31)
     }
 
     private var auswahl: Binding<Bereich?> {
