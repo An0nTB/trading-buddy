@@ -49,8 +49,8 @@ enum ExportOrdner {
                 ziele: try journal.ziele(konto: konto),
                 regeln: try journal.handelsregeln(konto: konto))
         }
-        // Tonfall aus den Einstellungen (AP11, Schlüssel „brad.ton“); ohne Wahl gilt in der App „bro“.
-        let ton = UserDefaults.standard.string(forKey: "brad.ton") ?? JournalExport.tonBro
+        // Tonfall aus den Einstellungen (AP11, `Ton`); ohne Wahl gilt in der App „bro“.
+        let ton = Ton.aktuell.rawValue
         // Tagesnotizen und verpasste Trades gelten für alle Konten; Bilder bleiben auf dem Mac.
         let notizen = try journal.tagesnotizen(von: Journaltag(jahr: 1970, monat: 1, tag: 1)!,
                                                bis: Journaltag(jahr: 2999, monat: 12, tag: 31)!)
