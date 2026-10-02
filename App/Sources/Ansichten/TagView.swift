@@ -120,8 +120,11 @@ struct TagSeite: View {
     private var tradesDesTages: [Trade] {
         let tag = tagModell.tag
         let zeitzone = tagModell.zeitzone
+        // Eröffnungstag aus dem Kern (0.22.0): Trades nur mit Datum landen auch westlich von UTC am Buchungstag.
+        var kalender = Calendar(identifier: .gregorian)
+        kalender.timeZone = zeitzone
         return modell.alleTrades
-            .filter { Journaltag($0.openTime, zeitzone: zeitzone) == tag }
+            .filter { Journaltag($0.eroeffnungstag(kalender), zeitzone: zeitzone) == tag }
             .sorted { ($0.openTime, $0.id) < ($1.openTime, $1.id) }
     }
 

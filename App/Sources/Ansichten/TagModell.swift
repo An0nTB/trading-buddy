@@ -159,7 +159,10 @@ final class TagModell {
 
     /// Planwirkung über alle übergebenen Trades; die Notizen holt sie für die Spanne der Trades.
     func planwirkung(_ trades: [Trade]) -> Planwirkung? {
-        let tage = trades.map { Journaltag($0.openTime, zeitzone: zeitzone) }
+        // Wie Planwirkung im Kern (0.22.0): Trades nur mit Datum zählen westlich von UTC am Buchungstag.
+        var kalender = Calendar(identifier: .gregorian)
+        kalender.timeZone = zeitzone
+        let tage = trades.map { Journaltag($0.eroeffnungstag(kalender), zeitzone: zeitzone) }
         guard let erster = tage.min(), let letzter = tage.max() else { return nil }
         let notizen = (try? ablage.tagesnotizen(von: erster, bis: letzter)) ?? []
         return Planwirkung(trades: trades, notizen: notizen, zeitzone: zeitzone)
