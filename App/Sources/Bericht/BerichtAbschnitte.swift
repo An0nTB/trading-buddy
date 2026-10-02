@@ -302,6 +302,9 @@ struct BerichtDatenhinweise: View {
 
     var body: some View {
         BerichtAbschnitt(titel: "Hinweise zu den Daten") {
+            if let fremd = fremdwaehrungText {
+                BerichtHinweis(fremd)
+            }
             if bericht.tradesOhneUhrzeit > 0 {
                 BerichtHinweis(String(localized: "\(bericht.tradesOhneUhrzeit) Trades ohne Uhrzeit: Trade Republic und Scalable Capital liefern im Export nur das Datum. Für diese Trades fehlen Stunde, Haltedauer und die Reihenfolge am Tag; in Netto, Trefferquote und Steuer zählen sie mit."))
             }
@@ -310,5 +313,16 @@ struct BerichtDatenhinweise: View {
             }
             BerichtHinweis(String(localized: "Grundlage sind alle Trades des Kontos, unabhängig vom Filter in der App. Tagesnotizen und verpasste Trades gelten für alle Konten."))
         }
+    }
+
+    /// Trades in fremder Währung (Doc 40, W2): Summen rechnen sie zum EZB-Kurs des Schlusstags um,
+    /// ohne Kurs fehlen sie. `nil`, wenn alle Trades in Kontowährung lauten.
+    private var fremdwaehrungText: String? {
+        guard bericht.umgerechnet > 0 || bericht.ohneKurs > 0 else { return nil }
+        let waehrungen = bericht.fremdwaehrungen.joined(separator: ", ")
+        if bericht.ohneKurs == 0 {
+            return String(localized: "\(bericht.umgerechnet) Trades in \(waehrungen) zum EZB-Kurs des Schlusstags in \(kontext.waehrung) umgerechnet (Näherung). Einzelbeträge und Summen lauten auf \(kontext.waehrung).")
+        }
+        return String(localized: "\(bericht.umgerechnet) Trades in \(waehrungen) zum EZB-Kurs des Schlusstags in \(kontext.waehrung) umgerechnet (Näherung), \(bericht.ohneKurs) ohne Kurs in Kennzahlen und Summen nicht enthalten.")
     }
 }
