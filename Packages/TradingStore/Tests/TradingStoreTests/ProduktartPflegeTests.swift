@@ -100,8 +100,11 @@ private func nurKonto(_ journal: Journal) throws -> Konto {
 
 @Test func produktartNachpflegeTrifftAuchOffenePositionen() throws {
     let journal = try Journal.imSpeicher()
-    try journal.importiereMT4(datei: kern("MT4/gbe-2025-05-14-daily.html"), dateiname: "a.html",
-                              serverZeitzone: TimeZone(secondsFromGMT: 0)!)
+    // 05-14 hat geschlossene, 05-25 offene Positionen (wie in ProduktartSpeicherTests).
+    for name in ["gbe-2025-05-14-daily", "gbe-2025-05-25-daily"] {
+        try journal.importiereMT4(datei: kern("MT4/\(name).html"), dateiname: "\(name).html",
+                                  serverZeitzone: TimeZone(secondsFromGMT: 0)!)
+    }
     let konto = try nurKonto(journal)
     #expect(try journal.symboleOhneProduktart(konto: konto).isEmpty)
     let offen = try journal.importe(konto: konto).flatMap { try journal.offenePositionen(importlauf: $0) }
