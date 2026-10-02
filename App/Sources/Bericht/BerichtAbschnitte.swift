@@ -44,10 +44,25 @@ struct BerichtRegeln: View {
                 BerichtZeile(titel: art.berichtTitel, wert: String(localized: "\(bericht.anzahl(art)) Trades"),
                              farbe: thema.verlust)
             }
-            if arten.isEmpty && kontext.regelnHinterlegt {
+            ForEach(propFirmArten, id: \.self) { art in
+                BerichtZeile(titel: String(localized: "Prop-Firm: \(art.titel)"),
+                             wert: String(localized: "\(propFirmAnzahl(art)) Trades"), farbe: thema.verlust)
+            }
+            if arten.isEmpty && propFirmArten.isEmpty && kontext.regelnHinterlegt {
                 BerichtHinweis(String(localized: "Keine Regelverstöße in diesem Monat."))
             }
         }
+    }
+}
+
+extension BerichtRegeln {
+    /// Prop-Firm-Verstöße des Monats je Art (aus `Monatsbericht.propFirmVerstoesse`), Trades einfach gezählt.
+    var propFirmArten: [PropFirmPruefung.Art] {
+        PropFirmPruefung.Art.allCases.filter { propFirmAnzahl($0) > 0 }
+    }
+
+    func propFirmAnzahl(_ art: PropFirmPruefung.Art) -> Int {
+        Set(bericht.propFirmVerstoesse.filter { $0.art == art }.map(\.trade)).count
     }
 }
 
@@ -157,7 +172,7 @@ struct BerichtZiele: View {
                 VStack(alignment: .leading, spacing: 1) {
                     BerichtZeile(titel: eintrag.element.text, wert: eintrag.element.status.berichtTitel,
                                  farbe: farbe(eintrag.element.status))
-                    BerichtHinweis(zusatz(eintrag.element))
+                    BerichtHinweis(zusatz(eintrag.element), zeilen: 2)
                 }
             }
             if ziele.count > Self.hoechstens {
@@ -230,6 +245,7 @@ struct BerichtSteuer: View {
                 BerichtZeile(titel: summe.topf.berichtTitel, wert: wert(summe), farbe: summe.ohneEuro == summe.anzahl ? nil : thema.vorzeichen(summe.saldo))
                 BerichtHinweis(zusatz(summe))
             }
+            BerichtHinweis(ezbText)
             if let abzug = abzugText {
                 BerichtHinweis(abzug)
             }
@@ -237,7 +253,9 @@ struct BerichtSteuer: View {
     }
 
     private var untertitel: String {
-        let monatsende = Calendar.current.date(from: DateComponents(year: kontext.jahr, month: kontext.monat + 1, day: 0))
+        var kalender = Calendar(identifier: .gregorian)
+        kalender.timeZone = kontext.zeitzone
+        let monatsende = kalender.date(from: DateComponents(year: kontext.jahr, month: kontext.monat + 1, day: 0))
         let bis = monatsende.map(Format.datum) ?? kontext.monatsname
         return String(localized: "1. Januar \(String(kontext.jahr)) bis \(bis), Beträge in Euro, Verkaufsjahr nach deutscher Zeit")
     }
@@ -257,6 +275,15 @@ struct BerichtSteuer: View {
             teile.append(String(localized: "\(summe.ohneEuro) Trades ohne Euro-Wert nicht enthalten"))
         }
         return teile.joined(separator: " · ")
+    }
+
+    /// Fremdwährung zum EZB-Referenzkurs am Schlusstag (Näherung, Doc 32); ohne Kurse bleiben solche Trades Lücke.
+    private var ezbText: String {
+        guard let tag = kontext.ezbBis else {
+            return String(localized: "EZB-Referenzkurse noch nicht geladen; Trades in Fremdwährung fehlen in den Euro-Summen.")
+        }
+        let bis = String(format: "%02d.%02d.%d", tag.tag, tag.monat, tag.jahr)
+        return String(localized: "Fremdwährung zum EZB-Referenzkurs am Schlusstag umgerechnet (Näherung, USDT wie USD), Kurse bis \(bis).")
     }
 
     private var abzugText: String? {
