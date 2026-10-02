@@ -47,6 +47,14 @@ enum Katalog {
                                   "description": .string("Wie viele Tage zurück, 1 bis 7, Vorgabe 1")]),
                  "begriff": text("Nur Meldungen zu diesem Begriff der Merkliste oder Symbol")
              ]),
+             annotations: nurLesen),
+        Tool(name: "hole_kursanalyse",
+             description: "Beschreibende Kursanalyse eines Werts aus den Tageskerzen der App: Veränderung über Woche, Monat, Quartal und Jahr, Schwankung, Tagesspanne, Abstand zum 52-Wochen-Hoch und -Tief, größter Rückgang, dazu die eigenen Trades im Wert und das Rezept. Keine Prognose.",
+             inputSchema: schema([
+                 "symbol": text("Symbol wie im Journal, z. B. BTCUSD oder AAPL"),
+                 "monate": .object(["type": .string("integer"),
+                                    "description": .string("Zeitraum in Monaten, 1 bis 12, Vorgabe 12")])
+             ], pflicht: ["symbol"]),
              annotations: nurLesen)
     ]
 
@@ -108,6 +116,9 @@ enum Ausfuehrung {
             case "hole_nachrichten":
                 let tage = argumente["tage"].flatMap { Int($0) } ?? 1
                 return antwort(Ausgabe.nachrichten(export, tage: tage, begriff: argumente["begriff"]))
+            case "hole_kursanalyse":
+                let monate = argumente["monate"].flatMap { Int($0) } ?? 12
+                return antwort(Ausgabe.kursanalyse(export, symbol: argumente["symbol"] ?? "", monate: monate))
             case "hole_notizen":
                 return antwort(Ausgabe.notizen(try Anfrage.lies(argumente, export: export)))
             case "hole_trades":
@@ -142,7 +153,7 @@ enum Ausfuehrung {
 
 let server = Server(
     name: "trading-buddy",
-    version: "0.8.0",
+    version: "0.9.0",
     capabilities: .init(prompts: .init(listChanged: false), tools: .init(listChanged: false))
 )
 
