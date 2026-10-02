@@ -79,6 +79,7 @@ struct EinstellungenView: View {
 /// Reiter Allgemein: Sprache und Anzeigewährung (beide folgen dem System bzw. dem Konto).
 struct AllgemeinFelder: View {
     @AppStorage(Ton.schluessel) private var ton = Ton.bro
+    @Environment(AppModell.self) private var modell
     @Environment(\.thema) private var thema
 
     var body: some View {
@@ -88,6 +89,8 @@ struct AllgemeinFelder: View {
             }
         }
         .pickerStyle(.segmented)
+        // Der Export trägt den Ton (Feld `ton`, AP12); ohne neuen Export sähe der Connector den alten (Gegencheck A6).
+        .onChange(of: ton) { modell.exportiere() }
         Text("„Brad“ spricht Begrüßung, leere Seiten und Erfolgsmeldungen locker, „Sachlich“ nüchtern. Zahlen, Steuer, Regelverstöße, Warnungen und Fehler bleiben in beiden Stellungen sachlich; der Export für den Claude-Connector trägt die Einstellung mit.")
             .font(Schrift.beschriftung)
             .foregroundStyle(thema.textSchwach)

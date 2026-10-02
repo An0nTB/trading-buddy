@@ -49,6 +49,8 @@ struct SteuerView: View {
             }
             .padding(Abstand.seitenrand)
         }
+        // Jahr gehört zum Konto; sonst zeigt der Wechsel ein Jahr ohne Verkäufe (Gegencheck A3, Doc 36).
+        .onChange(of: modell.kontoId) { jahrAuswahl = nil }
     }
 
     private var untertitel: String? {
