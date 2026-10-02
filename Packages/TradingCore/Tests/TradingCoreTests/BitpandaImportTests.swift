@@ -59,8 +59,8 @@ private func utc(_ iso: String) -> Date {
 @Test func bitpandaHinweiseMitZeilenDerDatei() throws {
     let k = try BitpandaCSV.lies(bitpanda("bitpanda_neu"))
     let hinweise = k.hinweise.map { "\($0.zeile) \($0.vorgang)" }
-    #expect(hinweise == ["10 Gebühr ETH in BEST", "13 transfer(stake) ETH", "14 withdrawal ETH",
-                         "15 Steuer ETH 0.20 EUR", "17 transfer SNX", "18 buy BTC/TRY"])
+    #expect(hinweise == ["10 ETH/EUR buy Gebühr BEST", "13 transfer(stake) ETH", "14 withdrawal ETH",
+                         "15 ETH/EUR sell Steuer 0.20 EUR", "17 transfer SNX", "18 BTC/TRY buy"])
     #expect(k.hinweise.allSatisfy { $0.folge == .nichtVerbucht })
 }
 

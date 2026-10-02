@@ -11,7 +11,7 @@ import Foundation
 /// Der Spread steckt im Preis und wird nicht getrennt gebucht. Bei der Einzahlung ist Amount Fiat der
 /// gutgeschriebene Betrag nach Gebühr, bei der Auszahlung kommt die Gebühr hinzu (BittyTax).
 ///
-/// Hinweise statt Buchung: Gebühr in BEST oder in Krypto, Steuer in „Tax Fiat“ (Wirkung auf Amount Fiat
+/// Hinweise statt Buchung: Gebühr in BEST oder in Krypto (Trade ohne Gebühr verbucht, Regel wie Binance), Steuer in „Tax Fiat“ (Wirkung auf Amount Fiat
 /// unbelegt), Krypto-Ein- und -Auszahlung, transfer-Typen (Staking-Umbuchung, Airdrop), Fiat außerhalb
 /// der Geldwährungen. Staking-Erträge („rewards“, vor dem 14.06.2022 „transfer“ eingehend; CoinTaxman
 /// Issue 155) werden Kauf zum Marktwert plus Zinsen in gleicher Höhe.
@@ -55,6 +55,8 @@ public enum BitpandaCSV {
             let geld = KryptoWerte.geldwaehrungen.contains(fiat)
             let fiatKlasse = feld("Asset class") == "Fiat"
             let handel = typ == "buy" || typ == "sell"
+            // Hinweise zu Handelszeilen wie bei Kraken und Binance: „PAAR SEITE …“.
+            let paarSeite = "\(KryptoWerte.kennung(asset, fiat)) \(typ)"
             if (typ == "deposit" || typ == "withdrawal") && fiatKlasse {
                 let einzahlung = typ == "deposit"
                 ergebnis.geldbewegungen.append(Geldbewegung(
@@ -63,7 +65,7 @@ public enum BitpandaCSV {
                     waehrung: fiat, rohzeile: z))
             } else if handel && geld {
                 let gebuehrInFiat = feld("Fee asset").uppercased() == fiat
-                if fee != 0 && !gebuehrInFiat { hinweis("Gebühr \(asset) in \(feld("Fee asset"))") }
+                if fee != 0 && !gebuehrInFiat { hinweis("\(paarSeite) Gebühr \(feld("Fee asset").uppercased())") }
                 let gebuehr = gebuehrInFiat ? -abs(fee) : 0
                 let kauf = typ == "buy"
                 ergebnis.ausfuehrungen.append(Ausfuehrung(
@@ -73,7 +75,7 @@ public enum BitpandaCSV {
                     betrag: kauf ? -(betragFiat + gebuehr) : betragFiat - gebuehr, gebuehr: gebuehr,
                     waehrung: fiat, rohzeile: z))
                 if let i = steuerSpalte, i < z.count, try KryptoWerte.zahl(z[i], zeile: zeile) != 0 {
-                    hinweis("Steuer \(asset) \(z[i].trimmingCharacters(in: .whitespaces)) \(fiat)")
+                    hinweis("\(paarSeite) Steuer \(z[i].trimmingCharacters(in: .whitespaces)) \(fiat)")
                 }
             } else if (typ == "reward" || typ == "rewards") && geld && betragFiat > 0 {
                 ergebnis.ausfuehrungen.append(Ausfuehrung(
@@ -84,7 +86,7 @@ public enum BitpandaCSV {
                     id: "\(id)-ertrag", zeit: zeit, art: .zinsen, betrag: betragFiat, waehrung: fiat,
                     kennung: KryptoWerte.kennung(asset, fiat), rohzeile: z))
             } else if handel {
-                hinweis("\(typ) \(asset)/\(fiat)")
+                hinweis(paarSeite)
             } else {
                 hinweis("\(feld("Transaction Type")) \(asset)")
             }
