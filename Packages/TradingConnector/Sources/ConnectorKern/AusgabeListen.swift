@@ -21,7 +21,8 @@ extension Ausgabe {
                 zeile += ", geschlossen \(Format.datum(erster, zone, mitZeit: false)) bis "
                     + Format.datum(letzter, zone, mitZeit: false)
             }
-            t.append(zeile + ", \(konto.geloeschteOrders.count) gelöschte Orders.")
+            zeile += ", \(konto.geloeschteOrders.count) gelöschte Orders"
+            t.append(zeile + (konto.ziele.isEmpty ? "." : ", \(konto.ziele.count) Ziele aus Reviews."))
         }
         return t.joined(separator: "\n")
     }
