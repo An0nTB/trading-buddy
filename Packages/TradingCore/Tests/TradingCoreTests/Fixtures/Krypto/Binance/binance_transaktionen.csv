@@ -1,0 +1,3 @@
+﻿User ID,Time,Account,Operation,Coin,Change,Remark
+10000001,26-03-02 09:00:01,Spot,Transaction Buy,BTC,0.01,
+10000001,26-03-02 09:00:01,Spot,Transaction Spend,EUR,-600,
