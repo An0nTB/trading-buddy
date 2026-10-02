@@ -275,6 +275,9 @@ private struct AbrufHinweis: View {
                 Text("„Kurse abrufen“ braucht eingeschaltete Kurse in den Einstellungen. MetaTrader-Kurse lassen sich am Mac immer importieren.")
             } else if let abruf {
                 Text("Abruf: \(abruf.geladen) Trades geladen, \(abruf.ohneQuelle) ohne freie Minutenkurse (CFD, Devisen, ohne Uhrzeit), \(abruf.nochOffen) noch nicht abgeschlossen (bis eine Stunde nach dem Ausstieg).")
+                if abruf.ohneKerzen > 0 {
+                    Text("\(abruf.ohneKerzen) Trades ohne Kerzen von der Quelle (etwa ohne Umsatz im Zeitraum); gespeicherte Kurse bleiben.")
+                }
                 if zuLang > 0 {
                     Text("\(zuLang) Trades liefen länger als 31 Tage; dafür ruft die App keine Minutenkurse ab.")
                 }
