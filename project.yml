@@ -38,7 +38,10 @@ targets:
     supportedDestinations: [macOS, iOS]
     sources:
       - path: App/Sources
+      # Ausdrücklich Ressourcen, damit die Lernkapitel (App/Resources/Lernen/*.md) sicher ins Bundle kommen
+      # (Dritter Gegencheck G10, Doc 41).
       - path: App/Resources
+        buildPhase: resources
     dependencies:
       - package: TradingCore
       - package: TradingStore

@@ -20,6 +20,8 @@ struct FragBradBlatt: View {
     @State private var vorlage: FragBradVorlage
     @State private var freieFrage = ""
     @State private var meldung: String?
+    /// Im Blatt gewählter Wert, wenn weder Anfrage noch Filter einen nennen (Dritter Gegencheck G13).
+    @State private var gewaehltesSymbol: String?
 
     init(anfrage: FragBradAnfrage) {
         self.anfrage = anfrage
@@ -28,13 +30,20 @@ struct FragBradBlatt: View {
 
     private var vorlagen: [FragBradVorlage] {
         FragBradVorlage.verfuegbar(mitTrade: anfrage.trade != nil, mitTag: anfrage.tag != nil,
-                                   mitSymbol: symbol != nil)
+                                   mitSymbol: symbol != nil || !waehlbareSymbole.isEmpty)
     }
 
     private var ton: FragBradTon { tonWahl == .sachlich ? .sachlich : .henry }
 
     /// Wert für „Wert analysieren“: ausdrücklich gewählt, sonst Symbol des Trades, sonst Instrument im Filter.
-    private var symbol: String? { anfrage.symbol ?? anfrage.trade?.symbol ?? modell.instrument }
+    private var symbol: String? { vorgegebenesSymbol ?? gewaehltesSymbol }
+
+    private var vorgegebenesSymbol: String? { anfrage.symbol ?? anfrage.trade?.symbol ?? modell.instrument }
+
+    /// Werte zur Wahl im Blatt: eigene Trades und offene Positionen, alphabetisch.
+    private var waehlbareSymbole: [String] {
+        Set(modell.symbole + modell.offenePositionen.map(\.symbol)).sorted()
+    }
 
     private var kontext: FragBradKontext {
         FragBradKontextAusModell.kontext(modell, trade: anfrage.trade, tag: anfrage.tag, symbol: symbol)
@@ -56,6 +65,11 @@ struct FragBradBlatt: View {
                     .lineLimit(3...8)
             }
             if vorlage == .analyse {
+                if vorgegebenesSymbol == nil {
+                    Picker("Wert", selection: $gewaehltesSymbol) {
+                        ForEach(waehlbareSymbole, id: \.self) { Text(verbatim: $0).tag(String?.some($0)) }
+                    }
+                }
                 Text(verbatim: FragBrad.inkognitoHinweis(ton).uebersetzt).font(.callout)
                 if !kontext.mitKursverlauf {
                     Text(verbatim: FragBrad.ohneKursverlaufHinweis.uebersetzt).font(.callout).foregroundStyle(.secondary)
@@ -68,9 +82,17 @@ struct FragBradBlatt: View {
             knoepfe
         }
         .padding(Abstand.seitenrand)
+        .onAppear(perform: waehleStartwert)
         #if os(macOS)
         .frame(width: 520)
         #endif
+    }
+
+    /// Analyse ohne Wert aus Anfrage oder Filter: ersten eigenen Wert vorwählen; ohne jeden Wert eine andere Vorlage.
+    private func waehleStartwert() {
+        guard vorlage == .analyse, vorgegebenesSymbol == nil else { return }
+        gewaehltesSymbol = waehlbareSymbole.first
+        if gewaehltesSymbol == nil, let erste = vorlagen.first { vorlage = erste }
     }
 
     private var vorschau: some View {
