@@ -19,18 +19,30 @@ final class Kursdienst {
     private var aufgabe: Task<Void, Never>?
     private let speicher: UserDefaults
     /// Alle Quellen, die die App kennt; verbunden wird nur, was eine Zuordnung braucht.
-    let quellen: [any Kursquelle] = [Kursquellen.kraken(), Kursquellen.coinbase(), Kursquellen.binance(),
-                                     Kursquellen.alpaca(schluessel: Schluesselbund())]
+    let quellen: [any Kursquelle]
     /// Tageskerzen für die Analyse in Frag Henry (Paket A1, Doc 38), je Journal-Symbol; nur beschreibend.
     private(set) var verlaeufe = Verlaufsstand.leer
     private var verlaufLaeuft = false
-    private let verlaufsspeicher = Verlaufsspeicher(datei: Verlaufsspeicher.standardDatei())
+    private let verlaufsspeicher: Verlaufsspeicher
     /// Krypto über Kraken ohne Schlüssel, US-Aktien über Alpaca mit dem Schlüssel der Echtzeitkurse.
-    let verlaufsquellen: [any Verlaufsquelle] = [Kursverlaeufe.kraken(),
-                                                 Kursverlaeufe.alpaca(schluessel: Schluesselbund())]
+    let verlaufsquellen: [any Verlaufsquelle]
+    /// Alpaca-Schlüssel; in den App-Tests mit `SpeicherSchluesselablage` (Paket A7).
+    let schluesselbund: Schluesselbund
+    /// HTTP-Abruf für Tages- und Minutenkerzen; in den App-Tests ein Fake ohne Netz.
+    let abruf: Abruf
 
-    init(speicher: UserDefaults = .standard) {
+    /// - Parameters:
+    ///   - verlaufsdatei: Zwischenspeicher der Tageskerzen; Tests geben eine Datei im temporären Ordner.
+    init(speicher: UserDefaults = .standard, schluesselbund: Schluesselbund = Schluesselbund(),
+         abruf: @escaping Abruf = Kursverlaeufe.urlSession,
+         verlaufsdatei: URL = Verlaufsspeicher.standardDatei()) {
         self.speicher = speicher
+        self.schluesselbund = schluesselbund
+        self.abruf = abruf
+        quellen = [Kursquellen.kraken(), Kursquellen.coinbase(), Kursquellen.binance(),
+                   Kursquellen.alpaca(schluessel: schluesselbund)]
+        verlaufsquellen = [Kursverlaeufe.kraken(abruf: abruf), Kursverlaeufe.alpaca(schluessel: schluesselbund, abruf: abruf)]
+        verlaufsspeicher = Verlaufsspeicher(datei: verlaufsdatei)
         aktiv = speicher.bool(forKey: Self.schluesselAktiv)
         if let daten = speicher.data(forKey: Self.schluesselZuordnungen),
            let gespeichert = try? JSONDecoder().decode([Kurszuordnung].self, from: daten) {
