@@ -130,25 +130,12 @@ final class TagModell {
 
     // MARK: Bilder
 
-    /// Kopiert die Dateien in den Bilderordner und legt Verweise auf den Tag an. Nicht unterstützte
+    /// Kopiert die Bilder in den Bilderordner und legt Verweise auf den Tag an. Nicht unterstützte
     /// Dateien überspringt sie und meldet die erste.
-    func fuegeBilderHinzu(_ quellen: [URL], jetzt: Date = Date()) {
-        var ersterFehler: String?
-        for quelle in quellen {
-            do {
-                let datei = try Bilderordner.uebernimm(quelle, jetzt: jetzt, zeitzone: zeitzone)
-                do {
-                    try ablage.speichereBild(Bildverweis(datei: datei, bezug: .tag(tag), erstellt: jetzt))
-                } catch {
-                    // Ohne Verweis bliebe die Kopie verwaist.
-                    Bilderordner.loesche(datei)
-                    throw error
-                }
-            } catch {
-                if ersterFehler == nil { ersterFehler = error.localizedDescription }
-            }
+    func fuegeBilderHinzu(_ quellen: [Bildquelle], jetzt: Date = Date()) {
+        fehler = Bilderordner.lege(quellen, bezug: .tag(tag), jetzt: jetzt, zeitzone: zeitzone) { bild in
+            try ablage.speichereBild(bild)
         }
-        fehler = ersterFehler
         ladeEintraege()
     }
 

@@ -146,6 +146,7 @@ struct VerpasstFormular: View {
                         .font(Schrift.beschriftung)
                         .foregroundStyle(thema.textSchwach)
                 }
+                VerpasstBilderAbschnitt(id: eintrag.id, gespeichert: !neu)
                 if let fehler {
                     Section {
                         Text(verbatim: fehler)
