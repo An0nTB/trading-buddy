@@ -215,9 +215,7 @@ struct BereichInhalt: View {
         case .trades: TradesView()
         case .kennzahlen: KennzahlenView()
         case .fehlermuster: FehlermusterView()
-        case .kalender:
-            Platzhalter(titel: "Kalender folgt", symbol: "calendar",
-                        text: "Termine kommen mit dem Wirtschaftskalender nach der ersten Version. Handelszeiten und Feiertage der Börsen zeigt die Börsenuhr.")
+        case .kalender: KalenderView()
         case .tag: TagView() // Paket P7 (#65); dauerhafte Ablage folgt mit TradingStore v8
         case .steuer: SteuerView()
         case .boersenuhr: BoersenuhrView()
