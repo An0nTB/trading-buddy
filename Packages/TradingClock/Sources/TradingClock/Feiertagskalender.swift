@@ -65,6 +65,10 @@ public struct Feiertagskalender: Sendable, Hashable, Identifiable, Codable {
         guard format == Feiertagskalender.unterstuetztesFormat else {
             throw BoersenuhrFehler.unbekanntesFormat(id: id, format: format)
         }
+        guard !id.trimmingCharacters(in: .whitespaces).isEmpty,
+              !name.trimmingCharacters(in: .whitespaces).isEmpty else {
+            throw BoersenuhrFehler.leereKennungOderName(id: id)
+        }
     }
 }
 
