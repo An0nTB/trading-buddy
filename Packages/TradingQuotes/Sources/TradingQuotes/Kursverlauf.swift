@@ -27,6 +27,15 @@ public struct Tageskerze: Sendable, Equatable, Codable {
         self.abgeschlossen = abgeschlossen
     }
 
+    /// Handelstag als „JJJJ-MM-TT“ (Kalendertag in UTC). Kraken beginnt um 00:00 UTC, Alpaca um Mitternacht in
+    /// New York (04:00 oder 05:00 UTC): Beides fällt auf den richtigen Tag. Passt zu `Journaltag` in TradingCore.
+    public var handelstag: String {
+        var kalender = Calendar(identifier: .gregorian)
+        kalender.timeZone = TimeZone(identifier: "UTC")!
+        let t = kalender.dateComponents([.year, .month, .day], from: zeit)
+        return String(format: "%04d-%02d-%02d", t.year ?? 0, t.month ?? 0, t.day ?? 0)
+    }
+
     /// Eine Kerze gilt als abgeschlossen, wenn seit ihrem Beginn ein voller Tag vergangen ist.
     static func istAbgeschlossen(_ zeit: Date, jetzt: Date) -> Bool {
         zeit.addingTimeInterval(86_400) <= jetzt
@@ -71,6 +80,17 @@ public struct Kursverlauf: Sendable, Equatable, Codable {
     public var naeherung: String?
     public var kerzen: [Tageskerze]
     public var geladen: Date
+
+    /// Kurswährung: bei Kraken die Gegenwährung des Paars („BTC/EUR“ → „EUR“), bei Alpaca US-Dollar.
+    public var waehrung: String? {
+        switch quelle {
+        case "alpaca": return "USD"
+        case "kraken":
+            let teile = quellSymbol.split(separator: "/")
+            return teile.count == 2 ? String(teile[1]) : nil
+        default: return nil
+        }
+    }
 
     public init(journalSymbol: String, quelle: String, quellSymbol: String, naeherung: String? = nil,
                 kerzen: [Tageskerze], geladen: Date) {
