@@ -28,6 +28,9 @@ extension Bereich {
         Bereich.werkzeuge.contains(self) ? CGSize(width: 320, height: 240) : CGSize(width: 560, height: 420)
     }
 
+    /// Mindestgröße der kompakten Börsenuhr.
+    static let kompaktgroesse = CGSize(width: 240, height: 150)
+
     /// Schlüssel in den Einstellungen für „immer im Vordergrund“ je Bereich.
     var anheftSchluessel: String { "angeheftet.\(rawValue)" }
 }
