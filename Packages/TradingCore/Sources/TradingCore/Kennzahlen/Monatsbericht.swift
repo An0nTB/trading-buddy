@@ -26,11 +26,12 @@ public struct Monatsbericht: Sendable {
     /// - Parameters:
     ///   - trades: alle Trades des Kontos, auch außerhalb des Monats (Vormonat, Steuerjahr).
     ///   - manuell: Trades, die im Journal als „nicht regeltreu“ markiert sind.
-    ///   - kontowaehrung: für die Steuer-Summen; nur Euro wird summiert.
+    ///   - kontowaehrung: für die Steuer-Summen; andere Währungen nur mit `kurse`.
     public init?(trades: [Trade], jahr: Int, monat: Int, zeitzone: TimeZone, kontowaehrung: String,
                  regeln: Handelsregeln = Handelsregeln(), manuell: Set<String> = [],
                  ziele: [Reviewziel] = [], notizen: [Tagesnotiz] = [], verpasst: [VerpassterTrade] = [],
-                 geloeschteOrders: [Date] = [], musterAnzahl: Int = 3, topAnzahl: Int = 3) {
+                 geloeschteOrders: [Date] = [], kurse: Referenzkurse? = nil, musterAnzahl: Int = 3,
+                 topAnzahl: Int = 3) {
         guard let zeitraum = Zeitspanne.monat(jahr: jahr, monat: monat, zeitzone: zeitzone) else { return nil }
         self.jahr = jahr
         self.monat = monat
@@ -44,7 +45,7 @@ public struct Monatsbericht: Sendable {
         muster = Array(MusterFinder.finde(imMonat, zeitzone: zeitzone).prefix(musterAnzahl))
         self.ziele = ziele.filter { $0.von < zeitraum.bis && $0.bis > zeitraum.von }.sorted { $0.von < $1.von }
         steuerBisMonatsende = Steuerorientierung.toepfe(trades.filter { $0.closeTime < zeitraum.bis },
-                                                        kontowaehrung: kontowaehrung, jahr: jahr)
+                                                        kontowaehrung: kontowaehrung, jahr: jahr, kurse: kurse)
         planwirkung = Planwirkung(trades: imMonat, notizen: notizen, zeitzone: zeitzone)
         verpasste = VerpassteAuswertung(verpasst.filter { zeitraum.enthaelt($0.zeit) })
         beste = auswertung.beste(topAnzahl)
