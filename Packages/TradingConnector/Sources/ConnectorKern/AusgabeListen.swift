@@ -35,6 +35,11 @@ extension Ausgabe {
         if notizen + verpasst > 0 {
             t.append("Für alle Konten: Tagesnotizen an \(notizen) Tagen, \(verpasst) verpasste Trades (hole_notizen).")
         }
+        if let reihen = export.kursverlauf {
+            let namen = reihen.prefix(20).map(\.symbol).joined(separator: ", ")
+            t.append("Kursverläufe (Tageskerzen) für \(reihen.count) Werte: \(namen)\(reihen.count > 20 ? " …" : "") "
+                + "(hole_kursanalyse).")
+        }
         return t.joined(separator: "\n")
     }
 

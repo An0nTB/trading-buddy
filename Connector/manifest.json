@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "trading-buddy",
   "display_name": "Henry",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "Henry führt Buch über deine Trades. Kennzahlen, Fehlermuster und Wochen- oder Monatsauswertung aus deinem Journal. Nur lesend, die Daten bleiben auf deinem Mac.",
   "author": {
     "name": "Tim Bock"
@@ -42,6 +42,10 @@
     {
       "name": "hole_nachrichten",
       "description": "Überschriften der Nachrichten zur Merkliste und zum Markt mit Quelle und Link."
+    },
+    {
+      "name": "hole_kursanalyse",
+      "description": "Beschreibende Kursanalyse eines Werts aus den Tageskerzen der App, mit eigenen Trades im Wert."
     }
   ],
   "prompts_generated": true,
