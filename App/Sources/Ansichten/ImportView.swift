@@ -139,7 +139,7 @@ enum ErkannteDatei {
 
 /// Import (Doc 10, Abschnitt 7): Liste der bisherigen Importe, „Datei wählen“ öffnet das Blatt mit Prüfung.
 struct ImportView: View {
-    @AppStorage(Ton.schluessel) private var ton = Ton.bro
+    @AppStorage(Ton.schluessel) private var ton = Ton.henry
     @Environment(AppModell.self) private var modell
     @Environment(\.thema) private var thema
     @State private var dateiWaehlen = false
@@ -172,7 +172,7 @@ struct ImportView: View {
                     .foregroundStyle(thema.textSchwach)
             }
             if modell.importe.isEmpty {
-                ContentUnavailableView(ton.text("Noch kein Import", bro: "Her mit dem Auszug."), systemImage: "square.and.arrow.down",
+                ContentUnavailableView(ton.text("Noch kein Import", henry: "Ein Auszug, bitte."), systemImage: "square.and.arrow.down",
                                        description: Text("Wähle einen Kontoauszug: MetaTrader 4 (HTML, GBE und andere Broker), den Transaktionsexport von Trade Republic oder Scalable Capital (CSV), den Trade- oder Transaktionsexport von Kraken, Binance, Coinbase oder Bitpanda (CSV) oder die Kontohistorie von XTB (Excel aus xStation 5)."))
             } else {
                 List(modell.importe) { eintrag in
@@ -1022,9 +1022,9 @@ struct ImportBlatt: View {
         switch ergebnis.status {
         case .dateiBereitsImportiert:
             return Ton.aktuell.text("Genau diese Datei war schon importiert. Nichts geändert.",
-                                    bro: "Die Datei hatten wir schon, Bro. Nichts geändert.")
+                                    henry: "Diese Datei lag bereits vor. Nichts geändert.")
         case .gespeichert:
-            let gespeichert = Ton.aktuell.text("Gespeichert:", bro: "Drin, Alter:")
+            let gespeichert = Ton.aktuell.text("Gespeichert:", henry: "Verbucht:")
             if case .csv(_, _)? = erkannt {
                 let z = ergebnis.csv
                 return String(localized: "\(gespeichert) \(z.ausfuehrungenNeu) neue Ausführungen (\(z.ausfuehrungenBekannt) bekannt), \(z.geldbewegungenNeu) Geldbewegungen, \(z.kapitalmassnahmenNeu) Kapitalmaßnahmen, \(z.verworfen) verworfen, \(z.hinweise) Hinweise.")
