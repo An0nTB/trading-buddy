@@ -312,6 +312,38 @@ enum Schema {
             }
         }
 
+        migrator.registerMigration("v7 Playbook") { db in
+            // Setup-Karten (Doc 18 F3) für alle Konten gemeinsam: Ein Setup ist eine Handelsidee, kein
+            // Konto. Der Name verbindet die Karte mit `journal.setup` und ist deshalb eindeutig.
+            try db.create(table: "setup") { t in
+                t.autoIncrementedPrimaryKey("id")
+                t.column("name", .text).notNull().unique()
+                t.column("stopRegel", .text)
+                t.column("zielRegel", .text)
+                t.column("marktumfeld", .text)
+                t.column("notiz", .text)
+                t.column("status", .text).notNull()
+                t.column("statusSeit", .datetime).notNull()
+            }
+            // Kriterien einer Karte in ihrer Reihenfolge. Die Kennung bleibt beim Umformulieren gleich.
+            try db.create(table: "kriterium") { t in
+                t.belongsTo("setup", onDelete: .cascade).notNull()
+                t.column("kennung", .text).notNull()
+                t.column("text", .text).notNull()
+                t.column("position", .integer).notNull()
+                t.primaryKey(["setupId", "kennung"])
+            }
+            // Abgehakte Kriterien je Trade. Welches Setup der Trade hatte, steht nur in `journal.setup`;
+            // ohne Journaleintrag gibt es keine Häkchen, und sie verschwinden mit ihm.
+            try db.create(table: "haken") { t in
+                t.column("kontoId", .integer).notNull()
+                t.column("ticket", .text).notNull()
+                t.column("kennung", .text).notNull()
+                t.primaryKey(["kontoId", "ticket", "kennung"])
+                t.foreignKey(["kontoId", "ticket"], references: "journal", onDelete: .cascade)
+            }
+        }
+
         return migrator
     }
 }
