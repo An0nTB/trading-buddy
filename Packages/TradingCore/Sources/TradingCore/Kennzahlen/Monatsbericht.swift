@@ -10,6 +10,9 @@ public struct Monatsbericht: Sendable {
     public var auswertung: Auswertung
     /// Regelverstöße an Trades des Monats, nach Eröffnung.
     public var regelverstoesse: [Regelverstoss]
+    /// Verstöße gegen Prop-Firm-Regeln an Trades des Monats; leer ohne `regeln.propFirm`.
+    public var propFirmVerstoesse: [PropFirmPruefung.Verstoss]
+    /// Eigene und Prop-Firm-Verstöße zusammen; ein Trade zählt einmal.
     public var disziplin: Disziplin
     /// Stärkste Unterschiede laut Muster-Finder; leer unter `Kennzahlen.mindestanzahl` Trades.
     public var muster: [Muster]
@@ -41,7 +44,9 @@ public struct Monatsbericht: Sendable {
         let ids = Set(imMonat.map(\.id))
         regelverstoesse = Regelpruefung.pruefe(trades, regeln: regeln, zeitzone: zeitzone, manuell: manuell)
             .filter { ids.contains($0.trade) }
-        disziplin = Disziplin(trades: imMonat, verstoesse: regelverstoesse)
+        propFirmVerstoesse = regeln.propFirm.map { PropFirmPruefung.pruefe(trades, regeln: $0).verstoesse }?
+            .filter { ids.contains($0.trade) } ?? []
+        disziplin = Disziplin(trades: imMonat, verstoesse: regelverstoesse, propFirm: propFirmVerstoesse)
         muster = Array(MusterFinder.finde(imMonat, zeitzone: zeitzone).prefix(musterAnzahl))
         self.ziele = ziele.filter { $0.von < zeitraum.bis && $0.bis > zeitraum.von }.sorted { $0.von < $1.von }
         steuerBisMonatsende = Steuerorientierung.toepfe(trades.filter { $0.closeTime < zeitraum.bis },
