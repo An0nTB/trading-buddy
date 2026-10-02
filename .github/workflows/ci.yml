@@ -102,6 +102,8 @@ jobs:
             echo '{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"hole_datenstand","arguments":{}}}'
             echo '{"jsonrpc":"2.0","id":5,"method":"tools/call","params":{"name":"hole_auswertung","arguments":{"monat":"2025-05"}}}'
             echo '{"jsonrpc":"2.0","id":6,"method":"prompts/get","params":{"name":"monatsauswertung","arguments":{"monat":"2025-05"}}}'
+            echo '{"jsonrpc":"2.0","id":7,"method":"tools/call","params":{"name":"hole_trades","arguments":{"monat":"2025-05","anzahl":1e100}}}'
+            echo '{"jsonrpc":"2.0","id":8,"method":"tools/list"}'
             sleep 3
           ) | TB_EXPORT_DIR="$ORDNER" perl -e 'alarm 20; exec @ARGV' "$BIN/trading-buddy-mcp" > antwort.txt || true
           cat antwort.txt
@@ -113,6 +115,8 @@ jobs:
           grep -q "104 Trades" antwort.txt
           grep -q "83 (54" antwort.txt
           grep -q "hole_auswertung mit monat=2025-05" antwort.txt
+          grep -q "Trading Buddy · Trades" antwort.txt
+          grep -q '"id":8' antwort.txt
       - name: Server meldet fehlenden Export-Ordner
         run: |
           BIN="$(swift build -c release --show-bin-path)"

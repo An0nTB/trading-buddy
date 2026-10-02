@@ -69,7 +69,7 @@ enum Ausfuehrung {
     /// Argumente als Text; Zahlen werden umgewandelt.
     static func texte(_ argumente: [String: Value]?) -> [String: String] {
         (argumente ?? [:]).compactMapValues { wert in
-            wert.stringValue ?? wert.intValue.map { String($0) } ?? wert.doubleValue.map { String(Int($0)) }
+            wert.stringValue ?? wert.intValue.map { String($0) } ?? wert.doubleValue.map(Anfrage.zahltext)
         }
     }
 
@@ -121,7 +121,7 @@ enum Ausfuehrung {
 
 let server = Server(
     name: "trading-buddy",
-    version: "0.3.0",
+    version: "0.3.1",
     capabilities: .init(prompts: .init(listChanged: false), tools: .init(listChanged: false))
 )
 
