@@ -107,7 +107,7 @@ struct Schluesselbund: AlpacaSchluesselquelle {
         var text: String {
             switch self {
             case .schluesselbund(let status):
-                let grund = (SecCopyErrorMessageString(status, nil) as String?) ?? "Fehler \(status)"
+                let grund = (SecCopyErrorMessageString(status, nil) as String?) ?? String(localized: "Fehler \(status)")
                 return String(localized: "Schlüsselbund: \(grund)")
             }
         }

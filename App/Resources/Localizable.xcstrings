@@ -4,6 +4,16 @@
     "" : {
 
     },
+    " · %lld von %lld erledigt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : " · %1$lld of %2$lld done"
+          }
+        }
+      }
+    },
     " · Feiertage nur bis %@ gepflegt" : {
       "localizations" : {
         "en" : {
@@ -62,326 +72,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : " show"
-          }
-        }
-      }
-    },
-    "%lld neue Ausführungen" : {
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld new execution"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld new executions"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "%lld neue Trades" : {
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld new trade"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld new trades"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "Beobachtet %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Watching %@"
-          }
-        }
-      }
-    },
-    "Binance-Transaktionsverlauf: Den liest die App nicht, bitte die Trade History exportieren." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Binance transaction history: the app does not read it, please export the trade history."
-          }
-        }
-      }
-    },
-    "Datei nicht lesbar." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "File not readable."
-          }
-        }
-      }
-    },
-    "Datei zu groß für einen Kontoauszug." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "File too large for an account statement."
-          }
-        }
-      }
-    },
-    "Excel-Datei, aber keine XTB-Kontohistorie." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Excel file, but not an XTB account history."
-          }
-        }
-      }
-    },
-    "Format nicht erkannt." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Format not recognised."
-          }
-        }
-      }
-    },
-    "Format nicht erkannt: weder Text noch Excel." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Format not recognised: neither text nor Excel."
-          }
-        }
-      }
-    },
-    "Ignorieren" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ignore"
-          }
-        }
-      }
-    },
-    "Import abgebrochen: bitte im Blatt prüfen." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import stopped: please check in the sheet."
-          }
-        }
-      }
-    },
-    "Import-Ordner beobachten" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Watch import folder"
-          }
-        }
-      }
-    },
-    "Import-Ordner: wartet auf dich" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import folder: waiting for you"
-          }
-        }
-      }
-    },
-    "Kein Zugriff auf den Ordner, bitte neu wählen." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No access to the folder, please choose it again."
-          }
-        }
-      }
-    },
-    "Mehrere Konten bei %@: bitte das Konto wählen." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Several accounts at %@: please choose the account."
-          }
-        }
-      }
-    },
-    "Neue Auszüge in diesem Ordner importiert die App selbst, wenn das Konto schon angelegt ist und eindeutig passt. Bei einem neuen Konto, mehreren passenden Konten oder unbekanntem Format fragt sie auf der Seite Import nach. Die Dateien bleiben liegen; schon importierte erkennt die App wieder." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The app imports new statements in this folder by itself when the account already exists and matches clearly. For a new account, several matching accounts or an unknown format it asks on the Import page. The files stay where they are; the app recognises files it has already imported."
-          }
-        }
-      }
-    },
-    "Neues Konto bei %@: bitte einmal von Hand importieren." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "New account at %@: please import once by hand."
-          }
-        }
-      }
-    },
-    "Neues Konto bei XTB: bitte einmal von Hand importieren." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "New account at XTB: please import once by hand."
-          }
-        }
-      }
-    },
-    "Noch kein Konto bei %@: bitte einmal von Hand importieren." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No account at %@ yet: please import once by hand."
-          }
-        }
-      }
-    },
-    "Noch kein Ordner gewählt." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No folder chosen yet."
-          }
-        }
-      }
-    },
-    "Ordner" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Folder"
-          }
-        }
-      }
-    },
-    "Ordner nicht erreichbar, bitte neu wählen." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Folder not reachable, please choose it again."
-          }
-        }
-      }
-    },
-    "Ordner wählen" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choose folder"
-          }
-        }
-      }
-    },
-    "Prüfen" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Review"
-          }
-        }
-      }
-    },
-    "schon importiert, nichts geändert" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "already imported, nothing changed"
-          }
-        }
-      }
-    },
-    "Serverzeit des Kontos unbekannt: bitte im Blatt wählen." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Server time of the account unknown: please choose it in the sheet."
-          }
-        }
-      }
-    },
-    "XTB-Datei ohne Kontonummer: bitte im Blatt angeben." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "XTB file without account number: please enter it in the sheet."
-          }
-        }
-      }
-    },
-    "XTB-Kontohistorie nicht lesbar." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "XTB account history not readable."
-          }
-        }
-      }
-    },
-    "Zuletzt aus dem Import-Ordner: %@, %@, %@" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Zuletzt aus dem Import-Ordner: %1$@, %2$@, %3$@"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Last from the import folder: %1$@, %2$@, %3$@"
           }
         }
       }
@@ -484,6 +174,26 @@
         }
       }
     },
+    "„Kurse abrufen“ braucht eingeschaltete Kurse in den Einstellungen. MetaTrader-Kurse lassen sich am Mac immer importieren." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Fetch prices” needs prices switched on in Settings. MetaTrader prices can always be imported on the Mac."
+          }
+        }
+      }
+    },
+    "„Kurse abrufen“ holt Minutenkurse für Krypto (Binance) und US-Aktien (Alpaca) für Trades ohne Analyse. Für CFDs und Devisen gibt es keine freien Kurse; dafür den MetaTrader-Export importieren." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Fetch prices” loads minute prices for crypto (Binance) and US stocks (Alpaca) for trades without an analysis. There are no free prices for CFDs and currencies; for those, import the MetaTrader export."
+          }
+        }
+      }
+    },
     "„Regelsperre“ heißt: deine eigene Regel hat den Trade verboten. Er zählt als gewollt verpasst und nicht zum entgangenen Ergebnis." : {
       "localizations" : {
         "en" : {
@@ -516,6 +226,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@ · for %2$lld trades with stop"
+          }
+        }
+      }
+    },
+    "%@ (in %@)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ (in %2$@)"
           }
         }
       }
@@ -644,6 +364,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@ to %2$@"
+          }
+        }
+      }
+    },
+    "%@ bis %@ · %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ to %2$@ · %3$@"
           }
         }
       }
@@ -1212,6 +942,50 @@
         }
       }
     },
+    "%lld neue Ausführungen" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld new execution"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld new executions"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld neue Trades" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld new trade"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld new trades"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "%lld nicht verbucht" : {
       "localizations" : {
         "en" : {
@@ -1535,6 +1309,28 @@
                 "stringUnit" : {
                   "state" : "translated",
                   "value" : "%lld trades in foreign currency without an ECB rate are missing from the total."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld Trades liefen länger als 31 Tage; dafür ruft die App keine Minutenkurse ab." : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld trade ran longer than 31 days; the app does not fetch minute prices for it."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld trades ran longer than 31 days; the app does not fetch minute prices for them."
                 }
               }
             }
@@ -1880,6 +1676,16 @@
         }
       }
     },
+    "%lld von 5" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld of 5"
+          }
+        }
+      }
+    },
     "%lld vorläufig" : {
       "localizations" : {
         "en" : {
@@ -2162,6 +1968,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fetch: %@"
+          }
+        }
+      }
+    },
+    "Abruf: %lld Trades geladen, %lld ohne freie Minutenkurse (CFD, Devisen, ohne Uhrzeit), %lld noch nicht abgeschlossen (bis eine Stunde nach dem Ausstieg)." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fetch: %1$lld trades loaded, %2$lld without free minute prices (CFD, currencies, no time of day), %3$lld not yet complete (until one hour after the exit)."
           }
         }
       }
@@ -2778,6 +2594,16 @@
         }
       }
     },
+    "Beobachtet %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Watching %@"
+          }
+        }
+      }
+    },
     "berechnet" : {
       "localizations" : {
         "en" : {
@@ -2970,6 +2796,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Binance transaction history (Assets → Transaction History): the app does not read this file. Export under Orders → Spot Order → Trade History."
+          }
+        }
+      }
+    },
+    "Binance-Transaktionsverlauf: Den liest die App nicht, bitte die Trade History exportieren." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Binance transaction history: the app does not read it, please export the trade history."
           }
         }
       }
@@ -3342,12 +3178,32 @@
         }
       }
     },
+    "Datei nicht lesbar." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File not readable."
+          }
+        }
+      }
+    },
     "Datei wählen" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Choose file"
+          }
+        }
+      }
+    },
+    "Datei zu groß für einen Kontoauszug." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File too large for an account statement."
           }
         }
       }
@@ -4722,6 +4578,16 @@
         }
       }
     },
+    "Excel-Datei, aber keine XTB-Kontohistorie." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Excel file, but not an XTB account history."
+          }
+        }
+      }
+    },
     "Export-Ordner" : {
       "localizations" : {
         "en" : {
@@ -4901,6 +4767,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Error"
+          }
+        }
+      }
+    },
+    "Fehler %d" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error %d"
           }
         }
       }
@@ -5091,6 +4967,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Format not recognised: not a MetaTrader 4 statement (HTML), not a CSV export from Trade Republic, Scalable, Kraken, Binance, Coinbase or Bitpanda and not an XTB account history (Excel)."
+          }
+        }
+      }
+    },
+    "Format nicht erkannt: weder Text noch Excel." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Format not recognised: neither text nor Excel."
+          }
+        }
+      }
+    },
+    "Format nicht erkannt." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Format not recognised."
           }
         }
       }
@@ -5287,6 +5183,16 @@
         }
       }
     },
+    "Für dieses Symbol sind keine Minutenkurse gespeichert. Abruf oder Import auf der Seite „Ausstieg“." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No minute prices are stored for this symbol. Fetch or import on the “Exit” page."
+          }
+        }
+      }
+    },
     "Für dieses Symbol sind keine Minutenkurse gespeichert. Import auf der Seite „Ausstieg“." : {
       "localizations" : {
         "en" : {
@@ -5479,6 +5385,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Overall limit"
+          }
+        }
+      }
+    },
+    "Gesamtgrenze aus dem Dashboard eintragen; sie friert bei Start plus 100 ein. Glattstellen bis 16:59 New York prüft die App erst ab 18:00." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter the overall limit from the dashboard; it freezes at start plus 100. Closing positions by 16:59 New York is checked by the app only from 18:00."
           }
         }
       }
@@ -6301,6 +6217,16 @@
         }
       }
     },
+    "Ignorieren" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ignore"
+          }
+        }
+      }
+    },
     "Im Browser öffnen" : {
       "localizations" : {
         "en" : {
@@ -6407,6 +6333,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Import"
+          }
+        }
+      }
+    },
+    "Import abgebrochen: bitte im Blatt prüfen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import stopped: please check in the sheet."
+          }
+        }
+      }
+    },
+    "Import-Ordner beobachten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Watch import folder"
+          }
+        }
+      }
+    },
+    "Import-Ordner: wartet auf dich" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import folder: waiting for you"
           }
         }
       }
@@ -6763,6 +6719,16 @@
         }
       }
     },
+    "Kapitel %lld · %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chapter %1$lld · %2$@"
+          }
+        }
+      }
+    },
     "Kapitel nicht gefunden. Die Datei fehlt im App-Paket." : {
       "localizations" : {
         "en" : {
@@ -6999,6 +6965,16 @@
         }
       }
     },
+    "Kein Tageslimit. Ob und wo die nachgezogene Grenze stehen bleibt, nennt die Seite nicht." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No daily limit. The page does not say whether or where the trailing limit stops."
+          }
+        }
+      }
+    },
     "kein Termin" : {
       "localizations" : {
         "en" : {
@@ -7045,6 +7021,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No goal touches this month."
+          }
+        }
+      }
+    },
+    "Kein Zugriff auf den Ordner, bitte neu wählen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No access to the folder, please choose it again."
           }
         }
       }
@@ -7987,6 +7973,16 @@
         }
       }
     },
+    "Kurse abrufen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fetch prices"
+          }
+        }
+      }
+    },
     "Kurse aus" : {
       "localizations" : {
         "en" : {
@@ -8451,6 +8447,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "More trades per day than allowed"
+          }
+        }
+      }
+    },
+    "Mehrere Konten bei %@: bitte das Konto wählen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Several accounts at %@: please choose the account."
           }
         }
       }
@@ -9399,6 +9405,16 @@
         }
       }
     },
+    "Neue Auszüge in diesem Ordner importiert die App selbst, wenn das Konto schon angelegt ist und eindeutig passt. Bei einem neuen Konto, mehreren passenden Konten oder unbekanntem Format fragt sie auf der Seite Import nach. Die Dateien bleiben liegen; schon importierte erkennt die App wieder." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The app imports new statements in this folder by itself when the account already exists and matches clearly. For a new account, several matching accounts or an unknown format it asks on the Import page. The files stay where they are; the app recognises files it has already imported."
+          }
+        }
+      }
+    },
     "Neue Karte" : {
       "localizations" : {
         "en" : {
@@ -9415,6 +9431,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "New account"
+          }
+        }
+      }
+    },
+    "Neues Konto bei %@: bitte einmal von Hand importieren." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New account at %@: please import once by hand."
+          }
+        }
+      }
+    },
+    "Neues Konto bei XTB: bitte einmal von Hand importieren." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New account at XTB: please import once by hand."
           }
         }
       }
@@ -9581,6 +9617,16 @@
         }
       }
     },
+    "Noch kein Konto bei %@: bitte einmal von Hand importieren." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No account at %@ yet: please import once by hand."
+          }
+        }
+      }
+    },
     "Noch kein Konto importiert." : {
       "localizations" : {
         "en" : {
@@ -9597,6 +9643,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No account yet."
+          }
+        }
+      }
+    },
+    "Noch kein Ordner gewählt." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No folder chosen yet."
           }
         }
       }
@@ -9627,6 +9683,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nothing on the books yet. Patience is a position too."
+          }
+        }
+      }
+    },
+    "Noch keine Kurse gespeichert. „Kurse abrufen“ holt Minutenkurse für Krypto und US-Aktien. Für CFDs und Devisen gibt es keine freien Kurse; dafür am Mac den MetaTrader-Export (Verlaufszentrum, M1) importieren." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No prices stored yet. “Fetch prices” loads minute prices for crypto and US stocks. There are no free prices for CFDs and currencies; for those, import the MetaTrader export (History Center, M1) on the Mac."
           }
         }
       }
@@ -9807,6 +9873,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ø R"
+          }
+        }
+      }
+    },
+    "Ob die nachgezogene Grenze beim Startkapital stehen bleibt, nennt die Seite nicht; hier läuft sie weiter." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The page does not say whether the trailing limit stops at the starting capital; here it keeps trailing."
           }
         }
       }
@@ -10079,6 +10155,36 @@
         }
       }
     },
+    "Ordner" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Folder"
+          }
+        }
+      }
+    },
+    "Ordner nicht erreichbar, bitte neu wählen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Folder not reachable, please choose it again."
+          }
+        }
+      }
+    },
+    "Ordner wählen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose folder"
+          }
+        }
+      }
+    },
     "Orientierung, kein Steuerbescheid. Ohne Steuersatz, Sparer-Pauschbetrag, Verlustvorträge und Teilfreistellung. Ergebnis je Trade = Kursergebnis + Kommission + Swap. Krypto-Haltefrist und Freigrenze stehen auf der Steuer-Seite der App." : {
       "localizations" : {
         "en" : {
@@ -10301,6 +10407,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Percent of account"
+          }
+        }
+      }
+    },
+    "Prüfen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Review"
           }
         }
       }
@@ -10953,6 +11069,16 @@
         }
       }
     },
+    "schon importiert, nichts geändert" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "already imported, nothing changed"
+          }
+        }
+      }
+    },
     "Schreib zuerst deine Frage." : {
       "localizations" : {
         "en" : {
@@ -11055,6 +11181,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Server time of the file"
+          }
+        }
+      }
+    },
+    "Serverzeit des Kontos unbekannt: bitte im Blatt wählen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Server time of the account unknown: please choose it in the sheet."
           }
         }
       }
@@ -11919,12 +12055,32 @@
         }
       }
     },
+    "Tagesverlust-Grenze pausiert bei Topstep nur, darum hier aus. Gewinnziel aus dem Dashboard eintragen; die Konsistenzregel bezieht Topstep aufs Gewinnziel, das kennt die Prüfung noch nicht. Glattstellen bis 15:10 Chicago prüft die App erst ab 17:00." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "At Topstep the daily loss limit only pauses trading, so it is off here. Enter the profit target from the dashboard; Topstep applies the consistency rule to the profit target, which the check does not know yet. Closing positions by 15:10 Chicago is checked by the app only from 17:00."
+          }
+        }
+      }
+    },
     "Tageswechsel" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Day change"
+          }
+        }
+      }
+    },
+    "Tageswechsel 00:00 Serverzeit (GMT+2/+3), hier als Europe/Athens." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Day change 00:00 server time (GMT+2/+3), here as Europe/Athens."
           }
         }
       }
@@ -13709,6 +13865,26 @@
         }
       }
     },
+    "XTB-Datei ohne Kontonummer: bitte im Blatt angeben." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "XTB file without account number: please enter it in the sheet."
+          }
+        }
+      }
+    },
+    "XTB-Kontohistorie nicht lesbar." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "XTB account history not readable."
+          }
+        }
+      }
+    },
     "z. B. 2 R oder das Vortageshoch" : {
       "localizations" : {
         "en" : {
@@ -13965,6 +14141,16 @@
         }
       }
     },
+    "Zeitzone des Tageswechsels nennt die Seite nicht; hier Serverzeit als Europe/Athens angenommen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The page does not name the time zone of the day change; server time as Europe/Athens is assumed here."
+          }
+        }
+      }
+    },
     "Ziel" : {
       "localizations" : {
         "en" : {
@@ -14167,6 +14353,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Random share: how often a randomly drawn group of the same size shows a difference at least as large (1,000 draws). Small means: hard to explain by chance. With several comparisons, a small value also occurs by chance."
+          }
+        }
+      }
+    },
+    "Zuletzt aus dem Import-Ordner: %@, %@, %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Zuletzt aus dem Import-Ordner: %1$@, %2$@, %3$@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last from the import folder: %1$@, %2$@, %3$@"
           }
         }
       }
