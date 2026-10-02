@@ -160,12 +160,21 @@ public struct JournalExport: Sendable, Equatable, Codable {
         return try encoder.encode(self)
     }
 
+    /// Prüft das Format vor dem Rest: Eine neuere Datei kann Felder in neuer Form tragen, an denen das volle
+    /// Lesen scheitern würde; dann soll die Meldung „neueres Format“ lauten, nicht ein Lesefehler (Befund G7).
     public static func lese(_ daten: Data) throws -> JournalExport {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
+        if let kopf = try? decoder.decode(Formatkopf.self, from: daten), kopf.format > aktuellesFormat {
+            throw ExportFehler.neueresFormat(kopf.format)
+        }
         let export = try decoder.decode(JournalExport.self, from: daten)
         guard export.format <= aktuellesFormat else { throw ExportFehler.neueresFormat(export.format) }
         return export
+    }
+
+    private struct Formatkopf: Decodable {
+        var format: Int
     }
 }
 

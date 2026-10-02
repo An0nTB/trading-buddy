@@ -51,3 +51,23 @@ private func maikurse() -> Referenzkurse {
     #expect(JournalExport.referenzkursauszug(maikurse(), fuer: nurEuro).isEmpty)
     #expect(JournalExport(konten: nurEuro, zeitzone: utc).referenzkurse == nil)
 }
+
+@Test func referenzkursauszugAuchFuerDieSteuerInKontenOhneEuro() throws {
+    // Befund G4 (Doc 49): CHF-Konto mit CHF-Trades braucht den CHF-Kurs für die Euro-Summen der Steuer.
+    let konten = [JournalExport.Kontodaten(broker: "B", kontonummer: "2222", waehrung: "CHF",
+                                           trades: [trade("c", "2025-05-20T12:00:00", waehrung: nil)])]
+    let auszug = JournalExport.referenzkursauszug(maikurse(), fuer: konten)
+    #expect(auszug.count == 10 && auszug.allSatisfy { $0.kurse == ["CHF": 1] })
+    let kurse = try #require(JournalExport(konten: konten, zeitzone: utc, referenzkurse: auszug).angleichskurse)
+    #expect(kurse.inEuro(100, waehrung: "CHF", am: zeit("2025-05-20T12:00:00"), zeitzone: utc) == 100)
+}
+
+@Test func neueresFormatVorDemRestErkannt() throws {
+    // Befund G7 (Doc 49): Ein Feld in neuer Form darf die Meldung „neueres Format“ nicht verdecken.
+    let export = JournalExport(konten: [], zeitzone: utc, erstellt: zeit("2026-10-01T20:00:00"))
+    let text = String(decoding: try export.json(), as: UTF8.self)
+        .replacingOccurrences(of: "\"format\":\(JournalExport.aktuellesFormat)", with: #""format":3"#)
+        .replacingOccurrences(of: #""konten":[]"#, with: #""konten":"neue Form""#)
+    #expect(text.contains(#""format":3"#) && text.contains("neue Form"))
+    #expect(throws: ExportFehler.neueresFormat(3)) { try JournalExport.lese(Data(text.utf8)) }
+}
