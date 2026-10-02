@@ -132,3 +132,20 @@ extension AppModell {
         return montage.sorted(by: >)
     }
 }
+
+/// Fertiger Bericht samt Kopfangaben, wie ihn `BerichtPDF` zeichnet.
+typealias BerichtErgebnis = (bericht: Zeitraumbericht, kontext: BerichtKontext)
+
+extension AppModell {
+    /// Bericht über frei gewählte Tage, `von` und `bis` einschließlich, in der Zeitzone des Nutzers.
+    /// `nil`, wenn `bis` vor `von` liegt.
+    func zeitraumbericht(von: Date, bis: Date, jetzt: Date = Date()) -> BerichtErgebnis? {
+        var kalender = Calendar(identifier: .gregorian)
+        kalender.timeZone = zeitzone
+        let teile: Set<Calendar.Component> = [.year, .month, .day]
+        guard let zeitraum = Zeitspanne.tage(von: kalender.dateComponents(teile, from: von),
+                                             bis: kalender.dateComponents(teile, from: bis), zeitzone: zeitzone)
+        else { return nil }
+        return bericht(zeitraum, art: .zeitraum, titel: String(localized: "Bericht für Zeitraum"), jetzt: jetzt)
+    }
+}
