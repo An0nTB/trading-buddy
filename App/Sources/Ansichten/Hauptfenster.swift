@@ -218,10 +218,7 @@ struct BereichInhalt: View {
         case .kalender:
             Platzhalter(titel: "Kalender folgt", symbol: "calendar",
                         text: "Termine kommen mit dem Wirtschaftskalender nach der ersten Version. Handelszeiten und Feiertage der Börsen zeigt die Börsenuhr.")
-        case .tag:
-            // Einhängepunkt für Paket P7 (Thread „Tagesseite in der App“): ersetzt diese Zeile durch seine Ansicht.
-            Platzhalter(titel: "Tagesseite folgt", symbol: "sun.max",
-                        text: "Tagesnotiz, Screenshots und verpasste Trades je Handelstag kommen mit Paket P7.")
+        case .tag: TagView() // Paket P7 (#65); dauerhafte Ablage folgt mit TradingStore v8
         case .steuer: SteuerView()
         case .boersenuhr: BoersenuhrView()
         case .positionsrechner:
