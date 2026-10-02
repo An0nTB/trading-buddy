@@ -7,7 +7,7 @@ import TradingStore
 /// Konten; die Häkchen je Trade setzt du im Inspektor der Trade-Liste. Entwurf mit Speichern und Verwerfen wie
 /// bei „Regeln“, weil die Karten in der Datenbank liegen und die Speicherung Namen und Kriterien prüft.
 struct PlaybookEinstellungen: View {
-    @AppStorage(Ton.schluessel) private var ton = Ton.bro
+    @AppStorage(Ton.schluessel) private var ton = Ton.henry
     @Environment(AppModell.self) private var modell
     @Environment(\.thema) private var thema
     /// Gewählte Karte (Datenbank-ID) oder `nil` für eine neue Karte.
@@ -180,7 +180,7 @@ struct PlaybookEinstellungen: View {
                 auswahl = gespeichert.id
             }
             meldung = ton.text("Gespeichert. Die Kriterien stehen jetzt im Inspektor der Trade-Liste.",
-                               bro: "Drin, Alter. Die Kriterien stehen jetzt im Inspektor der Trade-Liste.")
+                               henry: "Festgehalten. Die Kriterien stehen jetzt im Inspektor der Trade-Liste.")
             meldungIstFehler = false
         } catch {
             meldung = Regelfehler.text(error)
