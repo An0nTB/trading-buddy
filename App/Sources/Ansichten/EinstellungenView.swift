@@ -68,9 +68,19 @@ struct EinstellungenView: View {
 
 /// Reiter Allgemein: Sprache und Anzeigewährung (beide folgen dem System bzw. dem Konto).
 struct AllgemeinFelder: View {
+    @AppStorage(Ton.schluessel) private var ton = Ton.bro
     @Environment(\.thema) private var thema
 
     var body: some View {
+        Picker("Ton", selection: $ton) {
+            ForEach(Ton.allCases, id: \.self) { wahl in
+                Text(wahl.titel).tag(wahl)
+            }
+        }
+        .pickerStyle(.segmented)
+        Text("„Brad“ spricht Begrüßung, leere Seiten und Erfolgsmeldungen locker, „Sachlich“ nüchtern. Zahlen, Steuer, Regelverstöße, Warnungen und Fehler bleiben in beiden Stellungen sachlich; der Export für den Claude-Connector trägt die Einstellung mit.")
+            .font(Schrift.beschriftung)
+            .foregroundStyle(thema.textSchwach)
         LabeledContent("Sprache") { Text("Wie System") }
         LabeledContent("Anzeigewährung") { Text("Kontowährung, Umrechnung folgt") }
         Text("Die Sprache stellst du in den Systemeinstellungen je App um; die App liefert Deutsch und Englisch.")
@@ -149,6 +159,7 @@ struct FarbweltKarte: View {
 
 /// Konten und Kosten: Liste der Konten aus der Datenbank. Das Kostenprofil je Konto kommt später.
 struct KontenView: View {
+    @AppStorage(Ton.schluessel) private var ton = Ton.bro
     @Environment(AppModell.self) private var modell
     @Environment(\.thema) private var thema
 
@@ -156,8 +167,9 @@ struct KontenView: View {
         VStack(alignment: .leading, spacing: Abstand.kachelAbstand) {
             Kopfzeile("Konten und Kosten", untertitel: String(localized: "\(modell.konten.count) Konten"))
             if modell.konten.isEmpty {
-                ContentUnavailableView("Noch kein Konto", systemImage: "building.columns",
-                                       description: Text("Konten entstehen beim ersten Import eines Auszugs."))
+                ContentUnavailableView(ton.text("Noch kein Konto", bro: "Noch kein Konto, Bro."), systemImage: "building.columns",
+                                       description: Text(verbatim: ton.text("Konten entstehen beim ersten Import eines Auszugs.",
+                                                                            bro: "Das erste Konto legt Brad beim ersten Import an.")))
             } else {
                 List(modell.konten, id: \.id) { konto in
                     HStack {
