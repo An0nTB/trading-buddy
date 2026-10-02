@@ -754,6 +754,26 @@
         }
       }
     },
+    "%lld Kerzen zu %@, %@ bis %@ in deiner Zeitzone" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld candles of %2$@, %3$@ to %4$@ in your time zone"
+          }
+        }
+      }
+    },
+    "%lld Kerzen zu %@, Kurse des Charts (bei MetaTrader der Geldkurs)." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld candles of %2$@, chart prices (bid price for MetaTrader)."
+          }
+        }
+      }
+    },
     "%lld Konten" : {
       "localizations" : {
         "en" : {
@@ -928,6 +948,16 @@
         }
       }
     },
+    "%lld ohne Kurs nicht in den Summen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld without a rate not included in the totals"
+          }
+        }
+      }
+    },
     "%lld ohne Produktart" : {
       "localizations" : {
         "en" : {
@@ -1098,6 +1128,16 @@
         }
       }
     },
+    "%lld Trades für die Summe zum EZB-Referenzkurs in %@ umgerechnet (Näherung)." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld trades converted to %2$@ at the ECB reference rate for the total (approximation)."
+          }
+        }
+      }
+    },
     "%lld Trades importieren" : {
       "localizations" : {
         "en" : {
@@ -1120,12 +1160,64 @@
         }
       }
     },
+    "%lld Trades in %@ zum EZB-Kurs des Schlusstags in %@ umgerechnet (Näherung)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld trades in %2$@ converted to %3$@ at the ECB rate of the closing day (approximation)"
+          }
+        }
+      }
+    },
+    "%lld Trades in %@ zum EZB-Kurs des Schlusstags in %@ umgerechnet (Näherung), %lld ohne Kurs in Kennzahlen und Summen nicht enthalten." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld trades in %2$@ converted to %3$@ at the ECB rate of the closing day (approximation), %4$lld without a rate not included in metrics and totals."
+          }
+        }
+      }
+    },
+    "%lld Trades in %@ zum EZB-Kurs des Schlusstags in %@ umgerechnet (Näherung). Einzelbeträge und Summen lauten auf %@." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld trades in %2$@ converted to %3$@ at the ECB rate of the closing day (approximation). Individual amounts and totals are in %4$@."
+          }
+        }
+      }
+    },
     "%lld Trades in einem Konto ohne Euro: fehlen in den Topf-Summen." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld trades in an account without euro: missing from the pot totals."
+          }
+        }
+      }
+    },
+    "%lld Trades in fremder Währung ohne EZB-Kurs fehlen in der Summe." : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld trade in foreign currency without an ECB rate is missing from the total."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld trades in foreign currency without an ECB rate are missing from the total."
+                }
+              }
+            }
           }
         }
       }
@@ -1146,6 +1238,28 @@
         }
       }
     },
+    "%lld Trades mit Kerzen über Ein- oder Ausstieg hinaus (Stunden- oder Tageskerzen): MAE und MFE dort eher zu groß." : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld trade with candles extending beyond entry or exit (hourly or daily candles): MAE and MFE tend to be too large there."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld trades with candles extending beyond entry or exit (hourly or daily candles): MAE and MFE tend to be too large there."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "%lld Trades mit Regelbruch: %@" : {
       "localizations" : {
         "de" : {
@@ -1158,6 +1272,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$lld trades with rule breaches: %2$@"
+          }
+        }
+      }
+    },
+    "%lld Trades mit Uhrzeit zu diesem Symbol liegen in diesem Zeitraum." : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld trade with time of day for this symbol falls within this period."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld trades with time of day for this symbol fall within this period."
+                }
+              }
+            }
           }
         }
       }
@@ -1414,6 +1550,16 @@
         }
       }
     },
+    "%lld von %lld Trades mit Kursen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld of %2$lld trades with prices"
+          }
+        }
+      }
+    },
     "%lld vorläufig" : {
       "localizations" : {
         "en" : {
@@ -1528,12 +1674,32 @@
         }
       }
     },
+    "1 Minute" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 minute"
+          }
+        }
+      }
+    },
     "1 Monat" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "1 month"
+          }
+        }
+      }
+    },
+    "1 Stunde" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 hour"
           }
         }
       }
@@ -1982,6 +2148,16 @@
         }
       }
     },
+    "Analyse" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Analysis"
+          }
+        }
+      }
+    },
     "Angezeigte Börsen" : {
       "localizations" : {
         "en" : {
@@ -2008,6 +2184,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bond"
+          }
+        }
+      }
+    },
+    "Anteil der MFE erzielt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share of MFE captured"
+          }
+        }
+      }
+    },
+    "Anteil der MFE erzielt, Median" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share of MFE captured, median"
           }
         }
       }
@@ -2102,6 +2298,16 @@
         }
       }
     },
+    "Aus dem Journal" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "From the journal"
+          }
+        }
+      }
+    },
     "Aus Fotos wählen" : {
       "localizations" : {
         "en" : {
@@ -2148,6 +2354,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Exit"
+          }
+        }
+      }
+    },
+    "Auswertung" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Analysis"
           }
         }
       }
@@ -2454,6 +2670,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Until year end"
+          }
+        }
+      }
+    },
+    "Bis zur MFE offen, Summe vor Kosten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Left open to MFE, total before costs"
+          }
+        }
+      }
+    },
+    "Bis zur MFE offen, vor Kosten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Left open to MFE, before costs"
           }
         }
       }
@@ -2916,6 +3152,16 @@
         }
       }
     },
+    "Der Auszug nennt keine Uhrzeit; ohne Uhrzeit gibt es keine Ausstiegsanalyse." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The statement gives no time of day; without a time there is no exit analysis."
+          }
+        }
+      }
+    },
     "Der Auszug widerspricht seinen eigenen Summen: %@" : {
       "localizations" : {
         "en" : {
@@ -3086,6 +3332,16 @@
         }
       }
     },
+    "Die Datei enthält keine Kerzen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The file contains no candles."
+          }
+        }
+      }
+    },
     "Die Datei hat keine Summenzeilen „Total“; nichts zu vergleichen." : {
       "localizations" : {
         "en" : {
@@ -3112,6 +3368,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "The file is not a JSON object."
+          }
+        }
+      }
+    },
+    "Die Datei ist kein Kursexport aus dem MetaTrader-Verlaufszentrum." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The file is not a price export from the MetaTrader History Center."
           }
         }
       }
@@ -3242,6 +3508,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "The card has no criteria yet. Add them under Settings › Playbook."
+          }
+        }
+      }
+    },
+    "Die Kerzen reichen über Ein- oder Ausstieg hinaus: MAE und MFE sind eher zu groß." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The candles extend beyond entry or exit: MAE and MFE tend to be too large."
+          }
+        }
+      }
+    },
+    "Die Kurse bleiben auf diesem Gerät unter Application Support. Ein erneuter Import desselben Zeitraums ersetzt die gespeicherten Kerzen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The prices stay on this device under Application Support. Importing the same period again replaces the stored candles."
           }
         }
       }
@@ -4020,6 +4306,26 @@
         }
       }
     },
+    "Erste Stunde danach, dafür" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "First hour after, in favour"
+          }
+        }
+      }
+    },
+    "Erste Stunde danach, dagegen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "First hour after, against"
+          }
+        }
+      }
+    },
     "Erstellt am %@ · Zeiten in %@" : {
       "localizations" : {
         "de" : {
@@ -4072,6 +4378,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Expectancy in R per setup and your three most frequent mistakes are known."
+          }
+        }
+      }
+    },
+    "Erzielt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Captured"
           }
         }
       }
@@ -4621,6 +4937,16 @@
         }
       }
     },
+    "Für die Trades im gewählten Zeitraum liegen keine passenden Kurse vor. Trades ohne Uhrzeit im Auszug (Trade Republic, Scalable) bleiben außen vor." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No matching prices are available for the trades in the selected period. Trades without time of day in the statement (Trade Republic, Scalable) are left out."
+          }
+        }
+      }
+    },
     "Für diesen Monat ließ sich kein Bericht bilden." : {
       "localizations" : {
         "en" : {
@@ -4637,6 +4963,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No own rules are set for this account. Only trades marked as not rule-compliant in the journal are counted."
+          }
+        }
+      }
+    },
+    "Für dieses Symbol sind keine Minutenkurse gespeichert. Import auf der Seite „Ausstieg“." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No minute prices are stored for this symbol. Import on the “Exit” page."
           }
         }
       }
@@ -5073,6 +5409,16 @@
         }
       }
     },
+    "Gezeigt sind die jüngsten %lld von %lld Trades." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Showing the latest %1$lld of %2$lld trades."
+          }
+        }
+      }
+    },
     "Gezögert" : {
       "localizations" : {
         "en" : {
@@ -5199,6 +5545,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Size fluctuates"
+          }
+        }
+      }
+    },
+    "Größter Abstand dafür (MFE)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Largest move in favour (MFE)"
+          }
+        }
+      }
+    },
+    "Größter Abstand dagegen (MAE)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Largest move against (MAE)"
           }
         }
       }
@@ -6207,6 +6573,16 @@
         }
       }
     },
+    "Kein lesbarer Kurs: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No readable price: %@"
+          }
+        }
+      }
+    },
     "Kein MetaTrader-4-Auszug: weder „Daily Confirmation“ noch „Monthly Statement“ im Titel." : {
       "localizations" : {
         "en" : {
@@ -6393,6 +6769,16 @@
         }
       }
     },
+    "Keine gespeicherten Kurse in der Haltedauer dieses Trades." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No stored prices within the holding time of this trade."
+          }
+        }
+      }
+    },
     "Keine Journalangaben, Stop fehlt. Eintragen geht am Mac." : {
       "localizations" : {
         "en" : {
@@ -6409,6 +6795,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No journal details. You can add them on the Mac."
+          }
+        }
+      }
+    },
+    "keine Kerzen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no candles"
           }
         }
       }
@@ -6439,6 +6835,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No crypto sales this year."
+          }
+        }
+      }
+    },
+    "Keine Kurse gespeichert." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No prices stored."
+          }
+        }
+      }
+    },
+    "Keine lesbare Zeit: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No readable time: %@"
           }
         }
       }
@@ -6719,6 +7135,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Core trading"
+          }
+        }
+      }
+    },
+    "Kerzen decken %@ der Haltedauer ab (Lücke, Wochenende)." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Candles cover %@ of the holding time (gap, weekend)."
           }
         }
       }
@@ -7221,6 +7647,16 @@
         }
       }
     },
+    "Kursdaten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Price data"
+          }
+        }
+      }
+    },
     "Kurse" : {
       "localizations" : {
         "en" : {
@@ -7247,6 +7683,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Turn on prices"
+          }
+        }
+      }
+    },
+    "Kurse für die Ausstiegsanalyse" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prices for the exit analysis"
+          }
+        }
+      }
+    },
+    "Kurse importieren …" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import prices …"
           }
         }
       }
@@ -7479,6 +7935,16 @@
         }
       }
     },
+    "Löschen fehlgeschlagen: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deleting failed: %@"
+          }
+        }
+      }
+    },
     "Löschen…" : {
       "localizations" : {
         "en" : {
@@ -7535,6 +8001,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Gaps:"
+          }
+        }
+      }
+    },
+    "MAE" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MAE"
+          }
+        }
+      }
+    },
+    "MAE der Gewinner, Median" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MAE of winners, median"
+          }
+        }
+      }
+    },
+    "MAE und MFE in R, ohne Stop in Kurspunkten. Erzielt: Anteil der MFE. Offen: bis zur MFE, vor Kosten. ≈: Kerzen reichen über Ein- oder Ausstieg hinaus." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MAE and MFE in R, without a stop in price points. Captured: share of MFE. Open: up to MFE, before costs. ≈: candles extend beyond entry or exit."
           }
         }
       }
@@ -7811,6 +8307,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Measured value %@"
+          }
+        }
+      }
+    },
+    "MetaTrader-Kurse sind die des eigenen Brokers und passen zu den Fills; der Chart zeigt den Geldkurs (Bid). Das Verlaufszentrum exportiert nur, was MetaTrader zwischengespeichert hat; Minutenkurse reichen am wenigsten weit zurück." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MetaTrader prices are your own broker’s and match the fills; the chart shows the bid price. The History Center only exports what MetaTrader has cached; minute prices go back the least far."
+          }
+        }
+      }
+    },
+    "MFE" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MFE"
+          }
+        }
+      }
+    },
+    "MFE, Median" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MFE, median"
           }
         }
       }
@@ -8465,6 +8991,16 @@
         }
       }
     },
+    "Netto in %@; Fremdwährung mit EZB-Kurs am Schlusstag umgerechnet (Näherung)." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Net in %@; foreign currency converted at the ECB rate on the closing day (approximation)."
+          }
+        }
+      }
+    },
     "Netto nach Kosten je Gruppe im gewählten Zeitraum. Wochentag und Stunde nach der Eröffnung in deiner Zeitzone. Unter %lld Trades je Gruppe beschreibt die Zahl nur." : {
       "localizations" : {
         "en" : {
@@ -8775,6 +9311,16 @@
         }
       }
     },
+    "Noch keine Kurse gespeichert. Am Mac: MetaTrader, Extras, Verlaufszentrum, Symbol und M1 wählen, Exportieren; die CSV-Datei hier importieren." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No prices stored yet. On the Mac: MetaTrader, Tools, History Center, choose symbol and M1, Export; import the CSV file here."
+          }
+        }
+      }
+    },
     "Noch keine Meldungen. „Aktualisieren“ holt die Feeds; je Quelle höchstens alle 15 Minuten." : {
       "localizations" : {
         "en" : {
@@ -9071,6 +9617,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "without euro"
+          }
+        }
+      }
+    },
+    "Ohne EZB-Kurs nicht im Netto enthalten: %lld in %@." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not included in net without an ECB rate: %1$lld in %2$@."
           }
         }
       }
@@ -9515,6 +10071,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "R"
+          }
+        }
+      }
+    },
+    "R nur bei Trades mit Stop auf der Verlustseite. Median statt Mittelwert, damit einzelne Ausreißer das Bild nicht bestimmen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "R only for trades with a stop on the loss side. Median instead of mean, so single outliers do not dominate the picture."
           }
         }
       }
@@ -10343,6 +10909,16 @@
         }
       }
     },
+    "Speichern fehlgeschlagen: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saving failed: %@"
+          }
+        }
+      }
+    },
     "Speichern fehlgeschlagen." : {
       "localizations" : {
         "en" : {
@@ -10893,6 +11469,16 @@
         }
       }
     },
+    "Symbol im Journal" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Symbol in the journal"
+          }
+        }
+      }
+    },
     "Symbol, ISIN, Name oder Stichwort" : {
       "localizations" : {
         "en" : {
@@ -11279,6 +11865,16 @@
         }
       }
     },
+    "Trades mit Kursen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trades with prices"
+          }
+        }
+      }
+    },
     "Trades ohne Uhrzeit, Plan am selben Tag gespeichert." : {
       "localizations" : {
         "en" : {
@@ -11597,6 +12193,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Unexpected columns in section %1$@: %2$@"
+          }
+        }
+      }
+    },
+    "Unerwarteter Aufbau: Erwartet sind Datum, Uhrzeit, Eröffnung, Hoch, Tief, Schluss. Gefunden: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unexpected layout: expected date, time, open, high, low, close. Found: %@"
           }
         }
       }
@@ -12119,6 +12725,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Letting losers run"
+          }
+        }
+      }
+    },
+    "Verlierer, die 1 R im Plus lagen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Losers that were 1 R in profit"
           }
         }
       }
@@ -12673,6 +13289,16 @@
         }
       }
     },
+    "Wert analysieren …" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Analyse value …"
+          }
+        }
+      }
+    },
     "wie im Export" : {
       "localizations" : {
         "en" : {
@@ -12693,12 +13319,32 @@
         }
       }
     },
+    "Wie weit liefen Trades gegen und für dich, und wie viel der besten Bewegung blieb beim Ausstieg übrig. Rückblick auf vergangene Kurse, keine Aussage über künftige." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How far trades ran against and for you, and how much of the best move was left at exit. A look back at past prices, no statement about future ones."
+          }
+        }
+      }
+    },
     "Wieder öffnen" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Reopen"
+          }
+        }
+      }
+    },
+    "Wissen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Knowledge"
           }
         }
       }
