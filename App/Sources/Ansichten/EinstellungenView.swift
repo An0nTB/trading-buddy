@@ -95,7 +95,7 @@ struct AllgemeinFelder: View {
             .font(Schrift.beschriftung)
             .foregroundStyle(thema.textSchwach)
         SpracheFeld() // Paket 6 Englisch (App/Sources/Sprache/Sprache.swift)
-        LabeledContent("Anzeigewährung") { Text("Kontowährung, Umrechnung folgt") }
+        LabeledContent("Anzeigewährung") { Text("Kontowährung; fremde Währungen zum EZB-Kurs umgerechnet") }
     }
 }
 
