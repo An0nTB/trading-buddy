@@ -1,9 +1,9 @@
 {
   "manifest_version": "0.3",
   "name": "trading-buddy",
-  "display_name": "Trading Buddy",
-  "version": "0.3.1",
-  "description": "Kennzahlen, Fehlermuster und Wochen- oder Monatsauswertung aus deinem Trading-Buddy-Journal. Nur lesend; die Daten bleiben auf deinem Mac.",
+  "display_name": "Brad",
+  "version": "0.4.0",
+  "description": "Brad kennt deine Zahlen. Kennzahlen, Fehlermuster und Wochen- oder Monatsauswertung aus deinem Journal. Nur lesend, die Daten bleiben auf deinem Mac.",
   "author": {
     "name": "Tim Bock"
   },
@@ -46,7 +46,7 @@
     "export_ordner": {
       "type": "directory",
       "title": "Export-Ordner",
-      "description": "Derselbe Ordner, den du in der Trading-Buddy-App als Export-Ordner gewählt hast. Über „Durchsuchen“ auswählen.",
+      "description": "Derselbe Ordner, den du in der App Brad als Export-Ordner gewählt hast. Über „Durchsuchen“ auswählen.",
       "required": true
     }
   }

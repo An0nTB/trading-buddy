@@ -16,6 +16,10 @@ public struct JournalExport: Sendable, Equatable, Codable {
     /// Zeitzone des Nutzers (z. B. „Europe/Berlin“) für Monatsgrenzen, Wochentag und Stunde.
     public var zeitzone: String
     public var konten: [Kontodaten]
+    /// Tonfall der App („bro“ oder „sachlich“), damit Claude denselben Ton nimmt. Fehlt in älteren Dateien;
+    /// dann gilt sachlich.
+    public var ton: String?
+    public static let tonBro = "bro"
 
     public struct Kontodaten: Sendable, Equatable, Codable {
         public var broker: String
@@ -84,12 +88,13 @@ public struct JournalExport: Sendable, Equatable, Codable {
         return "\(konto.broker) …\(konto.kontonummer.suffix(Self.endziffern(konto.kontonummer, neben: andere)))"
     }
 
-    public init(konten: [Kontodaten], zeitzone: TimeZone, erstellt: Date = .now) {
+    public init(konten: [Kontodaten], zeitzone: TimeZone, erstellt: Date = .now, ton: String? = nil) {
         format = Self.aktuellesFormat
         self.erstellt = erstellt
         rechenkern = TradingCore.version
         self.zeitzone = zeitzone.identifier
         self.konten = konten
+        self.ton = ton
     }
 
     /// Zeitzone des Nutzers; UTC, falls der Name unbekannt ist.
