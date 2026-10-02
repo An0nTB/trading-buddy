@@ -102,6 +102,19 @@ final class AppModell {
         Task { await ladeEZBKurse() }
     }
 
+    /// Tageskerzen für Frag Henry „Wert analysieren“ (Doc 38, Paket A5): eigene Symbole, offene Positionen und
+    /// Merklisten-Symbole; hier höchstens einmal je Stunde angestoßen, der Kursdienst lädt höchstens alle 20 Stunden
+    /// und nur bei eingeschalteten Kursen, sonst gilt sein Zwischenspeicher.
+    private var verlaufVersuch: Date?
+    private func ladeKursverlaeufe() {
+        let jetzt = Date()
+        if let versuch = verlaufVersuch, jetzt.timeIntervalSince(versuch) < 60 * 60 { return }
+        verlaufVersuch = jetzt
+        let merkliste = nachrichten.aktiveEintraege.filter { $0.art == .symbol }.map(\.begriff)
+        let symbole = alleTrades.map(\.symbol) + offenePositionen.map(\.symbol) + merkliste
+        Task { await kurse.ladeVerlaeufe(fuer: symbole) }
+    }
+
     var konto: Konto? { konten.first { $0.id == kontoId } ?? konten.first }
     var waehrung: String { konto?.waehrung ?? "EUR" }
     /// Wochentag, Stunde und Tagesgrenze in der Zeitzone des Nutzers.
@@ -228,6 +241,7 @@ final class AppModell {
                                                       kapitalmassnahmen: kontobewegungen.kapitalmassnahmen)
             aktualisiereTrades()
             kurse.beobachte(offenePositionen.map(\.symbol))
+            ladeKursverlaeufe()
         } catch {
             fehler = error.localizedDescription
         }

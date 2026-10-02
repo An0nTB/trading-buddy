@@ -14,7 +14,7 @@ extension Bereich: Codable {}
 
 extension Bereich {
     /// Bereiche, die sich als eigenes Fenster öffnen lassen: alle Seiten der Seitenleiste.
-    static var abtrennbar: [Bereich] { journal + markt + daten }
+    static var abtrennbar: [Bereich] { journal + markt + daten + wissen }
 
     /// Kleine Werkzeuge: starten angeheftet (Tim, 02.10.2026) und passen in schmale Fenster.
     /// Ausdrücklich benannt, damit neue Bereiche unter „Markt“ (etwa Nachrichten) normal starten.
