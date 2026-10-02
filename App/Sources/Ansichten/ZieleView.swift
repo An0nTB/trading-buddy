@@ -164,7 +164,7 @@ private struct ZieleKacheln: View {
 private struct OffeneZieleKarte: View {
     let ziele: [Reviewziel]
     @Environment(\.thema) private var thema
-    @AppStorage(Ton.schluessel) private var ton = Ton.bro
+    @AppStorage(Ton.schluessel) private var ton = Ton.henry
 
     var body: some View {
         let zuBeurteilen = Zielbilanz.zuBeurteilen(ziele)
@@ -179,7 +179,7 @@ private struct OffeneZieleKarte: View {
             }
             if offen.isEmpty, zuBeurteilen.isEmpty {
                 Text(verbatim: ton.text("Kein offenes Ziel. Lege nach dem Review genau ein messbares Ziel für den nächsten Zeitraum an.",
-                                        bro: "Kein Ziel, kein Plan, Bro. Nach dem Review genau ein messbares Ziel für den nächsten Zeitraum anlegen."))
+                                        henry: "Kein offenes Ziel. Wer keines hat, verfehlt auch keines. Nach dem Review genau ein messbares Ziel für den nächsten Zeitraum anlegen."))
                     .font(Schrift.fliesstext)
                     .foregroundStyle(thema.textSchwach)
             } else if !offen.isEmpty {
