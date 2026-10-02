@@ -260,8 +260,41 @@ enum Schema {
             }
         }
 
-        // Nummer 6, weil v5 (Handelsregeln je Konto) parallel entsteht; die Reihenfolge im Code bestimmt
-        // die Ausführung, nicht die Nummer.
+        migrator.registerMigration("v5 Handelsregeln je Konto") { db in
+            // Eigene Handelsregeln (Doc 18 F1) und Prop-Firm-Regeln (F10), eine Zeile je Konto. Jede Grenze
+            // ist freiwillig, NULL heißt „Regel aus“. Die Prop-Firm-Felder tragen das Präfix `pf` und sind
+            // entweder alle leer (kein Prop-Firm-Konto) oder `pfName` ist gesetzt. Einzelne Spalten statt
+            // JSON, damit Beträge wie überall exakt als Text stehen. Arten als Text, geprüft im Code.
+            try db.create(table: "handelsregeln") { t in
+                t.primaryKey("kontoId", .integer).references("konto", onDelete: .cascade)
+                t.column("maxTagesverlust", .text)
+                t.column("maxTradesJeTag", .integer)
+                t.column("stoppNachVerlusten", .integer)
+                t.column("maxRisikoJeTrade", .text)
+                t.column("pfName", .text)
+                t.column("pfStartkapital", .text)
+                t.column("pfZeitzone", .text)
+                t.column("pfTageswechselMinuten", .integer)
+                t.column("pfMaxTagesverlust", .text)
+                t.column("pfMaxGesamtverlust", .text)
+                t.column("pfGesamtverlustart", .text)
+                t.column("pfEinfrierenBeiSaldo", .text)
+                t.column("pfGewinnziel", .text)
+                t.column("pfMindestHandelstage", .integer)
+                t.column("pfHandelstagzaehlung", .text)
+                t.column("pfMindestTagesgewinn", .text)
+                t.column("pfKonsistenzMaxAnteil", .text)
+                t.column("pfKonsistenzbezug", .text)
+                t.column("pfKeinHaltenUeberTageswechsel", .boolean)
+                t.column("pfKeinHaltenUeberWochenende", .boolean)
+                t.column("pfMaxLotsJeTrade", .text)
+                t.column("pfStopPflicht", .boolean)
+                t.column("geaendert", .datetime).notNull()
+            }
+        }
+
+        // v6 kam vor v5 auf main (#53 vor #54). Eine Datenbank, die v6 schon hat, bekommt v5 beim nächsten
+        // Öffnen nachgeholt: GRDB führt alle fehlenden Migrationen in der Reihenfolge des Codes aus.
         migrator.registerMigration("v6 Produktart") { db in
             // Produktart je Ausführung und Position (TradingCore 0.10.0) als Rohwert von `Produktart`.
             // Alte Zeilen bleiben `unbekannt`, außer MT4-Positionen: Die sind CFD, wie sie der MT4-Leser
