@@ -343,7 +343,10 @@ struct TagesverlustKarte: View {
     private static func tage(_ staende: [PropFirmPruefung.Tagesstand]) -> [Balkentag] {
         staende.suffix(tageImBalken).compactMap { stand in
             guard let anteil = stand.anteilTagesverlust else { return nil }
-            return Balkentag(id: stand.tag, prozent: Format.double(anteil * 100), verbraucht: stand.verbraucht, verletzt: anteil > 1)
+            // Mittag des Firmen-Handelstags statt seines Beginns: Beschriftung und Tagesraster laufen in Nutzerzeit,
+            // am Tagesanfang rutscht der Tag bei versetzter Zeitzone sonst um einen zurück (Zweiter Gegencheck X8).
+            return Balkentag(id: stand.tag.addingTimeInterval(12 * 60 * 60), prozent: Format.double(anteil * 100),
+                             verbraucht: stand.verbraucht, verletzt: anteil > 1)
         }
     }
 
