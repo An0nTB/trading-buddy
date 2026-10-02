@@ -938,22 +938,22 @@
         }
       }
     },
-    "%lld ohne Kurs nicht in den Summen" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld without a rate not included in the totals"
-          }
-        }
-      }
-    },
     "%lld ohne Kauf" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld without purchase"
+          }
+        }
+      }
+    },
+    "%lld ohne Kurs nicht in den Summen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld without a rate not included in the totals"
           }
         }
       }
