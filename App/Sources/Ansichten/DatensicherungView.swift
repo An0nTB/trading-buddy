@@ -11,11 +11,18 @@ struct DatensicherungFelder: View {
     @AppStorage(Sicherungsdienst.schluesselAktiv) private var aktiv = false
     @AppStorage(Sicherungsdienst.schluesselBehalten) private var behalten = Sicherungsdienst.standardBehalten
     @AppStorage(Sicherungsdienst.schluesselLetzte) private var letzte = 0.0
-    @State private var ordnerWaehlen = false
-    @State private var dateiWaehlen = false
+    /// Ein einziger Dateiwähler für Ordner und Sicherung: zwei `.fileImporter` am selben View reagieren nicht
+    /// verlässlich beide (dritter Gegencheck G18). `waehlerArt` bleibt nach dem Schließen stehen, damit die
+    /// Antwort der richtigen Wahl zugeordnet wird.
+    @State private var waehlerOffen = false
+    @State private var waehlerArt = Waehler.ordner
     @AppStorage(Sicherungsdienst.schluesselStand) private var stand = ""
     @State private var auswahl: Auswahl?
     @State private var laeuft = false
+
+    enum Waehler {
+        case ordner, sicherung
+    }
 
     /// Gewählte Sicherung mit Prüfbericht, für die Rückfrage.
     struct Auswahl {
@@ -30,7 +37,7 @@ struct DatensicherungFelder: View {
                     VStack(alignment: .leading, spacing: Abstand.raster) {
                         Text(verbatim: Sicherungsdienst.gemerkterOrdner()?.path ?? String(localized: "noch nicht gewählt"))
                             .textSelection(.enabled)
-                        Button("Ordner wählen …") { ordnerWaehlen = true }
+                        Button("Ordner wählen …") { oeffne(.ordner) }
                     }
                 }
                 Toggle("Täglich sichern", isOn: $aktiv)
@@ -56,7 +63,7 @@ struct DatensicherungFelder: View {
                     .foregroundStyle(thema.textSchwach)
             }
             Section {
-                Button("Wiederherstellen …") { dateiWaehlen = true }
+                Button("Wiederherstellen …") { oeffne(.sicherung) }
                     .disabled(laeuft || modell.journal == nil)
             } footer: {
                 Text("Vor dem Wiederherstellen prüft die App die Datei und legt den aktuellen Stand beiseite.")
@@ -71,22 +78,10 @@ struct DatensicherungFelder: View {
             }
         }
         .formStyle(.grouped)
-        .fileImporter(isPresented: $ordnerWaehlen, allowedContentTypes: [.folder]) { ergebnis in
+        .fileImporter(isPresented: $waehlerOffen,
+                      allowedContentTypes: waehlerArt == .ordner ? [UTType.folder] : [Self.sqlite]) { ergebnis in
             switch ergebnis {
-            case .success(let url):
-                do {
-                    try Sicherungsdienst.merke(url)
-                    stand = ""
-                } catch {
-                    stand = error.localizedDescription
-                }
-            case .failure(let problem):
-                stand = problem.localizedDescription
-            }
-        }
-        .fileImporter(isPresented: $dateiWaehlen, allowedContentTypes: [Self.sqlite]) { ergebnis in
-            switch ergebnis {
-            case .success(let url): Task { await pruefe(url) }
+            case .success(let url): gewaehlt(url)
             case .failure(let problem): stand = problem.localizedDescription
             }
         }
@@ -99,6 +94,25 @@ struct DatensicherungFelder: View {
     }
 
     static let sqlite = UTType(filenameExtension: Sicherungsdienst.endung) ?? .data
+
+    private func oeffne(_ art: Waehler) {
+        waehlerArt = art
+        waehlerOffen = true
+    }
+
+    private func gewaehlt(_ url: URL) {
+        switch waehlerArt {
+        case .ordner:
+            do {
+                try Sicherungsdienst.merke(url)
+                stand = ""
+            } catch {
+                stand = error.localizedDescription
+            }
+        case .sicherung:
+            Task { await pruefe(url) }
+        }
+    }
 
     private func pruefe(_ datei: URL) async {
         let pruefung = await Sicherungsdienst.pruefe(datei)
