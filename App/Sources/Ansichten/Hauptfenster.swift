@@ -3,18 +3,20 @@ import TradingStore
 
 /// Bereiche der App (Doc 10, Aufbau A): Seitenleiste am Mac und iPad, Tab-Leiste am iPhone.
 enum Bereich: String, Identifiable, Hashable {
-    case uebersicht, trades, kennzahlen, fehlermuster, kalender, importieren, konten, einstellungen, mehr
+    case uebersicht, trades, kennzahlen, fehlermuster, kalender, boersenuhr, importieren, konten, einstellungen, mehr
 
     var id: String { rawValue }
 
     /// Seitenleiste, Abschnitt „Journal“.
     static let journal: [Bereich] = [.uebersicht, .trades, .kennzahlen, .fehlermuster, .kalender]
+    /// Seitenleiste, Abschnitt „Markt“ (Börsenuhr nach Tims Wunsch vom 01.10.2026, nicht in Aufbau A gezeichnet).
+    static let markt: [Bereich] = [.boersenuhr]
     /// Seitenleiste, Abschnitt „Daten“.
     static let daten: [Bereich] = [.importieren, .konten]
     /// Tab-Leiste am iPhone.
     static let tabs: [Bereich] = [.uebersicht, .trades, .kennzahlen, .kalender, .mehr]
     /// Einträge unter „Mehr“ am iPhone.
-    static let unterMehr: [Bereich] = [.fehlermuster, .importieren, .konten, .einstellungen]
+    static let unterMehr: [Bereich] = [.fehlermuster, .boersenuhr, .importieren, .konten, .einstellungen]
 
     var titel: LocalizedStringKey {
         switch self {
@@ -23,6 +25,7 @@ enum Bereich: String, Identifiable, Hashable {
         case .kennzahlen: "Kennzahlen"
         case .fehlermuster: "Fehlermuster"
         case .kalender: "Kalender"
+        case .boersenuhr: "Börsenuhr"
         case .importieren: "Import"
         case .konten: "Konten und Kosten"
         case .einstellungen: "Einstellungen"
@@ -37,6 +40,7 @@ enum Bereich: String, Identifiable, Hashable {
         case .kennzahlen: "chart.bar.xaxis"
         case .fehlermuster: "exclamationmark.triangle"
         case .kalender: "calendar"
+        case .boersenuhr: "clock"
         case .importieren: "square.and.arrow.down"
         case .konten: "building.columns"
         case .einstellungen: "gear"
@@ -86,6 +90,13 @@ struct Seitenleiste: View {
             List(selection: auswahl) {
                 Section("Journal") {
                     ForEach(Bereich.journal) { bereich in
+                        Label(bereich.titel, systemImage: bereich.symbol)
+                            .listItemTint(thema.akzent)
+                            .tag(bereich)
+                    }
+                }
+                Section("Markt") {
+                    ForEach(Bereich.markt) { bereich in
                         Label(bereich.titel, systemImage: bereich.symbol)
                             .listItemTint(thema.akzent)
                             .tag(bereich)
@@ -195,7 +206,8 @@ struct BereichInhalt: View {
         case .fehlermuster: FehlermusterView()
         case .kalender:
             Platzhalter(titel: "Kalender folgt", symbol: "calendar",
-                        text: "Termine und Börsenzeiten kommen mit dem Wirtschaftskalender nach der ersten Version.")
+                        text: "Termine kommen mit dem Wirtschaftskalender nach der ersten Version. Handelszeiten und Feiertage der Börsen zeigt die Börsenuhr.")
+        case .boersenuhr: BoersenuhrView()
         case .importieren: ImportView()
         case .konten: KontenView()
         case .einstellungen: EinstellungenView()
