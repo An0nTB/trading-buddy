@@ -289,7 +289,7 @@ struct RegelnEinstellungen: View {
             meldung = entwurf.leer
                 ? String(localized: "Gespeichert, keine Regel aktiv.")
                 : Ton.aktuell.text("Gespeichert. Die Übersicht zeigt jetzt Regel-Ampel und Disziplin-Kurve.",
-                                   bro: "Gespeichert, Alter. Die Übersicht zeigt jetzt Regel-Ampel und Disziplin-Kurve.")
+                                   henry: "Festgehalten. Die Übersicht zeigt jetzt Regel-Ampel und Disziplin-Kurve.")
             meldungIstFehler = false
         } catch {
             meldung = Regelfehler.text(error)

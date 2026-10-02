@@ -78,7 +78,7 @@ struct EinstellungenView: View {
 
 /// Reiter Allgemein: Sprache und Anzeigewährung (beide folgen dem System bzw. dem Konto).
 struct AllgemeinFelder: View {
-    @AppStorage(Ton.schluessel) private var ton = Ton.bro
+    @AppStorage(Ton.schluessel) private var ton = Ton.henry
     @Environment(AppModell.self) private var modell
     @Environment(\.thema) private var thema
 
@@ -91,7 +91,7 @@ struct AllgemeinFelder: View {
         .pickerStyle(.segmented)
         // Der Export trägt den Ton (Feld `ton`, AP12); ohne neuen Export sähe der Connector den alten (Gegencheck A6).
         .onChange(of: ton) { modell.exportiere() }
-        Text("„Brad“ spricht Begrüßung, leere Seiten und Erfolgsmeldungen locker, „Sachlich“ nüchtern. Zahlen, Steuer, Regelverstöße, Warnungen und Fehler bleiben in beiden Stellungen sachlich; der Export für den Claude-Connector trägt die Einstellung mit.")
+        Text("„Henry“ spricht Begrüßung, leere Seiten und Erfolgsmeldungen ruhig und trocken, „Sachlich“ nüchtern. Zahlen, Steuer, Regelverstöße, Warnungen und Fehler bleiben in beiden Stellungen sachlich; der Export für den Claude-Connector trägt die Einstellung mit.")
             .font(Schrift.beschriftung)
             .foregroundStyle(thema.textSchwach)
         LabeledContent("Sprache") { Text("Wie System") }
@@ -172,7 +172,7 @@ struct FarbweltKarte: View {
 
 /// Konten und Kosten: Liste der Konten aus der Datenbank. Das Kostenprofil je Konto kommt später.
 struct KontenView: View {
-    @AppStorage(Ton.schluessel) private var ton = Ton.bro
+    @AppStorage(Ton.schluessel) private var ton = Ton.henry
     @Environment(AppModell.self) private var modell
     @Environment(\.thema) private var thema
 
@@ -180,9 +180,9 @@ struct KontenView: View {
         VStack(alignment: .leading, spacing: Abstand.kachelAbstand) {
             Kopfzeile("Konten und Kosten", untertitel: String(localized: "\(modell.konten.count) Konten"))
             if modell.konten.isEmpty {
-                ContentUnavailableView(ton.text("Noch kein Konto", bro: "Noch kein Konto, Bro."), systemImage: "building.columns",
+                ContentUnavailableView(ton.text("Noch kein Konto", henry: "Noch kein Konto."), systemImage: "building.columns",
                                        description: Text(verbatim: ton.text("Konten entstehen beim ersten Import eines Auszugs.",
-                                                                            bro: "Das erste Konto legt Brad beim ersten Import an.")))
+                                                                            henry: "Das erste legt Henry beim ersten Import an.")))
             } else {
                 List(modell.konten, id: \.id) { konto in
                     HStack {
@@ -224,7 +224,7 @@ struct ClaudeFelder: View {
                     Button("exportFolder.choose") { ordnerWaehlen = true }
                 }
             }
-            Text("Claude Desktop liest diesen Ordner über die Erweiterung „Brad“. Derselbe Ordner muss in den Einstellungen der Erweiterung stehen.")
+            Text("Claude Desktop liest diesen Ordner über die Erweiterung „Henry“. Derselbe Ordner muss in den Einstellungen der Erweiterung stehen.")
                 .font(Schrift.beschriftung)
                 .foregroundStyle(thema.textSchwach)
             LabeledContent("Exportierte Felder") {
