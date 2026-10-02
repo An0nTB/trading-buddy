@@ -16,6 +16,11 @@ struct TradingBuddyApp: App {
         .commands {
             FensterBefehle() // P12 Eigene Fenster
             FragBradBefehle() // Frag Brad (Doc 31)
+            // F11 Monatsbericht als PDF: Menü „Ablage“, unter „Sichern“
+            CommandGroup(after: .saveItem) {
+                MonatsberichtMenue()
+                    .environment(modell)
+            }
         }
         #endif
         BereichFensterSzene(modell: modell) // P12 Eigene Fenster
