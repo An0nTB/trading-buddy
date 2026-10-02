@@ -30,7 +30,8 @@ struct BerichtZeitraumBlatt: View {
             }
         }
         .padding(Abstand.raster * 5)
-        .frame(width: 380)
+        // Nur Mindestbreite, keine harte Breite im Fensterinhalt (Lehre aus dem Startabsturz 02.10.2026).
+        .frame(minWidth: 340)
         #else
         NavigationStack {
             formular
