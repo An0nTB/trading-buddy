@@ -84,11 +84,28 @@ enum Bilderordner {
         return ersterFehler
     }
 
+    /// Zeitpunkt der letzten Wiederherstellung als Sekunden seit 1970; 0 = nie. Bilder, die bis dahin schon da
+    /// waren, räumt `raeumeAuf` nicht weg: die zurückgespielte Datenbank kennt sie nicht, der beiseitegelegte
+    /// Stand „Vor Wiederherstellung“ schon (dritter Gegencheck G16).
+    static let schluesselGeschuetztBis = "bilder.geschuetztBis"
+
+    /// Schützt alle jetzt vorhandenen Bilder vor dem Aufräumen; nach jedem Wiederherstellen aufrufen.
+    static func schuetzeBestand(jetzt: Date = .now, ablage: UserDefaults = .standard) {
+        ablage.set(jetzt.timeIntervalSince1970, forKey: schluesselGeschuetztBis)
+    }
+
+    static func schutzzeitpunkt(ablage: UserDefaults = .standard) -> Date? {
+        let sekunden = ablage.double(forKey: schluesselGeschuetztBis)
+        return sekunden > 0 ? Date(timeIntervalSince1970: sekunden) : nil
+    }
+
     /// Löscht Bilddateien in den Monatsordnern, auf die kein Verweis zeigt (gelöschte Einträge, abgebrochenes
     /// Ablegen). Ohne einen einzigen Verweis tut sie nichts: dann ist eher die Datenbank leer oder neu als
-    /// der Ordner voller Waisen. Läuft auf dem Hauptthread, damit kein gleichzeitiges Ablegen dazwischenkommt.
+    /// der Ordner voller Waisen. Dateien, die bis `geschuetztBis` entstanden sind, bleiben (G16); ohne lesbares
+    /// Erstelldatum bleibt die Datei ebenfalls. Läuft auf dem Hauptthread, damit kein gleichzeitiges Ablegen
+    /// dazwischenkommt.
     @MainActor
-    static func raeumeAuf(behalten: Set<String>) -> Int {
+    static func raeumeAuf(behalten: Set<String>, geschuetztBis: Date? = schutzzeitpunkt()) -> Int {
         guard !behalten.isEmpty, let ordner = try? ordner() else { return 0 }
         let dateisystem = FileManager.default
         guard let monate = try? dateisystem.contentsOfDirectory(at: ordner, includingPropertiesForKeys: nil) else {
@@ -96,11 +113,16 @@ enum Bilderordner {
         }
         var geloescht = 0
         for monat in monate {
-            let dateien = (try? dateisystem.contentsOfDirectory(at: monat, includingPropertiesForKeys: [.isRegularFileKey])) ?? []
+            let schluessel: Set<URLResourceKey> = [.isRegularFileKey, .creationDateKey]
+            let dateien = (try? dateisystem.contentsOfDirectory(at: monat, includingPropertiesForKeys: Array(schluessel))) ?? []
             for url in dateien {
                 let datei = "\(monat.lastPathComponent)/\(url.lastPathComponent)"
                 guard Bildverweis.istGueltig(datei), !behalten.contains(datei),
-                      (try? url.resourceValues(forKeys: [.isRegularFileKey]).isRegularFile) == true else { continue }
+                      let werte = try? url.resourceValues(forKeys: schluessel), werte.isRegularFile == true
+                else { continue }
+                if let geschuetztBis {
+                    guard let erstellt = werte.creationDate, erstellt > geschuetztBis else { continue }
+                }
                 if (try? dateisystem.removeItem(at: url)) != nil { geloescht += 1 }
             }
         }
