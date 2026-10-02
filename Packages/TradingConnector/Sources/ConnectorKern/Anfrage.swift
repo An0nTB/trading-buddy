@@ -14,18 +14,24 @@ public struct Anfrage: Sendable {
     public var andereWaehrungen: [String: [Trade]] = [:]
     /// Mit EZB-Referenzkursen in die Kontowährung umgerechnete Trades, Anzahl je Ursprungswährung.
     public var umgerechnet: [String: Int] = [:]
+    /// Alle Trades des Kontos vor Währungswahl und Umrechnung, für `Zeitraumbericht` (Steuer, Umrechnung wie die App).
+    public var alleTrades: [Trade] = []
+    /// Kurse der Datei, wenn diese Anfrage in die Kontowährung umrechnet; sonst `nil`.
+    public var angleichskurse: Referenzkurse?
 
     public var zeitzone: TimeZone { export.nutzerZeitzone }
     public var kontoname: String { export.kurzname(konto) }
 
-    /// Zeitraum aus `monat` („JJJJ-MM“), `woche` (ein Tag der Woche, „JJJJ-MM-TT“)
-    /// oder `von` und `bis` („JJJJ-MM-TT“, beide einschließlich). Ohne Angabe:
+    /// Zeitraum aus `monat` („JJJJ-MM“), `woche` (ein Tag der Woche, „JJJJ-MM-TT“), `kw` (ISO-Kalenderwoche,
+    /// „JJJJ-Www“ oder „JJJJ-WW“) oder `von` und `bis` („JJJJ-MM-TT“, beide einschließlich). Ohne Angabe:
     /// der letzte Monat mit Trades. Konto über `konto` (Endziffern oder Broker), bei nur einem Konto entbehrlich.
     /// Ohne `waehrung` rechnet sie Trades in fremder Währung mit den EZB-Kursen der Datei in die Kontowährung um
     /// (`Waehrungsangleich` wie die App); ohne Kurs bleiben sie draußen. Mit `waehrung` oder ohne Kurse in der Datei
     /// nur Trades dieser Währung; ohne Angabe die Kontowährung, gibt es darin keine Trades, die häufigste.
     public static func lies(_ argumente: [String: String], export: JournalExport) throws -> Anfrage {
         var konto = try waehleKonto(argumente["konto"], in: export)
+        let alleTrades = konto.trades
+        var angleichskurse: Referenzkurse?
         let kontowaehrung = konto.waehrung.uppercased()
         var (waehrung, andere) = try waehleWaehrung(argumente["waehrung"], konto)
         var umgerechnet: [String: Int] = [:]
@@ -41,6 +47,7 @@ public struct Anfrage: Sendable {
             andere = Dictionary(grouping: angleich.ohneKurs) { $0.waehrung(kontowaehrung: kontowaehrung) }
             waehrung = kontowaehrung
             konto.trades = angleich.trades
+            angleichskurse = kurse
         } else {
             konto.trades = konto.trades.filter { $0.waehrung(kontowaehrung: kontowaehrung) == waehrung }
         }
@@ -60,6 +67,8 @@ public struct Anfrage: Sendable {
                 throw AnfrageFehler.ungueltigerMonat(text)
             }
             zeitraum = z
+        } else if let text = argumente["kw"] {
+            zeitraum = try kalenderwoche(text, zone)
         } else if let text = argumente["woche"] {
             zeitraum = Zeitspanne.woche(mit: try tag(text, zone), zeitzone: zone)
         } else if argumente["von"] != nil || argumente["bis"] != nil {
@@ -76,7 +85,8 @@ public struct Anfrage: Sendable {
             vorgabe = "Kein Zeitraum angegeben, daher der letzte Monat mit Trades."
         }
         return Anfrage(export: export, konto: konto, zeitraum: zeitraum, vorgabe: vorgabe,
-                       kontowaehrung: kontowaehrung, andereWaehrungen: andere, umgerechnet: umgerechnet)
+                       kontowaehrung: kontowaehrung, andereWaehrungen: andere, umgerechnet: umgerechnet,
+                       alleTrades: alleTrades, angleichskurse: angleichskurse)
     }
 
     /// Gewählte Währung und die Trades der übrigen Währungen des Kontos.
@@ -141,6 +151,15 @@ public struct Anfrage: Sendable {
         return teile.contains(nil) ? [] : teile.compactMap { $0 }
     }
 
+    /// ISO-Kalenderwoche aus „2026-W40“, „2026-w40“ oder „2026-40“.
+    private static func kalenderwoche(_ text: String, _ zone: TimeZone) throws -> Zeitspanne {
+        let teile = zahlen(text.uppercased().replacingOccurrences(of: "W", with: ""))
+        guard teile.count == 2, let z = Zeitspanne.kalenderwoche(jahr: teile[0], woche: teile[1], zeitzone: zone) else {
+            throw AnfrageFehler.ungueltigeKalenderwoche(text)
+        }
+        return z
+    }
+
     private static func komponenten(_ text: String) throws -> DateComponents {
         let teile = zahlen(text)
         guard teile.count == 3 else { throw AnfrageFehler.ungueltigesDatum(text) }
@@ -161,6 +180,7 @@ public enum AnfrageFehler: Error, Equatable, Sendable {
     case kontoUnbekannt(String, [String])
     case ungueltigerMonat(String)
     case ungueltigesDatum(String)
+    case ungueltigeKalenderwoche(String)
     case vonOhneBis
     case bisVorVon(String, String)
     case keineTrades(String)
@@ -179,6 +199,8 @@ public enum AnfrageFehler: Error, Equatable, Sendable {
             "UNGÜLTIGER MONAT: „\(text)“. Format JJJJ-MM, etwa 2025-05."
         case let .ungueltigesDatum(text):
             "UNGÜLTIGES DATUM: „\(text)“. Format JJJJ-MM-TT, etwa 2025-05-12."
+        case let .ungueltigeKalenderwoche(text):
+            "UNGÜLTIGE KALENDERWOCHE: „\(text)“. Format JJJJ-Www nach ISO, etwa 2026-W40."
         case .vonOhneBis:
             "ZEITRAUM UNVOLLSTÄNDIG: `von` und `bis` nur zusammen angeben."
         case let .bisVorVon(von, bis):
