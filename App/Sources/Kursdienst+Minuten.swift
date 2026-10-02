@@ -10,6 +10,8 @@ struct Minutenabruf: Equatable {
     var ohneQuelle = 0
     /// Trades, deren Fenster noch nicht vorbei ist (Ausstieg + 1 Stunde); später erneut abrufen.
     var nochOffen = 0
+    /// Trades, für die die Quelle keine Kerzen lieferte (etwa IEX ohne Umsatz); gespeicherte Kerzen bleiben.
+    var ohneKerzen = 0
     /// Fehler je Journal-Symbol, etwa „Schlüssel fehlt“.
     var fehler: [String: String] = [:]
 }
@@ -22,7 +24,7 @@ extension Kursdienst {
     func ladeMinutenkerzen(fuer trades: [Trade], jetzt: Date = Date()) async -> Minutenabruf {
         var ergebnis = Minutenabruf()
         guard aktiv else { return ergebnis }
-        let lader = Minutenkerzen.lader(schluessel: Schluesselbund())
+        let lader = Minutenkerzen.lader(schluessel: schluesselbund, abruf: abruf)
         var erster = true
         for trade in trades.sorted(by: { $0.openTime < $1.openTime }) {
             guard let ziel = zuordnung(fuer: trade.symbol).zuordnung.flatMap(Minutenlader.zuordnung(aus:)),
@@ -35,6 +37,9 @@ extension Kursdienst {
             erster = false
             do {
                 let kerzen = try await lader.lade(ziel, von: fenster.von, bis: fenster.bis, jetzt: jetzt)
+                // Ohne Kerzen nichts ersetzen: Sonst löscht eine leere Antwort gespeicherte Kerzen dieses Fensters,
+                // etwa aus dem MT4-Import (Gegencheck P1).
+                guard !kerzen.isEmpty else { ergebnis.ohneKerzen += 1; continue }
                 try await Ausstiegsdienst.geteilt.uebernimm(kerzen, symbol: trade.symbol,
                                                            quelle: quellenname(ziel.quelle),
                                                            fenster: DateInterval(start: fenster.von, end: fenster.bis))

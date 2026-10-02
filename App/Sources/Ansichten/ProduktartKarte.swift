@@ -77,3 +77,43 @@ struct ProduktartKarte: View {
         }
     }
 }
+
+/// Produktart im Trade-Inspektor nachfragen, wenn der Auszug sie nicht nennt (Doc 23, Paket A1 c): gleiche Speicherung
+/// wie `ProduktartKarte`, die Wahl gilt für alle Zeilen des Kontos mit diesem Symbol.
+struct ProduktartFrage: View {
+    let trade: Trade
+    @Environment(AppModell.self) private var modell
+    @Environment(\.thema) private var thema
+    @State private var fehler: String?
+
+    var body: some View {
+        Karte("Produktart") {
+            Text("Der Auszug nennt die Produktart nicht. Bis du sie wählst, zählt der Trade in der Steuer als „nicht zugeordnet“. Die Wahl gilt für alle Trades dieses Kontos mit demselben Symbol.")
+                .font(Schrift.beschriftung)
+                .foregroundStyle(thema.textSchwach)
+            Menu {
+                ForEach(Produktartformat.waehlbar, id: \.self) { art in
+                    Button(action: { setze(art) }) { Text(verbatim: Produktartformat.titel(art)) }
+                }
+            } label: {
+                Text("Art wählen")
+            }
+            .menuStyle(.button)
+            .fixedSize()
+            if let fehler {
+                Text(verbatim: fehler)
+                    .font(Schrift.beschriftung)
+                    .foregroundStyle(thema.verlust)
+            }
+        }
+    }
+
+    private func setze(_ art: Produktart) {
+        do {
+            _ = try modell.setzeProduktart(symbol: trade.symbol, art)
+            fehler = nil
+        } catch {
+            fehler = Regelfehler.text(error)
+        }
+    }
+}

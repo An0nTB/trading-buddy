@@ -76,6 +76,162 @@
         }
       }
     },
+    "%lld Dateien importiert, zuletzt %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld Dateien importiert, zuletzt %2$@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld files imported, last %2$@"
+          }
+        }
+      }
+    },
+    "%lld Dateien warten auf dich" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld file is waiting for you"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld files are waiting for you"
+                }
+              }
+            }
+          }
+        },
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Datei wartet auf dich"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Dateien warten auf dich"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Aus dem Import-Ordner importiert" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Imported from the import folder"
+          }
+        }
+      }
+    },
+    "Dreieck Einstieg, Kreis Ausstieg, gestrichelt Stop (rot) und Ziel (grün)." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Triangle entry, circle exit, dashed stop (red) and target (green)."
+          }
+        }
+      }
+    },
+    "Jahresbericht" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annual report"
+          }
+        }
+      }
+    },
+    "Jahresbericht %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annual report %@"
+          }
+        }
+      }
+    },
+    "Kursverlauf des Trades mit %lld Balken, Einstieg und Ausstieg markiert" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Price history of the trade with %lld bars, entry and exit marked"
+          }
+        }
+      }
+    },
+    "in diesem Jahr" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "this year"
+          }
+        }
+      }
+    },
+    "Mitteilung nach stillem Import" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notify after automatic import"
+          }
+        }
+      }
+    },
+    "Vorjahr" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Previous year"
+          }
+        }
+      }
+    },
+    "Monate" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Months"
+          }
+        }
+      }
+    },
+    "Netto und Anzahl der in diesem Monat geschlossenen Trades." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Net result and number of trades closed in this month."
+          }
+        }
+      }
+    },
     "–" : {
       "localizations" : {
         "en" : {
@@ -3567,6 +3723,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Portfolio"
+          }
+        }
+      }
+    },
+    "Der Auszug nennt die Produktart nicht. Bis du sie wählst, zählt der Trade in der Steuer als „nicht zugeordnet“. Die Wahl gilt für alle Trades dieses Kontos mit demselben Symbol." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The statement does not name the product type. Until you choose one, the trade counts as “not assigned” for tax. The choice applies to all trades in this account with the same symbol."
           }
         }
       }
@@ -10072,12 +10238,12 @@
         }
       }
     },
-    "Monats- oder Wochenbericht des gewählten Kontos als PDF, zum Ablegen oder Weitergeben" : {
+    "Monats-, Wochen- oder Jahresbericht des gewählten Kontos als PDF, zum Ablegen oder Weitergeben" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Monthly or weekly report of the selected account as PDF, for filing or passing on"
+            "value" : "Monthly, weekly or annual report of the selected account as PDF, for filing or passing on"
           }
         }
       }
