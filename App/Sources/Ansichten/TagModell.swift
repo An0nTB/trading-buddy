@@ -18,6 +18,9 @@ final class TagModell {
     /// Verpasste Trades im Monat des gewählten Tages, für die Karte „Verpasste Trades“.
     private(set) var verpasstImMonat: [VerpassterTrade] = []
     var fehler: String? = nil
+    /// Zählt gespeicherte Änderungen an Notiz und verpassten Trades; daran hängt der Export für Claude
+    /// (Notizen seit #100 im Export; zweiter Gegencheck X4).
+    private(set) var aenderungen = 0
 
     init(ablage: any TagAblage, zeitzone: TimeZone, tag: Journaltag? = nil, jetzt: Date = Date()) {
         self.ablage = ablage
@@ -81,6 +84,7 @@ final class TagModell {
             entwurf.planErstellt = gespeichert?.planErstellt
             entwurf.erstellt = gespeichert?.erstellt ?? entwurf.erstellt
             entwurf.geaendert = gespeichert?.geaendert ?? entwurf.geaendert
+            aenderungen += 1
             return true
         } catch {
             fehler = error.localizedDescription
@@ -98,12 +102,14 @@ final class TagModell {
 
     func speichere(_ eintrag: VerpassterTrade) throws {
         try ablage.speichereVerpasstenTrade(eintrag)
+        aenderungen += 1
         ladeEintraege()
     }
 
     func loesche(_ eintrag: VerpassterTrade) {
         do {
             try ablage.loescheVerpasstenTrade(id: eintrag.id)
+            aenderungen += 1
             ladeEintraege()
         } catch {
             fehler = error.localizedDescription
@@ -130,25 +136,12 @@ final class TagModell {
 
     // MARK: Bilder
 
-    /// Kopiert die Dateien in den Bilderordner und legt Verweise auf den Tag an. Nicht unterstützte
+    /// Kopiert die Bilder in den Bilderordner und legt Verweise auf den Tag an. Nicht unterstützte
     /// Dateien überspringt sie und meldet die erste.
-    func fuegeBilderHinzu(_ quellen: [URL], jetzt: Date = Date()) {
-        var ersterFehler: String?
-        for quelle in quellen {
-            do {
-                let datei = try Bilderordner.uebernimm(quelle, jetzt: jetzt, zeitzone: zeitzone)
-                do {
-                    try ablage.speichereBild(Bildverweis(datei: datei, bezug: .tag(tag), erstellt: jetzt))
-                } catch {
-                    // Ohne Verweis bliebe die Kopie verwaist.
-                    Bilderordner.loesche(datei)
-                    throw error
-                }
-            } catch {
-                if ersterFehler == nil { ersterFehler = error.localizedDescription }
-            }
+    func fuegeBilderHinzu(_ quellen: [Bildquelle], jetzt: Date = Date()) {
+        fehler = Bilderordner.lege(quellen, bezug: .tag(tag), jetzt: jetzt, zeitzone: zeitzone) { bild in
+            try ablage.speichereBild(bild)
         }
-        fehler = ersterFehler
         ladeEintraege()
     }
 
