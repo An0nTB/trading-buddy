@@ -2,7 +2,7 @@ import SwiftUI
 import TradingStore
 
 /// Einstellungen (Doc 10, Abschnitt 7): am Mac ein Fenster mit Reitern, am iPhone eine Liste unter „Mehr“.
-/// Alles gilt sofort, kein Speichern-Knopf.
+/// Alles gilt sofort, kein Speichern-Knopf; Ausnahme „Regeln“, die in der Datenbank liegen und geprüft werden.
 struct EinstellungenView: View {
     var body: some View {
         #if os(macOS)
@@ -22,6 +22,10 @@ struct EinstellungenView: View {
             Tab("Konten", systemImage: "building.columns") {
                 KontenView()
             }
+            Tab("Regeln", systemImage: "checklist") {
+                Form { RegelnEinstellungen() }
+                    .formStyle(.grouped)
+            }
             Tab("Claude", systemImage: "sparkles") {
                 ClaudeFelder()
             }
@@ -35,6 +39,12 @@ struct EinstellungenView: View {
                 NavigationLink("Börsen verwalten") {
                     Form { BoersenEinstellungen() }
                         .navigationTitle("Börsen")
+                }
+            }
+            Section("Regeln") {
+                NavigationLink("Handelsregeln und Prop-Firm") {
+                    Form { RegelnEinstellungen() }
+                        .navigationTitle("Regeln")
                 }
             }
             Section("Claude") {
