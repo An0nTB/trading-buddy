@@ -10,6 +10,8 @@ struct TradeZeileDaten: Identifiable {
     var muster: [Fehlermuster]
     /// Termine in der Haltezeit, die eine Währung des Symbols betreffen (Doc 18 F9); leer ohne Treffer.
     var termine: [Termin] = []
+    /// Der Stop stammt aus dem Journal (Stop beim Einstieg) und ersetzt den aus dem Export (Entscheidung 8).
+    var stopAusJournal = false
     var id: String { trade.id }
 }
 
@@ -26,6 +28,8 @@ struct TradesView: View {
     @State private var nurOhneStop = false
     @State private var inspektorOffen = true
     @State private var sortierung = [KeyPathComparator(\TradeZeileDaten.trade.closeTime, order: .reverse)]
+    /// Spalten per Rechtsklick auf den Tabellenkopf ein- und ausblenden; die Wahl bleibt je Fenster gespeichert.
+    @SceneStorage("tradesSpalten") private var spalten: TableColumnCustomization<TradeZeileDaten>
 
     private var gefiltert: [TradeZeileDaten] {
         let muster = modell.musterJeTrade
@@ -35,7 +39,8 @@ struct TradesView: View {
         let nurUeberTermin = modell.nurUeberTermin
         return modell.trades.compactMap { trade -> TradeZeileDaten? in
             let zeile = TradeZeileDaten(trade: trade, setup: eintraege[trade.id]?.setup ?? "", muster: muster[trade.id] ?? [],
-                                        termine: termine[trade.id] ?? [])
+                                        termine: termine[trade.id] ?? [],
+                                        stopAusJournal: eintraege[trade.id]?.stopEinstieg != nil)
             if nurMitMuster, zeile.muster.isEmpty { return nil }
             if nurUeberTermin, zeile.termine.isEmpty { return nil }
             if let musterFilter, !zeile.muster.contains(musterFilter) { return nil }
@@ -146,21 +151,23 @@ struct TradesView: View {
         #endif
     }
 
-    /// Tabelle mit Spalten Eröffnet, Geschlossen, Instrument, Richtung, Setup, Lots, R, Netto, Hinweise; Klick wählt für den Inspektor.
+    /// Tabelle mit Spalten Eröffnet, Geschlossen, Instrument, Richtung, Setup, Lots, SL, TP, R, Netto, Hinweise; Klick wählt für den Inspektor.
     private func tradeTabelle(_ liste: [TradeZeileDaten]) -> some View {
         @Bindable var modell = modell
-        return Table(liste, selection: $modell.tradeAuswahl, sortOrder: $sortierung) {
+        return Table(liste, selection: $modell.tradeAuswahl, sortOrder: $sortierung, columnCustomization: $spalten) {
             TableColumn("Eröffnet", value: \.trade.openTime) { zeile in
                 // Ausführungszeitpunkt; bei Pending Orders also die Aktivierung (Tim, 02.10.2026 03:10 UTC).
                 Text(verbatim: Format.zeit(zeile.trade.openTime))
                     .monospacedDigit()
             }
             .width(min: 110, ideal: 120)
+            .customizationID("eroeffnet")
             TableColumn("Geschlossen", value: \.trade.closeTime) { zeile in
                 Text(verbatim: Format.zeit(zeile.trade.closeTime))
                     .monospacedDigit()
             }
             .width(min: 110, ideal: 120)
+            .customizationID("geschlossen")
             TableColumn("Instrument", value: \.trade.symbol) { zeile in
                 HStack(spacing: Abstand.raster) {
                     Text(verbatim: zeile.trade.symbol)
@@ -172,20 +179,41 @@ struct TradesView: View {
                 }
             }
             .width(min: 90, ideal: 100)
+            .customizationID("instrument")
             TableColumn("Richtung", value: \.trade.side.rawValue) { zeile in
                 Text(verbatim: Format.richtung(zeile.trade.side))
             }
             .width(min: 70, ideal: 80)
+            .customizationID("richtung")
             TableColumn("Setup", value: \.setup) { zeile in
                 Text(verbatim: zeile.setup)
             }
             .width(min: 80, ideal: 120)
+            .customizationID("setup")
             TableColumn("Lots", value: \.trade.lots) { zeile in
                 Text(verbatim: Format.lots(zeile.trade.lots))
                     .monospacedDigit()
             }
             .width(min: 50, ideal: 60)
             .alignment(.numeric)
+            .customizationID("lots")
+            // Gruppe, weil der Spalten-Builder höchstens zehn Einträge nimmt (SL und TP: Tim, 02.10.2026 03:10 UTC).
+            Group {
+                TableColumn("SL") { zeile in
+                    stopZelle(zeile)
+                }
+                .width(min: 70, ideal: 90)
+                .alignment(.numeric)
+                .customizationID("sl")
+                TableColumn("TP") { zeile in
+                    Text(verbatim: zeile.trade.takeProfit.map(Format.kurs) ?? "–")
+                        .monospacedDigit()
+                        .foregroundStyle(zeile.trade.takeProfit == nil ? thema.textSchwach : thema.text)
+                }
+                .width(min: 70, ideal: 90)
+                .alignment(.numeric)
+                .customizationID("tp")
+            }
             TableColumn("R") { zeile in
                 if zeile.trade.rMultiple == nil {
                     Text("kein Stop")
@@ -197,6 +225,7 @@ struct TradesView: View {
             }
             .width(min: 70, ideal: 80)
             .alignment(.numeric)
+            .customizationID("r")
             TableColumn("Netto", value: \.trade.netProfit) { zeile in
                 Text(verbatim: Format.geld(zeile.trade.netProfit, modell.waehrung))
                     .monospacedDigit()
@@ -204,10 +233,32 @@ struct TradesView: View {
             }
             .width(min: 90, ideal: 100)
             .alignment(.numeric)
+            .customizationID("netto")
             TableColumn("Hinweise") { zeile in
                 MusterChips(muster: zeile.muster)
             }
             .width(min: 170, ideal: 220)
+            .customizationID("hinweise")
+        }
+    }
+
+    /// Stop wie in der R-Spalte gerechnet: aus dem Journal (Punkt) oder aus dem Export; „–“ ohne Stop.
+    @ViewBuilder
+    private func stopZelle(_ zeile: TradeZeileDaten) -> some View {
+        if let stop = zeile.trade.stopLoss {
+            HStack(spacing: Abstand.raster / 2) {
+                Text(verbatim: Format.kurs(stop))
+                    .monospacedDigit()
+                if zeile.stopAusJournal {
+                    Circle()
+                        .fill(thema.akzent)
+                        .frame(width: 5, height: 5)
+                }
+            }
+            .help(zeile.stopAusJournal ? Text("Stop beim Einstieg aus dem Journal") : Text("Stop laut Export"))
+        } else {
+            Text(verbatim: "–")
+                .foregroundStyle(thema.textSchwach)
         }
     }
 
