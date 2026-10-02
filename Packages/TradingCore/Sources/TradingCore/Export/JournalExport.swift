@@ -5,7 +5,8 @@ import Foundation
 /// Enthält je Konto die abgeschlossenen Trades, die Zeitpunkte gelöschter Orders und die
 /// eigenen Journalangaben je Trade, die Ziele früherer Reviews und die eigenen Handelsregeln, dazu Tagesnotizen
 /// und verpasste Trades, auf Wunsch Überschriften der Nachrichten und Tageskerzen geladener Kurse, dazu die
-/// EZB-Referenzkurse für die Umrechnung in die Kontowährung; keine Rohzeilen, keine Kontonamen und keine Bilder.
+/// EZB-Referenzkurse für die Umrechnung in die Kontowährung und die Ausstiegsanalysen je Trade; keine Rohzeilen,
+/// keine Kontonamen, keine Bilder und keine Minutenkerzen.
 public struct JournalExport: Sendable, Equatable, Codable {
     public static let dateiname = "trading-buddy-export.json"
     /// Erhöhen, wenn ein älterer Connector den neuen Aufbau falsch lesen würde.
@@ -55,10 +56,13 @@ public struct JournalExport: Sendable, Equatable, Codable {
         public var ziele: [Reviewziel]
         /// Eigene Handelsregeln des Kontos; `nil`, wenn keine gesetzt ist oder die Datei älter ist.
         public var regeln: Handelsregeln?
+        /// Ausstiegsanalysen der Trades mit Kerzen in der App, nach Trade-ID sortiert (Doc 39, B4).
+        /// Fehlt ohne gespeicherte Kerzen und in Dateien älterer Apps.
+        public var ausstieg: [Ausstieg]?
 
         public init(broker: String, kontonummer: String, waehrung: String, trades: [Trade],
                     geloeschteOrders: [Date] = [], journal: [String: Journalangaben] = [:],
-                    ziele: [Reviewziel] = [], regeln: Handelsregeln? = nil) {
+                    ziele: [Reviewziel] = [], regeln: Handelsregeln? = nil, ausstieg: [Ausstieg] = []) {
             self.broker = broker
             self.kontonummer = kontonummer
             self.waehrung = waehrung
@@ -67,10 +71,18 @@ public struct JournalExport: Sendable, Equatable, Codable {
             self.journal = journal.filter { !$0.value.istLeer }
             self.ziele = ziele
             self.regeln = regeln.flatMap { $0.leer ? nil : $0 }
+            let ids = Set(trades.map(\.id))
+            let analysen = ausstieg.filter { ids.contains($0.tradeID) }.sorted { $0.tradeID < $1.tradeID }
+            self.ausstieg = analysen.isEmpty ? nil : analysen
+        }
+
+        /// Ausstiegsanalysen nach Trade-ID.
+        public var ausstiegJeTrade: [String: Ausstieg] {
+            Dictionary((ausstieg ?? []).map { ($0.tradeID, $0) }, uniquingKeysWith: { erste, _ in erste })
         }
 
         private enum CodingKeys: String, CodingKey {
-            case broker, kontonummer, waehrung, trades, geloeschteOrders, journal, ziele, regeln
+            case broker, kontonummer, waehrung, trades, geloeschteOrders, journal, ziele, regeln, ausstieg
         }
 
         public init(from decoder: any Decoder) throws {
@@ -83,7 +95,9 @@ public struct JournalExport: Sendable, Equatable, Codable {
                       journal: try c.decodeIfPresent([String: Journalangaben].self, forKey: .journal) ?? [:],
                       ziele: try c.decodeIfPresent([Reviewziel].self, forKey: .ziele) ?? [],
                       // Ändert sich der Aufbau der Regeln später, fehlen nur sie, nicht das ganze Konto.
-                      regeln: try? c.decodeIfPresent(Handelsregeln.self, forKey: .regeln))
+                      regeln: try? c.decodeIfPresent(Handelsregeln.self, forKey: .regeln),
+                      // Ebenso die Ausstiegsanalysen.
+                      ausstieg: (try? c.decodeIfPresent([Ausstieg].self, forKey: .ausstieg)) ?? [])
         }
 
         public init(broker: String, kontonummer: String, waehrung: String,
