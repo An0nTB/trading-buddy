@@ -97,6 +97,8 @@ final class AppModell {
             exportiere()
             #if os(macOS)
             if nebenwirkungen { Importordner.geteilt.verbinde(self) } // Import-Ordner beobachten (Doc 45)
+            // Tägliche Datensicherung (Tagesseite-Thread, Doc 46): beim Start, dann stündlich prüfen.
+            if nebenwirkungen { Task { [weak self] in await Sicherungsdienst.laufe { self?.journal } } }
             #endif
         }
         if nebenwirkungen { Task { await ladeEZBKurse() } }
