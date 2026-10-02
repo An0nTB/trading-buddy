@@ -23,14 +23,35 @@ public struct Referenzkurse: Sendable, Equatable {
     /// Euro bleibt unverändert; `nil`, wenn innerhalb von `hoechstensTageZurueck` Tagen kein Kurs vorliegt.
     public func inEuro(_ betrag: Decimal, waehrung: String, am: Date,
                        zeitzone: TimeZone = Steuerorientierung.deutscheZeit) -> Decimal? {
-        let gross = waehrung.uppercased()
-        if gross == "EUR" { return betrag }
-        let code = Self.gleichgesetzt[gross] ?? gross
+        kurs(waehrung, am: am, zeitzone: zeitzone).map { betrag / $0 }
+    }
+
+    /// Betrag von einer Währung in eine andere über den Euro, beide Kurse wie bei `inEuro`.
+    /// Gleiche Währung (auch USDT und USD) bleibt unverändert; `nil`, wenn ein Kurs fehlt.
+    public func umrechnen(_ betrag: Decimal, von: String, nach: String, am: Date,
+                          zeitzone: TimeZone = Steuerorientierung.deutscheZeit) -> Decimal? {
+        let quelle = Self.code(von)
+        let ziel = Self.code(nach)
+        if quelle == ziel { return betrag }
+        guard let vonKurs = kurs(quelle, am: am, zeitzone: zeitzone),
+              let nachKurs = kurs(ziel, am: am, zeitzone: zeitzone) else { return nil }
+        return betrag / vonKurs * nachKurs
+    }
+
+    /// Einheiten `waehrung` je 1 Euro am oder vor dem Kalendertag; Euro ist 1.
+    private func kurs(_ waehrung: String, am: Date, zeitzone: TimeZone) -> Decimal? {
+        let code = Self.code(waehrung)
+        if code == "EUR" { return 1 }
         let k = Steuerorientierung.kalender(in: zeitzone)
         for zurueck in 0...Self.hoechstensTageZurueck {
             guard let zeit = k.date(byAdding: .day, value: -zurueck, to: am) else { return nil }
-            if let kurs = kurse[Journaltag(zeit, zeitzone: zeitzone)]?[code] { return betrag / kurs }
+            if let kurs = kurse[Journaltag(zeit, zeitzone: zeitzone)]?[code] { return kurs }
         }
         return nil
+    }
+
+    private static func code(_ waehrung: String) -> String {
+        let gross = waehrung.uppercased()
+        return gleichgesetzt[gross] ?? gross
     }
 }
