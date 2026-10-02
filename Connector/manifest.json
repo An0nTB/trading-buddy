@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "trading-buddy",
   "display_name": "Henry",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "description": "Henry führt Buch über deine Trades. Kennzahlen, Fehlermuster und Wochen- oder Monatsauswertung aus deinem Journal. Nur lesend, die Daten bleiben auf deinem Mac.",
   "author": {
     "name": "Tim Bock"
@@ -29,11 +29,11 @@
     },
     {
       "name": "hole_aufschluesselung",
-      "description": "Kennzahlen je Symbol, Richtung, Wochentag, Stunde, Trade-Nummer am Tag, Vorergebnis, Haltedauer, Setup, Regeltreue oder Zustand."
+      "description": "Kennzahlen je Symbol, Produktart, Richtung, Wochentag, Stunde, Trade-Nummer am Tag, Vorergebnis, Haltedauer, Setup, Regeltreue oder Zustand."
     },
     {
       "name": "hole_trades",
-      "description": "Einzelne Trades mit Journalangaben und MAE und MFE, auch nur die eines Fehlermusters."
+      "description": "Einzelne Trades mit Journalangaben, Produktart, MAE und MFE, auch nur bestimmte Tickets, ein Symbol oder die eines Fehlermusters."
     },
     {
       "name": "hole_notizen",
