@@ -26,6 +26,12 @@ struct TradingBuddyApp: App {
         #endif
         BereichFensterSzene(modell: modell) // P12 Eigene Fenster
         #if os(macOS)
+        // Bericht über frei gewählte Tage, geöffnet aus „Bericht als PDF“ (Frage 4, Bericht/BerichtZeitraumBlatt.swift)
+        Window("Bericht für Zeitraum", id: BerichtZeitraumBlatt.fensterID) {
+            MitThema { BerichtZeitraumBlatt() }
+                .environment(modell)
+        }
+        .windowResizability(.contentSize)
         Settings {
             MitThema { EinstellungenView() }
                 .environment(modell)
