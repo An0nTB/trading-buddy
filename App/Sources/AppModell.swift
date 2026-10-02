@@ -365,6 +365,13 @@ final class AppModell {
     /// Ob das Konto Krypto-Ausführungen hat; dann zeigt die Steuerseite die Haltefrist.
     var hatKrypto: Bool { kontobewegungen.ausfuehrungen.contains { $0.produktart == .krypto } }
 
+    /// Währungen der Trades, die von der Kontowährung abweichen (Kern 0.17.0 `Trade.waehrung`, Gegencheck A4),
+    /// alphabetisch; leer bei MetaTrader und XTB, deren Trades in Kontowährung stehen.
+    var fremdwaehrungen: [String] {
+        let konto = waehrung.uppercased()
+        return Set(alleTrades.map { $0.waehrung(kontowaehrung: konto) }).subtracting([konto]).sorted()
+    }
+
     /// Krypto-Haltefrist im Jahr: FIFO je Coin über alle Ausführungen des Kontos.
     func kryptoJahr(_ jahr: Int) -> KryptoHaltefrist.Jahr {
         KryptoHaltefrist.jahr(jahr, ausfuehrungen: kontobewegungen.ausfuehrungen, importhinweise: importhinweiseDesKontos,
