@@ -48,7 +48,9 @@ extension Boerse {
         kalender.timeZone = zone
         let feiertagSet = Set(feiertage.map(\.datum))
         var verkuerzt: [Kalendertag: VerkuerzterTag] = [:]
-        for tag in verkuerzteTage { verkuerzt[tag.datum] = tag }
+        for tag in verkuerzteTage where verkuerzt[tag.datum].map({ tag.ende < $0.ende }) ?? true {
+            verkuerzt[tag.datum] = tag
+        }
         let laengsteSitzung = handelszeiten.map(\.endeNachTagen).max() ?? 0
 
         // Einen Tag Puffer auf beiden Seiten, damit Sitzungen über Mitternacht nicht fehlen.
@@ -57,9 +59,11 @@ extension Boerse {
         var roh: [Sitzung] = []
         while tag <= letzterTag {
             defer { tag = tag.plus(tage: 1) }
-            if feiertagSet.contains(tag) { continue }
             for zeit in handelszeiten where zeit.tage.contains(tag.wochentag) {
                 let endTag = tag.plus(tage: zeit.endeNachTagen)
+                // Handelstag ist der Tag, an dem die Sitzung endet: Forex Donnerstag 17:00 bis
+                // Freitag 17:00 New York gehört zum Freitag und entfällt, wenn Freitag Feiertag ist.
+                if feiertagSet.contains(endTag) { continue }
                 var endUhrzeit = zeit.ende
                 var verkuerztName: String?
                 if let kurz = verkuerzt[endTag], kurz.ende < endUhrzeit {
@@ -102,13 +106,19 @@ extension Boerse {
         guard var laufend = sitzungen(von: zeitpunkt, bis: zeitpunkt.addingTimeInterval(1))
             .first(where: { $0.enthaelt(zeitpunkt) }) else { return nil }
         if durchgehend { return laufend }
-        for _ in 0..<Boerse.suchtageMaximal {
+        while true {
+            // Länger als acht Tage ohne Schließung: Die Handelszeiten decken die ganze Woche ab,
+            // die Börse schließt also nie (eigene 24/7-Börse ohne `durchgehend`).
+            if laufend.ende.timeIntervalSince(zeitpunkt) > 8 * 86_400 {
+                laufend.ende = .distantFuture
+                laufend.verkuerzt = nil
+                return laufend
+            }
             guard let anschluss = sitzungen(von: laufend.ende, bis: laufend.ende.addingTimeInterval(1))
-                .first(where: { $0.enthaelt(laufend.ende) }) else { break }
+                .first(where: { $0.enthaelt(laufend.ende) }) else { return laufend }
             laufend.ende = anschluss.ende
             laufend.verkuerzt = anschluss.verkuerzt
         }
-        return laufend
     }
 
     /// Nächste Öffnung echt nach `zeitpunkt`. `nil` bei durchgehend geöffneten Märkten
@@ -121,9 +131,10 @@ extension Boerse {
     /// der laufenden Sitzung, sonst das Ende der nächsten. `nil` bei durchgehend geöffneten Märkten.
     public func naechsteSchliessung(nach zeitpunkt: Date) -> Date? {
         if durchgehend { return nil }
-        if let laufend = laufendeSitzung(zeitpunkt) { return laufend.ende }
+        if let laufend = laufendeSitzung(zeitpunkt) { return laufend.ende == .distantFuture ? nil : laufend.ende }
         guard let naechste = naechsteSitzung(nach: zeitpunkt) else { return nil }
-        return (laufendeSitzung(naechste.beginn) ?? naechste).ende
+        let ende = (laufendeSitzung(naechste.beginn) ?? naechste).ende
+        return ende == .distantFuture ? nil : ende
     }
 
     /// Erste Sitzung, die echt nach `zeitpunkt` beginnt.
@@ -136,7 +147,10 @@ extension Boerse {
             // Fenster ab `zeitpunkt`, damit eine laufende Sitzung mit der folgenden verschmilzt
             // und nicht als neue Öffnung gilt.
             let bis = von.addingTimeInterval(schritt)
-            if let treffer = sitzungen(von: zeitpunkt, bis: bis).first(where: { $0.beginn > zeitpunkt }) {
+            // Spätere Fenster beginnen acht Tage vor ihrem Start statt bei `zeitpunkt`, damit die
+            // Suche nicht quadratisch wächst; das reicht, um mehrtägige Blöcke ganz zu sehen.
+            let fensterBeginn = max(zeitpunkt, von.addingTimeInterval(-8 * 86_400))
+            if let treffer = sitzungen(von: fensterBeginn, bis: bis).first(where: { $0.beginn > zeitpunkt }) {
                 return treffer
             }
             von = bis
@@ -156,7 +170,7 @@ extension Boerse {
         let wechsel: Date?
         let verkuerzt: String?
         if let laufend {
-            wechsel = laufend.ende
+            wechsel = laufend.ende == .distantFuture ? nil : laufend.ende
             verkuerzt = laufend.verkuerzt
         } else {
             let naechste = naechsteSitzung(nach: zeitpunkt)
