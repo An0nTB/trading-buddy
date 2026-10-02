@@ -92,6 +92,18 @@ import TradingStore
         #expect(beobachtung.zuletzt.count == 1)
     }
 
+    /// A4: Mitteilung nur nach stillem Speichern; wartende Dateien stehen im Text, lösen allein aber keine aus.
+    @Test func mitteilungNennenDateiUndWartende() throws {
+        #expect(Importordner.mitteilungstext([], offen: 2) == nil)
+        let eine = Importordner.Meldung(dateiname: "kraken-b.csv", text: "1 neue Ausführungen", zeit: .now)
+        let text = try #require(Importordner.mitteilungstext([eine], offen: 0)).text
+        #expect(text == "kraken-b.csv: 1 neue Ausführungen")
+        let zwei = try #require(Importordner.mitteilungstext([eine, eine], offen: 1)).text
+        #expect(zwei.contains("kraken-b.csv"))
+        #expect(zwei.contains("2"))
+        #expect(zwei.contains(" · "))
+    }
+
     @Test func ignorierteDateiKommtNichtWieder() throws {
         let ordner = FileManager.default.temporaryDirectory.appending(path: "importordner-\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: ordner, withIntermediateDirectories: true)
