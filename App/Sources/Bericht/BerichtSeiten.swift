@@ -2,7 +2,7 @@ import Charts
 import SwiftUI
 import TradingCore
 
-/// Die Seiten des Monatsberichts in fester Reihenfolge, je eine A4-Seite.
+/// Die Seiten des Berichts in fester Reihenfolge, je eine A4-Seite.
 enum BerichtSeite: Int, CaseIterable {
     case ueberblick
     case verhalten
@@ -21,7 +21,7 @@ enum BerichtSeite: Int, CaseIterable {
 /// drei Muster, sechs Fehlermuster, fünf Ziele), damit nichts über den Seitenrand läuft.
 struct BerichtSeitenansicht: View {
     let seite: BerichtSeite
-    let bericht: Monatsbericht
+    let bericht: Zeitraumbericht
     let kontext: BerichtKontext
     @Environment(\.thema) private var thema
 
@@ -67,7 +67,7 @@ struct BerichtKopf: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(alignment: .firstTextBaseline) {
-                Text(verbatim: String(localized: "Monatsbericht \(kontext.monatsname)"))
+                Text(verbatim: kontext.titel)
                     .font(BerichtSchrift.titel)
                     .foregroundStyle(thema.text)
                 Spacer()
@@ -75,7 +75,7 @@ struct BerichtKopf: View {
                     .font(BerichtSchrift.abschnitt)
                     .foregroundStyle(thema.akzent)
             }
-            Text(verbatim: kontext.konto + " · " + kontext.waehrung + " · " + seitentitel)
+            Text(verbatim: [kontext.spanneText, kontext.konto, kontext.waehrung, seitentitel].joined(separator: " · "))
                 .font(BerichtSchrift.text)
                 .foregroundStyle(thema.textSchwach)
         }
@@ -110,7 +110,7 @@ struct BerichtFuss: View {
 // MARK: Seite 1: Überblick
 
 struct BerichtUeberblick: View {
-    let bericht: Monatsbericht
+    let bericht: Zeitraumbericht
     let kontext: BerichtKontext
 
     var body: some View {
@@ -118,14 +118,17 @@ struct BerichtUeberblick: View {
         VStack(alignment: .leading, spacing: BerichtMass.abschnittAbstand) {
             BerichtAbschnitt(titel: "Kennzahlen", untertitel: untertitel) {
                 if auswertung.trades.isEmpty {
-                    BerichtHinweis(String(localized: "In diesem Monat wurde kein Trade geschlossen."))
+                    BerichtHinweis(String(localized: "Kein Trade geschlossen \(kontext.inDerSpanne)."))
                 } else {
-                    BerichtKennzahlen(auswertung: auswertung, waehrung: kontext.waehrung)
+                    BerichtKennzahlen(auswertung: auswertung, waehrung: kontext.waehrung, vergleichsname: kontext.vergleichsname)
                 }
+            }
+            if case .woche = kontext.art {
+                BerichtWochentage(tage: bericht.tage, kontext: kontext)
             }
             if !auswertung.kapitalverlauf.punkte.isEmpty {
                 BerichtAbschnitt(titel: "Kapitalverlauf",
-                                 untertitel: String(localized: "Summe der Netto-Ergebnisse nach jedem Trade des Monats, ohne Ein- und Auszahlungen.")) {
+                                 untertitel: String(localized: "Summe der Netto-Ergebnisse nach jedem Trade im Berichtszeitraum, ohne Ein- und Auszahlungen.")) {
                     BerichtKapitalkurve(punkte: auswertung.kapitalverlauf.punkte)
                 }
             }
@@ -139,7 +142,7 @@ struct BerichtUeberblick: View {
 
     private var untertitel: String {
         let k = bericht.auswertung.kennzahlen
-        var text = String(localized: "Ein Trade zählt zum Monat, in dem er geschlossen wurde. Vergleich mit dem Vormonat.")
+        var text = String(localized: "Ein Trade zählt zum Berichtszeitraum, in dem er geschlossen wurde. Vergleich mit dem gleich langen Zeitraum davor (\(kontext.vergleichsname)).")
         if k.anzahl > 0 && !k.genugDaten {
             text += " " + String(localized: "Unter \(Kennzahlen.mindestanzahl) Trades: Die Zahlen beschreiben nur, sie belegen noch kein Muster.")
         }
@@ -147,10 +150,12 @@ struct BerichtUeberblick: View {
     }
 }
 
-/// Acht Kacheln in zwei Reihen, mit dem Wert des Vormonats als Zusatz.
+/// Acht Kacheln in zwei Reihen, mit dem Wert der gleich langen Spanne davor als Zusatz.
 struct BerichtKennzahlen: View {
     let auswertung: Auswertung
     let waehrung: String
+    /// „Vormonat“, „Vorwoche“ oder „Vorzeitraum“.
+    let vergleichsname: String
     @Environment(\.thema) private var thema
 
     var body: some View {
@@ -159,13 +164,13 @@ struct BerichtKennzahlen: View {
         Grid(horizontalSpacing: Abstand.raster * 2, verticalSpacing: Abstand.raster * 2) {
             GridRow {
                 BerichtKachel(titel: "Netto", wert: Format.geld(k.netto, waehrung),
-                              zusatz: vormonat(Format.geld(vor.netto, waehrung)), farbe: thema.vorzeichen(k.netto))
+                              zusatz: vorher(Format.geld(vor.netto, waehrung)), farbe: thema.vorzeichen(k.netto))
                 BerichtKachel(titel: "Trades", wert: "\(k.anzahl)",
-                              zusatz: vormonat("\(vor.anzahl)"))
+                              zusatz: vorher("\(vor.anzahl)"))
                 BerichtKachel(titel: "Trefferquote", wert: Format.prozent(k.trefferquote),
-                              zusatz: vormonat(Format.prozent(vor.trefferquote)))
+                              zusatz: vorher(Format.prozent(vor.trefferquote)))
                 BerichtKachel(titel: "Profitfaktor", wert: Format.zahl(k.profitfaktor),
-                              zusatz: vormonat(Format.zahl(vor.profitfaktor)))
+                              zusatz: vorher(Format.zahl(vor.profitfaktor)))
             }
             GridRow {
                 BerichtKachel(titel: "Erwartung je Trade", wert: k.erwartungswert.map { Format.geld($0, waehrung) } ?? "–",
@@ -183,8 +188,48 @@ struct BerichtKennzahlen: View {
         .frame(width: BerichtMass.breite)
     }
 
-    private func vormonat(_ wert: String) -> String {
-        String(localized: "Vormonat \(wert)")
+    private func vorher(_ wert: String) -> String {
+        vergleichsname + " " + wert
+    }
+}
+
+/// Wochenbericht: Netto und Anzahl je Tag, Montag bis Sonntag; Tage ohne geschlossenen Trade mit Strich.
+struct BerichtWochentage: View {
+    let tage: [Zeitraumbericht.Tagesergebnis]
+    let kontext: BerichtKontext
+    @Environment(\.thema) private var thema
+    private static let namen = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"]
+
+    var body: some View {
+        let ergebnisse = Dictionary(tage.map { ($0.tag, $0) }, uniquingKeysWith: { erstes, _ in erstes })
+        BerichtAbschnitt(titel: "Tage",
+                         untertitel: String(localized: "Netto und Anzahl der an diesem Tag geschlossenen Trades.")) {
+            HStack(spacing: Abstand.raster) {
+                ForEach(Array(wochentage.enumerated()), id: \.offset) { eintrag in
+                    kachel(nummer: eintrag.offset, tag: eintrag.element, ergebnis: ergebnisse[eintrag.element])
+                }
+            }
+            .frame(width: BerichtMass.breite)
+        }
+    }
+
+    /// Sieben Kalendertage ab dem Montag der Woche, in der Zeitzone des Nutzers.
+    private var wochentage: [Journaltag] {
+        var kalender = Calendar(identifier: .gregorian)
+        kalender.timeZone = kontext.zeitzone
+        return (0..<7).compactMap { versatz in
+            kalender.date(byAdding: .day, value: versatz, to: kontext.zeitraum.von)
+                .map { Journaltag($0, zeitzone: kontext.zeitzone) }
+        }
+    }
+
+    private func kachel(nummer: Int, tag: Journaltag, ergebnis: Zeitraumbericht.Tagesergebnis?) -> some View {
+        let name = Self.namen[nummer % Self.namen.count]
+        let datum = String(format: "%02d.%02d.", tag.tag, tag.monat)
+        return BerichtKachel(titel: "\(name) \(datum)",
+                             wert: ergebnis.map { Format.geld($0.netto, kontext.waehrung) } ?? "–",
+                             zusatz: ergebnis.map { String(localized: "\($0.anzahl) Trades") },
+                             farbe: ergebnis.map { thema.vorzeichen($0.netto) })
     }
 }
 
