@@ -173,7 +173,7 @@ struct AufschluesselungKarte: View {
             .font(Schrift.beschriftung)
             .foregroundStyle(thema.textSchwach)
             ForEach(zeilen) { zeile in
-                Kennzahlenzeile(name: zeile.name, kennzahlen: zeile.kennzahlen, waehrung: modell.waehrung)
+                Kennzahlenzeile(name: zeile.name, kennzahlen: zeile.kennzahlen, waehrung: modell.summenwaehrung)
             }
         }
     }
@@ -288,7 +288,7 @@ struct ReihenfolgeKarte: View {
                 .font(Schrift.beschriftung)
                 .foregroundStyle(thema.textSchwach)
                 ForEach(zeilen) { zeile in
-                    Kennzahlenzeile(name: zeile.name, kennzahlen: zeile.kennzahlen, waehrung: modell.waehrung)
+                    Kennzahlenzeile(name: zeile.name, kennzahlen: zeile.kennzahlen, waehrung: modell.summenwaehrung)
                 }
             }
         }
@@ -303,7 +303,7 @@ struct PlaybookAuswertungKarte: View {
 
     var body: some View {
         let auswertung = modell.playbookAuswertung
-        let waehrung = modell.waehrung
+        let waehrung = modell.summenwaehrung
         Karte("Playbook") {
             if auswertung.setups.allSatisfy({ $0.kennzahlen.anzahl == 0 }) {
                 Text("Noch kein Trade im Zeitraum trägt ein Setup aus dem Playbook. Setup im Inspektor der Trade-Liste wählen, Kriterien abhaken.")
