@@ -17,6 +17,9 @@ struct KennzahlenView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: Abstand.kachelAbstand) {
                 Kopfzeile("Kennzahlen") {
+                    MonatsberichtMenue() // F11 Monatsbericht als PDF
+                        .labelStyle(.iconOnly)
+                        .fixedSize()
                     Filterleiste()
                     FragBradKnopf(.monat) // Frag Brad (Doc 31)
                 }

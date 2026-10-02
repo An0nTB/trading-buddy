@@ -191,7 +191,7 @@ struct DisziplinKarte: View {
                     Kapsel(text: String(localized: "\(Format.prozent(quote)) regeltreu"))
                 }
             }
-            Text("Netto regeltreu \(Format.geld(disziplin.nettoRegeltreu, waehrung)), mit Regelbruch \(Format.geld(disziplin.nettoVerletzt, waehrung)). Rote Punkte sind Trades mit Verstoß; gezählt im gewählten Zeitraum.")
+            Text("Netto regeltreu \(Format.geld(disziplin.nettoRegeltreu, waehrung)), mit Regelbruch \(Format.geld(disziplin.nettoVerletzt, waehrung)). Rote Punkte sind Trades mit Verstoß gegen eigene oder Prop-Firm-Regeln; gezählt im gewählten Zeitraum.")
                 .font(Schrift.beschriftung)
                 .foregroundStyle(thema.textSchwach)
             if !disziplin.genugDaten {
@@ -291,6 +291,93 @@ struct ChallengeKarte: View {
     private func tageswechsel(_ regeln: PropFirmRegeln) -> String {
         let m = max(0, min(regeln.tageswechselMinuten, 24 * 60 - 1))
         return String(format: "%02ld:%02ld", m / 60, m % 60) + " " + regeln.zeitzone
+    }
+}
+
+/// Tagesverlust-Balken der Prop-Firm (Doc 18 F10, Stand-Doc 35): je Handelstag der Firma der realisierte Verbrauch
+/// der Tagesgrenze in Prozent, Linie bei 100 %. Nur Tage mit geschlossenen Trades; offene Verluste fehlen.
+struct TagesverlustKarte: View {
+    @Environment(AppModell.self) private var modell
+    @Environment(\.thema) private var thema
+
+    private struct Balkentag: Identifiable {
+        let id: Date
+        let prozent: Double
+        let verbraucht: Decimal
+        let verletzt: Bool
+    }
+
+    /// Höchstens so viele Handelstage im Balken, die jüngsten zuletzt.
+    private static let tageImBalken = 20
+
+    var body: some View {
+        if let regeln = modell.regeln.propFirm, let grenze = regeln.maxTagesverlust, let ergebnis = modell.propFirmErgebnis {
+            let waehrung = modell.waehrung
+            let tage = Self.tage(ergebnis.tage)
+            Karte("Tagesverlust je Handelstag") {
+                if tage.isEmpty {
+                    Text("Noch kein Handelstag mit geschlossenen Trades.")
+                        .font(Schrift.beschriftung)
+                        .foregroundStyle(thema.textSchwach)
+                } else {
+                    balken(tage)
+                    HStack(spacing: Abstand.raster * 2) {
+                        if let heute = tage.last {
+                            Kapsel(text: String(localized: "Letzter Tag \(Format.betrag(heute.verbraucht, waehrung)) von \(Format.betrag(grenze, waehrung)) (\(Format.prozent(Decimal(heute.prozent) / 100)))"),
+                                   betont: heute.verletzt)
+                        }
+                        let verletzt = tage.filter(\.verletzt).count
+                        Kapsel(text: verletzt == 0 ? String(localized: "kein Tag über der Grenze")
+                                                   : String(localized: "\(verletzt) Tage über der Grenze"),
+                               betont: verletzt > 0)
+                    }
+                }
+                Text("Verbrauch am tiefsten realisierten Saldo des Tages gegen die Tagesgrenze \(regeln.name); Tage ohne geschlossenen Trade fehlen, offene Verluste auch (Näherung wie in der Challenge-Karte). Höchstens \(Self.tageImBalken) Tage.")
+                    .font(Schrift.beschriftung)
+                    .foregroundStyle(thema.textSchwach)
+            }
+        }
+    }
+
+    private static func tage(_ staende: [PropFirmPruefung.Tagesstand]) -> [Balkentag] {
+        staende.suffix(tageImBalken).compactMap { stand in
+            guard let anteil = stand.anteilTagesverlust else { return nil }
+            return Balkentag(id: stand.tag, prozent: Format.double(anteil * 100), verbraucht: stand.verbraucht, verletzt: anteil > 1)
+        }
+    }
+
+    private func balken(_ tage: [Balkentag]) -> some View {
+        Chart(tage) { tag in
+            BarMark(x: .value("Tag", tag.id, unit: .day), y: .value("Verbrauch", tag.prozent))
+                .foregroundStyle(farbe(tag))
+                .cornerRadius(Diagramm.balkenEndeRadius)
+            RuleMark(y: .value("Grenze", 100.0))
+                .foregroundStyle(thema.verlust)
+                .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 3]))
+        }
+        .chartYScale(domain: 0...max(110, (tage.map(\.prozent).max() ?? 0) * 1.1))
+        .chartXAxis {
+            AxisMarks(values: .automatic(desiredCount: 5)) { _ in
+                AxisValueLabel(format: .dateTime.day().month(.abbreviated)).foregroundStyle(thema.textSchwach)
+            }
+        }
+        .chartYAxis {
+            AxisMarks(position: .leading, values: [0.0, 50.0, 100.0]) { wert in
+                AxisGridLine().foregroundStyle(thema.linie)
+                AxisValueLabel {
+                    if let zahl = wert.as(Double.self) {
+                        Text(verbatim: "\(Int(zahl)) %")
+                    }
+                }
+                .foregroundStyle(thema.textSchwach)
+            }
+        }
+        .frame(height: 140)
+    }
+
+    private func farbe(_ tag: Balkentag) -> Color {
+        if tag.verletzt { return thema.verlust }
+        return tag.prozent >= 70 ? thema.akzent : thema.gewinn
     }
 }
 
