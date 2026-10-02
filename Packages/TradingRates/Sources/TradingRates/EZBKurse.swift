@@ -33,6 +33,10 @@ public struct EZBKurse: Sendable {
     }
 
     public struct Stand: Sendable, Equatable {
+        /// Noch nichts geladen; für den Start der App, bevor `zwischenspeicher()` oder `laden()` fertig ist.
+        public static let leer = Stand(kurse: Referenzkurse(kurse: [:]), quelle: .keine, letzterTag: nil,
+                                       abgerufen: nil, fehler: nil)
+
         public var kurse: Referenzkurse
         public var quelle: Quelle
         /// Jüngster Tag mit Kursen, für die Anzeige „EZB-Kurse bis …“.
@@ -46,6 +50,8 @@ public struct EZBKurse: Sendable {
     public static let ruhezeit: TimeInterval = 6 * 60 * 60
     /// Bis zu dieser Lücke reicht die 90-Tage-Datei (Puffer zu den 90 Kalendertagen der EZB).
     public static let neunzigTageReichtBis = 85
+    /// So viele Kalenderjahre vor dem laufenden behält der Zwischenspeicher (rund 2 MB statt über 5 MB für 1999 bis heute).
+    public static let aufbewahrenJahre = 10
     /// Kalendertage der EZB (Frankfurt); daran hängt, welcher Tag „heute“ ist.
     public static let zeitzone = TimeZone(identifier: "Europe/Berlin")!
 
@@ -82,6 +88,8 @@ public struct EZBKurse: Sendable {
             let neu = try EZBKursdatei.lies(try await abruf(datei.url))
             var kurse = alt?.kurse ?? [:]
             kurse.merge(neu) { _, frisch in frisch }
+            let abJahr = Journaltag(jetzt(), zeitzone: Self.zeitzone).jahr - Self.aufbewahrenJahre
+            kurse = kurse.filter { $0.key.jahr >= abJahr }
             let inhalt = Kursspeicher.Inhalt(kurse: kurse, abgerufen: jetzt())
             do {
                 try speicher.schreibe(inhalt)

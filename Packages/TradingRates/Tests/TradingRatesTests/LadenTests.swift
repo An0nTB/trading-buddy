@@ -138,3 +138,16 @@ import TradingCore
     #expect(stand.fehler != nil)
     #expect(speicher.lies()?.kurse.count == 3)
 }
+
+@Test func alteJahreFallenWeg() async throws {
+    let speicher = neuerSpeicher()
+    let alt: Decimal = 1.1
+    try speicher.schreibe(Kursspeicher.Inhalt(kurse: [tag("2010-06-01"): ["USD": alt], tag("2016-06-01"): ["USD": alt]],
+                                              abgerufen: zeit("2016-06-01 17:00")))
+    let stand = await EZBKurse(speicher: speicher, abruf: AufgezeichneterAbruf(try fixture("ezb-hist")).abruf,
+                               jetzt: { zeit("2026-09-30 10:00") }).laden()
+    // 2026 minus 10: ab 2016 bleibt, 2010 fällt weg.
+    #expect(stand.kurse.kurse[tag("2016-06-01")] != nil)
+    #expect(stand.kurse.kurse[tag("2010-06-01")] == nil)
+    #expect(speicher.lies()?.kurse.count == 4)
+}
