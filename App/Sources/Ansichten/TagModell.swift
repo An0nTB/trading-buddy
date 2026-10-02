@@ -38,9 +38,10 @@ final class TagModell {
             || entwurf.verfassung != alt.verfassung
     }
 
+    /// Wechselt nur, wenn der Entwurf gespeichert ist; scheitert das Speichern, bleibt der Tag mit
+    /// Plan und Rückblick stehen und die Fehlermeldung erscheint (Codex-Review 02.10.2026).
     func wechsle(zu neu: Journaltag) {
-        guard neu != tag else { return }
-        sichere()
+        guard neu != tag, sichere() else { return }
         tag = neu
         laden()
     }
@@ -59,16 +60,20 @@ final class TagModell {
     }
 
     /// Speichert den Entwurf, wenn er sich geändert hat. Leere Felder entfernen die Notiz.
-    func sichere(jetzt: Date = Date()) {
-        guard ungesichert else { return }
+    /// `false`, wenn das Speichern gescheitert ist; der Entwurf bleibt dann unverändert.
+    @discardableResult
+    func sichere(jetzt: Date = Date()) -> Bool {
+        guard ungesichert else { return true }
         do {
             gespeichert = try ablage.speichereTagesnotiz(entwurf, jetzt: jetzt)
             // Nur die Zeitstempel übernehmen: der Nutzer tippt womöglich gerade weiter.
             entwurf.planErstellt = gespeichert?.planErstellt
             entwurf.erstellt = gespeichert?.erstellt ?? entwurf.erstellt
             entwurf.geaendert = gespeichert?.geaendert ?? entwurf.geaendert
+            return true
         } catch {
             fehler = error.localizedDescription
+            return false
         }
     }
 
