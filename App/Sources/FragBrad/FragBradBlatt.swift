@@ -8,15 +8,15 @@ import AppKit
 import UIKit
 #endif
 
-/// Blatt „Frag Brad“: Vorlage wählen, Frage prüfen, Claude Desktop mit vorbefülltem Eingabefeld öffnen
+/// Blatt „Frag Henry“: Vorlage wählen, Frage prüfen, Claude Desktop mit vorbefülltem Eingabefeld öffnen
 /// (Entscheidung Tim 02.10.2026, Doc 02 Zeile 44). Gesendet wird erst in Claude; das Gespräch liegt dort im Verlauf.
 struct FragBradBlatt: View {
     let anfrage: FragBradAnfrage
     @Environment(AppModell.self) private var modell
     @Environment(\.dismiss) private var schliessen
-    /// Ton-Schalter aus den Einstellungen (AP11, `Ton.swift`: Schlüssel `brad.ton`, Werte `bro` und `sachlich`,
-    /// Standard `bro`). Direkt gelesen, bis `Ton.aktuell` mit dem Brad-PR auf main ist.
-    @AppStorage("brad.ton") private var tonWert = "bro"
+    /// Ton-Schalter aus den Einstellungen (AP11, `Ton.swift`); nur „Sachlich“ lässt die Tonbitte weg,
+    /// jeder andere oder fehlende Wert ist der Standard „Henry“.
+    @AppStorage(Ton.schluessel) private var tonWert = ""
     @State private var vorlage: FragBradVorlage
     @State private var freieFrage = ""
     @State private var meldung: String?
@@ -32,18 +32,18 @@ struct FragBradBlatt: View {
 
     private var text: String? {
         FragBrad.text(vorlage, kontext: FragBradKontextAusModell.kontext(modell, trade: anfrage.trade, tag: anfrage.tag),
-                      freieFrage: freieFrage, ton: tonWert == "sachlich" ? .sachlich : .brad, zeitzone: modell.zeitzone)
+                      freieFrage: freieFrage, ton: Ton(rawValue: tonWert) == .sachlich ? .sachlich : .henry, zeitzone: modell.zeitzone)
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: Abstand.kachelAbstand) {
-            Text("Frag Brad").font(Schrift.titel)
+            Text("Frag Henry").font(Schrift.titel)
             Text(Self.erklaerung).font(.callout).foregroundStyle(.secondary)
             Picker("Frage", selection: $vorlage) {
                 ForEach(vorlagen) { Text($0.titel).tag($0) }
             }
             if vorlage == .frei {
-                TextField("Deine Frage an Brad", text: $freieFrage, axis: .vertical)
+                TextField("Deine Frage an Henry", text: $freieFrage, axis: .vertical)
                     .lineLimit(3...8)
             }
             vorschau
@@ -98,9 +98,9 @@ struct FragBradBlatt: View {
         }
     }
 
-    private static var erklaerung: LocalizedStringKey { "Brad öffnet Claude Desktop mit deiner Frage. Du schickst sie dort selbst ab, die Zahlen holt sich Claude über den Connector Trading Buddy. Im Link stehen nur Konto-Endziffern, Zeitraum und Instrument, keine Beträge und keine Notizen." }
+    private static var erklaerung: LocalizedStringKey { "Henry öffnet Claude Desktop mit deiner Frage. Du schickst sie dort selbst ab, die Zahlen holt sich Claude über den Connector. Im Link stehen nur Konto-Endziffern, Zeitraum und Instrument, keine Beträge und keine Notizen." }
     #else
-    private static var erklaerung: LocalizedStringKey { "Brad kopiert deine Frage. Füge sie am Mac in Claude Desktop ein: Nur dort liest Claude dein Journal über den Connector Trading Buddy." }
+    private static var erklaerung: LocalizedStringKey { "Henry kopiert deine Frage. Füge sie am Mac in Claude Desktop ein, nur dort liest Claude dein Journal." }
     #endif
 }
 
