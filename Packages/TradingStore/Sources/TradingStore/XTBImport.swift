@@ -22,12 +22,14 @@ extension Journal {
     ///   - kontonummer: nur nötig, wenn die Datei keine enthält; sonst muss sie zur Datei passen.
     ///   - kontowaehrung: nur nötig, wenn die Datei keine nennt (dann Vorgabe EUR); sonst wie oben.
     ///   - zeitzone: Zeitzone der Zeiten in der Datei; nicht belegt, Vorgabe deutsche Ortszeit.
+    ///   - produktartVorgabe: Art für Positionen, bei denen der Importer keine erkennt; wie bei `importiereCSV`.
     /// - Returns: Zähler für Positionen in `geschlosseneNeu`/`geschlosseneBekannt`, für Kassenoperationen
     ///   und Hinweise in `csv`.
     @discardableResult
     public func importiereXTB(datei: Data, dateiname: String, kontonummer: String? = nil,
                               kontoname: String? = nil, kontowaehrung: String? = nil,
                               zeitzone: TimeZone = TimeZone(identifier: "Europe/Berlin")!,
+                              produktartVorgabe: Produktart? = nil,
                               jetzt: Date = Date()) throws -> ImportErgebnis {
         let hash = Self.fingerabdruck(datei)
         if let bekannt = try lies({ try Importlauf.filter(Column("dateiHash") == hash).fetchOne($0) }) {
@@ -71,9 +73,11 @@ extension Journal {
             var ergebnis = ImportErgebnis(status: .gespeichert, importlaufId: laufId)
             var abweichend: [String] = []
 
-            for p in auszug.positionen {
-                if let alt = try GeschlossenZeile
-                    .filter(Column("kontoId") == kontoId && Column("ticket") == p.ticket).fetchOne(db) {
+            for var p in auszug.positionen {
+                let alt = try GeschlossenZeile
+                    .filter(Column("kontoId") == kontoId && Column("ticket") == p.ticket).fetchOne(db)
+                p.produktart = vorgegeben(p.produktart, gespeichert: alt?.produktart, produktartVorgabe)
+                if let alt {
                     var vergleich = try alt.modell()
                     let produktart = vereinteProduktart(vergleich.produktart, p.produktart)
                     vergleich.rohzeile = p.rohzeile
