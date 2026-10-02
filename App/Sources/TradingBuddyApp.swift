@@ -5,10 +5,20 @@ struct TradingBuddyApp: App {
     @State private var modell = AppModell()
 
     var body: some Scene {
+        #if os(macOS)
+        // Ein Hauptfenster mit fester Kennung: Sprünge aus abgetrennten Fenstern holen es nach vorn (Doc 27).
+        Window("Trading Buddy", id: FensterID.haupt) {
+            MitThema { Hauptfenster() }
+                .environment(modell)
+        }
+        .commands { FensterBefehle() } // P12 Eigene Fenster
+        #else
         WindowGroup {
             MitThema { Hauptfenster() }
                 .environment(modell)
         }
+        #endif
+        BereichFensterSzene(modell: modell) // P12 Eigene Fenster
         #if os(macOS)
         Settings {
             MitThema { EinstellungenView() }
