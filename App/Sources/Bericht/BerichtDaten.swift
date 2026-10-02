@@ -1,5 +1,6 @@
 import Foundation
 import TradingCore
+import TradingRates
 import TradingStore
 
 // Monatsbericht als PDF (Doc 18 F11, Doc 32, Entscheidung 47 vom 02.10.2026). Gerechnet wird in
@@ -20,6 +21,8 @@ struct BerichtKontext {
     var regelnHinterlegt: Bool
     /// Trade Republic und Scalable ja, MetaTrader, XTB und Krypto-Börsen nein, sonst unbekannt.
     var brokerFuehrtSteuerAb: Bool?
+    /// Letzter Tag mit EZB-Referenzkursen; `nil`, wenn keine geladen sind.
+    var ezbBis: Journaltag?
 
     /// Broker und höchstens die letzten vier Stellen der Kontonummer.
     static func kontoText(broker: String, kontonummer: String) -> String {
@@ -52,13 +55,13 @@ extension AppModell {
         guard let bericht = Monatsbericht(trades: alleTrades, jahr: jahr, monat: nummer, zeitzone: zeitzone,
                                           kontowaehrung: waehrung, regeln: regeln, manuell: manuellVerletzt,
                                           ziele: ziele, notizen: notizen, verpasst: verpasst,
-                                          geloeschteOrders: alleGeloeschten.map(\.cancelledAt))
+                                          geloeschteOrders: alleGeloeschten.map(\.cancelledAt), kurse: ezb.kurse)
         else { return nil }
         let kontoText = konto.map { BerichtKontext.kontoText(broker: $0.broker, kontonummer: $0.kontonummer) }
         let kontext = BerichtKontext(jahr: jahr, monat: nummer, monatsname: Format.monat(spanne.start),
                                      konto: kontoText ?? String(localized: "Ohne Konto"), waehrung: waehrung,
                                      zeitzone: zeitzone, erstellt: jetzt, regelnHinterlegt: !regeln.leer,
-                                     brokerFuehrtSteuerAb: brokerFuehrtSteuerAb)
+                                     brokerFuehrtSteuerAb: brokerFuehrtSteuerAb, ezbBis: ezb.letzterTag)
         return (bericht, kontext)
     }
 }
