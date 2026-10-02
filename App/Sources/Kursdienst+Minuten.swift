@@ -22,7 +22,7 @@ extension Kursdienst {
     func ladeMinutenkerzen(fuer trades: [Trade], jetzt: Date = Date()) async -> Minutenabruf {
         var ergebnis = Minutenabruf()
         guard aktiv else { return ergebnis }
-        let lader = Minutenkerzen.lader(schluessel: Schluesselbund())
+        let lader = Minutenkerzen.lader(schluessel: schluesselbund, abruf: abruf)
         var erster = true
         for trade in trades.sorted(by: { $0.openTime < $1.openTime }) {
             guard let ziel = zuordnung(fuer: trade.symbol).zuordnung.flatMap(Minutenlader.zuordnung(aus:)),
