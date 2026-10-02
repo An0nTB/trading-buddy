@@ -300,6 +300,9 @@ struct KurseEinstellungen: View {
     @State private var hinterlegt = Schluesselbund.vorhanden()
     @State private var meldung: String?
     @State private var zuordnungenZeigen = false
+    @State private var marketauxToken = ""
+    @State private var marketauxHinterlegt = Schluesselbund.textVorhanden(dienst: Schluesselbund.dienstMarketaux)
+    @State private var marketauxMeldung: String?
 
     var body: some View {
         let kurse = modell.kurse
@@ -336,7 +339,29 @@ struct KurseEinstellungen: View {
                     .font(Schrift.beschriftung)
                     .foregroundStyle(thema.textSchwach)
             }
-            Text("Der Schlüssel liegt nur im Schlüsselbund dieses Geräts, nie in einer Datei oder im Export. Einen Schlüssel bekommst du im Alpaca-Konto unter „API Keys“; ein Paper-Konto reicht für Kurse.")
+            Text("Der Schlüssel liegt nur im Schlüsselbund dieses Geräts, nie in einer Datei oder im Export. Einen Schlüssel bekommst du im Alpaca-Konto unter „API Keys“; ein Paper-Konto reicht für Kurse. Derselbe Schlüssel holt auch die Firmen-Nachrichten (Alpaca News).")
+                .font(Schrift.beschriftung)
+                .foregroundStyle(thema.textSchwach)
+        }
+        Section("Marketaux (Nachrichten zur Merkliste)") {
+            LabeledContent("Stand") {
+                Text(verbatim: marketauxHinterlegt ? String(localized: "Token im Schlüsselbund hinterlegt") : String(localized: "kein Token"))
+                    .foregroundStyle(thema.textSchwach)
+            }
+            SecureField("API-Token", text: $marketauxToken)
+            HStack {
+                Button("Im Schlüsselbund speichern", action: marketauxSpeichern)
+                    .disabled(marketauxToken.trimmingCharacters(in: .whitespaces).isEmpty)
+                if marketauxHinterlegt {
+                    Button("Entfernen", role: .destructive, action: marketauxEntfernen)
+                }
+            }
+            if let marketauxMeldung {
+                Text(verbatim: marketauxMeldung)
+                    .font(Schrift.beschriftung)
+                    .foregroundStyle(thema.textSchwach)
+            }
+            Text("Gratis-Konto mit 100 Abrufen am Tag, je Abruf drei Artikel. Die App zählt die Abrufe mit und hört bei der Grenze auf. Ohne Token laufen nur die deutschen RSS-Quellen und Alpaca News.")
                 .font(Schrift.beschriftung)
                 .foregroundStyle(thema.textSchwach)
         }
@@ -361,6 +386,7 @@ struct KurseEinstellungen: View {
             hinterlegt = true
             meldung = String(localized: "Gespeichert. Alpaca verbindet sich neu.")
             modell.kurse.neustart()
+            modell.nachrichten.neustart()
         } catch let fehler as Schluesselbund.Fehler {
             meldung = fehler.text
         } catch {
@@ -374,10 +400,39 @@ struct KurseEinstellungen: View {
             hinterlegt = false
             meldung = String(localized: "Entfernt.")
             modell.kurse.neustart()
+            modell.nachrichten.neustart()
         } catch let fehler as Schluesselbund.Fehler {
             meldung = fehler.text
         } catch {
             meldung = error.localizedDescription
+        }
+    }
+
+    private func marketauxSpeichern() {
+        do {
+            try Schluesselbund.speichereText(marketauxToken.trimmingCharacters(in: .whitespaces),
+                                             dienst: Schluesselbund.dienstMarketaux)
+            marketauxToken = ""
+            marketauxHinterlegt = true
+            marketauxMeldung = String(localized: "Gespeichert. Marketaux wird beim nächsten Abruf genutzt.")
+            modell.nachrichten.neustart()
+        } catch let fehler as Schluesselbund.Fehler {
+            marketauxMeldung = fehler.text
+        } catch {
+            marketauxMeldung = error.localizedDescription
+        }
+    }
+
+    private func marketauxEntfernen() {
+        do {
+            try Schluesselbund.loescheText(dienst: Schluesselbund.dienstMarketaux)
+            marketauxHinterlegt = false
+            marketauxMeldung = String(localized: "Entfernt.")
+            modell.nachrichten.neustart()
+        } catch let fehler as Schluesselbund.Fehler {
+            marketauxMeldung = fehler.text
+        } catch {
+            marketauxMeldung = error.localizedDescription
         }
     }
 }
