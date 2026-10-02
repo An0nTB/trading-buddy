@@ -170,6 +170,7 @@ extension Journal {
     public static let binanceImporter = "Binance-CSV"
     public static let coinbaseImporter = "Coinbase-CSV"
     public static let bitpandaImporter = "Bitpanda-CSV"
+    public static let ibkrImporter = "IBKR-CSV"
 
     /// Liest einen CSV-Export von Trade Republic, Scalable, Kraken, Binance, Coinbase oder Bitpanda und
     /// speichert ihn.
@@ -181,7 +182,9 @@ extension Journal {
     /// Semikolon) verschieden aussieht. Weicht ein Wert ab, bricht der ganze Import ab.
     /// - Parameters:
     ///   - kontonummer: steht nicht in der Datei; die App fragt sie ab oder nimmt eine feste Bezeichnung.
-    ///   - kontowaehrung: Vorgabe EUR (Entscheidung 16).
+    ///     Ausnahme Interactive Brokers: Nennt der Auszug ein Konto, gilt das.
+    ///   - kontowaehrung: Vorgabe EUR (Entscheidung 16); bei Interactive Brokers gilt die Basiswährung
+    ///     des Auszugs, wenn er eine nennt.
     ///   - zeitzone: nur für Scalable (deutsche Ortszeit); Trade Republic und die Kryptobörsen schreiben UTC
     ///     oder Zeiten mit Versatz.
     ///   - produktartVorgabe: Art für Ausführungen, bei denen der Importer keine erkennt (`.unbekannt`, etwa
@@ -200,6 +203,7 @@ extension Journal {
         guard let text = String(data: datei, encoding: .utf8) else { throw SpeicherFehler.keinText }
 
         let broker: String, importer: String, quellzeit: TimeZone, bewegungen: Kontobewegungen
+        var nummer = kontonummer, waehrung = kontowaehrung
         if TradeRepublicCSV.erkennt(text) {
             broker = "Trade Republic"
             importer = Self.tradeRepublicImporter
@@ -230,6 +234,15 @@ extension Journal {
             importer = Self.bitpandaImporter
             quellzeit = TimeZone(secondsFromGMT: 0)!
             bewegungen = try BitpandaCSV.lies(text)
+        } else if IBKRCSV.erkennt(text) {
+            broker = "Interactive Brokers"
+            importer = Self.ibkrImporter
+            // Ausführungszeiten laut Importer in US-Ostküstenzeit (Annahme, Doc 48).
+            quellzeit = TimeZone(identifier: "America/New_York")!
+            bewegungen = try IBKRCSV.lies(text, zeitzone: quellzeit)
+            let ausDatei = IBKRCSV.konto(text)
+            if let n = ausDatei.nummer, !n.isEmpty { nummer = n }
+            if let w = ausDatei.waehrung, !w.isEmpty { waehrung = w }
         } else {
             throw CSVImportFehler.unbekanntesFormat(kopf: CSVTabelle(text: text).kopf)
         }
@@ -241,13 +254,14 @@ extension Journal {
         }
         let zeiten = bewegungen.ausfuehrungen.map(\.zeit) + bewegungen.geldbewegungen.map(\.zeit)
             + bewegungen.kapitalmassnahmen.map(\.zeit)
+        let kontoNummer = nummer, kontoWaehrung = waehrung
 
         return try schreibe { db in
             if let bekannt = try Importlauf.filter(Column("dateiHash") == hash).fetchOne(db) {
                 return ImportErgebnis(status: .dateiBereitsImportiert, importlaufId: bekannt.id!)
             }
-            let konto = try Self.konto(db, broker: broker, nummer: kontonummer,
-                                       name: kontoname ?? kontonummer, waehrung: kontowaehrung)
+            let konto = try Self.konto(db, broker: broker, nummer: kontoNummer,
+                                       name: kontoname ?? kontoNummer, waehrung: kontoWaehrung)
             let kontoId = konto.id!
             var lauf = Importlauf(id: nil, kontoId: kontoId, importer: importer,
                                   importerVersion: TradingCore.version, dateiname: dateiname,

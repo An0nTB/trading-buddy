@@ -10,7 +10,9 @@ struct TagAuswertungen: View {
     var body: some View {
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 320), spacing: Abstand.kachelAbstand, alignment: .top)],
                   alignment: .leading, spacing: Abstand.kachelAbstand) {
-            PlanwirkungKarte(wirkung: tagModell.planwirkung(modell.alleTrades), waehrung: modell.waehrung)
+            // In Kontowährung angeglichen wie Übersicht und Bericht, nicht roh (dritter Gegencheck G11).
+            PlanwirkungKarte(wirkung: tagModell.planwirkung(modell.angleich.trades), waehrung: modell.waehrung,
+                             ohneKurs: modell.angleich.ohneKurs.count)
             VerpassteAuswertungKarte(auswertung: tagModell.verpassteAuswertung,
                                      monat: tagModell.tag.beginn(in: tagModell.zeitzone))
         }
@@ -21,6 +23,8 @@ struct TagAuswertungen: View {
 struct PlanwirkungKarte: View {
     let wirkung: Planwirkung?
     let waehrung: String
+    /// Trades in Fremdwährung ohne EZB-Kurs; sie fehlen in beiden Seiten.
+    var ohneKurs = 0
     @Environment(\.thema) private var thema
 
     var body: some View {
@@ -37,6 +41,11 @@ struct PlanwirkungKarte: View {
                 }
                 if wirkung.tageUnklar > 0 {
                     Text(verbatim: unklarText(wirkung.tageUnklar))
+                        .font(Schrift.beschriftung)
+                        .foregroundStyle(thema.textSchwach)
+                }
+                if ohneKurs > 0 {
+                    Text("Ohne EZB-Kurs nicht enthalten: \(ohneKurs) Trades in Fremdwährung.")
                         .font(Schrift.beschriftung)
                         .foregroundStyle(thema.textSchwach)
                 }
