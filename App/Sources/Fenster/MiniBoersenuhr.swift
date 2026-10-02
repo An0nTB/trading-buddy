@@ -52,7 +52,7 @@ private struct MiniBoersenZeile: View {
             wechsel
         }
         .font(Schrift.tabelle)
-        .help(status.feiertag ?? status.verkuerzt ?? "")
+        .help((status.feiertag ?? status.verkuerzt)?.uebersetzt ?? "")
     }
 
     @ViewBuilder

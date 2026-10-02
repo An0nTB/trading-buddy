@@ -56,7 +56,7 @@ struct KalenderView: View {
         LazyVGrid(columns: Raster.kacheln, spacing: Abstand.kachelAbstand) {
             Kachel(titel: "Nächster Termin",
                    wert: kommende.first.map(Terminformat.institution) ?? "–",
-                   zusatz: kommende.first.map { "\($0.titel) · \(Terminformat.wann($0, ab: jetzt))" }
+                   zusatz: kommende.first.map { "\($0.titel.uebersetzt) · \(Terminformat.wann($0, ab: jetzt))" }
                        ?? String(localized: "keiner in den Daten"))
             Kachel(titel: "Nächste 7 Tage",
                    wert: String(inWoche.count),
@@ -177,7 +177,7 @@ struct TerminZeile: View {
                 .foregroundStyle(termin.ganztaegig && !kompakt ? thema.textSchwach : thema.text)
                 .frame(width: kompakt ? 92 : 68, alignment: .leading)
             VStack(alignment: .leading, spacing: Abstand.raster / 2) {
-                Text(verbatim: termin.titel)
+                Text(verbatim: termin.titel.uebersetzt)
                     .font(Schrift.fliesstext)
                     .foregroundStyle(thema.text)
                 Text(verbatim: untertitel)
@@ -208,7 +208,7 @@ struct TerminZeile: View {
                          : Format.uhrzeit(termin.beginn))
         }
         teile.append(Terminformat.ort(termin))
-        if let hinweis = termin.hinweis { teile.append(hinweis) }
+        if let hinweis = termin.hinweis { teile.append(hinweis.uebersetzt) }
         return teile.joined(separator: " · ")
     }
 }
@@ -466,7 +466,7 @@ enum Terminformat {
         let zeit = erster.ganztaegig
             ? tagesdatum(erster).formatted(.dateTime.day(.twoDigits).month(.twoDigits))
             : Format.zeit(erster.beginn)
-        let text = "\(erster.titel) \(zeit)"
+        let text = "\(erster.titel.uebersetzt) \(zeit)"
         return termine.count > 1 ? "\(text) +\(termine.count - 1)" : text
     }
 }
