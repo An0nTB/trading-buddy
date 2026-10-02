@@ -71,7 +71,7 @@ struct BerichtKopf: View {
                     .font(BerichtSchrift.titel)
                     .foregroundStyle(thema.text)
                 Spacer()
-                Text(verbatim: "Brad")
+                Text(verbatim: "Henry")
                     .font(BerichtSchrift.abschnitt)
                     .foregroundStyle(thema.akzent)
             }
@@ -249,7 +249,8 @@ struct BerichtTradeliste: View {
                     Spacer(minLength: Abstand.raster)
                     Text(verbatim: Format.r(trade.rMultiple))
                         .foregroundStyle(thema.textSchwach)
-                    Text(verbatim: Format.geld(trade.netProfit, waehrung))
+                    // Einzelbetrag in der Währung des Trades (z. B. USD bei BTC/USD), nie mit dem Zeichen der Kontowährung.
+                    Text(verbatim: Format.geld(trade.netProfit, trade.waehrung(kontowaehrung: waehrung)))
                         .foregroundStyle(thema.vorzeichen(trade.netProfit))
                 }
                 .font(BerichtSchrift.tabelle)

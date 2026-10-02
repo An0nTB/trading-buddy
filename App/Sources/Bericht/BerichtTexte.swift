@@ -2,7 +2,7 @@ import Foundation
 import TradingCore
 
 // Namen für den Monatsbericht. Alles sachlich (Doc 02 Zeile 43): Zahlen, Steuer und Regelverstöße
-// bekommen keinen Brad-Ton.
+// bekommen keinen Henry-Ton (Entscheidung 49).
 
 extension Regelverstoss.Art {
     var berichtTitel: String {
