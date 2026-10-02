@@ -48,16 +48,21 @@ final class Termindienst {
         }
     }
 
+    /// Arten, die als „über Termin gehalten“ zählen. Bankfeiertage (rund 40 im Jahr) bleiben außen vor
+    /// (Gesamt-Review C1, Standardwert 02.10.2026); wer sie mitzählen will, ergänzt hier `.feiertag`.
+    static let ueberTerminArten: Set<Terminart> = [.zinsentscheid, .arbeitsmarkt, .inflation]
+
     /// Termine in der Haltezeit eines Trades, die die Währungen seines Symbols betreffen; leer ohne Währung.
     func termine(fuer trade: Trade) -> [Termin] {
         guard let kalender else { return [] }
         let waehrungen = Terminkalender.waehrungen(symbol: trade.symbol)
         guard !waehrungen.isEmpty else { return [] }
-        return kalender.termine(von: trade.openTime, bis: trade.closeTime, waehrungen: waehrungen)
+        return kalender.termine(von: trade.openTime, bis: trade.closeTime, waehrungen: waehrungen,
+                                arten: Termindienst.ueberTerminArten)
     }
 
-    /// Ist die Haltezeit für alle Terminarten erfasst? Sonst sagt „kein Termin“ nichts.
+    /// Ist die Haltezeit für die gezählten Terminarten erfasst? Sonst sagt „kein Termin“ nichts.
     func abgedeckt(_ trade: Trade) -> Bool {
-        kalender?.abgedeckt(von: trade.openTime, bis: trade.closeTime) ?? false
+        kalender?.abgedeckt(von: trade.openTime, bis: trade.closeTime, arten: Termindienst.ueberTerminArten) ?? false
     }
 }
