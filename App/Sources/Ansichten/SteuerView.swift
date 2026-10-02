@@ -66,6 +66,10 @@ struct SteuerView: View {
         } else {
             teile.append(String(localized: "EZB-Referenzkurse noch nicht geladen; Beträge in Fremdwährung bleiben Lücke"))
         }
+        let fremde = modell.fremdwaehrungen.joined(separator: ", ")
+        if !fremde.isEmpty {
+            teile.append(String(localized: "Trades in \(fremde) zum EZB-Kurs des Verkaufstags in Euro umgerechnet"))
+        }
         if modell.hatKrypto, EZBKurse.istNaeherung("USDT") {
             teile.append(String(localized: "USDT wie USD umgerechnet (Näherung)"))
         }
