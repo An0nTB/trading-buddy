@@ -4,13 +4,15 @@ import Foundation
 /// der Connector liest sie und rechnet mit demselben Rechenkern.
 /// Enthält je Konto die abgeschlossenen Trades, die Zeitpunkte gelöschter Orders und die
 /// eigenen Journalangaben je Trade, die Ziele früherer Reviews und die eigenen Handelsregeln, dazu Tagesnotizen
-/// und verpasste Trades, auf Wunsch Überschriften der Nachrichten und Tageskerzen geladener Kurse; keine Rohzeilen,
-/// keine Kontonamen und keine Bilder.
+/// und verpasste Trades, auf Wunsch Überschriften der Nachrichten und Tageskerzen geladener Kurse, dazu die
+/// EZB-Referenzkurse für die Umrechnung in die Kontowährung; keine Rohzeilen, keine Kontonamen und keine Bilder.
 public struct JournalExport: Sendable, Equatable, Codable {
     public static let dateiname = "trading-buddy-export.json"
     /// Erhöhen, wenn ein älterer Connector den neuen Aufbau falsch lesen würde.
     /// Neue, freiwillige Felder (etwa `journal`, `ziele`) erhöhen es nicht: Ältere Connectoren übergehen sie.
-    public static let aktuellesFormat = 1
+    /// 2 seit `Trade.waehrung` (Rechenkern 0.17.0): Ein Connector vor 0.8.0 zählte USD-Beträge still als Kontowährung
+    /// (Zweiter Gegencheck W4); er meldet jetzt „neueres Format“ statt falsch zu rechnen.
+    public static let aktuellesFormat = 2
 
     public var format: Int
     public var erstellt: Date
@@ -36,6 +38,9 @@ public struct JournalExport: Sendable, Equatable, Codable {
     public var nachrichten: [Meldung]?
     /// Tageskerzen geladener Werte, nach Symbol; fehlt ohne Kursverlauf in der App (Doc 38).
     public var kursverlauf: [Kursreihe]?
+    /// EZB-Referenzkurse der Tage, an denen Trades in fremder Währung schlossen, nach Tag; nur Währungen dieser Trades.
+    /// Fehlt ohne Fremdwährung oder ohne geladene Kurse; dann rechnet der Connector je Währung getrennt.
+    public var referenzkurse: [Tageskurse]?
 
     public struct Kontodaten: Sendable, Equatable, Codable {
         public var broker: String
@@ -111,7 +116,7 @@ public struct JournalExport: Sendable, Equatable, Codable {
 
     public init(konten: [Kontodaten], zeitzone: TimeZone, erstellt: Date = .now, ton: String? = nil,
                 tagesnotizen: [Notiz] = [], verpassteTrades: [Verpasst] = [], nachrichten: [Meldung] = [],
-                kursverlauf: [Kursreihe] = []) {
+                kursverlauf: [Kursreihe] = [], referenzkurse: [Tageskurse] = []) {
         format = Self.aktuellesFormat
         self.erstellt = erstellt
         rechenkern = TradingCore.version
@@ -126,6 +131,7 @@ public struct JournalExport: Sendable, Equatable, Codable {
         let reihen = kursverlauf.filter { !$0.kerzen.isEmpty }.sorted { $0.symbol < $1.symbol }
             .prefix(Self.kursreihenHoechstens)
         self.kursverlauf = reihen.isEmpty ? nil : Array(reihen)
+        self.referenzkurse = referenzkurse.isEmpty ? nil : referenzkurse.sorted { $0.tag < $1.tag }
     }
 
     /// Zeitzone des Nutzers; UTC, falls der Name unbekannt ist.
