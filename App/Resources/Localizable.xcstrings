@@ -164,6 +164,16 @@
         }
       }
     },
+    "„Bis“ liegt vor „Von“." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“To” is before “From”."
+          }
+        }
+      }
+    },
     "„Henry“ spricht Begrüßung, leere Seiten und Erfolgsmeldungen ruhig und trocken, „Sachlich“ nüchtern. Zahlen, Steuer, Regelverstöße, Warnungen und Fehler bleiben in beiden Stellungen sachlich; der Export für den Claude-Connector trägt die Einstellung mit." : {
       "localizations" : {
         "en" : {
@@ -2692,6 +2702,16 @@
         }
       }
     },
+    "Beide Tage zählen mit. Ein Trade zählt zum Tag, an dem er geschlossen wurde. Verglichen wird mit dem gleich langen Zeitraum davor." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Both days count. A trade counts towards the day on which it was closed. The comparison is with the period of equal length before."
+          }
+        }
+      }
+    },
     "Beispiele, Beobachtungen" : {
       "localizations" : {
         "en" : {
@@ -2768,6 +2788,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Report as PDF"
+          }
+        }
+      }
+    },
+    "Bericht für Zeitraum" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Report for period"
           }
         }
       }
@@ -2954,6 +2984,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Binance transaction history: the app does not read it, please export the trade history."
+          }
+        }
+      }
+    },
+    "Bis" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To"
           }
         }
       }
@@ -11555,6 +11595,16 @@
         }
       }
     },
+    "PDF erstellen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create PDF"
+          }
+        }
+      }
+    },
     "Pending gelöscht" : {
       "localizations" : {
         "en" : {
@@ -15791,6 +15841,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Period"
+          }
+        }
+      }
+    },
+    "Zeitraum …" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Period …"
           }
         }
       }
