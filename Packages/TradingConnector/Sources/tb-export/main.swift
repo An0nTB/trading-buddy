@@ -3,12 +3,14 @@ import TradingCore
 
 // Baut die Exportdatei für den Connector aus MetaTrader-4-Auszügen, ohne App.
 // Zum Testen des Connectors, solange die App die Datei noch nicht schreibt.
-// Aufruf: tb-export --ziel <Ordner> [--waehrung EUR] [--serverzeit 3] Auszug.html …
+// Aufruf: tb-export --ziel <Ordner> [--waehrung EUR] [--serverzeit 3] [--trades-je-tag 3] Auszug.html …
+// `--trades-je-tag` setzt eine eigene Handelsregel für alle Konten, damit CI den Regelabschnitt prüft.
 // Trades aus Tages- und Monatsauszügen zählen einmal (Konto plus Ticket, wie im Journal).
 
 var zielOrdner: String?
 var waehrung = "EUR"
 var serverzeit = 3
+var tradesJeTag: Int?
 var dateien: [String] = []
 var argumente = CommandLine.arguments.dropFirst().makeIterator()
 while let arg = argumente.next() {
@@ -16,6 +18,7 @@ while let arg = argumente.next() {
     case "--ziel": zielOrdner = argumente.next()
     case "--waehrung": waehrung = argumente.next() ?? waehrung
     case "--serverzeit": serverzeit = argumente.next().flatMap { Int($0) } ?? serverzeit
+    case "--trades-je-tag": tradesJeTag = argumente.next().flatMap { Int($0) }
     default: dateien.append(arg)
     }
 }
@@ -43,7 +46,8 @@ do {
             let k = konten[schluessel]!
             return .init(broker: k.broker, kontonummer: k.nummer, waehrung: waehrung,
                          trades: k.daten.trades.values.sorted { ($0.closeTime, $0.id) < ($1.closeTime, $1.id) },
-                         geloeschteOrders: k.daten.geloescht.values.sorted())
+                         geloeschteOrders: k.daten.geloescht.values.sorted(),
+                         regeln: Handelsregeln(maxTradesJeTag: tradesJeTag))
         },
         zeitzone: .current)
     let pfad = URL(filePath: ziel, directoryHint: .isDirectory).appending(path: JournalExport.dateiname)

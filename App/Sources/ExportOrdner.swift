@@ -30,7 +30,8 @@ enum ExportOrdner {
     }
 
     /// Exportdatei für den Connector aus allen Konten des Journals, mit dem Stop aus dem Journal
-    /// wie in der App (`Trade.mitJournal`), den übrigen Journalangaben und den Review-Zielen. Ohne Kontonamen und Rohzeilen;
+    /// wie in der App (`Trade.mitJournal`), den übrigen Journalangaben, den Review-Zielen, den Handelsregeln,
+    /// den Tagesnotizen und den verpassten Trades. Ohne Kontonamen und Rohzeilen;
     /// von der Kontonummer nur die letzten vier Stellen, damit Claude die Konten unterscheiden kann
     /// (mehr nur, wenn zwei Konten desselben Brokers auf dieselben vier Stellen enden).
     static func export(_ journal: Journal, zeitzone: TimeZone) throws -> JournalExport {
@@ -44,11 +45,18 @@ enum ExportOrdner {
                 trades: try Self.trades(journal, konto).map { $0.mitJournal(eintraege[$0.id]) },
                 geloeschteOrders: try journal.geloeschteOrders(konto: konto).map(\.cancelledAt),
                 journal: eintraege.mapValues(\.angaben),
-                ziele: try journal.ziele(konto: konto))
+                ziele: try journal.ziele(konto: konto),
+                regeln: try journal.handelsregeln(konto: konto))
         }
         // Tonfall aus den Einstellungen (AP11, Schlüssel „brad.ton“); ohne Wahl gilt in der App „bro“.
         let ton = UserDefaults.standard.string(forKey: "brad.ton") ?? JournalExport.tonBro
-        return JournalExport(konten: konten, zeitzone: zeitzone, ton: ton)
+        // Tagesnotizen und verpasste Trades gelten für alle Konten; Bilder bleiben auf dem Mac.
+        let notizen = try journal.tagesnotizen(von: Journaltag(jahr: 1970, monat: 1, tag: 1)!,
+                                               bis: Journaltag(jahr: 2999, monat: 12, tag: 31)!)
+        let verpasst = try journal.verpassteTrades(von: .distantPast, bis: .distantFuture)
+        return JournalExport(konten: konten, zeitzone: zeitzone, ton: ton,
+                             tagesnotizen: notizen.map(JournalExport.Notiz.init),
+                             verpassteTrades: verpasst.map(JournalExport.Verpasst.init))
     }
 
     /// Abgeschlossene Trades eines Kontos wie in der App: Positionen aus MetaTrader und XTB,
