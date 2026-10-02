@@ -79,3 +79,16 @@ private func produktDatei(_ pfad: String) throws -> String {
     #expect(trade?.produktart == .fonds)
     #expect(trade?.netProfit == 2)
 }
+
+@Test func produktartImExportNurWennBekannt() throws {
+    let start = Date(timeIntervalSince1970: 1_767_225_600)
+    let krypto = Trade(id: "1", symbol: "BTC", side: .buy, lots: 1, openTime: start, closeTime: start,
+                       openPrice: 1, closePrice: 2, profit: 1, produktart: .krypto)
+    var ohne = krypto
+    ohne.id = "2"
+    ohne.produktart = .unbekannt
+    let daten = try JSONEncoder().encode([krypto, ohne])
+    let text = String(decoding: daten, as: UTF8.self)
+    #expect(text.components(separatedBy: "produktart").count == 2)
+    #expect(try JSONDecoder().decode([Trade].self, from: daten) == [krypto, ohne])
+}
