@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "trading-buddy",
   "display_name": "Brad",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Brad kennt deine Zahlen. Kennzahlen, Fehlermuster und Wochen- oder Monatsauswertung aus deinem Journal. Nur lesend, die Daten bleiben auf deinem Mac.",
   "author": {
     "name": "Tim Bock"
@@ -38,6 +38,10 @@
     {
       "name": "hole_notizen",
       "description": "Tagesnotizen und verpasste Trades im Wortlaut."
+    },
+    {
+      "name": "hole_nachrichten",
+      "description": "Überschriften der Nachrichten zur Merkliste und zum Markt mit Quelle und Link."
     }
   ],
   "prompts_generated": true,
