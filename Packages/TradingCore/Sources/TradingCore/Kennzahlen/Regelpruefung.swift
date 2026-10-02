@@ -7,12 +7,22 @@ import Foundation
 /// Ein Trade kann mehrere Regeln zugleich verletzen. Teilverkäufe einer Position zählen bei
 /// „Trades je Tag“ und „Verluste in Folge“ als ein Trade (`positionsschluessel`).
 public enum Regelpruefung {
-    public static func pruefe(_ trades: [Trade], regeln: Handelsregeln, zeitzone: TimeZone,
+    /// Prüft alle Trades eines Währungsangleichs: auch die ohne Kurs, deren Beträge aber nicht (G1).
+    public static func pruefe(_ angleich: Waehrungsangleich, regeln: Handelsregeln, zeitzone: TimeZone,
                               manuell: Set<String> = []) -> [Regelverstoss] {
+        pruefe(angleich.trades + angleich.ohneKurs, regeln: regeln, zeitzone: zeitzone, manuell: manuell,
+               ohneBetrag: angleich.ohneKursIDs)
+    }
+
+    /// - Parameter ohneBetrag: Trades, deren Beträge nicht in Kontowährung vorliegen (`Waehrungsangleich.ohneKurs`).
+    ///   Sie zählen für „Trades je Tag“, „Verluste in Folge“ und „manuell“, nicht für Tagesverlust und Risiko
+    ///   (Dritter Gegencheck G1, Doc 49).
+    public static func pruefe(_ trades: [Trade], regeln: Handelsregeln, zeitzone: TimeZone,
+                              manuell: Set<String> = [], ohneBetrag: Set<String> = []) -> [Regelverstoss] {
         var kalender = Calendar(identifier: .gregorian)
         kalender.timeZone = zeitzone
         let nachEroeffnung = trades.sorted { ($0.openTime, $0.id) < ($1.openTime, $1.id) }
-        let jeTag = Dictionary(grouping: nachEroeffnung) { kalender.startOfDay(for: $0.openTime) }
+        let jeTag = Dictionary(grouping: nachEroeffnung) { $0.eroeffnungstag(kalender) }
         let geschlossenJeTag = schlussJeTag(trades, kalender: kalender)
         var verstoesse: [Regelverstoss] = []
 
@@ -26,13 +36,14 @@ public enum Regelpruefung {
                 let vorher = geschlossenVor(t, in: geschlossenJeTag[tag] ?? [], kalender: kalender)
                 if let max = regeln.maxTradesJeTag, nummer >= max { arten.append(.tradesJeTag) }
                 if let max = regeln.maxTagesverlust {
-                    let netto = vorher.map(\.netProfit).reduce(0, +)
+                    let netto = vorher.filter { !ohneBetrag.contains($0.id) }.map(\.netProfit).reduce(0, +)
                     if netto <= -max { arten.append(.tagesverlust) }
                 }
                 if let n = regeln.stoppNachVerlusten, n > 0, verlusteInFolge(vorher) >= n {
                     arten.append(.stoppNachVerlusten)
                 }
-                if let max = regeln.maxRisikoJeTrade, (t.risk ?? 0) > max || t.netProfit < -max {
+                if let max = regeln.maxRisikoJeTrade, !ohneBetrag.contains(t.id),
+                   (t.risk ?? 0) > max || t.netProfit < -max {
                     arten.append(.risikoJeTrade)
                 }
                 if manuell.contains(t.id) { arten.append(.manuell) }
@@ -52,20 +63,29 @@ public enum Regelpruefung {
         public var verstoesse: Int
     }
 
+    /// Tagesstände über alle Trades eines Währungsangleichs; Netto ohne die Trades ohne Kurs (G1).
+    public static func tagesstaende(_ angleich: Waehrungsangleich, regeln: Handelsregeln, zeitzone: TimeZone,
+                                    manuell: Set<String> = []) -> [Tagesstand] {
+        tagesstaende(angleich.trades + angleich.ohneKurs, regeln: regeln, zeitzone: zeitzone, manuell: manuell,
+                     ohneBetrag: angleich.ohneKursIDs)
+    }
+
     /// Tagesstand je Handelstag, sortiert nach Tag. Trades zählen am Tag der Eröffnung,
     /// Netto und Verluste in Folge am Tag des Schlusses (realisiert, auch aus Übernacht-Positionen).
+    /// `ohneBetrag` wie bei `pruefe`.
     public static func tagesstaende(_ trades: [Trade], regeln: Handelsregeln, zeitzone: TimeZone,
-                                    manuell: Set<String> = []) -> [Tagesstand] {
+                                    manuell: Set<String> = [], ohneBetrag: Set<String> = []) -> [Tagesstand] {
         var kalender = Calendar(identifier: .gregorian)
         kalender.timeZone = zeitzone
-        let verstoesse = pruefe(trades, regeln: regeln, zeitzone: zeitzone, manuell: manuell)
-        let jeTag = Dictionary(grouping: trades) { kalender.startOfDay(for: $0.openTime) }
+        let verstoesse = pruefe(trades, regeln: regeln, zeitzone: zeitzone, manuell: manuell, ohneBetrag: ohneBetrag)
+        let jeTag = Dictionary(grouping: trades) { $0.eroeffnungstag(kalender) }
         let geschlossenJeTag = schlussJeTag(trades, kalender: kalender)
         return Set(jeTag.keys).union(geschlossenJeTag.keys).sorted().map { tag in
             let nachSchluss = geschlossenJeTag[tag] ?? []
             let betroffen = Set(verstoesse.filter { $0.tag == tag }.map(\.trade))
             let eroeffnungen = Set((jeTag[tag] ?? []).map(\.positionsschluessel)).count
-            return Tagesstand(tag: tag, trades: eroeffnungen, netto: nachSchluss.map(\.netProfit).reduce(0, +),
+            let netto = nachSchluss.filter { !ohneBetrag.contains($0.id) }.map(\.netProfit).reduce(0, +)
+            return Tagesstand(tag: tag, trades: eroeffnungen, netto: netto,
                               verlusteInFolge: verlusteInFolge(nachSchluss), verstoesse: betroffen.count)
         }
     }
@@ -73,7 +93,7 @@ public enum Regelpruefung {
     /// Trades je Kalendertag des Schlusses, nach Schlusszeit.
     static func schlussJeTag(_ trades: [Trade], kalender: Calendar) -> [Date: [Trade]] {
         let nachSchluss = trades.sorted { ($0.closeTime, $0.id) < ($1.closeTime, $1.id) }
-        return Dictionary(grouping: nachSchluss) { kalender.startOfDay(for: $0.closeTime) }
+        return Dictionary(grouping: nachSchluss) { $0.schlusstag(kalender) }
     }
 
     /// Trades, die am Tag von `t` sicher vor seiner Eröffnung geschlossen wurden, gleich wann eröffnet;

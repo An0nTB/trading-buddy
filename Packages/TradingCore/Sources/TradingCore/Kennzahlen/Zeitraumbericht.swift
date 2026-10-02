@@ -56,14 +56,17 @@ public struct Zeitraumbericht: Sendable {
                 geloeschteOrders: [Date] = [], kurse: Referenzkurse? = nil, musterAnzahl: Int = 3,
                 topAnzahl: Int = 3) {
         self.zeitraum = zeitraum
-        let angleich = Waehrungsangleich(trades, kontowaehrung: kontowaehrung, kurse: kurse, zeitzone: zeitzone)
+        // Kurstag in deutscher Zeit wie überall (G6); die Zeitzone des Nutzers gilt nur für Tage und Regeln.
+        let angleich = Waehrungsangleich(trades, kontowaehrung: kontowaehrung, kurse: kurse)
         let alle = angleich.trades
         auswertung = Auswertung(trades: alle, geloeschteOrders: geloeschteOrders, zeitraum: zeitraum,
                                 zeitzone: zeitzone)
         let imZeitraum = auswertung.trades
-        let ids = Set(imZeitraum.map(\.id))
+        let ohneKursImZeitraum = angleich.ohneKurs.filter { zeitraum.enthaelt($0.closeTime) }
         tage = Self.tage(imZeitraum, zeitzone: zeitzone)
-        regelverstoesse = Regelpruefung.pruefe(alle, regeln: regeln, zeitzone: zeitzone, manuell: manuell)
+        // Regeln über alle Trades, auch die ohne Kurs (G1): Anzahl zählt, Betrag nicht.
+        let ids = Set((imZeitraum + ohneKursImZeitraum).map(\.id))
+        regelverstoesse = Regelpruefung.pruefe(angleich, regeln: regeln, zeitzone: zeitzone, manuell: manuell)
             .filter { ids.contains($0.trade) }
         propFirmVerstoesse = regeln.propFirm.map { PropFirmPruefung.pruefe(alle, regeln: $0).verstoesse }?
             .filter { ids.contains($0.trade) } ?? []
@@ -81,7 +84,6 @@ public struct Zeitraumbericht: Sendable {
         let original = Dictionary(trades.map { ($0.id, $0.waehrung(kontowaehrung: kontowaehrung)) },
                                   uniquingKeysWith: { erste, _ in erste })
         let umgerechnetImZeitraum = imZeitraum.filter { angleich.umgerechnet.contains($0.id) }
-        let ohneKursImZeitraum = angleich.ohneKurs.filter { zeitraum.enthaelt($0.closeTime) }
         umgerechnet = umgerechnetImZeitraum.count
         ohneKurs = ohneKursImZeitraum.count
         fremdwaehrungen = Set((umgerechnetImZeitraum + ohneKursImZeitraum).compactMap { original[$0.id] }).sorted()
@@ -97,7 +99,8 @@ public struct Zeitraumbericht: Sendable {
     public var tradesOhneUhrzeit: Int { auswertung.trades.filter(\.nurDatum).count }
 
     private static func tage(_ trades: [Trade], zeitzone: TimeZone) -> [Tagesergebnis] {
-        let nachTag = Dictionary(grouping: trades) { Journaltag($0.closeTime, zeitzone: zeitzone) }
+        let kalender = Journaltag.gregorianisch(zeitzone)
+        let nachTag = Dictionary(grouping: trades) { Journaltag($0.schlusstag(kalender), zeitzone: zeitzone) }
         var ergebnis: [Tagesergebnis] = []
         for (tag, liste) in nachTag {
             let netto = liste.reduce(Decimal(0)) { $0 + $1.netProfit }

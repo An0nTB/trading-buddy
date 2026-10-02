@@ -107,7 +107,30 @@ public struct Trade: Sendable, Equatable, Identifiable {
     func sicherGeschlossen(vor t: Trade, kalender: Calendar) -> Bool {
         guard id != t.id, closeTime <= t.openTime else { return false }
         guard nurDatum || t.nurDatum else { return true }
-        return kalender.startOfDay(for: closeTime) < kalender.startOfDay(for: t.openTime)
+        return schlusstag(kalender) < t.eroeffnungstag(kalender)
+    }
+
+    /// Beginn des Eröffnungstags im Kalender des Nutzers; siehe `tagesbeginn`.
+    public func eroeffnungstag(_ kalender: Calendar) -> Date {
+        Self.tagesbeginn(openTime, nurDatum: nurDatum, kalender: kalender)
+    }
+
+    /// Beginn des Schlusstags im Kalender des Nutzers; siehe `tagesbeginn`.
+    public func schlusstag(_ kalender: Calendar) -> Date {
+        Self.tagesbeginn(closeTime, nurDatum: nurDatum, kalender: kalender)
+    }
+
+    /// Tagesbeginn eines Zeitpunkts. Buchungen nur mit Datum (Trade Republic, Scalable) stehen auf 00:00 UTC;
+    /// westlich von UTC fielen sie damit auf den Vortag. Ein solcher Zeitpunkt zählt deshalb mit seinem
+    /// UTC-Datum. Zeitpunkte mit Uhrzeit bleiben beim Kalendertag des Nutzers (Zweiter Gegencheck, Doc 40).
+    public static func tagesbeginn(_ zeit: Date, nurDatum: Bool, kalender: Calendar) -> Date {
+        guard nurDatum, zeit.timeIntervalSince1970.truncatingRemainder(dividingBy: 86_400) == 0 else {
+            return kalender.startOfDay(for: zeit)
+        }
+        let tag = Journaltag(zeit, zeitzone: TimeZone(secondsFromGMT: 0)!)
+        // Mittag statt Mitternacht: In Zeitzonen mit Umstellung um 0 Uhr gibt es Mitternacht nicht an jedem Tag.
+        let mittag = kalender.date(from: DateComponents(year: tag.jahr, month: tag.monat, day: tag.tag, hour: 12))!
+        return kalender.startOfDay(for: mittag)
     }
 }
 
