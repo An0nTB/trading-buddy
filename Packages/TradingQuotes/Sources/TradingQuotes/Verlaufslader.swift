@@ -17,8 +17,12 @@ public struct Verlaufsstand: Sendable, Equatable, Codable {
     }
 
     /// Einmal am Tag reicht: aktuell, wenn vor weniger als 20 Stunden geladen und jedes Symbol dabei war.
+    /// Nach einem Fehler gibt es nach einer Stunde einen neuen Versuch (Gegencheck Q3).
     public func istAktuell(fuer symbole: [String], jetzt: Date) -> Bool {
-        guard let geladen, jetzt.timeIntervalSince(geladen) < 20 * 3600 else { return false }
+        guard let geladen else { return false }
+        let alter = jetzt.timeIntervalSince(geladen)
+        guard alter < 20 * 3600 else { return false }
+        if alter >= 3600, symbole.contains(where: { fehler[$0] != nil }) { return false }
         return symbole.allSatisfy { verlaeufe[$0] != nil || fehler[$0] != nil }
     }
 }
@@ -60,12 +64,17 @@ public struct Verlaufslader: Sendable {
             }
             guard let ergebnis = geholt[schluessel] else { continue }
             switch ergebnis {
-            case .success(let kerzen):
+            case .success(let kerzen) where !kerzen.isEmpty:
                 stand.verlaeufe[z.journalSymbol] = Kursverlauf(journalSymbol: z.journalSymbol, quelle: z.quelle,
                                                                quellSymbol: z.quellSymbol, naeherung: z.naeherung,
                                                                kerzen: kerzen, geladen: jetzt)
-            case .failure(let fehler):
-                stand.fehler[z.journalSymbol] = fehler.description
+            case .success, .failure:
+                // Eine leere Antwort ersetzt keinen gespeicherten Verlauf (Gegencheck Q3).
+                if case .failure(let fehler) = ergebnis {
+                    stand.fehler[z.journalSymbol] = fehler.description
+                } else {
+                    stand.fehler[z.journalSymbol] = "Keine Kerzen geliefert"
+                }
                 if let alt = bisher.verlaeufe[z.journalSymbol] { stand.verlaeufe[z.journalSymbol] = alt }
             }
         }
