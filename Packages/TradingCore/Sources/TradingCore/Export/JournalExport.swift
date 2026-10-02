@@ -3,11 +3,11 @@ import Foundation
 /// Datei für den Claude-Connector (AP12): Die App schreibt sie in den Export-Ordner,
 /// der Connector liest sie und rechnet mit demselben Rechenkern.
 /// Enthält je Konto die abgeschlossenen Trades, die Zeitpunkte gelöschter Orders und die
-/// eigenen Journalangaben je Trade, keine Rohzeilen und keine Kontonamen.
+/// eigenen Journalangaben je Trade und die Ziele früherer Reviews, keine Rohzeilen und keine Kontonamen.
 public struct JournalExport: Sendable, Equatable, Codable {
     public static let dateiname = "trading-buddy-export.json"
     /// Erhöhen, wenn ein älterer Connector den neuen Aufbau falsch lesen würde.
-    /// Neue, freiwillige Felder (etwa `journal`) erhöhen es nicht: Ältere Connectoren übergehen sie.
+    /// Neue, freiwillige Felder (etwa `journal`, `ziele`) erhöhen es nicht: Ältere Connectoren übergehen sie.
     public static let aktuellesFormat = 1
 
     public var format: Int
@@ -26,19 +26,23 @@ public struct JournalExport: Sendable, Equatable, Codable {
         public var geloeschteOrders: [Date]
         /// Eigene Angaben je Trade, Schlüssel ist die Trade-ID. Fehlt in Dateien älterer Apps.
         public var journal: [String: Journalangaben]
+        /// Ziele aus früheren Reviews, nach Beginn sortiert. Fehlt in Dateien älterer Apps.
+        public var ziele: [Reviewziel]
 
         public init(broker: String, kontonummer: String, waehrung: String, trades: [Trade],
-                    geloeschteOrders: [Date] = [], journal: [String: Journalangaben] = [:]) {
+                    geloeschteOrders: [Date] = [], journal: [String: Journalangaben] = [:],
+                    ziele: [Reviewziel] = []) {
             self.broker = broker
             self.kontonummer = kontonummer
             self.waehrung = waehrung
             self.trades = trades
             self.geloeschteOrders = geloeschteOrders
             self.journal = journal.filter { !$0.value.istLeer }
+            self.ziele = ziele
         }
 
         private enum CodingKeys: String, CodingKey {
-            case broker, kontonummer, waehrung, trades, geloeschteOrders, journal
+            case broker, kontonummer, waehrung, trades, geloeschteOrders, journal, ziele
         }
 
         public init(from decoder: any Decoder) throws {
@@ -48,7 +52,8 @@ public struct JournalExport: Sendable, Equatable, Codable {
                       waehrung: try c.decode(String.self, forKey: .waehrung),
                       trades: try c.decode([Trade].self, forKey: .trades),
                       geloeschteOrders: try c.decode([Date].self, forKey: .geloeschteOrders),
-                      journal: try c.decodeIfPresent([String: Journalangaben].self, forKey: .journal) ?? [:])
+                      journal: try c.decodeIfPresent([String: Journalangaben].self, forKey: .journal) ?? [:],
+                      ziele: try c.decodeIfPresent([Reviewziel].self, forKey: .ziele) ?? [])
         }
 
         public init(broker: String, kontonummer: String, waehrung: String,
