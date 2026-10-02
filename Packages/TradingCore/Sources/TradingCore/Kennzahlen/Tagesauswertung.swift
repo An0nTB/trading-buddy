@@ -12,6 +12,10 @@ public struct Planwirkung: Sendable, Equatable {
     public var nettoOhnePlan: Decimal
     /// Handelstage mit Plan, nach Tag sortiert; die App kann sie markieren.
     public var tageMitPlanListe: [Journaltag]
+    /// Tage nur mit Trades ohne Uhrzeit (Trade Republic, Scalable), deren Plan erst im Lauf des Tages
+    /// gespeichert wurde: ob vor dem ersten Trade, ist unbekannt. Sie zählen auf keiner Seite.
+    /// Ein Plan erst nach dem Tag zählt als ohne Plan (Gegencheck K4).
+    public var tageUnklar: Int
 
     /// Mindestzahl Handelstage je Seite, ab der ein Vergleich mehr als Beschreibung ist (Vorschlag).
     public static let mindestTage = 10
@@ -33,11 +37,29 @@ public struct Planwirkung: Sendable, Equatable {
         nettoMitPlan = 0
         nettoOhnePlan = 0
         tageMitPlanListe = []
+        tageUnklar = 0
         for tag in jeTag.keys.sorted() {
             let tagesTrades = jeTag[tag]!
-            let erster = tagesTrades.map(\.openTime).min()!
+            let mitUhrzeit = tagesTrades.filter { !$0.nurDatum }
             let netto = tagesTrades.map(\.netProfit).reduce(0, +)
-            if notizJeTag[tag]?.hatPlan(vor: erster) == true {
+            let mitPlan: Bool
+            if let erster = mitUhrzeit.map(\.openTime).min() {
+                mitPlan = notizJeTag[tag]?.hatPlan(vor: erster) == true
+            } else {
+                // Ohne Uhrzeit: sicher vor dem ersten Trade ist nur ein Plan von vor Tagesbeginn.
+                let beginn = tag.beginn(in: zeitzone)
+                let ende = Journaltag.gregorianisch(zeitzone).date(byAdding: .day, value: 1, to: beginn)!
+                let notiz = notizJeTag[tag]
+                if notiz?.hatPlan(vor: beginn) == true {
+                    mitPlan = true
+                } else if notiz?.hatPlan(vor: ende) == true {
+                    tageUnklar += 1
+                    continue
+                } else {
+                    mitPlan = false
+                }
+            }
+            if mitPlan {
                 tageMitPlan += 1
                 tradesMitPlan += tagesTrades.count
                 nettoMitPlan += netto

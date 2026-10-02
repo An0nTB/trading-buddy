@@ -71,8 +71,10 @@ private func befundTrade(_ id: String, _ auf: String, _ zu: String, netto: Decim
     let k = Kennzahlen(trades: trades)
     #expect(k.haltedauerGewinner == nil)
     #expect(k.haltedauerVerlierer == 960)
+    // Alle Trades mit Uhrzeit liegen um 9 Uhr; der Rest ohne Trades ohne Uhrzeit ist leer, also kein Muster
+    // (Gegencheck K3, vorher verglich „9“ mit den beiden Trades ohne Uhrzeit).
     let muster = MusterFinder.finde(trades, zeitzone: utc, aufteilungen: [.stunde], mindestanzahl: 1)
-    #expect(muster.map(\.schluessel) == ["9"])
+    #expect(muster.isEmpty)
 }
 
 @Test func befundTagesverlustAusUebernachtPosition() {

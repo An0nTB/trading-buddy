@@ -27,11 +27,12 @@ extension Fehlermuster {
         }
         befunde.append(befund(.revancheTrade, revanche, stichprobe: mitUhrzeit.count))
 
-        // Überhandeln: Tage mit deutlich mehr Trades als üblich.
+        // Überhandeln: Tage mit deutlich mehr Trades als üblich; Teilverkäufe zählen als ein Trade.
         let jeTag = Dictionary(grouping: nachEroeffnung) { kalender.startOfDay(for: $0.openTime) }
-        if let medianTag = median(jeTag.values.map { Decimal($0.count) }) {
+            .mapValues { Decimal(Set($0.map(\.positionsschluessel)).count) }
+        if let medianTag = median(Array(jeTag.values)) {
             let grenze = medianTag + Decimal(s.ueberhandelnUeberMedian)
-            let betroffen = nachEroeffnung.filter { Decimal(jeTag[kalender.startOfDay(for: $0.openTime)]!.count) > grenze }
+            let betroffen = nachEroeffnung.filter { jeTag[kalender.startOfDay(for: $0.openTime)]! > grenze }
             befunde.append(befund(.ueberhandeln, betroffen, stichprobe: jeTag.count))
         }
 
