@@ -29,6 +29,8 @@ public enum Rezept {
           Handelssignale.
         - Ton: kritischer Coach, Prozess vor Ergebnis, kein Lob ohne Zahl.
         - Keine Kursprognosen, keine Zielkurse, keine Kauf- oder Produktempfehlungen.
+        - Gibt es den Abschnitt „Ausstieg“, in Punkt 3 einen Satz dazu (MAE der Gewinner, Anteil der MFE,
+          Verlierer mit 1 R Plus), nur beschreibend: keine Stop- oder Zielmarke vorschlagen.
         - Nur Zahlen aus den Henry-Werkzeugen verwenden; fehlt etwas, das sagen statt schätzen.
         - Details bei Bedarf: hole_trades (Trades je Muster, beste und schlechteste, mit Journal und Grund),
           hole_aufschluesselung (Setup, Regeltreue, Zustand, Wochentag, Stunde, Haltedauer, Trade-Nummer am Tag,
