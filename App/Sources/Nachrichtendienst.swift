@@ -60,8 +60,12 @@ final class Nachrichtendienst {
     private var gestartet = false
     private var journal: Journal?
 
-    init(speicher: UserDefaults = .standard) {
+    /// Alpaca- und Marketaux-Schlüssel; in den App-Tests mit `SpeicherSchluesselablage` (Paket A7).
+    let schluesselbund: Schluesselbund
+
+    init(speicher: UserDefaults = .standard, schluesselbund: Schluesselbund = Schluesselbund()) {
         self.speicher = speicher
+        self.schluesselbund = schluesselbund
         aktiv = speicher.bool(forKey: Self.schluesselAktiv)
         merkliste = []
         quellenAus = Set(speicher.stringArray(forKey: Self.schluesselQuellenAus) ?? [])
@@ -265,13 +269,15 @@ final class Nachrichtendienst {
         var alpaca: Schluesselquelle<AlpacaNewsSchluessel>?
         if istAn(Self.alpaca) {
             // Derselbe Alpaca-Schlüssel wie für die Kurse (P10); Alpaca News läuft über dieselbe Kennung.
+            let schluesselbund = self.schluesselbund
             alpaca = { @Sendable in
-                try Schluesselbund.lies().map { AlpacaNewsSchluessel(schluesselID: $0.schluesselID, geheimnis: $0.geheimnis) }
+                try schluesselbund.lies().map { AlpacaNewsSchluessel(schluesselID: $0.schluesselID, geheimnis: $0.geheimnis) }
             }
         }
         var marketaux: Schluesselquelle<String>?
         if istAn(Self.marketaux) {
-            marketaux = { @Sendable in try Schluesselbund.liesText(dienst: Schluesselbund.dienstMarketaux) }
+            let schluesselbund = self.schluesselbund
+            marketaux = { @Sendable in try schluesselbund.liesText(dienst: Schluesselbund.dienstMarketaux) }
         }
         let budget = Self.lade(Abrufbudget.self, aus: speicher, schluessel: Self.schluesselBudget)
             ?? Abrufbudget(grenzeJeTag: Marketaux.abrufeJeTagGratis, jetzt: jetzt)
