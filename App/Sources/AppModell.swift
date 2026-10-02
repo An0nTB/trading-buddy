@@ -278,6 +278,52 @@ final class AppModell {
         }
     }
 
+    // MARK: Steuer-Orientierung (Doc 22; E2, S1, S2 vom 02.10.2026; Orientierung, keine Steuerberechnung)
+    /// Kalenderjahre mit Verkäufen (Trades nach Schlusszeit, Krypto-Ausführungen) in deutscher Zeit, jüngstes zuerst.
+    var steuerjahre: [Int] {
+        var kalender = Calendar(identifier: .gregorian)
+        kalender.timeZone = Steuerorientierung.deutscheZeit
+        var jahre = Set(alleTrades.map { kalender.component(.year, from: $0.closeTime) })
+        for ausfuehrung in kontobewegungen.ausfuehrungen where ausfuehrung.produktart == .krypto {
+            jahre.insert(kalender.component(.year, from: ausfuehrung.zeit))
+        }
+        return jahre.sorted(by: >)
+    }
+
+    /// Summen je Verlusttopf im Jahr über alle Trades des Kontos, unabhängig vom Zeitraum-Filter.
+    func topfsummen(jahr: Int) -> [Topfsumme] {
+        Steuerorientierung.toepfe(alleTrades, kontowaehrung: waehrung, jahr: jahr)
+    }
+
+    /// Ob das Konto Krypto-Ausführungen hat; dann zeigt die Steuerseite die Haltefrist.
+    var hatKrypto: Bool { kontobewegungen.ausfuehrungen.contains { $0.produktart == .krypto } }
+
+    /// Krypto-Haltefrist im Jahr: FIFO je Coin über alle Ausführungen des Kontos.
+    func kryptoJahr(_ jahr: Int) -> KryptoHaltefrist.Jahr {
+        KryptoHaltefrist.jahr(jahr, ausfuehrungen: kontobewegungen.ausfuehrungen, importhinweise: importhinweiseDesKontos)
+    }
+
+    /// Nicht sicher zugeordnete Zeilen aller Importe des gewählten Kontos.
+    var importhinweiseDesKontos: [Importhinweis] {
+        importe.filter { $0.konto.id == konto?.id }.flatMap(\.hinweise)
+    }
+
+    /// Führt der Broker die Steuer ab? Trade Republic und Scalable Capital ja (Steuerbescheinigung maßgeblich),
+    /// MetaTrader, XTB und Krypto-Börsen nein (R5, Doc 11 Abschnitt 3); sonst unbekannt.
+    var brokerFuehrtSteuerAb: Bool? {
+        guard let konto else { return nil }
+        switch konto.broker {
+        case "Trade Republic", "Scalable Capital": return true
+        case "XTB": return false
+        default: break
+        }
+        let importer = importe.filter { $0.konto.id == konto.id }.map(\.lauf.importer)
+        if importer.contains(Journal.mt4Importer) { return false }
+        let kryptoBoersen = ["kraken", "binance", "coinbase", "bitpanda"]
+        if kryptoBoersen.contains(where: { konto.broker.lowercased().contains($0) }) { return false }
+        return nil
+    }
+
     // MARK: Handelsregeln (P6; geprüft nach dem Import, nicht live, Entscheidung E3)
 
     /// Tickets, die im Journal als „nicht regeltreu“ stehen; sie zählen als Verstoß der Art `manuell`.
