@@ -47,6 +47,10 @@ final class AppModell {
     private(set) var ziele: [Reviewziel] = []
     /// Handelsregeln des gewählten Kontos (P6; Migration v5 aus AP9 #54); ohne gespeicherte Regeln leer.
     private(set) var regeln = Handelsregeln()
+    /// Offene Positionen laut dem jüngsten MT4-Auszug des Kontos (AP9 #50); `nil` ohne MT4-Auszug.
+    private(set) var offenerAuszug: (importlauf: Importlauf, positionen: [OpenPosition])?
+    /// Kurse offener Trades (P10): Zuordnungen, Beobachter, letzter Stand je Symbol.
+    let kurse = Kursdienst()
 
     // Zustand der Oberfläche
     var bereich: Bereich = .uebersicht
@@ -170,6 +174,7 @@ final class AppModell {
                 alleGeloeschten = try journal.geloeschteOrders(konto: konto)
                 ziele = try journal.ziele(konto: konto)
                 regeln = try journal.handelsregeln(konto: konto)
+                offenerAuszug = try journal.offenePositionenLetzterAuszug(konto: konto)
             } else {
                 positionen = []
                 kontobewegungen = Kontobewegungen()
@@ -177,13 +182,23 @@ final class AppModell {
                 alleGeloeschten = []
                 ziele = []
                 regeln = Handelsregeln()
+                offenerAuszug = nil
             }
             positionsbildung = Positionsbildung.bilde(kontobewegungen.ausfuehrungen,
                                                       kapitalmassnahmen: kontobewegungen.kapitalmassnahmen)
             aktualisiereTrades()
+            kurse.beobachte(offenePositionen.map(\.symbol))
         } catch {
             fehler = error.localizedDescription
         }
+    }
+
+    /// Offene Positionen des Kontos: MT4-Auszug zuerst, dann offene Käufe aus der Positionsbildung
+    /// (Trade Republic, Scalable, Krypto). Nur eine Momentaufnahme aus dem letzten Import (Stand-Doc 20).
+    var offenePositionen: [OffenePosition] {
+        let mt4 = (offenerAuszug?.positionen ?? []).map { OffenePosition(herkunft: .mt4($0)) }
+        let kaeufe = positionsbildung.offen.map { OffenePosition(herkunft: .kauf($0)) }
+        return mt4 + kaeufe
     }
 
     /// Baut die Trades aus den Positionen (MetaTrader, XTB) und aus der Positionsbildung (Trade Republic,
@@ -399,6 +414,78 @@ final class AppModell {
             .appendingPathComponent("Trading Buddy", isDirectory: true)
         try FileManager.default.createDirectory(at: ordner, withIntermediateDirectories: true)
         return ordner.appendingPathComponent("journal.sqlite").path
+    }
+}
+
+/// Eine offene Position für die Karte „Offene Positionen“: aus dem MT4-Auszug oder ein offener Kauf.
+struct OffenePosition: Identifiable {
+    enum Herkunft {
+        case mt4(OpenPosition)
+        case kauf(Ausfuehrung)
+    }
+
+    let herkunft: Herkunft
+
+    var id: String {
+        switch herkunft {
+        case .mt4(let p): p.ticket
+        case .kauf(let k): k.id
+        }
+    }
+
+    /// Symbol in Journal-Schreibweise, Schlüssel für die Kurszuordnung (wie `Trade.symbol`).
+    var symbol: String {
+        switch herkunft {
+        case .mt4(let p): p.symbol
+        case .kauf(let k): k.name.isEmpty ? k.kennung : k.name
+        }
+    }
+
+    var seite: Side {
+        switch herkunft {
+        case .mt4(let p): p.side
+        case .kauf: .buy
+        }
+    }
+
+    /// Lots (MetaTrader) oder Stück.
+    var menge: Decimal {
+        switch herkunft {
+        case .mt4(let p): p.lots
+        case .kauf(let k): k.menge
+        }
+    }
+
+    var einstieg: Decimal {
+        switch herkunft {
+        case .mt4(let p): p.openPrice
+        case .kauf(let k): k.menge == 0 ? k.preis : -k.betrag / k.menge
+        }
+    }
+
+    /// Kurs zum Zeitpunkt des Auszugs; nur MetaTrader kennt ihn.
+    var auszugskurs: Decimal? {
+        if case .mt4(let p) = herkunft { return p.currentPrice }
+        return nil
+    }
+
+    /// Schwebendes Ergebnis laut Auszug (Kursergebnis plus Kommission und Swap); nur MetaTrader.
+    var ergebnisLautAuszug: Decimal? {
+        if case .mt4(let p) = herkunft { return p.profit + p.commission + p.swap }
+        return nil
+    }
+
+    /// Währung des Ergebnisses: `nil` heißt Kontowährung (MetaTrader), sonst die der Ausführung.
+    var waehrung: String? {
+        if case .kauf(let k) = herkunft { return k.waehrung }
+        return nil
+    }
+
+    func bewertung(kurs: Decimal) -> OffeneBewertung.Ergebnis {
+        switch herkunft {
+        case .mt4(let p): OffeneBewertung.bewerte(p, kurs: kurs)
+        case .kauf(let k): OffeneBewertung.bewerte(k, kurs: kurs)
+        }
     }
 }
 
