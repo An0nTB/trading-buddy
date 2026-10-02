@@ -9,7 +9,7 @@ private let berlin = TimeZone(identifier: "Europe/Berlin")!
 private func zeit(_ iso: String) -> Date { ISO8601DateFormatter().date(from: iso + "Z")! }
 
 private func trade(_ id: String, _ schluss: String, netto: Decimal, waehrung: String? = nil) -> Trade {
-    Trade(id: id, symbol: waehrung == nil ? "SAP" : "BTCUSD", side: .buy, lots: 1,
+    Trade(id: id, symbol: id.hasPrefix("u") ? "BTCUSD" : "SAP", side: .buy, lots: 1,
           openTime: zeit(schluss).addingTimeInterval(-600), closeTime: zeit(schluss),
           openPrice: 100, closePrice: 100 + netto, profit: netto, waehrung: waehrung)
 }
