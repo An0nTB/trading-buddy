@@ -74,6 +74,13 @@ public enum Ausgabe {
         let schlechteste = a.schlechteste(3).reversed().filter { !beste.contains($0) }
         t.append(tradetabelle(beste + schlechteste, a, zone))
 
+        let ziele = anfrage.zieleZumZeitraum()
+        if !ziele.ziele.isEmpty {
+            t.append("\n## Ziel aus dem letzten Review (eingetragen in der App)")
+            if ziele.davor { t.append("Kein Ziel für diesen Zeitraum; das letzte davor:") }
+            t.append(contentsOf: ziele.ziele.prefix(5).map(anfrage.zielzeile))
+        }
+
         t.append("\n## Datenlage")
         t.append(k.genugDaten ? "- \(k.anzahl) Trades: ab 30 belastbar, Gruppen darunter nur beschreiben."
                               : "- Nur \(k.anzahl) Trades (unter 30): nur beschreiben, nicht folgern.")
@@ -82,7 +89,11 @@ public enum Ausgabe {
         t.append("- Journal ausgefüllt im Zeitraum: Setup \(abdeckung.setup), Regeltreue \(abdeckung.regeltreue), "
             + "Zustand \(abdeckung.zustand), Grund \(abdeckung.grund) von \(k.anzahl) Trades. "
             + "Gründe einzelner Trades über hole_trades.")
-        t.append("- Ziele früherer Reviews speichert die App noch nicht.")
+        if anfrage.konto.ziele.isEmpty {
+            t.append("- Ziele früherer Reviews: keine in der App eingetragen.")
+        } else {
+            t.append("- Istwerte der Ziele rechnet der Rechenkern im Zeitraum des Ziels; der Status ist eigene Angabe.")
+        }
         t.append("\n" + Rezept.text)
         return t.joined(separator: "\n")
     }

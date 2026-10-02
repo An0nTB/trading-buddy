@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "trading-buddy",
   "display_name": "Trading Buddy",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Kennzahlen, Fehlermuster und Wochen- oder Monatsauswertung aus deinem Trading-Buddy-Journal. Nur lesend; die Daten bleiben auf deinem Mac.",
   "author": {
     "name": "Tim Bock"
@@ -25,7 +25,7 @@
     },
     {
       "name": "hole_auswertung",
-      "description": "Wochen- oder Monatsauswertung mit Vergleich, Fehlermustern und Rezept für die Antwort."
+      "description": "Wochen- oder Monatsauswertung mit Vergleich, Fehlermustern, Zielen früherer Reviews und Rezept für die Antwort."
     },
     {
       "name": "hole_aufschluesselung",
