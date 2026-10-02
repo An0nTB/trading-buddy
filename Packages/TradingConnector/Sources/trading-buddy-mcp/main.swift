@@ -10,7 +10,8 @@ enum Katalog {
         "woche": text("Ein beliebiger Tag der gewünschten Woche (Montag bis Sonntag), JJJJ-MM-TT"),
         "von": text("Erster Tag JJJJ-MM-TT, nur zusammen mit bis"),
         "bis": text("Letzter Tag JJJJ-MM-TT (einschließlich), nur zusammen mit von"),
-        "konto": text("Konto über Endziffern oder Broker; nur nötig, wenn es mehrere gibt")
+        "konto": text("Konto über Endziffern oder Broker; nur nötig, wenn es mehrere gibt"),
+        "waehrung": text("Nur Trades in dieser Währung, z. B. USD; Vorgabe Kontowährung. Summen nie über Währungen")
     ]
     static let nurLesen = Tool.Annotations(readOnlyHint: true, openWorldHint: false)
 
@@ -141,7 +142,7 @@ enum Ausfuehrung {
 
 let server = Server(
     name: "trading-buddy",
-    version: "0.7.0",
+    version: "0.8.0",
     capabilities: .init(prompts: .init(listChanged: false), tools: .init(listChanged: false))
 )
 
