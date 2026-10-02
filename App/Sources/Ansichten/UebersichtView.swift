@@ -94,7 +94,7 @@ struct MischwaehrungHinweis: View {
     }
 }
 
-/// Filter Zeitraum und Instrument; die Währung ist die des Kontos (Umrechnung kommt später).
+/// Filter Zeitraum und Instrument; Summen in Kontowährung, fremde Währungen zum EZB-Kurs umgerechnet (W3).
 struct Filterleiste: View {
     @Environment(AppModell.self) private var modell
     @Environment(\.thema) private var thema
