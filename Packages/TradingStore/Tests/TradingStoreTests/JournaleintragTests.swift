@@ -94,5 +94,6 @@ private let zeit = Date(timeIntervalSince1970: 1_759_350_000)
     try Schema.migrator.migrate(DatabaseQueue(path: pfad), upTo: "v1 Konten, Importe, MT4-Auszüge")
     let journal = try Journal(pfad: pfad)
     #expect(try journal.angewandteMigrationen() == ["v1 Konten, Importe, MT4-Auszüge", "v2 Journal je Trade", "v3 Broker-Importe CSV",
-                                                   "v4 Review-Ziele", "v6 Produktart"])
+                                                   "v4 Review-Ziele", "v5 Handelsregeln je Konto",
+                                                   "v6 Produktart"])
 }
