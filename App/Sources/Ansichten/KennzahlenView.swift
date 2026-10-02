@@ -10,7 +10,7 @@ struct KennzahlenView: View {
     var body: some View {
         let kennzahlen = modell.kennzahlen
         let verlauf = modell.kapitalverlauf
-        let waehrung = modell.waehrung
+        let waehrung = modell.summenwaehrung
         let muster = modell.musterJeTrade
         let mitRegelbruch = modell.angeglicheneTrades.filter { muster[$0.id] != nil }
         let ohneRegelbruch = modell.angeglicheneTrades.filter { muster[$0.id] == nil }
