@@ -3,6 +3,7 @@ import AppKit
 import Foundation
 import TradingCore
 import TradingStore
+import UserNotifications
 
 /// Import-Ordner beobachten (Frage 6, Tim 02.10.2026, Doc 45): Neue Broker-Auszüge in einem gewählten Ordner
 /// importiert die App selbst, wenn nichts zu wählen bleibt (`Importordnerregel`); sonst landet die Datei in der
@@ -17,6 +18,8 @@ final class Importordner {
     static let schluesselAktiv = "importOrdnerAktiv"
     static let schluesselLesezeichen = "importOrdnerLesezeichen"
     static let schluesselErledigt = "importOrdnerErledigt"
+    /// Mitteilung nach stillem Import (Paket A4); Standard an, in den Einstellungen abschaltbar.
+    static let schluesselMitteilung = "importOrdnerMitteilung"
     /// Größere Dateien sind kein Kontoauszug; die App liest sie nicht ein.
     static let hoechstgroesse = 50 * 1024 * 1024
     /// So lange nach der letzten Änderung wartet die App, damit eine Datei fertig geschrieben ist.
@@ -44,6 +47,7 @@ final class Importordner {
     /// Zustand für die Einstellungen, etwa „Ordner nicht erreichbar“.
     private(set) var stand = ""
     private(set) var aktiv: Bool
+    private(set) var mitteilung: Bool
 
     @ObservationIgnored private let speicher: UserDefaults
     @ObservationIgnored private weak var modell: AppModell?
@@ -51,15 +55,19 @@ final class Importordner {
     @ObservationIgnored private var quelle: DispatchSourceFileSystemObject?
     @ObservationIgnored private var nachlauf: Task<Void, Never>?
     @ObservationIgnored private var vordergrund: NSObjectProtocol?
+    /// Nur nach `verbinde` (die laufende App) gehen Mitteilungen raus, in Tests nicht.
+    @ObservationIgnored private var mitteilen = false
 
     init(speicher: UserDefaults = .standard) {
         self.speicher = speicher
         aktiv = speicher.bool(forKey: Self.schluesselAktiv)
+        mitteilung = speicher.object(forKey: Self.schluesselMitteilung) as? Bool ?? true
     }
 
     /// Beim Start der App (AppModell, nur mit Nebenwirkungen): beobachtet, falls eingeschaltet.
     func verbinde(_ modell: AppModell) {
         self.modell = modell
+        mitteilen = true
         if vordergrund == nil {
             vordergrund = NotificationCenter.default.addObserver(
                 forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main
@@ -73,7 +81,14 @@ final class Importordner {
     func setzeAktiv(_ an: Bool) {
         aktiv = an
         speicher.set(an, forKey: Self.schluesselAktiv)
+        if an && mitteilung { Self.erbitteMitteilungen() }
         starte()
+    }
+
+    func setzeMitteilung(_ an: Bool) {
+        mitteilung = an
+        speicher.set(an, forKey: Self.schluesselMitteilung)
+        if an { Self.erbitteMitteilungen() }
     }
 
     /// Merkt sich den Ordner aus dem Auswahldialog als Security-scoped Bookmark und beobachtet ihn.
@@ -193,6 +208,7 @@ final class Importordner {
         let bekannteHashes = Set(modell.importe.map(\.lauf.dateiHash))
         var offen: [Rueckfrage] = []
         var importiert = false
+        var gespeichert: [Meldung] = []
         var unfertig = false
         for url in dateien.sorted(by: { $0.lastPathComponent < $1.lastPathComponent }) {
             let name = url.lastPathComponent
@@ -234,6 +250,7 @@ final class Importordner {
                 erledigt[signatur] = jetzt.timeIntervalSince1970
                 importiert = importiert || ergebnis.status == .gespeichert
                 melde(name, Self.text(ergebnis), jetzt: jetzt)
+                if ergebnis.status == .gespeichert, let neu = zuletzt.first { gespeichert.append(neu) }
             } catch {
                 // Widerspruch zu den Summen, andere Kontowährung, abweichender Datensatz: das Blatt zeigt Einzelheiten.
                 frage(String(localized: "Import abgebrochen: bitte im Blatt prüfen."))
@@ -244,6 +261,9 @@ final class Importordner {
         if importiert {
             modell.laden()
             modell.exportiere()
+        }
+        if mitteilen, mitteilung, let inhalt = Self.mitteilungstext(gespeichert, offen: offen.count) {
+            Self.teileMit(titel: inhalt.titel, text: inhalt.text)
         }
         if unfertig { pruefeSpaeter() }
     }
@@ -284,6 +304,34 @@ final class Importordner {
             }
             return String(localized: "\(ergebnis.geschlosseneNeu) neue Trades")
         }
+    }
+
+    // MARK: Mitteilung
+
+    /// Titel und Text der Mitteilung nach einem Lauf; `nil`, wenn nichts still gespeichert wurde.
+    /// Wartende Dateien nennt der Text nur mit, eine eigene Mitteilung bekommen sie nicht.
+    static func mitteilungstext(_ gespeichert: [Meldung], offen: Int) -> (titel: String, text: String)? {
+        guard let erste = gespeichert.first, let letzte = gespeichert.last else { return nil }
+        var text = gespeichert.count == 1
+            ? "\(erste.dateiname): \(erste.text)"
+            : String(localized: "\(gespeichert.count) Dateien importiert, zuletzt \(letzte.dateiname)")
+        if offen > 0 {
+            text += " · " + String(localized: "\(offen) Dateien warten auf dich")
+        }
+        return (String(localized: "Aus dem Import-Ordner importiert"), text)
+    }
+
+    /// Fragt einmal nach der Erlaubnis für Mitteilungen; danach merkt sich macOS die Antwort.
+    private static func erbitteMitteilungen() {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
+    }
+
+    private static func teileMit(titel: String, text: String) {
+        let inhalt = UNMutableNotificationContent()
+        inhalt.title = titel
+        inhalt.body = text
+        let anfrage = UNNotificationRequest(identifier: "importordner-\(UUID().uuidString)", content: inhalt, trigger: nil)
+        UNUserNotificationCenter.current().add(anfrage) { _ in }
     }
 
     private func melde(_ dateiname: String, _ text: String, jetzt: Date) {
