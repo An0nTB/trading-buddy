@@ -3,6 +3,7 @@ import SwiftUI
 import TradingCore
 
 /// Übersicht (Doc 10, Reihe 1 und 6): Filter, vier Kacheln, Kapitalkurve, Fehlermuster, Review-Ziele, letzte Trades.
+/// Mit gesetzten Handelsregeln (P6) dazu Regel-Ampel, Disziplin-Kurve neben der Kapitalkurve und Challenge-Karte.
 struct UebersichtView: View {
     @Environment(AppModell.self) private var modell
     @Environment(\.thema) private var thema
@@ -40,7 +41,17 @@ struct UebersichtView: View {
                                zusatz: String(localized: "Verlustserie \(verlauf.laengsteVerlustserie)"),
                                farbe: verlauf.maxDrawdown > 0 ? thema.verlust : nil)
                     }
-                    Kapitalkurve(punkte: verlauf.punkte)
+                    if modell.regeln.leer {
+                        Kapitalkurve(punkte: verlauf.punkte)
+                    } else {
+                        RegelAmpelKarte()
+                        Kurvenpaar {
+                            Kapitalkurve(punkte: verlauf.punkte)
+                        } rechts: {
+                            DisziplinKarte()
+                        }
+                        ChallengeKarte()
+                    }
                     FehlermusterKarte()
                     ZieleKarte()
                     LetzteTradesKarte()
