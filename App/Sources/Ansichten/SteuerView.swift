@@ -73,6 +73,10 @@ struct SteuerView: View {
         if let krypto {
             KryptoKarte(jahr: krypto)
         }
+        let produktartLuecken = modell.produktartLuecken()
+        if !produktartLuecken.isEmpty {
+            ProduktartKarte(luecken: produktartLuecken)
+        }
         Kurvenpaar {
             LueckenKarte(luecken: luecken)
         } rechts: {
@@ -148,7 +152,7 @@ struct Steuerluecken {
     var zeilen: [String] {
         var z: [String] = []
         if ohneProduktart > 0 {
-            z.append(String(localized: "\(ohneProduktart) Trades ohne Produktart (Scalable, XTB): bis zur Zuordnung im Topf „nicht zugeordnet“."))
+            z.append(String(localized: "\(ohneProduktart) Trades ohne Produktart (Scalable, XTB): bis zur Zuordnung im Topf „nicht zugeordnet“; nachtragen in der Karte „Produktart nachtragen“."))
         }
         if tradesOhneEuro > 0 {
             z.append(String(localized: "\(tradesOhneEuro) Trades in einem Konto ohne Euro: fehlen in den Topf-Summen."))
