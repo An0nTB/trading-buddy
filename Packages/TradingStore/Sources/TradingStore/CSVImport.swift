@@ -184,10 +184,14 @@ extension Journal {
     ///   - kontowaehrung: Vorgabe EUR (Entscheidung 16).
     ///   - zeitzone: nur für Scalable (deutsche Ortszeit); Trade Republic und die Kryptobörsen schreiben UTC
     ///     oder Zeiten mit Versatz.
+    ///   - produktartVorgabe: Art für Ausführungen, bei denen der Importer keine erkennt (`.unbekannt`, etwa
+    ///     Scalable), z. B. aus der Nachfrage im Import-Blatt. Gilt für neue Ausführungen und für gespeicherte,
+    ///     die noch `.unbekannt` sind; eine schon bekannte Art bleibt.
     @discardableResult
     public func importiereCSV(datei: Data, dateiname: String, kontonummer: String,
                               kontoname: String? = nil, kontowaehrung: String = "EUR",
                               zeitzone: TimeZone = TimeZone(identifier: "Europe/Berlin")!,
+                              produktartVorgabe: Produktart? = nil,
                               jetzt: Date = Date()) throws -> ImportErgebnis {
         let hash = Self.fingerabdruck(datei)
         if let bekannt = try lies({ try Importlauf.filter(Column("dateiHash") == hash).fetchOne($0) }) {
@@ -259,8 +263,10 @@ extension Journal {
                 try Z.filter(Column("kontoId") == kontoId && Column("vorgangId") == id).fetchOne(db)
             }
 
-            for a in bewegungen.ausfuehrungen {
-                if let alt = try bekannt(AusfuehrungZeile.self, a.id) {
+            for var a in bewegungen.ausfuehrungen {
+                let alt = try bekannt(AusfuehrungZeile.self, a.id)
+                a.produktart = vorgegeben(a.produktart, gespeichert: alt?.produktart, produktartVorgabe)
+                if let alt {
                     var vergleich = try alt.modell()
                     let produktart = vereinteProduktart(vergleich.produktart, a.produktart)
                     vergleich.rohzeile = a.rohzeile
