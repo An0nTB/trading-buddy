@@ -48,6 +48,8 @@ targets:
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.finance
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        # iPad: weitere Fenster erlauben (P12 Eigene Fenster, Doc 27)
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
         LOCALIZATION_PREFERS_STRING_CATALOGS: YES
         SWIFT_EMIT_LOC_STRINGS: YES
         SWIFT_VERSION: "6.0"
