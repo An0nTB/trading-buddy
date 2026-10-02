@@ -18,25 +18,25 @@ private func notizTrade(_ id: String, _ offen: String, netto: Decimal) -> Trade 
 }
 
 @Test func kalendertagLesenSchreibenPruefen() throws {
-    let tag = try #require(Kalendertag("2026-10-02"))
+    let tag = try #require(Journaltag("2026-10-02"))
     #expect(tag.description == "2026-10-02")
-    #expect(Kalendertag("2026-02-30") == nil)
-    #expect(Kalendertag("2026-2-3") == nil)
-    #expect(Kalendertag("2026-10-02x") == nil)
-    #expect(Kalendertag(jahr: 2028, monat: 2, tag: 29)?.description == "2028-02-29")
-    #expect(Kalendertag(jahr: 2026, monat: 1, tag: 5)?.description == "2026-01-05")
+    #expect(Journaltag("2026-02-30") == nil)
+    #expect(Journaltag("2026-2-3") == nil)
+    #expect(Journaltag("2026-10-02x") == nil)
+    #expect(Journaltag(jahr: 2028, monat: 2, tag: 29)?.description == "2028-02-29")
+    #expect(Journaltag(jahr: 2026, monat: 1, tag: 5)?.description == "2026-01-05")
     // 22:30 UTC ist in Berlin schon der nächste Tag.
-    #expect(Kalendertag(utcZeitpunkt("2026-10-01T22:30:00Z"), zeitzone: berlinZone) == tag)
+    #expect(Journaltag(utcZeitpunkt("2026-10-01T22:30:00Z"), zeitzone: berlinZone) == tag)
     // Tag der Zeitumstellung: Beginn um Mitternacht Berlin, noch Winterzeit (UTC+1).
-    let umstellung = try #require(Kalendertag("2026-03-29"))
+    let umstellung = try #require(Journaltag("2026-03-29"))
     #expect(umstellung.beginn(in: berlinZone) == utcZeitpunkt("2026-03-28T23:00:00Z"))
-    let fruehere = try #require(Kalendertag("2026-09-30"))
+    let fruehere = try #require(Journaltag("2026-09-30"))
     #expect(fruehere < tag)
     let daten = try JSONEncoder().encode([tag])
     #expect(String(decoding: daten, as: UTF8.self) == #"["2026-10-02"]"#)
-    #expect(try JSONDecoder().decode([Kalendertag].self, from: daten) == [tag])
+    #expect(try JSONDecoder().decode([Journaltag].self, from: daten) == [tag])
     let falsch = Data(#"["2026-13-01"]"#.utf8)
-    #expect(throws: DecodingError.self) { try JSONDecoder().decode([Kalendertag].self, from: falsch) }
+    #expect(throws: DecodingError.self) { try JSONDecoder().decode([Journaltag].self, from: falsch) }
 }
 
 @Test func bildverweisNurRelativImBilderordner() {
@@ -65,10 +65,10 @@ private func notizTrade(_ id: String, _ offen: String, netto: Decimal) -> Trade 
         notizTrade("D1", "2026-03-05T08:00:00Z", netto: -6),
     ]
     let erstellt = utcZeitpunkt("2026-03-01T12:00:00Z")
-    let tag02 = try #require(Kalendertag("2026-03-02"))
-    let tag03 = try #require(Kalendertag("2026-03-03"))
-    let tag05 = try #require(Kalendertag("2026-03-05"))
-    let tag06 = try #require(Kalendertag("2026-03-06"))
+    let tag02 = try #require(Journaltag("2026-03-02"))
+    let tag03 = try #require(Journaltag("2026-03-03"))
+    let tag05 = try #require(Journaltag("2026-03-05"))
+    let tag06 = try #require(Journaltag("2026-03-06"))
     let notizen = [
         // Plan vor dem ersten Trade (07:00 UTC vor 08:00 UTC).
         Tagesnotiz(tag: tag02, plan: "Nur Ausbrüche über 18.000",

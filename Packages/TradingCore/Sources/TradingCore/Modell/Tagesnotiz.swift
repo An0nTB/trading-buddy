@@ -2,7 +2,8 @@ import Foundation
 
 /// Kalendertag ohne Uhrzeit und ohne Zeitzone, z. B. 2026-10-02. Für Tagesnotizen und Bildverweise,
 /// damit ein Tag gleich bleibt, wenn der Nutzer die Zeitzone wechselt. Codable als Text „JJJJ-MM-TT“.
-public struct Kalendertag: Sendable, Hashable, Comparable, Codable, CustomStringConvertible {
+/// Eigener Name, weil TradingClock schon `Kalendertag` hat und die App beide Pakete einbindet.
+public struct Journaltag: Sendable, Hashable, Comparable, Codable, CustomStringConvertible {
     public let jahr: Int
     public let monat: Int
     public let tag: Int
@@ -47,15 +48,15 @@ public struct Kalendertag: Sendable, Hashable, Comparable, Codable, CustomString
         Self.gregorianisch(zeitzone).date(from: DateComponents(year: jahr, month: monat, day: tag))!
     }
 
-    public static func < (a: Kalendertag, b: Kalendertag) -> Bool {
+    public static func < (a: Journaltag, b: Journaltag) -> Bool {
         (a.jahr, a.monat, a.tag) < (b.jahr, b.monat, b.tag)
     }
 
     public init(from decoder: any Decoder) throws {
         let text = try decoder.singleValueContainer().decode(String.self)
-        guard let tag = Kalendertag(text) else {
+        guard let tag = Journaltag(text) else {
             throw DecodingError.dataCorrupted(.init(codingPath: decoder.codingPath,
-                                                    debugDescription: "Kein Kalendertag: \(text)"))
+                                                    debugDescription: "Kein Journaltag: \(text)"))
         }
         self = tag
     }
@@ -74,7 +75,7 @@ public struct Kalendertag: Sendable, Hashable, Comparable, Codable, CustomString
 
 /// Notiz zu einem Handelstag: Plan vor dem Handel und Rückblick danach (Doc 18 F4).
 public struct Tagesnotiz: Sendable, Equatable {
-    public var tag: Kalendertag
+    public var tag: Journaltag
     /// Plan vor dem Handel: Marktlage, Szenarien, was heute nicht passieren soll.
     public var plan: String
     /// Wann der Plan zuerst gespeichert wurde. Spätere Änderungen verschieben den Zeitpunkt nicht,
@@ -86,7 +87,7 @@ public struct Tagesnotiz: Sendable, Equatable {
     public var erstellt: Date
     public var geaendert: Date
 
-    public init(tag: Kalendertag, plan: String = "", planErstellt: Date? = nil, rueckblick: String = "",
+    public init(tag: Journaltag, plan: String = "", planErstellt: Date? = nil, rueckblick: String = "",
                 verfassung: Int? = nil, erstellt: Date, geaendert: Date? = nil) {
         self.tag = tag
         self.plan = plan
@@ -109,7 +110,7 @@ public struct Tagesnotiz: Sendable, Equatable {
 public struct Bildverweis: Sendable, Hashable {
     public enum Bezug: Sendable, Hashable {
         case trade(String)
-        case tag(Kalendertag)
+        case tag(Journaltag)
         case verpassterTrade(String)
     }
 
