@@ -16,10 +16,12 @@ private func datei(_ termine: String, jahr: Int = 2026) -> Data {
 @Test func mitgelieferteDateienVollstaendig() throws {
     let kalender = try Terminkalender.mitgeliefert()
     #expect(kalender.dateien.map(\.jahr) == [2025, 2026, 2027])
-    #expect(kalender.dateien.map(\.termine.count) == [58, 60, 36])
-    #expect(kalender.termine.count == 154)
+    #expect(kalender.dateien.map(\.termine.count) == [101, 102, 73])
+    #expect(kalender.termine.count == 276)
     #expect(zip(kalender.termine, kalender.termine.dropFirst()).allSatisfy { $0.beginn <= $1.beginn })
-    #expect(kalender.termine.filter(\.vorlaeufig).map(\.id) == ["snb-2026-12-10"])
+    // Vorläufig: SNB aus Sekundärquelle und die nach Regel berechneten Feiertage EUR und JPY.
+    #expect(kalender.termine.filter(\.vorlaeufig).count == 69)
+    #expect(kalender.termine.filter { $0.vorlaeufig && $0.art != .feiertag }.map(\.id) == ["snb-2026-12-10"])
 }
 
 @Test func zeitenInOrtszeitMitSommerzeit() throws {
@@ -95,4 +97,27 @@ private func datei(_ termine: String, jahr: Int = 2026) -> Data {
     #expect(throws: TerminkalenderFehler.unbekannteZeitzone(id: "y", text: "Mars/Olympus")) {
         try Jahresdatei.lade(json: datei(zone))
     }
+}
+
+@Test func feiertageJeWaehrung() throws {
+    let kalender = try Terminkalender.mitgeliefert()
+    let ids = Set(kalender.termine.filter { $0.art == .feiertag }.map(\.id))
+    // Großbritannien: Boxing Day 2026 auf Montag verschoben (gov.uk).
+    #expect(ids.contains("feiertag-gbp-2026-12-28"))
+    // Fed: Samstag 04.07.2026 ohne Ersatz am Freitag, Sonntag 04.07.2027 auf Montag.
+    #expect(!ids.contains("feiertag-usd-2026-07-03"))
+    #expect(ids.contains("feiertag-usd-2027-07-05"))
+    // Japan: Volksfeiertag zwischen zwei Feiertagen, ganztägig in Tokio.
+    let volk = try #require(kalender.termine.first { $0.id == "feiertag-jpy-2026-09-22" })
+    #expect(volk.ganztaegig && volk.vorlaeufig)
+    #expect(volk.beginn == utc("2026-09-21T15:00:00Z"))
+    // Keine Wochenenden.
+    #expect(kalender.termine.filter { $0.art == .feiertag }.allSatisfy { t in
+        let tag = Calendar(identifier: .gregorian).dateComponents(in: t.zeitzone, from: t.beginn).weekday!
+        return tag != 1 && tag != 7
+    })
+    // GBPUSD über Weihnachten 2026 gehalten.
+    let gehalten = kalender.termine(von: utc("2026-12-24T12:00:00Z"), bis: utc("2026-12-29T12:00:00Z"),
+                                    waehrungen: Terminkalender.waehrungen(symbol: "GBPUSD"), arten: [.feiertag])
+    #expect(gehalten.map(\.id) == ["feiertag-gbp-2026-12-25", "feiertag-usd-2026-12-25", "feiertag-gbp-2026-12-28"])
 }
