@@ -37,6 +37,9 @@ struct EinstellungenView: View {
             Tab("Import", systemImage: "tray.and.arrow.down") {
                 ImportordnerFelder() // Import-Ordner beobachten (Doc 45)
             }
+            Tab("Sicherung", systemImage: "externaldrive") {
+                DatensicherungFelder() // Datensicherung (Tagesseite-Thread, Doc 46)
+            }
             Tab("Claude", systemImage: "sparkles") {
                 ClaudeFelder()
             }
