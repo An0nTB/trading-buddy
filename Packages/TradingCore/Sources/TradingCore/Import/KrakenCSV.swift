@@ -68,7 +68,7 @@ public enum KrakenCSV {
                 kennung: KryptoWerte.kennung(paar.basis, paar.gegen), name: paar.basis,
                 seite: typ == "buy" ? .buy : .sell, menge: try zahl("vol"), preis: try zahl("price"),
                 betrag: typ == "buy" ? -kosten : kosten, gebuehr: -abs(try zahl("fee")),
-                waehrung: paar.gegen, rohzeile: z))
+                waehrung: paar.gegen, produktart: .krypto, rohzeile: z))
         }
         return ergebnis
     }

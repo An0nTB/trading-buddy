@@ -101,6 +101,7 @@ public enum Positionsbildung {
                      openPrice: -einstand / v.menge, closePrice: v.betrag / v.menge,
                      commission: anteile.map(\.gebuehr).reduce(0, +) + v.gebuehr,
                      profit: v.betrag + einstand,
-                     taxes: anteile.map(\.steuer).reduce(0, +) + v.steuer)
+                     taxes: anteile.map(\.steuer).reduce(0, +) + v.steuer,
+                     produktart: v.produktart != .unbekannt ? v.produktart : anteile.first?.produktart ?? .unbekannt)
     }
 }

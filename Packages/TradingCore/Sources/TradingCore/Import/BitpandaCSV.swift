@@ -73,7 +73,7 @@ public enum BitpandaCSV {
                     seite: kauf ? .buy : .sell, menge: try zahl("Amount Asset"),
                     preis: try zahl("Asset market price"),
                     betrag: kauf ? -(betragFiat + gebuehr) : betragFiat - gebuehr, gebuehr: gebuehr,
-                    waehrung: fiat, rohzeile: z))
+                    waehrung: fiat, produktart: .krypto, rohzeile: z))
                 if let i = steuerSpalte, i < z.count, try KryptoWerte.zahl(z[i], zeile: zeile) != 0 {
                     hinweis("\(paarSeite) Steuer \(z[i].trimmingCharacters(in: .whitespaces)) \(fiat)")
                 }
@@ -81,7 +81,7 @@ public enum BitpandaCSV {
                 ergebnis.ausfuehrungen.append(Ausfuehrung(
                     id: id, zeit: zeit, kennung: KryptoWerte.kennung(asset, fiat), name: asset, seite: .buy,
                     menge: try zahl("Amount Asset"), preis: try zahl("Asset market price"),
-                    betrag: -betragFiat, waehrung: fiat, rohzeile: z))
+                    betrag: -betragFiat, waehrung: fiat, produktart: .krypto, rohzeile: z))
                 ergebnis.geldbewegungen.append(Geldbewegung(
                     id: "\(id)-ertrag", zeit: zeit, art: .zinsen, betrag: betragFiat, waehrung: fiat,
                     kennung: KryptoWerte.kennung(asset, fiat), rohzeile: z))
