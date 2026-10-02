@@ -75,7 +75,7 @@ struct ImportordnerKarte: View {
             .padding(Abstand.kachelInnen)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(thema.flaeche, in: RoundedRectangle(cornerRadius: Abstand.radiusKachel))
-            .sheet(item: $vorschau, onDismiss: { ordner.pruefe() }) { vorschau in
+            .sheet(item: $vorschau, onDismiss: { Task { await ordner.pruefe() } }) { vorschau in
                 ImportBlatt(vorschau: vorschau)
             }
             .alert("Datei nicht lesbar", isPresented: $lesefehler) {
