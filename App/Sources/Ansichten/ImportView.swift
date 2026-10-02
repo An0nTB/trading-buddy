@@ -509,8 +509,18 @@ struct ImportBlatt: View {
         let anzeigeWaehrung = gewaehlt?.waehrung ?? waehrung
         let kaeufe = bewegungen.ausfuehrungen.filter { $0.seite == .buy }.count
         let verkaeufe = bewegungen.ausfuehrungen.count - kaeufe
-        let einAus = bewegungen.geldbewegungen.filter { $0.art == .einzahlung || $0.art == .auszahlung }
-            .map { $0.betrag + $0.gebuehr + $0.steuer }.reduce(Decimal(0), +)
+        // Gegencheck A4: Summen je Währung, USD und USDT nicht als Kontowährung addieren.
+        let geldPosten: [(String, Decimal)] = bewegungen.geldbewegungen
+            .map { ($0.waehrung, $0.betrag + $0.gebuehr + $0.steuer) }
+        let handelPosten: [(String, Decimal)] = bewegungen.ausfuehrungen
+            .map { ($0.waehrung, $0.betrag + $0.gebuehr + $0.steuer) }
+        let einAusPosten: [(String, Decimal)] = bewegungen.geldbewegungen
+            .filter { $0.art == .einzahlung || $0.art == .auszahlung }
+            .map { ($0.waehrung, $0.betrag + $0.gebuehr + $0.steuer) }
+        let einAus = Waehrungssummen(einAusPosten, kontowaehrung: anzeigeWaehrung)
+        let kasse = Waehrungssummen(handelPosten + geldPosten, kontowaehrung: anzeigeWaehrung)
+        let tradeWaehrungen = Set(bildung.trades.map { $0.waehrung(kontowaehrung: anzeigeWaehrung) }).sorted()
+        let tradeListe = tradeWaehrungen.joined(separator: ", ")
 
         HStack(spacing: Abstand.raster * 2) {
             Text(verbatim: erkennungCSV(broker, bewegungen))
@@ -532,9 +542,11 @@ struct ImportBlatt: View {
             Kachel(titel: "Ausführungen", wert: "\(bewegungen.ausfuehrungen.count)",
                    zusatz: String(localized: "\(kaeufe) Käufe, \(verkaeufe) Verkäufe"))
             Kachel(titel: "Trades", wert: "\(bildung.trades.count)",
-                   zusatz: String(localized: "nach FIFO, nur diese Datei"))
-            Kachel(titel: "Ein-/Auszahlungen", wert: Format.betrag(einAus, anzeigeWaehrung),
-                   zusatz: String(localized: "\(bewegungen.geldbewegungen.count) Geldbewegungen gesamt"))
+                   zusatz: tradeWaehrungen.count > 1
+                       ? String(localized: "nach FIFO, nur diese Datei · in \(tradeListe)")
+                       : String(localized: "nach FIFO, nur diese Datei"))
+            Kachel(titel: "Ein-/Auszahlungen", wert: einAus.kontowaehrungText,
+                   zusatz: einAus.zusatz(String(localized: "\(bewegungen.geldbewegungen.count) Geldbewegungen gesamt")))
             Kachel(titel: "Schon bekannt", wert: "\(dubletten)",
                    zusatz: String(localized: "von \(vorgangsIds.count) Vorgängen"))
         }
@@ -590,10 +602,12 @@ struct ImportBlatt: View {
         Grid(alignment: .leading, horizontalSpacing: Abstand.kachelAbstand, verticalSpacing: Abstand.raster) {
             GridRow {
                 Text("Kassenwirkung der Datei").foregroundStyle(thema.text)
-                Text(verbatim: Format.betrag(bewegungen.kassenwirkung, anzeigeWaehrung))
+                Text(verbatim: kasse.alleText)
                     .font(Schrift.tabelle)
                     .gridColumnAlignment(.trailing)
-                Text("Summe aller Zeilen; der Export nennt keinen Saldo zum Gegenprüfen")
+                Text(verbatim: kasse.fremde.isEmpty
+                     ? String(localized: "Summe aller Zeilen; der Export nennt keinen Saldo zum Gegenprüfen")
+                     : String(localized: "Summe aller Zeilen je Währung, ohne Umrechnung; der Export nennt keinen Saldo zum Gegenprüfen"))
                     .font(Schrift.beschriftung)
                     .foregroundStyle(thema.textSchwach)
             }
@@ -1081,5 +1095,40 @@ struct ImportBlatt: View {
             }
         }
         return error.localizedDescription
+    }
+}
+
+/// Summen je Währung für die Import-Vorschau (Gegencheck A4): Kontowährung zuerst, Fremdwährungen alphabetisch,
+/// nichts umgerechnet. Vorher wurden USD, USDT und EUR einer Kraken- oder Binance-Datei als Kontowährung addiert.
+struct Waehrungssummen {
+    let kontowaehrung: String
+    private var summen: [String: Decimal] = [:]
+
+    init(_ posten: [(String, Decimal)], kontowaehrung: String) {
+        self.kontowaehrung = kontowaehrung.uppercased()
+        for (waehrung, betrag) in posten { summen[waehrung.uppercased(), default: 0] += betrag }
+    }
+
+    /// Fremdwährungen mit Posten, alphabetisch.
+    var fremde: [String] { summen.keys.filter { $0 != kontowaehrung }.sorted() }
+
+    /// Summe in Kontowährung, 0 ohne Posten darin.
+    var kontowaehrungText: String { Format.betrag(summen[kontowaehrung] ?? 0, kontowaehrung) }
+
+    /// Summen der Fremdwährungen als Text, leer ohne Fremdwährung.
+    private var fremdeText: String {
+        fremde.map { Format.betrag(summen[$0] ?? 0, $0) }.joined(separator: ", ")
+    }
+
+    /// Alle Summen in einer Zeile, Kontowährung zuerst.
+    var alleText: String {
+        fremde.isEmpty ? kontowaehrungText : kontowaehrungText + " · " + fremdeText
+    }
+
+    /// Zusatz einer Kachel: der gegebene Text, bei Fremdwährungen ergänzt um deren Summen.
+    func zusatz(_ text: String) -> String {
+        if fremde.isEmpty { return text }
+        let dazu = fremdeText
+        return text + " · " + String(localized: "dazu \(dazu)")
     }
 }
