@@ -67,8 +67,8 @@ public struct Kennzahlen: Sendable, Equatable {
         func mittel(_ werte: [TimeInterval]) -> TimeInterval? {
             werte.isEmpty ? nil : werte.reduce(0, +) / Double(werte.count)
         }
-        haltedauerGewinner = mittel(trades.filter { $0.outcome == .win }.map(\.holdingTime))
-        haltedauerVerlierer = mittel(trades.filter { $0.outcome == .loss }.map(\.holdingTime))
+        haltedauerGewinner = mittel(trades.filter { $0.outcome == .win && !$0.nurDatum }.map(\.holdingTime))
+        haltedauerVerlierer = mittel(trades.filter { $0.outcome == .loss && !$0.nurDatum }.map(\.holdingTime))
     }
 
     /// Anteil gelöschter Pending Orders an allen Orders (ausgeführt plus gelöscht).

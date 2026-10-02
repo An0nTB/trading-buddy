@@ -127,3 +127,34 @@ private func konto(_ journal: Journal, _ nummer: String = "100001") throws -> Ko
     try journal.schreibe { try $0.execute(sql: "UPDATE reviewziel SET status = 'vertagt'") }
     #expect(throws: SpeicherFehler.unbekannterWert("vertagt")) { try journal.ziele(konto: k) }
 }
+
+@Test func abgelaufeneZieleWerdenVerfehlt() throws {
+    let journal = try Journal.imSpeicher()
+    let a = try konto(journal, "1")
+    let b = try konto(journal, "2")
+    let mai1 = try journal.legeZielAn(Reviewziel(text: "Mai", von: mai.0, bis: mai.1, erstellt: erstellt), konto: a)
+    let mai2 = try journal.legeZielAn(Reviewziel(text: "Mai B", von: mai.0, bis: mai.1, erstellt: erstellt), konto: b)
+    let juniZiel = try journal.legeZielAn(Reviewziel(text: "Juni", von: juni.0, bis: juni.1, erstellt: erstellt),
+                                          konto: a)
+    let erreicht = try journal.legeZielAn(Reviewziel(text: "Erreicht", von: mai.0, bis: mai.1, erstellt: erstellt),
+                                          konto: a)
+    try journal.setzeZielstatus(id: erreicht.id!, .erreicht, ergebnis: "1 statt 2", jetzt: erstellt)
+    let mitErgebnis = try journal.legeZielAn(Reviewziel(text: "Notiz", von: mai.0, bis: mai.1, erstellt: erstellt),
+                                             konto: a)
+    try journal.setzeZielstatus(id: mitErgebnis.id!, .offen, ergebnis: "3 Revanche-Trades", jetzt: erstellt)
+
+    // Genau am Ende des Mai: `bis` ausschließlich, also vorbei. Nur Konto A.
+    let jetzt = mai.1
+    let geschlossen = try journal.schliesseAbgelaufeneZiele(konto: a, jetzt: jetzt)
+    #expect(geschlossen.map(\.id) == [mai1.id, mitErgebnis.id])
+    #expect(geschlossen.allSatisfy { $0.status == .verfehlt && $0.geaendert == jetzt })
+    #expect(geschlossen[0].ergebnis == Journal.fristAbgelaufen)
+    #expect(geschlossen[1].ergebnis == "3 Revanche-Trades")
+    #expect(try journal.ziele(konto: a, status: .offen).map(\.id) == [juniZiel.id])
+    #expect(try journal.ziele(konto: a, status: .erreicht).first?.ergebnis == "1 statt 2")
+    #expect(try journal.ziele(konto: b, status: .offen).map(\.id) == [mai2.id])
+
+    // Ohne Konto: alle Konten; zweiter Lauf ändert nichts mehr.
+    #expect(try journal.schliesseAbgelaufeneZiele(jetzt: jetzt).map(\.id) == [mai2.id])
+    #expect(try journal.schliesseAbgelaufeneZiele(jetzt: jetzt).isEmpty)
+}

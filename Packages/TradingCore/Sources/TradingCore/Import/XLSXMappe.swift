@@ -93,7 +93,9 @@ public struct XLSXMappe: Sendable {
             switch ereignis {
             case .start("row", let attribute):
                 // Excel lässt leere Zeilen aus; die Nummer hält Abstände zwischen Zeilen fest.
-                let nummer = attribute["r"].flatMap { Int($0) } ?? zeilen.count + 1
+                // Nummern außerhalb des Excel-Bereichs stammen aus einer kaputten Datei und zählen nicht.
+                let nummer = attribute["r"].flatMap { Int($0) }.flatMap { (1...Self.hoechsteZeile).contains($0) ? $0 : nil }
+                    ?? zeilen.count + 1
                 while zeilen.count < nummer - 1 { zeilen.append([]) }
                 zeile = []
             case .start("c", let attribute):
@@ -107,7 +109,7 @@ public struct XLSXMappe: Sendable {
             case .text(let text) where inWert:
                 wert += text
             case .ende("c"):
-                let text = typ == "s" ? Int(wert).flatMap { $0 < texte.count ? texte[$0] : nil } ?? "" : wert
+                let text = typ == "s" ? Int(wert).flatMap { texte.indices.contains($0) ? texte[$0] : nil } ?? "" : wert
                 while zeile.count <= spalte { zeile.append("") }
                 zeile[spalte] = text
             case .ende("row"):
@@ -119,10 +121,16 @@ public struct XLSXMappe: Sendable {
         return zeilen
     }
 
-    /// „B5“ → 1, „AA7“ → 26.
+    /// Grenzen von Excel: Zeile 1 048 576, Spalte XFD.
+    static let hoechsteZeile = 1_048_576
+    static let spaltenzahl = 16_384
+
+    /// „B5“ → 1, „AA7“ → 26. Nur A bis Z, höchstens drei Buchstaben und bis Spalte XFD; sonst `nil`.
     static func spaltenIndex(_ zelle: String) -> Int? {
         let buchstaben = zelle.prefix { $0.isLetter }.uppercased()
-        guard !buchstaben.isEmpty else { return nil }
-        return buchstaben.unicodeScalars.reduce(0) { $0 * 26 + Int($1.value) - 64 } - 1
+        guard (1...3).contains(buchstaben.count),
+              buchstaben.unicodeScalars.allSatisfy({ ("A"..."Z").contains($0) }) else { return nil }
+        let index = buchstaben.unicodeScalars.reduce(0) { $0 * 26 + Int($1.value) - 64 } - 1
+        return index < spaltenzahl ? index : nil
     }
 }
