@@ -19,8 +19,9 @@ public struct ClosedPosition: Sendable, Equatable {
     public var swap: Decimal
     /// Ergebnis aus der Kursbewegung, ohne Kommission und Swap.
     public var profit: Decimal
+    public var produktart: Produktart
 
-    public init(ticket: String, rohzeile: [String], side: Side, lots: Decimal, symbol: String, openTime: Date, openPrice: Decimal, stopLoss: Decimal? = nil, takeProfit: Decimal? = nil, closeTime: Date, closePrice: Decimal, commission: Decimal, swap: Decimal, profit: Decimal) {
+    public init(ticket: String, rohzeile: [String], side: Side, lots: Decimal, symbol: String, openTime: Date, openPrice: Decimal, stopLoss: Decimal? = nil, takeProfit: Decimal? = nil, closeTime: Date, closePrice: Decimal, commission: Decimal, swap: Decimal, profit: Decimal, produktart: Produktart = .unbekannt) {
         self.ticket = ticket
         self.rohzeile = rohzeile
         self.side = side
@@ -35,6 +36,7 @@ public struct ClosedPosition: Sendable, Equatable {
         self.commission = commission
         self.swap = swap
         self.profit = profit
+        self.produktart = produktart
     }
 
     /// Ergebnis nach Kosten: Kommission + Swap + Kursergebnis.
@@ -58,8 +60,9 @@ public struct OpenPosition: Sendable, Equatable {
     public var commission: Decimal
     public var swap: Decimal
     public var profit: Decimal
+    public var produktart: Produktart
 
-    public init(ticket: String, rohzeile: [String], side: Side, lots: Decimal, symbol: String, openTime: Date, openPrice: Decimal, stopLoss: Decimal? = nil, takeProfit: Decimal? = nil, currentPrice: Decimal, commission: Decimal, swap: Decimal, profit: Decimal) {
+    public init(ticket: String, rohzeile: [String], side: Side, lots: Decimal, symbol: String, openTime: Date, openPrice: Decimal, stopLoss: Decimal? = nil, takeProfit: Decimal? = nil, currentPrice: Decimal, commission: Decimal, swap: Decimal, profit: Decimal, produktart: Produktart = .unbekannt) {
         self.ticket = ticket
         self.rohzeile = rohzeile
         self.side = side
@@ -73,6 +76,7 @@ public struct OpenPosition: Sendable, Equatable {
         self.commission = commission
         self.swap = swap
         self.profit = profit
+        self.produktart = produktart
     }
 
     /// Schwebendes Ergebnis nach Kosten.
