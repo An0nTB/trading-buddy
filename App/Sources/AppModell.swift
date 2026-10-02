@@ -88,6 +88,7 @@ final class AppModell {
     /// Nutzers und kein EZB-Abruf, sonst überschriebe ein Testlauf am Mac die echte Exportdatei.
     init(journal: Journal?, nebenwirkungen: Bool = true) {
         self.nebenwirkungen = nebenwirkungen
+        if nebenwirkungen { anzeigewaehrung = UserDefaults.standard.string(forKey: Self.anzeigewaehrungSchluessel) }
         if let journal {
             self.journal = journal
             nachrichten.verbinde(journal)
@@ -141,9 +142,12 @@ final class AppModell {
     /// Trades nach Zeitraum und Instrument in ihrer Originalwährung: Grundlage der Listen (Einzelbeträge, W1).
     var trades: [Trade] { gefiltert(alleTrades) }
 
-    /// Trades nach Zeitraum und Instrument in Kontowährung: Grundlage aller Summen (Kennzahlen, Kapitalverlauf,
-    /// Disziplin, Fehlermuster; Doc 40 W3). Trades ohne Kurs am Schlusstag fehlen hier, `waehrungsstand` zählt sie.
-    var angeglicheneTrades: [Trade] { gefiltert(angleich.trades) }
+    /// Trades nach Zeitraum und Instrument in der Anzeigewährung: Grundlage der Summen auf Übersicht, Kennzahlen und
+    /// Fehlermuster (Doc 40 W3, B4). Trades ohne Kurs am Schlusstag fehlen hier, `waehrungsstand` zählt sie.
+    var angeglicheneTrades: [Trade] { gefiltert(anzeige.trades) }
+
+    /// Trades nach Zeitraum und Instrument in Kontowährung: Grundlage der Regel-Seite (Grenzen stehen in Kontowährung).
+    var kontoTrades: [Trade] { gefiltert(angleich.trades) }
 
     private func gefiltert(_ trades: [Trade]) -> [Trade] {
         let kalender = self.kalender
@@ -159,8 +163,41 @@ final class AppModell {
     /// Kurs bleiben außen vor. Neu gerechnet nach jedem Trade-Aufbau und nach jedem EZB-Abruf.
     private(set) var angleich = Waehrungsangleich([], kontowaehrung: "EUR", kurse: nil)
 
+    /// Dieselben Trades in der Anzeigewährung (Entscheidung B4: „Standard Euro, andere Währung per Klick“); gleich
+    /// `angleich`, solange die Anzeigewährung die Kontowährung ist. Regeln und Prop-Firm bleiben in Kontowährung.
+    private(set) var anzeige = Waehrungsangleich([], kontowaehrung: "EUR", kurse: nil)
+
+    /// Gewählte Anzeigewährung der Summen; `nil` heißt Kontowährung. Gilt für alle Konten, bleibt über Neustarts.
+    var anzeigewaehrung: String? {
+        didSet {
+            guard anzeigewaehrung != oldValue else { return }
+            if nebenwirkungen { UserDefaults.standard.set(anzeigewaehrung, forKey: Self.anzeigewaehrungSchluessel) }
+            gleicheWaehrungenAn()
+        }
+    }
+    static let anzeigewaehrungSchluessel = "anzeige.waehrung"
+
+    /// Währung, in der Übersicht, Kennzahlen und Fehlermuster summieren.
+    var summenwaehrung: String { (anzeigewaehrung ?? waehrung).uppercased() }
+
+    /// Wählbare Anzeigewährungen: die gängigen EZB-Währungen und die Währungen der eigenen Trades.
+    var anzeigewaehrungen: [String] {
+        Set(["EUR", "USD", "GBP", "CHF", "JPY"] + angleich.fremdwaehrungen + [waehrung.uppercased()])
+            .subtracting(["USDT"]).sorted()
+    }
+
     private func gleicheWaehrungenAn() {
-        angleich = Waehrungsangleich(alleTrades, kontowaehrung: waehrung, kurse: ezb.kurse)
+        let konto = waehrung.uppercased()
+        angleich = Waehrungsangleich(alleTrades, kontowaehrung: konto, kurse: ezb.kurse)
+        let ziel = summenwaehrung
+        guard ziel != konto else { anzeige = angleich; return }
+        // Trades ohne eigene Währung stehen in Kontowährung; ausdrücklich setzen, sonst gälten sie als Zielwährung.
+        let mitWaehrung = alleTrades.map { trade in
+            var t = trade
+            t.waehrung = trade.waehrung(kontowaehrung: konto)
+            return t
+        }
+        anzeige = Waehrungsangleich(mitWaehrung, kontowaehrung: ziel, kurse: ezb.kurse)
     }
 
     /// Was die Umrechnung im gewählten Zeitraum getan hat: Grundlage des Mischwährungshinweises.
@@ -172,10 +209,10 @@ final class AppModell {
     }
 
     var waehrungsstand: Waehrungsstand {
-        let ohne = Set(angleich.ohneKurs.map(\.id))
-        var stand = Waehrungsstand(waehrungen: angleich.fremdwaehrungen)
+        let ohne = Set(anzeige.ohneKurs.map(\.id))
+        var stand = Waehrungsstand(waehrungen: anzeige.fremdwaehrungen)
         for trade in trades {
-            if angleich.umgerechnet.contains(trade.id) { stand.umgerechnet += 1 }
+            if anzeige.umgerechnet.contains(trade.id) { stand.umgerechnet += 1 }
             if ohne.contains(trade.id) { stand.ohneKurs += 1 }
         }
         return stand
@@ -511,7 +548,7 @@ final class AppModell {
     /// Disziplin-Kurve der gefilterten Trades; die Verstöße stammen aus der Prüfung über alle Trades,
     /// Prop-Firm-Verstöße zählen mit (TradingCore 0.16.0; ein Trade mit beiden Arten zählt einmal).
     var disziplin: Disziplin {
-        Disziplin(trades: angeglicheneTrades, verstoesse: verstoesse, propFirm: propFirmErgebnis?.verstoesse ?? [])
+        Disziplin(trades: kontoTrades, verstoesse: verstoesse, propFirm: propFirmErgebnis?.verstoesse ?? [])
     }
 
     /// Stand der Challenge über alle Trades des Kontos; `nil` ohne Prop-Firm-Regeln.
@@ -587,7 +624,7 @@ final class AppModell {
 
     /// Kennzahlen je Setup und Kriterium für die gefilterten Trades (TradingCore 0.11.0).
     var playbookAuswertung: PlaybookAuswertung {
-        PlaybookAuswertung(trades: trades, playbook: playbook, checklisten: checklisten)
+        PlaybookAuswertung(trades: angeglicheneTrades, playbook: playbook, checklisten: checklisten)
     }
 
     /// Das Konto zu Broker und Nummer, falls schon angelegt.

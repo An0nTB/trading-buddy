@@ -29,7 +29,7 @@ struct FehlermusterView: View {
                                 .font(Schrift.fliesstext)
                                 .foregroundStyle(thema.textSchwach)
                             HStack(spacing: Abstand.kachelAbstand) {
-                                Text(verbatim: BefundText.kurz(befund, waehrung: modell.waehrung))
+                                Text(verbatim: BefundText.kurz(befund, waehrung: modell.summenwaehrung))
                                     .font(Schrift.tabelle)
                                     .foregroundStyle(thema.text)
                                 Spacer()
