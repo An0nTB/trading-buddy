@@ -2634,6 +2634,16 @@
         }
       }
     },
+    "Bericht für Zeitraum" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Report for a Period"
+          }
+        }
+      }
+    },
     "Beschreibt vergangene Trades. Keine Kauf- oder Verkaufsempfehlung, keine Prognose." : {
       "localizations" : {
         "en" : {
