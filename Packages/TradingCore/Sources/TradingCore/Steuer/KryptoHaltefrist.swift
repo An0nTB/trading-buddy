@@ -70,8 +70,11 @@ public enum KryptoHaltefrist {
         return k.date(byAdding: .day, value: 1, to: jahrestag)!
     }
 
+    /// Mit `kurse` rechnet eine Ausführung in anderer Währung zum Kurs an ihrem Tag in Euro um;
+    /// ohne Kurs zählt das Los wie bisher als `ohneEuro`.
     public static func jahr(_ jahr: Int, ausfuehrungen: [Ausfuehrung], importhinweise: [Importhinweis] = [],
-                            zeitzone: TimeZone = Steuerorientierung.deutscheZeit) -> Jahr {
+                            zeitzone: TimeZone = Steuerorientierung.deutscheZeit,
+                            kurse: Referenzkurse? = nil) -> Jahr {
         let k = Steuerorientierung.kalender(in: zeitzone)
         // Bei gleicher Zeit erst Käufe, dann Verkäufe, sonst Reihenfolge der Datei.
         let nummeriert = Array(ausfuehrungen.filter { $0.produktart == .krypto }.enumerated())
@@ -86,9 +89,10 @@ public enum KryptoHaltefrist {
         var ohneAnschaffung: [Ausfuehrung] = []
         for a in krypto where a.menge > 0 {
             let coin = a.name.uppercased()
-            let euro = a.waehrung.uppercased() == "EUR"
+            let euroBetrag: Decimal? = a.waehrung.uppercased() == "EUR" ? a.betrag + a.gebuehr
+                : kurse?.inEuro(a.betrag + a.gebuehr, waehrung: a.waehrung, am: a.zeit, zeitzone: zeitzone)
             if a.seite == .buy {
-                let kosten: Decimal? = euro ? -(a.betrag + a.gebuehr) : nil
+                let kosten: Decimal? = euroBetrag.map { -$0 }
                 bestand[coin, default: []].append(Kauf(menge: a.menge, zeit: a.zeit, kosten: kosten))
                 continue
             }
@@ -101,7 +105,7 @@ public enum KryptoHaltefrist {
                 if imJahr {
                     lose.append(Los(coin: coin, menge: menge, kaufzeit: kauf.zeit, verkaufzeit: a.zeit,
                                     einstand: kauf.kosten.map { $0 * anteilKauf },
-                                    erloes: euro ? (a.betrag + a.gebuehr) * menge / a.menge : nil,
+                                    erloes: euroBetrag.map { $0 * menge / a.menge },
                                     steuerfrei: a.zeit >= steuerfreiAb(kauf.zeit, zeitzone: zeitzone)))
                 }
                 rest -= menge
