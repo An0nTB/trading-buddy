@@ -1,0 +1,95 @@
+name: Lokalisierung
+
+# Englisch als zweite Sprache (Paket 6, Doc 43): exportiert die Texte der App so, wie Xcode sie aus dem
+# Code liest, und zählt, welche noch kein Englisch haben. Kein Pflicht-Check; läuft nur, wenn sich die
+# App-Quellen, die Texte oder diese Datei ändern. Die Liste der fehlenden Texte steht im Log.
+on:
+  pull_request:
+    paths:
+      - "App/**"
+      - "project.yml"
+      - "scripts/lokalisierung_pruefen.py"
+      - ".github/workflows/lokalisierung.yml"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "App/**"
+      - "project.yml"
+      - "scripts/lokalisierung_pruefen.py"
+      - ".github/workflows/lokalisierung.yml"
+
+jobs:
+  englisch:
+    name: Lokalisierung (Englisch)
+    runs-on: xcode-27
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: XcodeGen installieren
+        run: brew install xcodegen
+      - name: Xcode-Projekt erzeugen
+        run: xcodegen generate
+      - name: Texte exportieren (macOS)
+        run: xcodebuild -exportLocalizations -project TradingBuddy.xcodeproj -localizationPath "$RUNNER_TEMP/loc-mac" -exportLanguage en -sdk macosx CODE_SIGNING_ALLOWED=NO
+      - name: Texte exportieren (iOS)
+        run: xcodebuild -exportLocalizations -project TradingBuddy.xcodeproj -localizationPath "$RUNNER_TEMP/loc-ios" -exportLanguage en -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO
+      - name: Englisch-Abdeckung macOS
+        run: python3 scripts/lokalisierung_pruefen.py "$RUNNER_TEMP/loc-mac" --liste
+      - name: Englisch-Abdeckung iOS
+        run: python3 scripts/lokalisierung_pruefen.py "$RUNNER_TEMP/loc-ios" --liste
+      # Englische Startprobe: App mit Sprache Englisch acht Sekunden laufen lassen und prüfen,
+      # dass das Paket eine englische Lokalisierung mit übersetzten Texten trägt.
+      - name: Bauen für macOS (Startprobe Englisch)
+        run: xcodebuild -project TradingBuddy.xcodeproj -scheme TradingBuddy -destination 'generic/platform=macOS' -derivedDataPath build CODE_SIGNING_ALLOWED=NO build -quiet
+      - name: Englische Lokalisierung im App-Paket
+        run: |
+          APP="$(find build/Build/Products -maxdepth 2 -name '*.app' | head -1)"
+          ls "$APP/Contents/Resources" | grep lproj
+          test -d "$APP/Contents/Resources/en.lproj"
+          plutil -convert json -o "$RUNNER_TEMP/en.json" "$APP/Contents/Resources/en.lproj/Localizable.strings"
+          python3 -c "import json,sys; d=json.load(open(sys.argv[1])); print(len(d), 'englische Texte'); assert d.get('Einstellungen') == 'Settings', d.get('Einstellungen')" "$RUNNER_TEMP/en.json"
+      - name: Startprobe macOS auf Englisch
+        run: |
+          APP="$(find build/Build/Products -maxdepth 2 -name '*.app' | head -1)"
+          BIN="$APP/Contents/MacOS/$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$APP/Contents/Info.plist")"
+          HEIM="$RUNNER_TEMP/heim-en"
+          mkdir -p "$HEIM"
+          CFFIXED_USER_HOME="$HEIM" "$BIN" -AppleLanguages '(en)' > "$RUNNER_TEMP/start-en.log" 2>&1 &
+          PID=$!
+          sleep 8
+          if ! kill -0 "$PID" 2>/dev/null; then
+            echo "App hat sich auf Englisch nach weniger als 8 s beendet"
+            cat "$RUNNER_TEMP/start-en.log"
+            exit 1
+          fi
+          kill "$PID"
+          echo "Startprobe Englisch: läuft nach 8 s"
+      - name: Textkatalog nach dem Export
+        run: git diff --stat
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lokalisierung
+          path: |
+            ${{ runner.temp }}/loc-mac
+            ${{ runner.temp }}/loc-ios
+            App/Resources/Localizable.xcstrings
+      # Ohne Xcode in der Cloud braucht die Übersetzung die exakten Schlüssel (mit %@, %lld). Der Export landet
+      # als einzelner Commit auf dem Hilfszweig `lokalisierung-export` (kein PR, wird jedes Mal überschrieben).
+      # Nur bei Handstart oder auf den Englisch-Zweigen, damit andere PRs den Zweig nicht verändern.
+      - name: Export auf Hilfszweig ablegen
+        if: github.event_name == 'workflow_dispatch' || startsWith(github.head_ref, 'claude/englisch')
+        run: |
+          ZIEL="$RUNNER_TEMP/export"
+          mkdir -p "$ZIEL"
+          cp App/Resources/Localizable.xcstrings "$ZIEL/"
+          cp "$(find "$RUNNER_TEMP/loc-mac" -name en.xliff | head -1)" "$ZIEL/en-macos.xliff"
+          cp "$(find "$RUNNER_TEMP/loc-ios" -name en.xliff | head -1)" "$ZIEL/en-ios.xliff"
+          cd "$ZIEL"
+          git init -q -b lokalisierung-export
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Lokalisierungs-Export von ${GITHUB_SHA}"
+          git push -q --force "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" lokalisierung-export
