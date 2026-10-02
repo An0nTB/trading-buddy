@@ -50,6 +50,25 @@ final class Boersenverwaltung {
     func istAngepasst(_ id: String) -> Bool { auswahl.angepassteZeiten[id] != nil }
     func kalender(fuer id: String) -> [String] { auswahl.kalenderJeBoerse[id] ?? [] }
 
+    /// Sitzungsarten, die die Uhr für eine Börse mitrechnet; ohne Eintrag nur Kernhandel (Entscheidung U8).
+    func sitzungsarten(_ id: String) -> Set<Sitzungsart> {
+        Set(auswahl.sitzungsartenJeBoerse[id] ?? [.kern])
+    }
+
+    /// Schaltet eine Zusatzsitzung (vor-, nachbörslich, Nacht) zu oder ab. Nur Kernhandel löscht den Eintrag.
+    func setzeSitzungsart(_ art: Sitzungsart, boerse id: String, an: Bool) {
+        var arten = sitzungsarten(id)
+        if an { arten.insert(art) } else { arten.remove(art) }
+        arten.insert(.kern)
+        aendere { auswahl in
+            if arten == [.kern] {
+                auswahl.sitzungsartenJeBoerse[id] = nil
+            } else {
+                auswahl.sitzungsartenJeBoerse[id] = Sitzungsart.allCases.filter(arten.contains)
+            }
+        }
+    }
+
     /// Mitgelieferte Handelszeiten einer Börse ohne Anpassung des Nutzers; `nil` bei eigenen Börsen.
     func vorgabe(_ id: String) -> [Handelszeit]? {
         mitgeliefert.first { $0.id == id }?.handelszeiten
