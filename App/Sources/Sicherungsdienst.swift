@@ -58,10 +58,12 @@ enum Sicherungsdienst {
     }
 
     /// Fällig, wenn eingeschaltet, ein Ordner gemerkt ist und die letzte Sicherung einen Tag zurückliegt.
-    static func istFaellig(jetzt: Date = .now) -> Bool {
-        guard aktiv, UserDefaults.standard.data(forKey: schluesselOrdner) != nil else { return false }
-        guard let letzte else { return true }
-        return jetzt.timeIntervalSince(letzte) >= abstand
+    /// `ablage` nur für Tests (App/Tests) austauschbar, damit ein Testlauf am Mac die Einstellungen des Nutzers nicht anfasst.
+    static func istFaellig(jetzt: Date = .now, ablage: UserDefaults = .standard) -> Bool {
+        guard ablage.bool(forKey: schluesselAktiv), ablage.data(forKey: schluesselOrdner) != nil else { return false }
+        let sekunden = ablage.double(forKey: schluesselLetzte)
+        guard sekunden > 0 else { return true }
+        return jetzt.timeIntervalSince(Date(timeIntervalSince1970: sekunden)) >= abstand
     }
 
     // MARK: Sichern

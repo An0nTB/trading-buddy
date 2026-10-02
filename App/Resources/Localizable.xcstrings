@@ -3647,6 +3647,16 @@
         }
       }
     },
+    "Der Auszug nennt die Produktart nicht. Bis du sie wählst, zählt der Trade in der Steuer als „nicht zugeordnet“. Die Wahl gilt für alle Trades dieses Kontos mit demselben Symbol." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The statement does not name the product type. Until you choose one, the trade counts as “not assigned” for tax. The choice applies to all trades in this account with the same symbol."
+          }
+        }
+      }
+    },
     "Der Auszug nennt keine Uhrzeit; ohne Uhrzeit gibt es keine Ausstiegsanalyse." : {
       "localizations" : {
         "en" : {
