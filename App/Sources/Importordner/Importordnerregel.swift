@@ -11,7 +11,7 @@ enum Importordnerregel {
     enum Entscheidung: Equatable {
         /// MetaTrader 4: Konto steht in der Datei; Serverzeit wie beim letzten Auszug dieses Kontos.
         case mt4(Konto, serverZeitzone: TimeZone)
-        /// CSV ohne Kontonummer: das einzige Konto dieses Brokers.
+        /// CSV ohne Kontonummer: das einzige Konto dieses Brokers, und die Datei überschneidet sich mit ihm.
         case csv(CSVBroker, Konto)
         /// XTB-Kontohistorie mit Kontonummer im Kopf; Zeitzone wie beim letzten Import dieses Kontos.
         case xtb(Konto, zeitzone: TimeZone)
@@ -19,9 +19,12 @@ enum Importordnerregel {
         case rueckfrage(String)
     }
 
-    /// `zeitzone(konto)` liefert die Zeitzone des letzten Imports dieses Kontos (`Importlauf.serverZeitzone`).
+    /// `zeitzone(konto)` liefert die Zeitzone des letzten Imports dieses Kontos (`Importlauf.serverZeitzone`),
+    /// `vorgaenge(konto)` die schon gespeicherten Vorgangskennungen (Ausführungen, Geldbewegungen,
+    /// Kapitalmaßnahmen) dieses Kontos.
     static func entscheide(daten: Data, dateiname: String, konten: [Konto],
-                           zeitzone: (Konto) -> TimeZone?) -> Entscheidung {
+                           zeitzone: (Konto) -> TimeZone?,
+                           vorgaenge: (Konto) -> Set<String> = { _ in [] }) -> Entscheidung {
         if XTBAuszug.erkennt(daten) {
             return xtb(daten, konten: konten, zeitzone: zeitzone)
         }
@@ -32,7 +35,7 @@ enum Importordnerregel {
             return .rueckfrage(String(localized: "Format nicht erkannt: weder Text noch Excel."))
         }
         if let broker = csvBroker(text) {
-            return csv(broker, konten: konten)
+            return csv(broker, text: text, konten: konten, vorgaenge: vorgaenge)
         }
         if BinanceCSV.istTransaktionsverlauf(text) {
             return .rueckfrage(String(localized: "Binance-Transaktionsverlauf: Den liest die App nicht, bitte die Trade History exportieren."))
@@ -62,15 +65,38 @@ enum Importordnerregel {
         return nil
     }
 
-    private static func csv(_ broker: CSVBroker, konten: [Konto]) -> Entscheidung {
+    /// Still nur, wenn die Datei mindestens einen Vorgang enthält, den das einzige Konto des Brokers schon kennt
+    /// (Tim 02.10.2026, G21 Option 2): Folgeexporte überschneiden sich mit dem letzten, ein fremdes Depot nicht.
+    private static func csv(_ broker: CSVBroker, text: String, konten: [Konto],
+                            vorgaenge: (Konto) -> Set<String>) -> Entscheidung {
         let passend = konten.filter { $0.broker == broker.name }
         switch passend.count {
         case 0:
             return .rueckfrage(String(localized: "Noch kein Konto bei \(broker.name): bitte einmal von Hand importieren."))
         case 1:
+            guard let bewegungen = try? lies(broker, text) else {
+                return .rueckfrage(String(localized: "Import abgebrochen: bitte im Blatt prüfen."))
+            }
+            let kennungen = bewegungen.ausfuehrungen.map(\.id) + bewegungen.geldbewegungen.map(\.id)
+                + bewegungen.kapitalmassnahmen.map(\.id)
+            guard !vorgaenge(passend[0]).isDisjoint(with: kennungen) else {
+                return .rueckfrage(String(localized: "Keine Überschneidung mit dem Konto bei \(broker.name): anderes Depot? Bitte im Blatt zuordnen."))
+            }
             return .csv(broker, passend[0])
         default:
             return .rueckfrage(String(localized: "Mehrere Konten bei \(broker.name): bitte das Konto wählen."))
+        }
+    }
+
+    /// Liest die CSV mit dem Importer des Brokers, wie das Import-Blatt.
+    private static func lies(_ broker: CSVBroker, _ text: String) throws -> Kontobewegungen {
+        switch broker {
+        case .tradeRepublic: return try TradeRepublicCSV.lies(text)
+        case .scalable: return try ScalableCSV.lies(text, zeitzone: broker.zeitzone)
+        case .kraken: return try KrakenCSV.lies(text)
+        case .binance: return try BinanceCSV.lies(text)
+        case .coinbase: return try CoinbaseCSV.lies(text)
+        case .bitpanda: return try BitpandaCSV.lies(text)
         }
     }
 
