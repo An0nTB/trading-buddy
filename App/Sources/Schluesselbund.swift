@@ -66,11 +66,17 @@ struct Schluesselbund: AlpacaSchluesselquelle {
         return String(data: daten, encoding: .utf8)
     }
 
+    /// Wie `speichere(_:)`: erst aktualisieren, nur ohne Eintrag neu anlegen, damit ein gescheitertes
+    /// Schreiben den alten Schlüssel nicht löscht (Gesamt-Gegencheck 02.10.2026).
     static func speichereText(_ wert: String, dienst: String) throws {
-        try loescheText(dienst: dienst)
-        var eintrag = grundabfrage(dienst: dienst, konto: kontoText)
-        eintrag[kSecValueData as String] = Data(wert.utf8)
-        let status = SecItemAdd(eintrag as CFDictionary, nil)
+        let daten = Data(wert.utf8)
+        let abfrage = grundabfrage(dienst: dienst, konto: kontoText)
+        var status = SecItemUpdate(abfrage as CFDictionary, [kSecValueData as String: daten] as CFDictionary)
+        if status == errSecItemNotFound {
+            var eintrag = abfrage
+            eintrag[kSecValueData as String] = daten
+            status = SecItemAdd(eintrag as CFDictionary, nil)
+        }
         guard status == errSecSuccess else { throw Fehler.schluesselbund(status) }
     }
 
