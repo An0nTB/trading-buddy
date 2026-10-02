@@ -28,6 +28,7 @@ struct UebersichtView: View {
                     HStack(spacing: Abstand.raster * 2) {
                         Kapsel(text: String(localized: "\(kennzahlen.anzahl) Trades"), betont: true)
                         StichprobenHinweis(anzahl: kennzahlen.anzahl)
+                        MischwaehrungHinweis()
                     }
                     LazyVGrid(columns: Raster.kacheln, spacing: Abstand.kachelAbstand) {
                         Kachel(titel: "Netto",
@@ -67,6 +68,23 @@ struct UebersichtView: View {
                 Pflichthinweis()
             }
             .padding(Abstand.seitenrand)
+        }
+    }
+}
+
+/// Hinweis, wenn Trades in anderer Währung als das Konto vorliegen (Kern 0.17.0 `Trade.waehrung`, Gegencheck A4):
+/// Kennzahlen und Kurven summieren Beträge ohne Umrechnung, nur die Steuer-Seite rechnet mit EZB-Kursen um.
+struct MischwaehrungHinweis: View {
+    @Environment(AppModell.self) private var modell
+    @Environment(\.thema) private var thema
+
+    var body: some View {
+        let liste = modell.fremdwaehrungen.joined(separator: ", ")
+        if !liste.isEmpty {
+            let konto = modell.waehrung
+            Text("Trades in \(liste) zählen hier ohne Umrechnung wie \(konto); die Steuer-Seite rechnet sie mit EZB-Kursen um.")
+                .font(Schrift.beschriftung)
+                .foregroundStyle(thema.textSchwach)
         }
     }
 }
