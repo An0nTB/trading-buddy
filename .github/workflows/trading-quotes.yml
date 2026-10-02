@@ -1,0 +1,23 @@
+name: TradingQuotes
+
+# Kurse offener Trades: nur Linux, ohne echtes Netz (Tests mit aufgezeichneten Nachrichten).
+# Läuft bei jedem PR, weil der Job Pflicht-Check auf main ist; ein Pfadfilter würde PRs ohne
+# Änderung am Paket blockieren (der Pflicht-Check käme nie).
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  trading-quotes-linux:
+    name: TradingQuotes (Linux)
+    runs-on: ubuntu-latest
+    container: swift:6.2
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bauen
+        working-directory: Packages/TradingQuotes
+        run: swift build
+      - name: Tests
+        working-directory: Packages/TradingQuotes
+        run: swift test
