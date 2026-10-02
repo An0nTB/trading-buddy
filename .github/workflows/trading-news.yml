@@ -1,0 +1,28 @@
+name: TradingNews
+
+# Börsennachrichten mit Merkliste: nur Linux, ohne echtes Netz (Tests mit aufgezeichneten Antworten).
+# Kein Pflicht-Check; läuft nur, wenn sich das Paket oder diese Datei ändert (wie TradingClock).
+on:
+  pull_request:
+    paths:
+      - "Packages/TradingNews/**"
+      - ".github/workflows/trading-news.yml"
+  push:
+    branches: [main]
+    paths:
+      - "Packages/TradingNews/**"
+      - ".github/workflows/trading-news.yml"
+
+jobs:
+  trading-news-linux:
+    name: TradingNews (Linux)
+    runs-on: ubuntu-latest
+    container: swift:6.2
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bauen
+        working-directory: Packages/TradingNews
+        run: swift build
+      - name: Tests
+        working-directory: Packages/TradingNews
+        run: swift test
