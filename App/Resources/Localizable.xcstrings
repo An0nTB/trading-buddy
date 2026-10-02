@@ -152,6 +152,16 @@
         }
       }
     },
+    "Dreieck Einstieg, Kreis Ausstieg, gestrichelt Stop (rot) und Ziel (grün)." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Triangle entry, circle exit, dashed stop (red) and target (green)."
+          }
+        }
+      }
+    },
     "Jahresbericht" : {
       "localizations" : {
         "en" : {
@@ -168,6 +178,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Annual report %@"
+          }
+        }
+      }
+    },
+    "Kursverlauf des Trades mit %lld Balken, Einstieg und Ausstieg markiert" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Price history of the trade with %lld bars, entry and exit marked"
           }
         }
       }

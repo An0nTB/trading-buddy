@@ -43,7 +43,7 @@ enum Ausstiegsformat {
 }
 
 /// Karte „Ausstieg“ im Trade-Inspektor (Doc 39, Paket B3): wie weit der Trade gegen und für einen lief und was
-/// nach dem Ausstieg geschah. Nur beschreibend; keine Aussage, wie man hätte handeln sollen.
+/// nach dem Ausstieg geschah, dazu der Kursverlauf mit Ein- und Ausstieg (F8). Nur beschreibend; keine Aussage, wie man hätte handeln sollen.
 struct AusstiegKarte: View {
     let trade: Trade
     /// Währung des Trades (W1): Beträge nie mit dem Zeichen der Kontowährung, wenn der Trade anders lautet.
@@ -51,6 +51,7 @@ struct AusstiegKarte: View {
     @Environment(\.thema) private var thema
     @State private var dienst = Ausstiegsdienst.geteilt
     @State private var analyse: Ausstiegsanalyse?
+    @State private var kerzen: [Zeitkerze] = []
     @State private var gerechnet = false
 
     var body: some View {
@@ -58,6 +59,9 @@ struct AusstiegKarte: View {
             if trade.nurDatum {
                 hinweis("Der Auszug nennt keine Uhrzeit; ohne Uhrzeit gibt es keine Ausstiegsanalyse.")
             } else if let analyse {
+                if !kerzen.isEmpty {
+                    AusstiegChart(trade: trade, kerzen: kerzen)
+                }
                 werte(analyse)
             } else if gerechnet, dienst.hatKerzen(trade.symbol) {
                 hinweis("Keine gespeicherten Kurse in der Haltedauer dieses Trades.")
@@ -71,8 +75,11 @@ struct AusstiegKarte: View {
         .task(id: Schluessel(trade: trade.id, stop: trade.stopLoss, stand: dienst.stand)) {
             await dienst.ladeBestand()
             let neu = await dienst.analyse(trade)
+            var chart: [Zeitkerze] = []
+            if neu != nil { chart = await dienst.chartkerzen(trade) }
             guard !Task.isCancelled else { return }
             analyse = neu
+            kerzen = chart
             gerechnet = true
         }
     }
