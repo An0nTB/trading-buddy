@@ -18,13 +18,16 @@ public struct Anfrage: Sendable {
     public var alleTrades: [Trade] = []
     /// Kurse der Datei, wenn diese Anfrage in die Kontowährung umrechnet; sonst `nil`.
     public var angleichskurse: Referenzkurse?
+    /// Gesuchte Tickets (`ticket`, mehrere mit Komma); leer ohne Filter.
+    public var tickets: [String] = []
 
     public var zeitzone: TimeZone { export.nutzerZeitzone }
     public var kontoname: String { export.kurzname(konto) }
 
     /// Zeitraum aus `monat` („JJJJ-MM“), `woche` (ein Tag der Woche, „JJJJ-MM-TT“), `kw` (ISO-Kalenderwoche,
     /// „JJJJ-Www“ oder „JJJJ-WW“) oder `von` und `bis` („JJJJ-MM-TT“, beide einschließlich). Ohne Angabe:
-    /// der letzte Monat mit Trades. Konto über `konto` (Endziffern oder Broker), bei nur einem Konto entbehrlich.
+    /// der letzte Monat mit Trades, mit `ticket` die Monate dieser Trades. Konto über `konto` (Endziffern oder
+    /// Broker), bei nur einem Konto entbehrlich.
     /// Ohne `waehrung` rechnet sie Trades in fremder Währung mit den EZB-Kursen der Datei in die Kontowährung um
     /// (`Waehrungsangleich` wie die App); ohne Kurs bleiben sie draußen. Mit `waehrung` oder ohne Kurse in der Datei
     /// nur Trades dieser Währung; ohne Angabe die Kontowährung, gibt es darin keine Trades, die häufigste.
@@ -61,6 +64,13 @@ public struct Anfrage: Sendable {
         let zone = export.nutzerZeitzone
         var vorgabe: String?
         let zeitraum: Zeitspanne
+        let tickets = (argumente["ticket"] ?? "").split(separator: ",")
+            .map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+        let gesucht = konto.trades.filter { tickets.contains($0.id) }
+        if !tickets.isEmpty, gesucht.isEmpty {
+            let fremd = alleTrades.first { tickets.contains($0.id) }?.waehrung(kontowaehrung: kontowaehrung)
+            throw AnfrageFehler.ticketUnbekannt(tickets.joined(separator: ", "), export.kurzname(konto), fremd)
+        }
         if let text = argumente["monat"] {
             let teile = zahlen(text)
             guard teile.count == 2, let z = Zeitspanne.monat(jahr: teile[0], monat: teile[1], zeitzone: zone) else {
@@ -77,6 +87,10 @@ public struct Anfrage: Sendable {
                 throw AnfrageFehler.bisVorVon(von, bis)
             }
             zeitraum = z
+        } else if let erster = gesucht.map(\.closeTime).min(), let letzter = gesucht.map(\.closeTime).max() {
+            zeitraum = Zeitspanne(von: Zeitspanne.monat(mit: erster, zeitzone: zone).von,
+                                  bis: Zeitspanne.monat(mit: letzter, zeitzone: zone).bis)
+            vorgabe = "Kein Zeitraum angegeben, daher die Monate der gesuchten Tickets."
         } else {
             guard let letzter = konto.trades.map(\.closeTime).max() else {
                 throw AnfrageFehler.keineTrades(export.kurzname(konto))
@@ -86,7 +100,7 @@ public struct Anfrage: Sendable {
         }
         return Anfrage(export: export, konto: konto, zeitraum: zeitraum, vorgabe: vorgabe,
                        kontowaehrung: kontowaehrung, andereWaehrungen: andere, umgerechnet: umgerechnet,
-                       alleTrades: alleTrades, angleichskurse: angleichskurse)
+                       alleTrades: alleTrades, angleichskurse: angleichskurse, tickets: tickets)
     }
 
     /// Gewählte Währung und die Trades der übrigen Währungen des Kontos.
@@ -181,6 +195,8 @@ public enum AnfrageFehler: Error, Equatable, Sendable {
     case ungueltigerMonat(String)
     case ungueltigesDatum(String)
     case ungueltigeKalenderwoche(String)
+    /// Ticket, Konto, Währung des Trades, wenn er nur in einer anderen Währung vorkommt.
+    case ticketUnbekannt(String, String, String?)
     case vonOhneBis
     case bisVorVon(String, String)
     case keineTrades(String)
@@ -201,6 +217,11 @@ public enum AnfrageFehler: Error, Equatable, Sendable {
             "UNGÜLTIGES DATUM: „\(text)“. Format JJJJ-MM-TT, etwa 2025-05-12."
         case let .ungueltigeKalenderwoche(text):
             "UNGÜLTIGE KALENDERWOCHE: „\(text)“. Format JJJJ-Www nach ISO, etwa 2026-W40."
+        case let .ticketUnbekannt(ticket, konto, waehrung?):
+            "TICKET NICHT IN DIESER ABFRAGE: „\(ticket)“ ist im Konto \(konto) ein Trade in \(waehrung) und fehlt "
+                + "in diesen Summen; abfragen mit waehrung=\(waehrung)."
+        case let .ticketUnbekannt(ticket, konto, nil):
+            "TICKET UNBEKANNT: „\(ticket)“ steht nicht im Konto \(konto). Tickets nennt hole_trades in der ersten Spalte."
         case .vonOhneBis:
             "ZEITRAUM UNVOLLSTÄNDIG: `von` und `bis` nur zusammen angeben."
         case let .bisVorVon(von, bis):
