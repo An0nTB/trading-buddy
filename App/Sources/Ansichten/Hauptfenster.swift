@@ -95,6 +95,7 @@ struct Seitenleiste: View {
                         Label(bereich.titel, systemImage: bereich.symbol)
                             .listItemTint(thema.akzent)
                             .tag(bereich)
+                            .inNeuemFenster(bereich) // P12 Eigene Fenster
                     }
                 }
                 Section("Markt") {
@@ -102,6 +103,7 @@ struct Seitenleiste: View {
                         Label(bereich.titel, systemImage: bereich.symbol)
                             .listItemTint(thema.akzent)
                             .tag(bereich)
+                            .inNeuemFenster(bereich) // P12 Eigene Fenster
                     }
                 }
                 Section("Daten") {
@@ -109,6 +111,7 @@ struct Seitenleiste: View {
                         Label(bereich.titel, systemImage: bereich.symbol)
                             .listItemTint(thema.akzent)
                             .tag(bereich)
+                            .inNeuemFenster(bereich) // P12 Eigene Fenster
                     }
                 }
             }
@@ -119,6 +122,7 @@ struct Seitenleiste: View {
             BereichInhalt(bereich: modell.bereich)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(thema.grund)
+                .fensterSymbol(modell.bereich) // P12 Eigene Fenster
         }
         #if os(macOS)
         .frame(minWidth: 900, minHeight: 600)
