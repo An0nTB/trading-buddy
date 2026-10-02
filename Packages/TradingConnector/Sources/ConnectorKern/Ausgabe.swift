@@ -106,7 +106,10 @@ public enum Ausgabe {
             t.append("- Muster: keine Gruppe mit je 30 Trades in Gruppe und Rest, also frühestens ab 60 Trades im Zeitraum.")
         }
         t.append(anfrage.notizlage(a.trades))
-        if anfrage.konto.ziele.isEmpty {
+        if anfrage.konto.waehrung != anfrage.kontowaehrung, !anfrage.kontowaehrung.isEmpty {
+            t.append("- Ziele früherer Reviews: gelten in der Kontowährung \(anfrage.kontowaehrung) und stehen nur in "
+                + "der Abfrage ohne waehrung.")
+        } else if anfrage.konto.ziele.isEmpty {
             t.append("- Ziele früherer Reviews: keine in der App eingetragen.")
         } else {
             t.append("- Istwerte der Ziele rechnet der Rechenkern im Zeitraum des Ziels. Der Status ist eigene Angabe "
