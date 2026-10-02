@@ -323,7 +323,8 @@ struct TagesverlustKarte: View {
                     balken(tage)
                     HStack(spacing: Abstand.raster * 2) {
                         if let heute = tage.last {
-                            Kapsel(text: String(localized: "Letzter Tag \(Format.betrag(heute.verbraucht, waehrung)) von \(Format.betrag(grenze, waehrung)) (\(Format.prozent(Decimal(heute.prozent) / 100)))"),
+                            // Der letzte Balken ist der letzte Handelstag mit geschlossenem Trade, nicht zwingend heute (K6, Doc 36).
+                            Kapsel(text: String(localized: "\(Format.datum(heute.id)): \(Format.betrag(heute.verbraucht, waehrung)) von \(Format.betrag(grenze, waehrung)) (\(Format.prozent(Decimal(heute.prozent) / 100)))"),
                                    betont: heute.verletzt)
                         }
                         let verletzt = tage.filter(\.verletzt).count
