@@ -28,7 +28,7 @@ extension Anfrage {
         case "trades je tag":
             var kalender = Calendar(identifier: .gregorian)
             kalender.timeZone = zeitzone
-            let tage = Set(a.trades.map { kalender.startOfDay(for: $0.closeTime) }).count
+            let tage = Set(a.trades.map { $0.schlusstag(kalender) }).count
             return (tage == 0 ? "–" : Format.zahl(Decimal(k.anzahl) / Decimal(tage), stellen: 1), k.anzahl)
         case "trades": return ("\(k.anzahl)", k.anzahl)
         case "netto": return (Format.zahl(k.netto), k.anzahl)
