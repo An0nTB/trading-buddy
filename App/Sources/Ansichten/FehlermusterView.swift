@@ -14,6 +14,7 @@ struct FehlermusterView: View {
             VStack(alignment: .leading, spacing: Abstand.kachelAbstand) {
                 Kopfzeile("Fehlermuster", untertitel: String(localized: "\(befunde.count) Regeln mit Treffern")) {
                     Filterleiste()
+                    FragBradKnopf(.groesstesLeck) // Frag Brad (Doc 31)
                 }
                 if modell.trades.isEmpty {
                     KeineTrades()

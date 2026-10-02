@@ -16,7 +16,10 @@ struct KennzahlenView: View {
         let ohneRegelbruch = modell.trades.filter { muster[$0.id] == nil }
         ScrollView {
             VStack(alignment: .leading, spacing: Abstand.kachelAbstand) {
-                Kopfzeile("Kennzahlen") { Filterleiste() }
+                Kopfzeile("Kennzahlen") {
+                    Filterleiste()
+                    FragBradKnopf(.monat) // Frag Brad (Doc 31)
+                }
                 if modell.trades.isEmpty {
                     KeineTrades()
                 } else {
