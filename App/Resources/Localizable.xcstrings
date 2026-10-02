@@ -132,6 +132,16 @@
         }
       }
     },
+    "%lld Trades ohne Kerzen von der Quelle (etwa ohne Umsatz im Zeitraum); gespeicherte Kurse bleiben." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld trades without candles from the source (for example no volume in the period); stored prices stay."
+          }
+        }
+      }
+    },
     "Aus dem Import-Ordner importiert" : {
       "localizations" : {
         "en" : {
