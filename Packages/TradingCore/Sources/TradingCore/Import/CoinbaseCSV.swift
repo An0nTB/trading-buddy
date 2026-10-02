@@ -128,7 +128,7 @@ public enum CoinbaseCSV {
                          betrag: Decimal, gebuehr: Decimal) -> Ausfuehrung {
             Ausfuehrung(id: id, zeit: zeit, kennung: KryptoWerte.kennung(basis, gegen), name: basis, seite: seite,
                         menge: menge, preis: preis, betrag: betrag, gebuehr: gebuehr, waehrung: gegen,
-                        rohzeile: r.z)
+                        produktart: .krypto, rohzeile: r.z)
         }
 
         if kaeufe.contains(typ) || verkaeufe.contains(typ) {

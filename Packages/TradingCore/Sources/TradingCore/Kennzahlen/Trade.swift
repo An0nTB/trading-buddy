@@ -20,10 +20,12 @@ public struct Trade: Sendable, Equatable, Identifiable {
     public var profit: Decimal
     /// Abgeführte oder erstattete Steuern (Trade Republic, Scalable); bei MetaTrader 0.
     public var taxes: Decimal
+    public var produktart: Produktart
 
     public init(id: String, symbol: String, side: Side, lots: Decimal, openTime: Date, closeTime: Date,
                 openPrice: Decimal, closePrice: Decimal, stopLoss: Decimal? = nil, takeProfit: Decimal? = nil,
-                commission: Decimal = 0, swap: Decimal = 0, profit: Decimal, taxes: Decimal = 0) {
+                commission: Decimal = 0, swap: Decimal = 0, profit: Decimal, taxes: Decimal = 0,
+                produktart: Produktart = .unbekannt) {
         self.id = id
         self.symbol = symbol
         self.side = side
@@ -38,13 +40,14 @@ public struct Trade: Sendable, Equatable, Identifiable {
         self.swap = swap
         self.profit = profit
         self.taxes = taxes
+        self.produktart = produktart
     }
 
     public init(_ p: ClosedPosition) {
         self.init(id: p.ticket, symbol: p.symbol, side: p.side, lots: p.lots, openTime: p.openTime,
                   closeTime: p.closeTime, openPrice: p.openPrice, closePrice: p.closePrice,
                   stopLoss: p.stopLoss, takeProfit: p.takeProfit, commission: p.commission,
-                  swap: p.swap, profit: p.profit)
+                  swap: p.swap, profit: p.profit, produktart: p.produktart)
     }
 
     /// Kosten (Kommission, Swap und Steuern), meist negativ.

@@ -65,6 +65,7 @@ public enum ScalableCSV {
 
             switch art {
             case .kauf, .verkauf:
+                // Produktart bleibt `unbekannt`: `assetType` sagt nur Security oder Cash.
                 let preis = try zahl("price")
                 ergebnis.ausfuehrungen.append(Ausfuehrung(
                     id: feld("reference"), zeit: zeit, nurDatum: nurDatum, kennung: isin, name: feld("description"),

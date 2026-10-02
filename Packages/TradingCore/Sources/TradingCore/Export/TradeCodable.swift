@@ -7,7 +7,7 @@ extension Side: Codable {}
 extension Trade: Codable {
     private enum CodingKeys: String, CodingKey {
         case id, symbol, side, lots, openTime, closeTime, openPrice, closePrice
-        case stopLoss, takeProfit, commission, swap, profit, taxes
+        case stopLoss, takeProfit, commission, swap, profit, taxes, produktart
     }
 
     public init(from decoder: any Decoder) throws {
@@ -25,7 +25,8 @@ extension Trade: Codable {
                   commission: try c.betrag(.commission),
                   swap: try c.betrag(.swap),
                   profit: try c.betrag(.profit),
-                  taxes: try c.optionalerBetrag(.taxes) ?? 0)
+                  taxes: try c.optionalerBetrag(.taxes) ?? 0,
+                  produktart: try c.decodeIfPresent(Produktart.self, forKey: .produktart) ?? .unbekannt)
     }
 
     public func encode(to encoder: any Encoder) throws {
@@ -45,6 +46,8 @@ extension Trade: Codable {
         try c.encode(profit.description, forKey: .profit)
         // Nur wenn vorhanden: Exporte ohne Steuern bleiben für ältere Connector-Versionen gleich.
         if taxes != 0 { try c.encode(taxes.description, forKey: .taxes) }
+        // Ebenso: `unbekannt` fehlt im Export; ältere Leser ignorieren das neue Feld.
+        if produktart != .unbekannt { try c.encode(produktart, forKey: .produktart) }
     }
 }
 
