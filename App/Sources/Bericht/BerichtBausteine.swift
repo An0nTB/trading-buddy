@@ -10,6 +10,9 @@ enum BerichtMass {
     static var breite: CGFloat { seite.width - 2 * randSeitlich }
     static let abschnittAbstand: CGFloat = Abstand.raster * 4
     static let radius: CGFloat = 6
+    /// Platz für Kopf (Titel und Kontozeile) und Fuß (Linie, zwei Zeilen) samt Abstand zum Inhalt.
+    static let kopfReserve: CGFloat = 56
+    static let fussReserve: CGFloat = 48
 }
 
 enum BerichtSchrift {
@@ -84,16 +87,20 @@ struct BerichtKachel: View {
 /// Fließtext in schwacher Farbe für Hinweise und Erklärungen.
 struct BerichtHinweis: View {
     let text: String
+    /// Höchstzahl Zeilen für Text aus dem Journal (Ziel-Ergebnis), damit er die Seite nicht sprengt.
+    var zeilen: Int?
     @Environment(\.thema) private var thema
 
-    init(_ text: String) {
+    init(_ text: String, zeilen: Int? = nil) {
         self.text = text
+        self.zeilen = zeilen
     }
 
     var body: some View {
         Text(verbatim: text)
             .font(BerichtSchrift.klein)
             .foregroundStyle(thema.textSchwach)
+            .lineLimit(zeilen)
             .fixedSize(horizontal: false, vertical: true)
     }
 }
