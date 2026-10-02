@@ -25,12 +25,13 @@ public struct Ausfuehrung: Sendable, Equatable {
     public var steuer: Decimal
     public var waehrung: String
     public var sparplan: Bool
+    public var produktart: Produktart
     /// Zelltexte der Originalzeile (Regel 9: Rohzeile aufbewahren).
     public var rohzeile: [String]
 
     public init(id: String, zeit: Date, nurDatum: Bool = false, kennung: String, name: String, seite: Side,
                 menge: Decimal, preis: Decimal, betrag: Decimal, gebuehr: Decimal = 0, steuer: Decimal = 0,
-                waehrung: String, sparplan: Bool = false, rohzeile: [String] = []) {
+                waehrung: String, sparplan: Bool = false, produktart: Produktart = .unbekannt, rohzeile: [String] = []) {
         self.id = id
         self.zeit = zeit
         self.nurDatum = nurDatum
@@ -44,6 +45,7 @@ public struct Ausfuehrung: Sendable, Equatable {
         self.steuer = steuer
         self.waehrung = waehrung
         self.sparplan = sparplan
+        self.produktart = produktart
         self.rohzeile = rohzeile
     }
 }
