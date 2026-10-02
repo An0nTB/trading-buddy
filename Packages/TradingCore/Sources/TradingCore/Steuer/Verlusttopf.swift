@@ -66,8 +66,11 @@ public enum Steuerorientierung {
     /// Summen je Topf für die Trades eines Kontos, nach Verkaufsjahr. Krypto-Trades zählen hier nur
     /// mit; Haltefrist und Freigrenze rechnet `KryptoHaltefrist`, weil ein Trade Lose mischen kann.
     /// Reihenfolge der Töpfe wie in `Verlusttopf.allCases`; leere Töpfe fehlen.
+    /// Mit `kurse` rechnet ein Konto in anderer Währung zum Kurs am Schlusstag in Euro um (Näherung,
+    /// Einschätzung: genau wäre Kauf und Verkauf je zum eigenen Tageskurs); ohne Kurs bleibt `ohneEuro`.
     public static func toepfe(_ trades: [Trade], kontowaehrung: String, jahr: Int,
-                              zeitzone: TimeZone = Steuerorientierung.deutscheZeit) -> [Topfsumme] {
+                              zeitzone: TimeZone = Steuerorientierung.deutscheZeit,
+                              kurse: Referenzkurse? = nil) -> [Topfsumme] {
         let jahre = kalender(in: zeitzone)
         let imJahr = trades.filter { jahre.component(.year, from: $0.closeTime) == jahr }
         let euro = kontowaehrung.uppercased() == "EUR"
@@ -76,8 +79,9 @@ public enum Steuerorientierung {
             let topf = Verlusttopf(t.produktart)
             var s = summen[topf] ?? Topfsumme(topf: topf, jahr: jahr)
             s.anzahl += 1
-            if euro {
-                let e = ergebnis(t)
+            let inEuro: Decimal? = euro ? ergebnis(t)
+                : kurse?.inEuro(ergebnis(t), waehrung: kontowaehrung, am: t.closeTime, zeitzone: zeitzone)
+            if let e = inEuro {
                 if e > 0 { s.gewinne += e } else { s.verluste += e }
                 if t.produktart == .cfd { s.davonCFD += e }
             } else {
