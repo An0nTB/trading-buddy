@@ -246,6 +246,7 @@ struct TradesView: View {
             // Frag Brad (Doc 31): nur bei genau einem Trade
             if ids.count == 1, let id = ids.first, let zeile = liste.first(where: { $0.id == id }) {
                 FragBradMenuePunkt(trade: zeile.trade)
+                AnalyseMenuePunkt(trade: zeile.trade) // Menü „Analyse“ (Doc 38, A5)
             }
         }
     }
@@ -343,6 +344,7 @@ struct TradeInspektor: View {
             #else
             JournalAnzeige(trade: trade, eintrag: eintrag)
             #endif
+            TradeBilderKarte(trade: trade) // Screenshots zum Trade (Tagesseite-Thread, Doc 28)
             if !muster.isEmpty {
                 Karte("Fehlermuster") {
                     ForEach(muster, id: \.self) { befundMuster in
