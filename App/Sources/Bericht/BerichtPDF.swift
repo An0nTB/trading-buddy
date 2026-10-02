@@ -16,7 +16,7 @@ enum BerichtPDF {
         guard let verbraucher = CGDataConsumer(data: daten as CFMutableData) else { return nil }
         var rahmen = CGRect(origin: .zero, size: BerichtMass.seite)
         let info = [kCGPDFContextTitle as String: String(localized: "Monatsbericht \(kontext.monatsname)"),
-                    kCGPDFContextCreator as String: "Brad"]
+                    kCGPDFContextCreator as String: "Henry"]
         guard let pdf = CGContext(consumer: verbraucher, mediaBox: &rahmen, info as CFDictionary) else { return nil }
         for seite in BerichtSeite.allCases {
             let ansicht = BerichtSeitenansicht(seite: seite, bericht: bericht, kontext: kontext)
