@@ -157,6 +157,9 @@ private struct BoersenZeile: View {
     private var zustand: some View {
         HStack(spacing: Abstand.raster) {
             Kapsel(text: status.offen ? String(localized: "Offen") : String(localized: "Geschlossen"), betont: status.offen)
+            if status.offen, let art = boerse.sitzungsart(bei: jetzt), art != .kern {
+                Kapsel(text: art.titel)
+            }
             if let feiertag = status.feiertag {
                 Kapsel(text: String(localized: "Feiertag: \(feiertag)"))
             } else if let verkuerzt = status.verkuerzt {
@@ -202,17 +205,21 @@ private struct Tagesbalken: View {
         let anfang = kalender.startOfDay(for: jetzt)
         let ende = kalender.date(byAdding: .day, value: 1, to: anfang) ?? anfang.addingTimeInterval(86_400)
         let sitzungen = boerse.sitzungen(von: anfang, bis: ende)
+        let arten = Array(Sitzungsart.allCases.filter(boerse.sitzungsarten.contains).reversed())
         GeometryReader { geo in
             ZStack(alignment: .leading) {
                 RoundedRectangle(cornerRadius: Abstand.radiusKnopf / 2)
                     .fill(thema.flaeche2)
-                ForEach(Array(sitzungen.enumerated()), id: \.offset) { eintrag in
-                    let von = position(eintrag.element.beginn, anfang: anfang, ende: ende, breite: geo.size.width)
-                    let bis = position(eintrag.element.ende, anfang: anfang, ende: ende, breite: geo.size.width)
-                    RoundedRectangle(cornerRadius: Diagramm.balkenEndeRadius)
-                        .fill(thema.akzent)
-                        .frame(width: max(bis - von, 2))
-                        .offset(x: von)
+                // Zusatzsitzungen (vor-, nachbörslich, Nacht) getönt, der Kernhandel darüber im Akzent.
+                ForEach(arten, id: \.self) { art in
+                    ForEach(Array(sitzungenDerArt(art, von: anfang, bis: ende).enumerated()), id: \.offset) { eintrag in
+                        let von = position(eintrag.element.beginn, anfang: anfang, ende: ende, breite: geo.size.width)
+                        let bis = position(eintrag.element.ende, anfang: anfang, ende: ende, breite: geo.size.width)
+                        RoundedRectangle(cornerRadius: Diagramm.balkenEndeRadius)
+                            .fill(art == .kern ? thema.akzent : thema.akzentTint)
+                            .frame(width: max(bis - von, 2))
+                            .offset(x: von)
+                    }
                 }
                 Rectangle()
                     .fill(thema.text)
@@ -224,6 +231,10 @@ private struct Tagesbalken: View {
         .accessibilityElement()
         .accessibilityLabel(Text("Handelszeiten heute"))
         .accessibilityValue(Text(verbatim: Boersenformat.sitzungen(sitzungen)))
+    }
+
+    private func sitzungenDerArt(_ art: Sitzungsart, von: Date, bis: Date) -> [Sitzung] {
+        boerse.mitSitzungsarten([art]).sitzungen(von: von, bis: bis)
     }
 
     private func position(_ zeitpunkt: Date, anfang: Date, ende: Date, breite: CGFloat) -> CGFloat {
@@ -314,7 +325,10 @@ enum Boersenformat {
 enum Handelszeitformat {
     static func zusammenfassung(_ boerse: Boerse) -> String {
         if boerse.durchgehend { return String(localized: "rund um die Uhr") }
-        return boerse.handelszeiten.map(text).joined(separator: ", ")
+        let aktiv = boerse.handelszeiten.filter { boerse.sitzungsarten.contains($0.art) }
+        return aktiv.map { zeit in
+            zeit.art == .kern ? text(zeit) : zeit.art.titel.lowercased() + " " + text(zeit)
+        }.joined(separator: ", ")
     }
 
     static func text(_ zeit: Handelszeit) -> String {
@@ -336,5 +350,17 @@ enum Handelszeitformat {
             return "\(alle[erster].rawValue)–\(alle[letzter].rawValue)"
         }
         return indizes.map { alle[$0].rawValue }.joined(separator: ", ")
+    }
+}
+
+extension Sitzungsart {
+    /// Name in der Oberfläche (Entscheidung U8: Kernhandel plus zuschaltbare Sitzungen).
+    var titel: String {
+        switch self {
+        case .kern: String(localized: "Kernhandel")
+        case .vorboerslich: String(localized: "Vorbörslich")
+        case .nachboerslich: String(localized: "Nachbörslich")
+        case .nacht: String(localized: "Nacht")
+        }
     }
 }
