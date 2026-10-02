@@ -38,7 +38,15 @@ enum Katalog {
              annotations: nurLesen),
         Tool(name: "hole_notizen",
              description: "Tagesnotizen (Plan vor dem Handel, Rückblick, Verfassung) und verpasste Trades mit Grund im Wortlaut, je Tag mit Trades und Netto des Kontos.",
-             inputSchema: schema(zeitraum), annotations: nurLesen)
+             inputSchema: schema(zeitraum), annotations: nurLesen),
+        Tool(name: "hole_nachrichten",
+             description: "Überschriften und Anrisse der Nachrichten aus Brad (RSS-Quellen, Alpaca, Marketaux) der letzten Tage, zuerst zur eigenen Merkliste, mit Quelle und Link, dazu das Rezept für die Zusammenfassung. Nur, wenn die Nachrichten in der App eingeschaltet sind.",
+             inputSchema: schema([
+                 "tage": .object(["type": .string("integer"),
+                                  "description": .string("Wie viele Tage zurück, 1 bis 7, Vorgabe 1")]),
+                 "begriff": text("Nur Meldungen zu diesem Begriff der Merkliste oder Symbol")
+             ]),
+             annotations: nurLesen)
     ]
 
     static let vorlagen = [
@@ -47,7 +55,10 @@ enum Katalog {
                arguments: [.init(name: "monat", description: "JJJJ-MM, leer für den letzten Monat mit Trades")]),
         Prompt(name: "wochenauswertung", title: "Wochenauswertung",
                description: "Woche nach Brads Rezept auswerten",
-               arguments: [.init(name: "datum", description: "Ein Tag der Woche, JJJJ-MM-TT", required: true)])
+               arguments: [.init(name: "datum", description: "Ein Tag der Woche, JJJJ-MM-TT", required: true)]),
+        Prompt(name: "nachrichten", title: "Nachrichten zusammenfassen",
+               description: "Nachrichten zur Merkliste und zum Markt zusammenfassen",
+               arguments: [.init(name: "tage", description: "1 bis 7, leer für die letzten 24 Stunden")])
     ]
 
     static func schema(_ eigenschaften: [String: Value], pflicht: [String] = []) -> Value {
@@ -93,6 +104,9 @@ enum Ausfuehrung {
                     return antwort("DIMENSION FEHLT: eine von \(erlaubt).", fehler: true)
                 }
                 return antwort(Ausgabe.aufschluesselung(try Anfrage.lies(argumente, export: export), nach: dimension))
+            case "hole_nachrichten":
+                let tage = argumente["tage"].flatMap { Int($0) } ?? 1
+                return antwort(Ausgabe.nachrichten(export, tage: tage, begriff: argumente["begriff"]))
             case "hole_notizen":
                 return antwort(Ausgabe.notizen(try Anfrage.lies(argumente, export: export)))
             case "hole_trades":
@@ -114,6 +128,7 @@ enum Ausfuehrung {
     static func vorlage(_ name: String, _ argumente: [String: String]?) -> GetPrompt.Result {
         let inhalt = switch name {
         case "wochenauswertung": Rezept.wochenvorlage(datum: argumente?["datum"] ?? "")
+        case "nachrichten": Rezept.nachrichtenvorlage(tage: argumente?["tage"])
         default: Rezept.monatsvorlage(monat: argumente?["monat"].flatMap { $0.isEmpty ? nil : $0 })
         }
         return .init(description: nil, messages: [.user(.text(text: inhalt))])
@@ -126,7 +141,7 @@ enum Ausfuehrung {
 
 let server = Server(
     name: "trading-buddy",
-    version: "0.5.0",
+    version: "0.6.0",
     capabilities: .init(prompts: .init(listChanged: false), tools: .init(listChanged: false))
 )
 
