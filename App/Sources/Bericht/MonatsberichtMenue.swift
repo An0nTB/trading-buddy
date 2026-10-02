@@ -1,9 +1,6 @@
 import SwiftUI
 import TradingCore
-#if os(macOS)
-import AppKit
-import UniformTypeIdentifiers
-#else
+#if os(iOS)
 import PDFKit
 #endif
 
@@ -17,8 +14,11 @@ struct MonatsberichtMenue: View {
     static let hoechstensWochen = 13
     @Environment(AppModell.self) private var modell
     @AppStorage("farbwelt") private var farbwelt = Farbwelt.nordlicht
-    #if os(iOS)
+    #if os(macOS)
+    @Environment(\.openWindow) private var openWindow
+    #else
     @State private var datei: BerichtDatei?
+    @State private var zeitraumOffen = false
     #endif
 
     var body: some View {
@@ -38,12 +38,23 @@ struct MonatsberichtMenue: View {
                     }
                 }
             }
+            Divider()
+            Button("Zeitraum …") {
+                #if os(macOS)
+                openWindow(id: BerichtZeitraumBlatt.fensterID)
+                #else
+                zeitraumOffen = true
+                #endif
+            }
         }
         .disabled(modell.monate.isEmpty)
         .help("Monats- oder Wochenbericht des gewählten Kontos als PDF, zum Ablegen oder Weitergeben")
         #if os(iOS)
         .sheet(item: $datei) { datei in
             BerichtVorschau(datei: datei)
+        }
+        .sheet(isPresented: $zeitraumOffen) {
+            BerichtZeitraumBlatt()
         }
         #endif
     }
@@ -59,32 +70,17 @@ struct MonatsberichtMenue: View {
         return String(localized: "KW \(kw.woche): \(erster) bis \(letzter)")
     }
 
-    private func erstelle(_ ergebnis: (bericht: Zeitraumbericht, kontext: BerichtKontext)) {
+    private func erstelle(_ ergebnis: BerichtErgebnis) {
         let thema = BerichtPDF.druckthema(farbwelt)
-        #if os(macOS)
-        guard let daten = BerichtPDF.daten(ergebnis.bericht, kontext: ergebnis.kontext, thema: thema) else {
-            modell.fehler = BerichtFehler.pdf.errorDescription
-            return
-        }
-        let panel = NSSavePanel()
-        panel.title = String(localized: "Bericht sichern")
-        panel.allowedContentTypes = [.pdf]
-        panel.nameFieldStringValue = ergebnis.kontext.dateiname
-        panel.canCreateDirectories = true
-        guard panel.runModal() == .OK, let ziel = panel.url else { return }
         do {
-            try daten.write(to: ziel, options: .atomic)
+            #if os(macOS)
+            _ = try BerichtAusgabe.sichern(ergebnis, thema: thema)
+            #else
+            datei = try BerichtAusgabe.datei(ergebnis, thema: thema)
+            #endif
         } catch {
             modell.fehler = error.localizedDescription
         }
-        #else
-        do {
-            let url = try BerichtPDF.temporaereDatei(ergebnis.bericht, kontext: ergebnis.kontext, thema: thema)
-            datei = BerichtDatei(url: url)
-        } catch {
-            modell.fehler = error.localizedDescription
-        }
-        #endif
     }
 }
 
