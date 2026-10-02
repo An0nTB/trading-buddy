@@ -67,6 +67,39 @@ extension JournalExport {
             self.ergebnisR = ergebnisR
         }
 
+        private enum CodingKeys: String, CodingKey {
+            case id, zeit, symbol, seite, setup, grund, notiz, ergebnisR
+        }
+
+        /// `ergebnisR` als Text wie die Beträge in `Trade` und `Kerze`; gelesen wird auch die frühere JSON-Zahl.
+        public init(from decoder: any Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            id = try c.decode(String.self, forKey: .id)
+            zeit = try c.decode(Date.self, forKey: .zeit)
+            symbol = try c.decode(String.self, forKey: .symbol)
+            seite = try c.decode(String.self, forKey: .seite)
+            setup = try c.decodeIfPresent(String.self, forKey: .setup)
+            grund = try c.decode(String.self, forKey: .grund)
+            notiz = try c.decodeIfPresent(String.self, forKey: .notiz)
+            if let text = try? c.decodeIfPresent(String.self, forKey: .ergebnisR) {
+                ergebnisR = Decimal(string: text, locale: Locale(identifier: "en_US_POSIX"))
+            } else {
+                ergebnisR = try c.decodeIfPresent(Decimal.self, forKey: .ergebnisR)
+            }
+        }
+
+        public func encode(to encoder: any Encoder) throws {
+            var c = encoder.container(keyedBy: CodingKeys.self)
+            try c.encode(id, forKey: .id)
+            try c.encode(zeit, forKey: .zeit)
+            try c.encode(symbol, forKey: .symbol)
+            try c.encode(seite, forKey: .seite)
+            try c.encodeIfPresent(setup, forKey: .setup)
+            try c.encode(grund, forKey: .grund)
+            try c.encodeIfPresent(notiz, forKey: .notiz)
+            try c.encodeIfPresent(ergebnisR?.description, forKey: .ergebnisR)
+        }
+
         public init(_ t: VerpassterTrade) {
             self.init(id: t.id, zeit: t.zeit, symbol: t.symbol, seite: t.seite.rawValue, setup: t.setup,
                       grund: t.grund.rawValue, notiz: t.notiz, ergebnisR: t.ergebnisR)
