@@ -1,5 +1,6 @@
 import SwiftUI
 import TradingCore
+import TradingQuotes
 import TradingRates
 
 /// Seite „Ausstieg“ (Doc 39, Paket B3): Auswertung der Ausstiege über alle Trades mit Kursen (Mediane aus dem
@@ -10,6 +11,12 @@ struct AusstiegView: View {
     @Environment(\.thema) private var thema
     @State private var dienst = Ausstiegsdienst.geteilt
     @State private var ergebnis: Ergebnis?
+    /// Ergebnis des letzten Abrufs von Minutenkerzen (Paket B2) für die Zeile unter der Kopfzeile.
+    @State private var abruf: Minutenabruf?
+    @State private var ruftAb = false
+    /// Trades, deren Fenster länger als der Minutenabruf erlaubt (31 Tage) ist; sie gehen nicht in den Abruf,
+    /// weil ein Fehler sonst alle weiteren Trades desselben Symbols überspringen ließe.
+    @State private var zuLang = 0
     #if os(macOS)
     @State private var dateiWaehlen = false
     @State private var kursdatei: MT4Kursdatei?
@@ -42,10 +49,14 @@ struct AusstiegView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: Abstand.kachelAbstand) {
                 Kopfzeile("Ausstieg", untertitel: untertitel) {
+                    if ruftAb { ProgressView().controlSize(.small) }
+                    Button("Kurse abrufen") { Task { await rufeAb(trades) } }
+                        .disabled(ruftAb || !modell.kurse.aktiv)
                     #if os(macOS)
                     Button("Kurse importieren …") { dateiWaehlen = true }
                     #endif
                 }
+                AbrufHinweis(abruf: abruf, zuLang: zuLang, kurseAn: modell.kurse.aktiv)
                 Text("Wie weit liefen Trades gegen und für dich, und wie viel der besten Bewegung blieb beim Ausstieg übrig. Rückblick auf vergangene Kurse, keine Aussage über künftige.")
                     .font(Schrift.beschriftung)
                     .foregroundStyle(thema.textSchwach)
@@ -94,7 +105,7 @@ struct AusstiegView: View {
             Karte("Auswertung") {
                 Group {
                     if dienst.bestand.isEmpty {
-                        Text("Noch keine Kurse gespeichert. Am Mac: MetaTrader, Extras, Verlaufszentrum, Symbol und M1 wählen, Exportieren; die CSV-Datei hier importieren.")
+                        Text("Noch keine Kurse gespeichert. „Kurse abrufen“ holt Minutenkurse für Krypto und US-Aktien. Für CFDs und Devisen gibt es keine freien Kurse; dafür am Mac den MetaTrader-Export (Verlaufszentrum, M1) importieren.")
                     } else {
                         Text("Für die Trades im gewählten Zeitraum liegen keine passenden Kurse vor. Trades ohne Uhrzeit im Auszug (Trade Republic, Scalable) bleiben außen vor.")
                     }
@@ -105,6 +116,22 @@ struct AusstiegView: View {
             ProgressView()
                 .frame(maxWidth: .infinity, minHeight: 120)
         }
+    }
+
+    /// Holt Minutenkerzen (Krypto, US-Aktien) nur für Trades mit Uhrzeit, die noch keine Analyse haben;
+    /// danach neuer Export, damit der Connector die Werte sieht.
+    private func rufeAb(_ trades: [Trade]) async {
+        ruftAb = true
+        defer { ruftAb = false }
+        let analysiert = Set(ergebnis?.zeilen.map(\.id) ?? [])
+        let fehlend = trades.filter { !$0.nurDatum && !analysiert.contains($0.id) }
+        let passend = fehlend.filter { t in
+            Minutenlader.fenster(t, nachlauf: Ausstiegsdienst.nachlauf)
+                .map { $0.bis.timeIntervalSince($0.von) <= Minutenlader.hoechstdauer } ?? true
+        }
+        zuLang = fehlend.count - passend.count
+        abruf = await modell.kurse.ladeMinutenkerzen(fuer: passend)
+        if (abruf?.geladen ?? 0) > 0 { modell.exportiere() }
     }
 
     private func rechne(_ trades: [Trade]) async -> Ergebnis {
@@ -235,9 +262,39 @@ private struct TradeListeKarte: View {
     }
 }
 
+/// Was der letzte Abruf ergab; ohne Abruf ein Hinweis, woher die Kurse kommen.
+private struct AbrufHinweis: View {
+    let abruf: Minutenabruf?
+    let zuLang: Int
+    let kurseAn: Bool
+    @Environment(\.thema) private var thema
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Abstand.raster) {
+            if !kurseAn {
+                Text("„Kurse abrufen“ braucht eingeschaltete Kurse in den Einstellungen. MetaTrader-Kurse lassen sich am Mac immer importieren.")
+            } else if let abruf {
+                Text("Abruf: \(abruf.geladen) Trades geladen, \(abruf.ohneQuelle) ohne freie Minutenkurse (CFD, Devisen, ohne Uhrzeit), \(abruf.nochOffen) noch nicht abgeschlossen (bis eine Stunde nach dem Ausstieg).")
+                if zuLang > 0 {
+                    Text("\(zuLang) Trades liefen länger als 31 Tage; dafür ruft die App keine Minutenkurse ab.")
+                }
+                ForEach(abruf.fehler.keys.sorted(), id: \.self) { symbol in
+                    Text(verbatim: "\(symbol): \(abruf.fehler[symbol] ?? "")")
+                        .foregroundStyle(thema.verlust)
+                }
+            } else {
+                Text("„Kurse abrufen“ holt Minutenkurse für Krypto (Binance) und US-Aktien (Alpaca) für Trades ohne Analyse. Für CFDs und Devisen gibt es keine freien Kurse; dafür den MetaTrader-Export importieren.")
+            }
+        }
+        .font(Schrift.beschriftung)
+        .foregroundStyle(thema.textSchwach)
+    }
+}
+
 /// Gespeicherte Kurse je Symbol mit Zeitraum und Herkunft; am Mac mit Löschen.
 private struct KursdatenKarte: View {
     let dienst: Ausstiegsdienst
+    @Environment(AppModell.self) private var modell
     @Environment(\.thema) private var thema
     @State private var fehler: String?
 
@@ -276,7 +333,10 @@ private struct KursdatenKarte: View {
 
     private func loesche(_ symbol: String) {
         Task {
-            do { try await dienst.loesche(symbol: symbol) } catch {
+            do {
+                try await dienst.loesche(symbol: symbol)
+                modell.exportiere()
+            } catch {
                 fehler = String(localized: "Löschen fehlgeschlagen: \(error.localizedDescription)")
             }
         }
