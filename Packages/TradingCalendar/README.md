@@ -1,7 +1,8 @@
 # TradingCalendar
 
-Terminkalender ohne Oberfläche: Zinsentscheide (Fed, EZB, BoE, BoJ, SNB) und wichtige US-Daten
-(Arbeitsmarktbericht, Verbraucherpreise der BLS) als JSON je Jahr in `Sources/TradingCalendar/Termine/`.
+Terminkalender ohne Oberfläche: Zinsentscheide (Fed, EZB, BoE, BoJ, SNB), wichtige US-Daten
+(Arbeitsmarktbericht, Verbraucherpreise der BLS) und Bankfeiertage für USD, EUR, GBP und JPY
+als JSON je Jahr in `Sources/TradingCalendar/Termine/`.
 Eine frei nutzbare Kalender-API gibt es nicht (R1 Abschnitt 5), daher pflegt eine Datei je Jahr
 die Termine aus den offiziellen Seiten nach. Prognose- und Ist-Werte gibt es hier nicht.
 
@@ -14,7 +15,7 @@ kalender.abgedeckt(von: eroeffnet, bis: geschlossen) // false: leeres Ergebnis h
 ```
 
 Dateiformat 1: `format`, `jahr`, `stand`, `vollstaendig` (Arten, die das Jahr ganz enthält),
-`quellen`, `hinweise`, `termine`. Ein Termin hat `id`, `art` (zinsentscheid, arbeitsmarkt, inflation),
+`quellen`, `hinweise`, `termine`. Ein Termin hat `id`, `art` (zinsentscheid, arbeitsmarkt, inflation, feiertag),
 `institution`, `titel`, `datum` ("JJJJ-MM-TT"), optional `uhrzeit` ("HH:MM" Ortszeit), `zeitzone` (IANA),
 `waehrungen`, optional `vorlaeufig` und `hinweis`. Ohne `uhrzeit` gilt der ganze Tag in der Zeitzone.
 
