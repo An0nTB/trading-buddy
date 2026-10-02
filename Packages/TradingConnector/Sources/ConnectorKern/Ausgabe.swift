@@ -10,7 +10,7 @@ public enum Ausgabe {
         let zone = anfrage.zeitzone
         let k = a.kennzahlen, v = a.kennzahlenVorzeitraum
         let titel = Format.zeitraum(a.zeitraum, zone), vorTitel = Format.zeitraum(a.vorzeitraum, zone)
-        var t = ["# Trading Buddy · Auswertung \(titel)", kopf(anfrage, vergleich: vorTitel)]
+        var t = ["# Brad · Auswertung \(titel)", kopf(anfrage, vergleich: vorTitel)]
         if let hinweis = anfrage.vorgabe { t.append(hinweis) }
 
         t.append("\n## Ergebnis")
@@ -101,6 +101,7 @@ public enum Ausgabe {
                 + "oder wird nach Fristende ohne Abhaken automatisch „verfehlt“; maßgeblich ist der Istwert.")
         }
         t.append("\n" + Rezept.text)
+        if anfrage.export.ton == JournalExport.tonBro { t.append(Rezept.broRegel) }
         return t.joined(separator: "\n")
     }
 
