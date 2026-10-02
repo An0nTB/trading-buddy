@@ -183,7 +183,7 @@ private struct NachrichtenKacheln: View {
 
 /// Karte „Zur Merkliste“: je aktivem Eintrag die passenden Meldungen, drei voraus, auf Wunsch alle.
 private struct MerklisteMeldungen: View {
-    @AppStorage(Ton.schluessel) private var ton = Ton.bro
+    @AppStorage(Ton.schluessel) private var ton = Ton.henry
     let dienst: Nachrichtendienst
     let gesehenBis: Date
     @State private var offen: Set<String> = []
@@ -196,7 +196,7 @@ private struct MerklisteMeldungen: View {
         Karte("Zur Merkliste") {
             if eintraege.isEmpty {
                 Text(verbatim: ton.text("Noch keine Merkliste. Rechts Vorschläge aus dem Journal bestätigen oder einen Begriff eintragen.",
-                                        bro: "Merkliste ist leer, Alter. Rechts Vorschläge aus dem Journal bestätigen oder einen Begriff eintragen."))
+                                        henry: "Die Merkliste ist leer. Rechts stehen Vorschläge aus dem Journal; ein Begriff genügt."))
                     .font(Schrift.beschriftung)
                     .foregroundStyle(thema.textSchwach)
             } else {
@@ -556,7 +556,7 @@ private struct QuellenKarte: View {
 /// Karte in der Übersicht: die drei neuesten Meldungen zur Merkliste, „Alle“ springt zur Seite.
 /// Erscheint nur, wenn die Nachrichten eingeschaltet sind; beim Start der App läuft nichts.
 struct NachrichtenKarte: View {
-    @AppStorage(Ton.schluessel) private var ton = Ton.bro
+    @AppStorage(Ton.schluessel) private var ton = Ton.henry
     @Environment(AppModell.self) private var modell
     @Environment(\.thema) private var thema
 
@@ -567,7 +567,7 @@ struct NachrichtenKarte: View {
             Karte("Nachrichten zur Merkliste", aktion: { modell.bereich = .nachrichten }) {
                 if dienst.aktiveEintraege.isEmpty {
                     Text(verbatim: ton.text("Noch keine Merkliste. Auf der Seite „Nachrichten“ Vorschläge aus dem Journal bestätigen.",
-                                            bro: "Merkliste ist leer, Alter. Auf der Seite „Nachrichten“ Vorschläge aus dem Journal bestätigen."))
+                                            henry: "Die Merkliste ist leer. Auf der Seite „Nachrichten“ Vorschläge aus dem Journal bestätigen."))
                         .font(Schrift.beschriftung)
                         .foregroundStyle(thema.textSchwach)
                 } else if neueste.isEmpty {
