@@ -156,7 +156,7 @@ enum Ausfuehrung {
 
 let server = Server(
     name: "trading-buddy",
-    version: "0.13.1",
+    version: "0.13.2",
     capabilities: .init(prompts: .init(listChanged: false), tools: .init(listChanged: false))
 )
 

@@ -15,6 +15,10 @@ enum Importordnerregel {
         case csv(CSVBroker, Konto)
         /// XTB-Kontohistorie mit Kontonummer im Kopf; Zeitzone wie beim letzten Import dieses Kontos.
         case xtb(Konto, zeitzone: TimeZone)
+        /// MetaTrader 5: Konto aus „Account:“ und „Company:“; Serverzeit wie beim letzten Bericht dieses Kontos.
+        case mt5(Konto, serverZeitzone: TimeZone)
+        /// Interactive Brokers: Kontonummer aus „Account Information“; die Speicherung nimmt US-Ostküstenzeit.
+        case ibkr(Konto)
         /// Die App fragt nach; `grund` steht in der Liste auf der Import-Seite.
         case rueckfrage(String)
     }
@@ -28,6 +32,10 @@ enum Importordnerregel {
         if XTBAuszug.erkennt(daten) {
             return xtb(daten, konten: konten, zeitzone: zeitzone)
         }
+        // MetaTrader 5 speichert meist UTF-16, darum vor dem UTF-8-Text.
+        if let text = MT5Bericht.text(daten), MT5Bericht.erkennt(text) {
+            return mt5(text, konten: konten, zeitzone: zeitzone)
+        }
         if dateiname.lowercased().hasSuffix(".xlsx") {
             return .rueckfrage(String(localized: "Excel-Datei, aber keine XTB-Kontohistorie."))
         }
@@ -36,6 +44,9 @@ enum Importordnerregel {
         }
         if let broker = csvBroker(text) {
             return csv(broker, text: text, konten: konten, vorgaenge: vorgaenge)
+        }
+        if IBKRCSV.erkennt(text) {
+            return ibkr(text, konten: konten)
         }
         if BinanceCSV.istTransaktionsverlauf(text) {
             return .rueckfrage(String(localized: "Binance-Transaktionsverlauf: Den liest die App nicht, bitte die Trade History exportieren."))
@@ -114,6 +125,40 @@ enum Importordnerregel {
         }
         return .xtb(konto, zeitzone: zeitzone(konto) ?? Serverzeit.mitteleuropa.zeitzone)
     }
+
+    private static func mt5(_ text: String, konten: [Konto], zeitzone: (Konto) -> TimeZone?) -> Entscheidung {
+        // Zeitzone hier nur zum Lesen des Kopfs; der Import nimmt die des Kontos.
+        guard let bericht = try? MT5Bericht.lies(text, serverZeitzone: .gmt) else {
+            return .rueckfrage(String(localized: "MetaTrader-5-Bericht nicht lesbar: bitte im Blatt prüfen."))
+        }
+        guard let nummer = bericht.konto, !nummer.isEmpty else {
+            return .rueckfrage(String(localized: "MetaTrader-5-Bericht ohne Kontonummer: bitte im Blatt angeben."))
+        }
+        // Wie die Speicherung: ohne „Company:“ heißt der Broker „MetaTrader 5“.
+        let broker = bericht.broker.flatMap { $0.isEmpty ? nil : $0 } ?? Journal.mt5BrokerVorgabe
+        guard let konto = konten.first(where: { $0.broker == broker && $0.kontonummer == nummer }) else {
+            return .rueckfrage(String(localized: "Neues Konto bei \(broker): bitte einmal von Hand importieren."))
+        }
+        guard let zone = zeitzone(konto) else {
+            return .rueckfrage(String(localized: "Serverzeit des Kontos unbekannt: bitte im Blatt wählen."))
+        }
+        return .mt5(konto, serverZeitzone: zone)
+    }
+
+    /// Der Auszug nennt sein Konto; still nur, wenn es schon angelegt ist.
+    private static func ibkr(_ text: String, konten: [Konto]) -> Entscheidung {
+        guard let nummer = IBKRCSV.konto(text).nummer, !nummer.isEmpty else {
+            return .rueckfrage(String(localized: "IBKR-Auszug ohne Kontonummer: bitte im Blatt angeben."))
+        }
+        guard let konto = konten.first(where: { $0.broker == Importordnerregel.ibkrBroker && $0.kontonummer == nummer })
+        else {
+            return .rueckfrage(String(localized: "Neues Konto bei \(Importordnerregel.ibkrBroker): bitte einmal von Hand importieren."))
+        }
+        return .ibkr(konto)
+    }
+
+    /// Brokername, unter dem `Journal.importiereCSV` IBKR-Konten anlegt.
+    static let ibkrBroker = "Interactive Brokers"
 
     /// Dateien, die die App im Ordner gar nicht ansieht: versteckte, halb geladene (Safari, Chrome, Firefox)
     /// und andere Endungen als die der Importer.
