@@ -79,10 +79,15 @@ struct MischwaehrungHinweis: View {
     @Environment(\.thema) private var thema
 
     var body: some View {
-        let liste = modell.fremdwaehrungen.joined(separator: ", ")
-        if !liste.isEmpty {
+        let stand = modell.waehrungsstand
+        if !stand.leer {
+            let liste = stand.waehrungen.joined(separator: ", ")
             let konto = modell.waehrung
-            Text("Trades in \(liste) zählen hier ohne Umrechnung wie \(konto); die Steuer-Seite rechnet sie mit EZB-Kursen um.")
+            let umgerechnet = String(localized:
+                "\(stand.umgerechnet) Trades in \(liste) zum EZB-Kurs des Schlusstags in \(konto) umgerechnet (Näherung)")
+            let fehlend = String(localized: "\(stand.ohneKurs) ohne Kurs nicht in den Summen")
+            let text = stand.ohneKurs == 0 ? umgerechnet + "." : umgerechnet + "; " + fehlend + "."
+            Label(text, systemImage: stand.ohneKurs == 0 ? "info.circle" : "exclamationmark.triangle")
                 .font(Schrift.beschriftung)
                 .foregroundStyle(thema.textSchwach)
         }
