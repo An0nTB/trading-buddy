@@ -1248,6 +1248,16 @@
         }
       }
     },
+    "%lld ohne Kurs" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld without rate"
+          }
+        }
+      }
+    },
     "%lld ohne Kurs nicht in den Summen" : {
       "localizations" : {
         "en" : {
