@@ -30,7 +30,7 @@ enum ExportOrdner {
     }
 
     /// Exportdatei für den Connector aus allen Konten des Journals, mit dem Stop aus dem Journal
-    /// wie in der App (`Trade.mitJournal`) und den übrigen Journalangaben. Ohne Kontonamen und Rohzeilen;
+    /// wie in der App (`Trade.mitJournal`), den übrigen Journalangaben und den Review-Zielen. Ohne Kontonamen und Rohzeilen;
     /// von der Kontonummer nur die letzten vier Stellen, damit Claude die Konten unterscheiden kann
     /// (mehr nur, wenn zwei Konten desselben Brokers auf dieselben vier Stellen enden).
     static func export(_ journal: Journal, zeitzone: TimeZone) throws -> JournalExport {
@@ -43,7 +43,8 @@ enum ExportOrdner {
                 broker: konto.broker, kontonummer: String(konto.kontonummer.suffix(stellen)), waehrung: konto.waehrung,
                 trades: try Self.trades(journal, konto).map { $0.mitJournal(eintraege[$0.id]) },
                 geloeschteOrders: try journal.geloeschteOrders(konto: konto).map(\.cancelledAt),
-                journal: eintraege.mapValues(\.angaben))
+                journal: eintraege.mapValues(\.angaben),
+                ziele: try journal.ziele(konto: konto))
         }
         return JournalExport(konten: konten, zeitzone: zeitzone)
     }
