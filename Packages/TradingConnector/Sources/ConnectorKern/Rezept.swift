@@ -4,7 +4,7 @@ import TradingCore
 /// Steht am Ende jeder Auswertung, damit Claude ohne eigenen Prompt danach schreibt.
 public enum Rezept {
     public static let text = """
-        ## Rezept für die Antwort (Brad)
+        ## Rezept für die Antwort (Henry)
         Schreibe die Auswertung genau in dieser Gliederung:
         1. Ergebnis: Netto, Erwartungswert in R, Profitfaktor, Drawdown, verglichen mit dem Vorzeitraum.
         2. Was trug, was kostete: nach Setup, wenn im Journal erfasst, sonst nach Symbol.
@@ -29,7 +29,7 @@ public enum Rezept {
           Handelssignale.
         - Ton: kritischer Coach, Prozess vor Ergebnis, kein Lob ohne Zahl.
         - Keine Kursprognosen, keine Zielkurse, keine Kauf- oder Produktempfehlungen.
-        - Nur Zahlen aus den Brad-Werkzeugen verwenden; fehlt etwas, das sagen statt schätzen.
+        - Nur Zahlen aus den Henry-Werkzeugen verwenden; fehlt etwas, das sagen statt schätzen.
         - Details bei Bedarf: hole_trades (Trades je Muster, beste und schlechteste, mit Journal und Grund),
           hole_aufschluesselung (Setup, Regeltreue, Zustand, Wochentag, Stunde, Haltedauer, Trade-Nummer am Tag,
           nach vorherigem Ergebnis) und hole_notizen (Plan, Rückblick und verpasste Trades im Wortlaut).
@@ -38,7 +38,7 @@ public enum Rezept {
 
     /// Gliederung der Nachrichten-Zusammenfassung (Werkzeug `hole_nachrichten`).
     public static let nachrichtenText = """
-        ## Rezept für die Zusammenfassung (Brad)
+        ## Rezept für die Zusammenfassung (Henry)
         1. Merkliste: je Begriff ein bis drei Sätze, was gemeldet wurde, jeweils mit Quelle und Link.
         2. Markt: höchstens fünf Themen, je ein Satz mit Quelle.
         3. Nur zusammenfassen, was in Überschrift und Anriss steht; nichts dazuerfinden, keinen Volltext vermuten.
@@ -56,9 +56,9 @@ public enum Rezept {
             + "hole_nachrichten mit tage=\(zahl) auf und folge dem Rezept am Ende der Werkzeugantwort."
     }
 
-    /// Zusatzregel, wenn in der App der Bro-Ton eingeschaltet ist (Export-Feld `ton`); ohne Feld gilt sachlich.
-    public static let broRegel = "- Ton: Der erste Satz der Antwort darf locker klingen (z. B. „Bro, hier ist dein Mai.“). "
-        + "Zahlen, Steuern, Regelbrüche und Warnungen bleiben sachlich."
+    /// Zusatzregel, wenn in der App der Ton „Henry“ eingestellt ist (Export-Feld `ton`); ohne Feld gilt sachlich.
+    public static let personaRegel = "- Ton: Der erste Satz darf Henrys Art haben: ruhig, trocken, ohne Slang "
+        + "(z. B. „Der Mai, in Ruhe betrachtet.“). Zahlen, Steuern, Regelbrüche und Warnungen bleiben sachlich."
 
     /// Vorlage „Monatsauswertung“ in Claude Desktop; das Rezept selbst kommt mit `hole_auswertung`.
     public static func monatsvorlage(monat: String?) -> String {

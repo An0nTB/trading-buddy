@@ -16,7 +16,7 @@ enum Katalog {
 
     static let werkzeuge = [
         Tool(name: "hole_datenstand",
-             description: "Welche Konten und welcher Zeitraum in Brad vorliegen. Zuerst aufrufen, wenn unklar ist, welche Daten es gibt.",
+             description: "Welche Konten und welcher Zeitraum in Henry vorliegen. Zuerst aufrufen, wenn unklar ist, welche Daten es gibt.",
              inputSchema: schema([:]), annotations: nurLesen),
         Tool(name: "hole_auswertung",
              description: "Wochen- oder Monatsauswertung: Kennzahlen mit Vorzeitraum, Kosten, Symbole, Fehlermuster, Verstöße gegen die eigenen Handelsregeln, Muster mit Zufallsprüfung, auffällige Trades, Plan und verpasste Trades, Ziele früherer Reviews mit Istwert, dazu das Rezept für die Antwort. Für Fragen wie „Wie lief mein Mai?“. Ohne Zeitraum gilt der letzte Monat mit Trades.",
@@ -40,7 +40,7 @@ enum Katalog {
              description: "Tagesnotizen (Plan vor dem Handel, Rückblick, Verfassung) und verpasste Trades mit Grund im Wortlaut, je Tag mit Trades und Netto des Kontos.",
              inputSchema: schema(zeitraum), annotations: nurLesen),
         Tool(name: "hole_nachrichten",
-             description: "Überschriften und Anrisse der Nachrichten aus Brad (RSS-Quellen, Alpaca, Marketaux) der letzten Tage, zuerst zur eigenen Merkliste, mit Quelle und Link, dazu das Rezept für die Zusammenfassung. Nur, wenn die Nachrichten in der App eingeschaltet sind.",
+             description: "Überschriften und Anrisse der Nachrichten aus Henry (RSS-Quellen, Alpaca, Marketaux) der letzten Tage, zuerst zur eigenen Merkliste, mit Quelle und Link, dazu das Rezept für die Zusammenfassung. Nur, wenn die Nachrichten in der App eingeschaltet sind.",
              inputSchema: schema([
                  "tage": .object(["type": .string("integer"),
                                   "description": .string("Wie viele Tage zurück, 1 bis 7, Vorgabe 1")]),
@@ -51,10 +51,10 @@ enum Katalog {
 
     static let vorlagen = [
         Prompt(name: "monatsauswertung", title: "Monatsauswertung",
-               description: "Monat nach Brads Rezept auswerten",
+               description: "Monat nach Henrys Rezept auswerten",
                arguments: [.init(name: "monat", description: "JJJJ-MM, leer für den letzten Monat mit Trades")]),
         Prompt(name: "wochenauswertung", title: "Wochenauswertung",
-               description: "Woche nach Brads Rezept auswerten",
+               description: "Woche nach Henrys Rezept auswerten",
                arguments: [.init(name: "datum", description: "Ein Tag der Woche, JJJJ-MM-TT", required: true)]),
         Prompt(name: "nachrichten", title: "Nachrichten zusammenfassen",
                description: "Nachrichten zur Merkliste und zum Markt zusammenfassen",
@@ -141,7 +141,7 @@ enum Ausfuehrung {
 
 let server = Server(
     name: "trading-buddy",
-    version: "0.6.0",
+    version: "0.7.0",
     capabilities: .init(prompts: .init(listChanged: false), tools: .init(listChanged: false))
 )
 
