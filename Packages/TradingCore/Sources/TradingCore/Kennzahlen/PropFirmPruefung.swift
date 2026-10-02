@@ -86,7 +86,7 @@ public enum PropFirmPruefung {
         var gesamtVerletzt = false
         var tagesnetto: [Date: Decimal] = [:]
         var zielErreicht: Date?
-        var tage: [Tagesstand] = []
+        var staende: [Tagesstand] = []
         func grenze() -> Decimal? {
             guard let max = r.maxGesamtverlust else { return nil }
             guard r.gesamtverlustart == .nachgezogenTagesende else { return r.startkapital - max }
@@ -98,13 +98,13 @@ public enum PropFirmPruefung {
                 if aktuellerTag != nil { hoch = max(hoch, saldo) }
                 tagesbeginn = saldo
                 aktuellerTag = d
-                tage.append(Tagesstand(tag: d, saldoBeginn: saldo, saldoEnde: saldo, tiefsterSaldo: saldo,
+                staende.append(Tagesstand(tag: d, saldoBeginn: saldo, saldoEnde: saldo, tiefsterSaldo: saldo,
                                        tagesverlustGrenze: r.maxTagesverlust.map { saldo - $0 },
                                        gesamtverlustGrenze: grenze()))
             }
             saldo += t.netProfit
-            tage[tage.count - 1].saldoEnde = saldo
-            tage[tage.count - 1].tiefsterSaldo = min(tage[tage.count - 1].tiefsterSaldo, saldo)
+            staende[staende.count - 1].saldoEnde = saldo
+            staende[staende.count - 1].tiefsterSaldo = min(staende[staende.count - 1].tiefsterSaldo, saldo)
             tagesnetto[d, default: 0] += t.netProfit
             if let max = r.maxTagesverlust, saldo < tagesbeginn - max,
                !verstoesse.contains(where: { $0.art == .tagesverlust && $0.tag == d }) {
@@ -140,7 +140,7 @@ public enum PropFirmPruefung {
         }
         return Ergebnis(verstoesse: verstoesse, saldo: saldo, gesamtverlustGrenze: grenze(),
                         gewinnzielErreicht: zielErreicht, handelstage: tage, konsistenzAnteil: anteil,
-                        bestanden: bestanden, tage: tage)
+                        bestanden: bestanden, tage: staende)
     }
 
     /// Liegt ein Samstag 00:00 Ortszeit der Firma zwischen Eröffnung und Schluss?
