@@ -389,6 +389,13 @@ final class Importordner {
         case .xtb(_, let zone):
             // Kontonummer und Währung stehen in der Datei; die Speicherung prüft sie gegen das Konto.
             return try journal.importiereXTB(datei: daten, dateiname: dateiname, zeitzone: zone)
+        case .mt5(_, let zone):
+            // Konto und Währung stehen im Bericht.
+            return try journal.importiereMT5(datei: daten, dateiname: dateiname, serverZeitzone: zone)
+        case .ibkr(let konto):
+            // Konto und Basiswährung aus dem Auszug gehen vor; die Zeitzone setzt die Speicherung selbst.
+            return try journal.importiereCSV(datei: daten, dateiname: dateiname, kontonummer: konto.kontonummer,
+                                             kontoname: konto.kontoname, kontowaehrung: konto.waehrung)
         case .rueckfrage:
             return nil
         }

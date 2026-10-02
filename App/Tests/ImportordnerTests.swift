@@ -5,14 +5,67 @@ import TradingCore
 import TradingStore
 @testable import Trading_Buddy
 
+/// Synthetische Auszüge wie in den TradingStore-Tests (Aufbau aus MT5- und IBKR-Hilfe, kein echtes Konto).
+private let mt5HTML = """
+<html><head><title>12345678: Muster - Trade History Report</title></head><body>
+<table>
+<tr align="center"><th colspan="13"><div><b>Trade History Report</b></div></th></tr>
+<tr align="left"><th colspan="3">Name:</th><th colspan="10"><b>Max Muster</b></th></tr>
+<tr align="left"><th colspan="3">Account:</th><th colspan="10"><b>12345678&nbsp;(USD, Beispiel-Server, real, Hedge)</b></th></tr>
+<tr align="left"><th colspan="3">Company:</th><th colspan="10"><b>Beispiel Broker Ltd.</b></th></tr>
+<tr align="left"><th colspan="3">Date:</th><th colspan="10"><b>2025.06.01 12:00</b></th></tr>
+<tr><td colspan="13" style="height: 10px"></td></tr>
+<tr align="center"><th colspan="13"><div><b>Positions</b></div></th></tr>
+<tr align="center" bgcolor="#E5F0FC"><td><b>Time</b></td><td><b>Position</b></td><td><b>Symbol</b></td><td><b>Type</b></td><td class="hidden" colspan="8"></td><td><b>Volume</b></td><td><b>Price</b></td><td><b>S / L</b></td><td><b>T / P</b></td><td><b>Time</b></td><td><b>Price</b></td><td><b>Commission</b></td><td><b>Swap</b></td><td><b>Profit</b></td></tr>
+<tr bgcolor="#FFFFFF" align="right"><td>2025.05.02 10:15:30</td><td>1001</td><td>EURUSD</td><td>buy</td><td class="hidden" colspan="8"></td><td>0.10</td><td>1.12000</td><td>1.11500</td><td></td><td>2025.05.02 11:00:00</td><td>1.12300</td><td>-0.70</td><td>0.00</td><td>30.00</td></tr>
+<tr bgcolor="#F7F7F7" align="right"><td>2025.05.05 09:00:00</td><td>1002</td><td>XAUUSD</td><td>sell</td><td class="hidden" colspan="8"></td><td>0.05 / 0.10</td><td>3 250.00</td><td>0</td><td>3 200.00</td><td>2025.05.06 15:30:00</td><td>3 260.00</td><td>-1.00</td><td>-2.50</td><td>-50.00</td></tr>
+<tr align="right"><td colspan="10"></td><td>-1.70</td><td>-2.50</td><td>-20.00</td></tr>
+<tr><td colspan="13" style="height: 10px"></td></tr>
+<tr align="center"><th colspan="13"><div><b>Orders</b></div></th></tr>
+<tr align="center"><td><b>Open Time</b></td><td><b>Order</b></td><td><b>Symbol</b></td><td><b>Type</b></td><td><b>State</b></td></tr>
+<tr align="right"><td>2025.05.02 10:15:30</td><td>5001</td><td>EURUSD</td><td>buy</td><td>filled</td></tr>
+<tr align="center"><th colspan="13"><div><b>Deals</b></div></th></tr>
+<tr align="center"><td><b>Time</b></td><td><b>Deal</b></td><td><b>Symbol</b></td><td><b>Type</b></td><td><b>Direction</b></td><td><b>Volume</b></td><td><b>Price</b></td><td><b>Order</b></td><td><b>Commission</b></td><td><b>Fee</b></td><td><b>Swap</b></td><td><b>Profit</b></td><td><b>Balance</b></td><td><b>Comment</b></td></tr>
+<tr align="right"><td>2025.05.01 08:00:00</td><td>9001</td><td></td><td>balance</td><td></td><td></td><td></td><td></td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 000.00</td><td>1 000.00</td><td>Deposit</td></tr>
+<tr align="right"><td>2025.05.02 10:15:30</td><td>9002</td><td>EURUSD</td><td>buy</td><td>in</td><td>0.10</td><td>1.12000</td><td>5001</td><td>-0.35</td><td>0.00</td><td>0.00</td><td>0.00</td><td>999.65</td><td></td></tr>
+<tr align="right"><td>2025.05.20 12:00:00</td><td>9003</td><td></td><td>credit</td><td></td><td></td><td></td><td></td><td>0.00</td><td>0.00</td><td>0.00</td><td>50.00</td><td>1 029.65</td><td>Bonus</td></tr>
+<tr align="right"><td colspan="8"></td><td>-0.35</td><td>0.00</td><td>0.00</td><td>1 050.00</td><td>1 029.65</td></tr>
+<tr align="center"><th colspan="13"><div><b>Results</b></div></th></tr>
+<tr align="right"><td>Total Net Profit:</td><td>-24.20</td></tr>
+</table></body></html>
+"""
+
+private let ibkrCSV = """
+\u{FEFF}Statement,Header,Field Name,Field Value
+Statement,Data,BrokerName,Interactive Brokers Ireland Limited
+Account Information,Header,Field Name,Field Value
+Account Information,Data,Name,Max Muster
+Account Information,Data,Account,U1234567
+Account Information,Data,Base Currency,EUR
+Trades,Header,DataDiscriminator,Asset Category,Currency,Symbol,Date/Time,Quantity,T. Price,C. Price,Proceeds,Comm/Fee,Basis,Realized P/L,MTM P/L,Code
+Trades,Data,Order,Stocks,USD,AAPL,"2025-05-02, 10:15:30",10,170.5,171,-1705,-1,1706,0,5,O
+Trades,Data,Order,Stocks,USD,AAPL,"2025-05-09, 15:59:01",-10,180,180,1800,-1.02,-1706,92.98,0,C
+Trades,Header,DataDiscriminator,Asset Category,Currency,Symbol,Date/Time,Quantity,T. Price,,Proceeds,Comm in EUR,,,MTM in EUR,Code
+Trades,Data,Order,Forex,USD,EUR.USD,"2025-05-02, 10:00:00",-1600,1.12,,1792,-1.7,,,0,
+Deposits & Withdrawals,Header,Currency,Settle Date,Description,Amount
+Deposits & Withdrawals,Data,EUR,2025-05-01,Electronic Fund Transfer,2000
+Dividends,Header,Currency,Date,Description,Amount
+Dividends,Data,USD,2025-05-15,AAPL(US0378331005) Cash Dividend USD 0.25 per Share (Ordinary Dividend),2.5
+"""
+
 /// Import-Ordner (Doc 45): wann die App still importiert und wann sie nachfragt, gegen ein Journal im
 /// Arbeitsspeicher und einen Ordner unter `temporaryDirectory`.
 @Suite @MainActor struct ImportordnerTests {
     private typealias T = AppTestdaten
 
-    private func entscheide(_ text: String, _ name: String, _ konten: [Konto],
-                            journal: Journal? = nil) -> Importordnerregel.Entscheidung {
-        Importordnerregel.entscheide(daten: Data(text.utf8), dateiname: name, konten: konten, zeitzone: { _ in nil },
+    private func entscheide(_ text: String, _ name: String, _ konten: [Konto], journal: Journal? = nil,
+                            zeitzone: TimeZone? = nil) -> Importordnerregel.Entscheidung {
+        entscheide(Data(text.utf8), name, konten, journal: journal, zeitzone: zeitzone)
+    }
+
+    private func entscheide(_ daten: Data, _ name: String, _ konten: [Konto], journal: Journal? = nil,
+                            zeitzone: TimeZone? = nil) -> Importordnerregel.Entscheidung {
+        Importordnerregel.entscheide(daten: daten, dateiname: name, konten: konten, zeitzone: { _ in zeitzone },
                                      vorgaenge: { konto in
                                          guard let b = try? journal?.kontobewegungen(konto: konto) else { return [] }
                                          return Set(b.ausfuehrungen.map(\.id) + b.geldbewegungen.map(\.id))
@@ -169,6 +222,57 @@ import TradingStore
         beobachtung.ignoriere(rueckfrage)
         await beobachtung.pruefe(jetzt: Date.now.addingTimeInterval(60))
         #expect(beobachtung.rueckfragen.isEmpty)
+    }
+    /// MetaTrader 5 speichert UTF-16 mit BOM.
+    private static var mt5UTF16: Data {
+        var datei = Data([0xFF, 0xFE])
+        datei.append(mt5HTML.data(using: .utf16LittleEndian)!)
+        return datei
+    }
+
+    /// MT5 wie MT4: still bei bekanntem Konto (Company + Account) und bekannter Serverzeit, sonst Rückfrage.
+    @Test func mt5MitBekanntemKontoGehtStill() throws {
+        let server = try #require(TimeZone(secondsFromGMT: 3 * 3600))
+        if case .rueckfrage = entscheide(Self.mt5UTF16, "ReportHistory-12345678.html", [], zeitzone: server) {} else {
+            Issue.record("MT5 ohne Konto still")
+        }
+        let j = try Journal.imSpeicher()
+        _ = try j.importiereMT5(datei: Self.mt5UTF16, dateiname: "ReportHistory-12345678.html", serverZeitzone: server)
+        let konto = try #require(try j.konten().first)
+        #expect(entscheide(mt5HTML, "utf8.html", [konto], zeitzone: server) == .mt5(konto, serverZeitzone: server))
+        #expect(entscheide(Self.mt5UTF16, "neu.html", [konto], zeitzone: server) == .mt5(konto, serverZeitzone: server))
+        if case .rueckfrage = entscheide(Self.mt5UTF16, "neu.html", [konto]) {} else {
+            Issue.record("MT5 ohne Serverzeit still")
+        }
+    }
+
+    /// IBKR: Kontonummer steht im Auszug; still nur, wenn dieses Konto schon angelegt ist.
+    @Test func ibkrMitBekanntemKontoGehtStill() throws {
+        if case .rueckfrage = entscheide(ibkrCSV, "U1234567.csv", []) {} else { Issue.record("IBKR ohne Konto still") }
+        let j = try Journal.imSpeicher()
+        _ = try j.importiereCSV(datei: Data(ibkrCSV.utf8), dateiname: "U1234567.csv", kontonummer: "Depot")
+        let konto = try #require(try j.konten().first)
+        #expect(entscheide(ibkrCSV, "neu.csv", [konto]) == .ibkr(konto))
+        let fremd = ibkrCSV.replacingOccurrences(of: "U1234567", with: "U7654321")
+        if case .rueckfrage = entscheide(fremd, "fremd.csv", [konto]) {} else { Issue.record("fremdes IBKR-Konto still") }
+    }
+
+    /// Ganzer Lauf für IBKR: Folgeauszug (ohne BOM, anderer Hash) geht still ins bekannte Konto, nichts doppelt.
+    @Test func ordnerLaufImportiertIBKRStill() async throws {
+        let ordner = FileManager.default.temporaryDirectory.appending(path: "importordner-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: ordner, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ordner) }
+        let speicher = try #require(UserDefaults(suiteName: "importordner-\(UUID().uuidString)"))
+        let m = AppModell(journal: try Journal.imSpeicher(), nebenwirkungen: false)
+        _ = try m.importiereCSV(daten: Data(ibkrCSV.utf8), dateiname: "U1234567.csv", kontonummer: "Depot",
+                                kontoname: "IBKR", waehrung: "EUR", zeitzone: .gmt)
+        try Data(String(ibkrCSV.dropFirst()).utf8).write(to: ordner.appending(path: "U1234567-neu.csv"))
+        let beobachtung = Importordner(speicher: speicher)
+        await beobachtung.pruefeTestweise(ordner, modell: m, jetzt: Date.now.addingTimeInterval(60))
+        #expect(beobachtung.rueckfragen.isEmpty)
+        #expect(m.importe.count == 2)
+        #expect(m.konten.count == 1)
+        #expect(beobachtung.zuletzt.first?.dateiname == "U1234567-neu.csv")
     }
 }
 #endif
