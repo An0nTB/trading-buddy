@@ -115,7 +115,7 @@ let krakenDoku = #"{"error":[],"result":{"XXBTZUSD":[[1688671200,"30306.1","3030
 // MARK: Lader und Speicher
 
 @Test func laderTeiltAbrufeUndBehaeltAltenVerlaufBeiFehler() async {
-    let kraken = #"{"error":[],"result":{"BTC/EUR":[[1700006400,"1","2","0.5","1.5","1","9",4]]}}"#
+    let kraken = #"{"error":[],"result":{"BTC/EUR":[[1799884800,"1","2","0.5","1.5","1","9",4]]}}"#
     let mitschnitt = Abrufmitschnitt([(200, kraken), (502, "")])
     let pausen = Mitschnitt()
     let lader = Verlaufslader(quellen: [Kursverlaeufe.kraken(abruf: testabruf(mitschnitt))],
