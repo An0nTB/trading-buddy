@@ -38,8 +38,10 @@ public struct Verlaufslader: Sendable {
         self.warte = warte ?? Kursquellen.schlafe
     }
 
-    /// Lädt die letzten `monate` Monate. Scheitert ein Abruf, bleibt der Verlauf aus `bisher` stehen.
-    public func lade(_ zuordnungen: [Kurszuordnung], monate: Int = 12, bisher: Verlaufsstand = .leer,
+    /// Lädt die letzten `monate` Monate (je 31 Tage). 13 als Vorgabe: Die Kursanalyse in TradingCore rechnet über
+    /// 365 Kalendertage und braucht für ATR 14 weitere Kerzen davor (Hauptthread, 02.10.2026).
+    /// Scheitert ein Abruf, bleibt der Verlauf aus `bisher` stehen.
+    public func lade(_ zuordnungen: [Kurszuordnung], monate: Int = 13, bisher: Verlaufsstand = .leer,
                      jetzt: Date) async -> Verlaufsstand {
         let seit = jetzt.addingTimeInterval(-Double(monate) * 31 * 86_400)
         var stand = Verlaufsstand(verlaeufe: [:], fehler: [:], geladen: jetzt)
