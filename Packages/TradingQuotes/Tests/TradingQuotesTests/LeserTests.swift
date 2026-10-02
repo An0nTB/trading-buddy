@@ -140,6 +140,19 @@ let testSchluessel = AlpacaSchluessel(schluesselID: "TEST-ID", geheimnis: "TEST-
     #expect(kurs.zeit == zeit("2021-02-22T15:51:00.000Z"))
 }
 
+@Test func alpacaKursblattMitNullIstKeinKurs() throws {
+    var leser = AlpacaLeser(symbole: ["AAPL"], schluessel: testSchluessel)
+    let abschluss = #"[{"T":"t","S":"AAPL","p":126.55,"t":"2021-02-22T15:51:00Z"}]"#
+    let blatt = #"[{"T":"q","S":"AAPL","bp":0,"ap":126.56,"t":"2021-02-22T15:52:00Z"}]"#
+    _ = leser.lies(abschluss, empfangen: empfangen)
+    let lesung = leser.lies(blatt, empfangen: empfangen)
+    let kurs = try #require(lesung.kurse.first)
+    #expect(kurs.geld == nil)
+    #expect(kurs.brief == d("126.56"))
+    // Kaufposition ohne Geldkurs: der letzte Abschluss, nicht 0.
+    #expect(kurs.bewertungskurs(kaufposition: true) == d("126.55"))
+}
+
 @Test func alpacaFehlerCodes() {
     var leser = AlpacaLeser(symbole: ["AAPL"], schluessel: testSchluessel)
     let falsch = leser.lies(#"[{"T":"error","code":402,"msg":"auth failed"}]"#, empfangen: empfangen)
