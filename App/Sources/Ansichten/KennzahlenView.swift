@@ -1,8 +1,8 @@
 import SwiftUI
 import TradingCore
 
-/// Kennzahlen, erster Entwurf: Stichprobenhinweis und acht Kacheln (Doc 10, Reihe 4).
-/// Aufschlüsselung mit Umschalter, Reihenfolge-Effekte und Fehlermuster-Tabelle folgen im nächsten Pull Request.
+/// Kennzahlen (Doc 10, Reihe 4): Stichprobenhinweis, acht Kacheln, Aufschlüsselung mit Umschalter,
+/// Reihenfolge-Effekte und Playbook-Auswertung (Karten in KennzahlenAufschluesselung.swift).
 struct KennzahlenView: View {
     @Environment(AppModell.self) private var modell
     @Environment(\.thema) private var thema
@@ -16,7 +16,10 @@ struct KennzahlenView: View {
         let ohneRegelbruch = modell.trades.filter { muster[$0.id] == nil }
         ScrollView {
             VStack(alignment: .leading, spacing: Abstand.kachelAbstand) {
-                Kopfzeile("Kennzahlen") { Filterleiste() }
+                Kopfzeile("Kennzahlen") {
+                    Filterleiste()
+                    FragBradKnopf(.monat) // Frag Brad (Doc 31)
+                }
                 if modell.trades.isEmpty {
                     KeineTrades()
                 } else {
@@ -54,9 +57,11 @@ struct KennzahlenView: View {
                                wert: "\(modell.ohneStop)",
                                zusatz: String(localized: "ohne Stop kein R"))
                     }
-                    Text("Aufschlüsselung nach Instrument, Richtung, Wochentag, Stunde und Haltedauer sowie die Reihenfolge-Effekte kommen im nächsten Schritt.")
-                        .font(Schrift.beschriftung)
-                        .foregroundStyle(thema.textSchwach)
+                    AufschluesselungKarte()
+                    ReihenfolgeKarte()
+                    if !modell.playbook.isEmpty {
+                        PlaybookAuswertungKarte()
+                    }
                 }
                 Pflichthinweis()
             }
