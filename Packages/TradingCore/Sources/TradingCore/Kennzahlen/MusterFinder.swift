@@ -41,7 +41,8 @@ public enum MusterFinder {
         var ergebnis: [Muster] = []
         for aufteilung in aufteilungen {
             let gruppen = Kennzahlen.aufschluesseln(trades, nach: aufteilung, zeitzone: zeitzone)
-            for gruppe in gruppen {
+            // „Ohne Uhrzeit“ beschreibt den Export, nicht das Verhalten; daraus entsteht kein Muster.
+            for gruppe in gruppen where gruppe.schluessel != Gruppe.ohneUhrzeit {
                 let anzahl = gruppe.kennzahlen.anzahl
                 let anzahlRest = gesamtAnzahl - anzahl
                 guard anzahl >= mindestanzahl, anzahlRest >= mindestanzahl else { continue }
