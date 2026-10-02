@@ -59,7 +59,8 @@ extension Boerse {
         var roh: [Sitzung] = []
         while tag <= letzterTag {
             defer { tag = tag.plus(tage: 1) }
-            for zeit in handelszeiten where zeit.tage.contains(tag.wochentag) {
+            for zeit in handelszeiten where zeit.tage.contains(tag.wochentag) && sitzungsarten.contains(zeit.art)
+                && zeit.gueltigAb.map({ tag >= $0 }) ?? true {
                 let endTag = tag.plus(tage: zeit.endeNachTagen)
                 // Handelstag ist der Tag, an dem die Sitzung endet: Forex Donnerstag 17:00 bis
                 // Freitag 17:00 New York gehört zum Freitag und entfällt, wenn Freitag Feiertag ist.

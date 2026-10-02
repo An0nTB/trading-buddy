@@ -33,3 +33,15 @@ let schweiz = try Feiertagskalender.lade(json: daten)
 var auswahl = Boersenauswahl(kalender: [schweiz], kalenderJeBoerse: ["xetra": ["ch"]])
 let uhr = try Boersenuhr.mit(auswahl)   // Xetra schließt zusätzlich an Schweizer Feiertagen
 ```
+
+Sitzungsarten (0.4.0, Entscheidung Tim 02.10.2026): Handelszeiten tragen `art` (`kern`, `vorboerslich`,
+`nachboerslich`, `nacht`) und wahlweise `gueltigAb`. Die Uhr rechnet standardmäßig nur den Kernhandel;
+weitere Arten schaltet die Auswahl je Börse zu. Nasdaq: vorbörslich 04:00 bis 09:30, nachbörslich 16:00 bis 20:00,
+Nacht 21:00 bis 04:00 New York ab Sonntag 06.12.2026.
+
+```swift
+var auswahl = Boersenauswahl(sitzungsartenJeBoerse: ["nasdaq": [.kern, .nacht]])
+let nasdaq = try Boersenuhr.mit(auswahl)["nasdaq"]!
+nasdaq.verfuegbareSitzungsarten     // für die Schalter in den Einstellungen
+nasdaq.sitzungsart(bei: Date())     // .nacht, .kern … oder nil
+```
