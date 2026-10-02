@@ -1,7 +1,7 @@
 import Foundation
 
 /// Abgeschlossener Trade, unabhängig vom Broker. Grundlage aller Kennzahlen.
-/// Beträge in Kontowährung, Zeiten in UTC.
+/// Beträge in `waehrung`, ohne Angabe in Kontowährung; Zeiten in UTC.
 public struct Trade: Sendable, Equatable, Identifiable {
     public var id: String
     public var symbol: String
@@ -24,11 +24,14 @@ public struct Trade: Sendable, Equatable, Identifiable {
     /// Kauf oder Verkauf nur mit Datum gebucht (Trade Republic, Scalable): Uhrzeit und Haltedauer sind
     /// dann nicht bekannt; Stunden- und Haltedauer-Auswertungen lassen solche Trades aus.
     public var nurDatum: Bool
+    /// Währung der Beträge, wenn sie von der Kontowährung abweichen kann (Positionsbildung aus Ausführungen,
+    /// z. B. BTC/USD auf einem Euro-Konto). `nil` heißt Kontowährung (MetaTrader, XTB).
+    public var waehrung: String?
 
     public init(id: String, symbol: String, side: Side, lots: Decimal, openTime: Date, closeTime: Date,
                 openPrice: Decimal, closePrice: Decimal, stopLoss: Decimal? = nil, takeProfit: Decimal? = nil,
                 commission: Decimal = 0, swap: Decimal = 0, profit: Decimal, taxes: Decimal = 0,
-                produktart: Produktart = .unbekannt, nurDatum: Bool = false) {
+                produktart: Produktart = .unbekannt, nurDatum: Bool = false, waehrung: String? = nil) {
         self.id = id
         self.symbol = symbol
         self.side = side
@@ -45,7 +48,11 @@ public struct Trade: Sendable, Equatable, Identifiable {
         self.taxes = taxes
         self.produktart = produktart
         self.nurDatum = nurDatum
+        self.waehrung = waehrung?.uppercased()
     }
+
+    /// Währung der Beträge in Großbuchstaben, ohne eigene Angabe die Kontowährung.
+    public func waehrung(kontowaehrung: String) -> String { waehrung ?? kontowaehrung.uppercased() }
 
     public init(_ p: ClosedPosition) {
         self.init(id: p.ticket, symbol: p.symbol, side: p.side, lots: p.lots, openTime: p.openTime,
@@ -66,6 +73,13 @@ public struct Trade: Sendable, Equatable, Identifiable {
 
     public var outcome: Outcome {
         netProfit > 0 ? .win : (netProfit < 0 ? .loss : .breakeven)
+    }
+
+    /// Gleiche Eröffnung (Symbol, Richtung, Eröffnungszeit): Teilverkäufe einer Position ergeben mehrere
+    /// Trades mit diesem Schlüssel und zählen für „Trades je Tag“ als einer. Ohne Uhrzeit fallen zwei
+    /// getrennte Käufe desselben Werts am selben Tag zusammen (Näherung).
+    var positionsschluessel: String {
+        "\(symbol)|\(side)|\(openTime.timeIntervalSinceReferenceDate)"
     }
 
     /// Geplantes Risiko (1 R) in Kontowährung: Abstand Einstieg bis Stop mal Wert je Kurspunkt.

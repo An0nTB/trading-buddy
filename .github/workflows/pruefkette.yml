@@ -33,7 +33,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        paket: [TradingCore, TradingStore, TradingQuotes, TradingClock, TradingCalendar, TradingNews]
+        # TradingConnector fehlt mit Absicht: Paket nur für macOS (MCP swift-sdk), baut im Connector-Job.
+        paket: [TradingCore, TradingStore, TradingQuotes, TradingClock, TradingCalendar, TradingNews, TradingRates,
+                TradingAssistant]
     steps:
       - uses: actions/checkout@v4
       - name: SQLite-Header installieren
