@@ -132,6 +132,16 @@
         }
       }
     },
+    "Activity Statement (CSV)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activity Statement (CSV)"
+          }
+        }
+      }
+    },
     "Aus dem Import-Ordner importiert" : {
       "localizations" : {
         "en" : {
@@ -152,12 +162,52 @@
         }
       }
     },
+    "Die Datei hat keine Summenzeile; nichts zu vergleichen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The file has no totals row; nothing to compare."
+          }
+        }
+      }
+    },
+    "Die Datei nennt keine Kontonummer. Gib dieselbe Nummer wie bei früheren Berichten dieses Kontos an, sonst zählt die App Positionen doppelt." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The file does not state an account number. Enter the same number as for earlier reports of this account, otherwise the app counts positions twice."
+          }
+        }
+      }
+    },
+    "Dieser Importer lief noch gegen keine echte Datei, nur gegen nachgebaute Beispiele. Prüfe nach dem Import Lots und Beträge gegen den Bericht im Terminal." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This importer has not yet run against a real file, only against reconstructed examples. After importing, check lots and amounts against the report in the terminal."
+          }
+        }
+      }
+    },
     "Dreieck Einstieg, Kreis Ausstieg, gestrichelt Stop (rot) und Ziel (grün)." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Triangle entry, circle exit, dashed stop (red) and target (green)."
+          }
+        }
+      }
+    },
+    "Erkannt: MetaTrader 5 Handelsbericht (HTML)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detected: MetaTrader 5 trade report (HTML)"
           }
         }
       }
@@ -178,6 +228,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Annual report %@"
+          }
+        }
+      }
+    },
+    "Kommission je Order aus dem Auszug; im Trade anteilig aus seinen Käufen; Devisentausch steht als Hinweis" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Commission per order from the statement; in the trade pro rata from its buys; currency exchange appears as a note"
+          }
+        }
+      }
+    },
+    "Kommission und Swap aus dem Bericht, nichts geschätzt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Commission and swap from the report, nothing estimated"
           }
         }
       }
@@ -232,6 +302,16 @@
         }
       }
     },
+    "US-Ostküste (Annahme, in den IBKR-Einstellungen änderbar); die App zeigt deine Zeitzone" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "US East Coast (assumption, can be changed in the IBKR settings); the app shows your time zone"
+          }
+        }
+      }
+    },
     "Vorjahr" : {
       "localizations" : {
         "en" : {
@@ -258,6 +338,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Net result and number of trades closed in this month."
+          }
+        }
+      }
+    },
+    "Wähle einen Kontoauszug: MetaTrader 4 oder 5 (HTML, GBE und andere Broker), den Transaktionsexport von Trade Republic oder Scalable Capital (CSV), das Activity Statement von Interactive Brokers (CSV), den Trade- oder Transaktionsexport von Kraken, Binance, Coinbase oder Bitpanda (CSV) oder die Kontohistorie von XTB (Excel aus xStation 5)." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose an account statement: MetaTrader 4 or 5 (HTML, GBE and other brokers), the transaction export from Trade Republic or Scalable Capital (CSV), the activity statement from Interactive Brokers (CSV), the trade or transaction export from Kraken, Binance, Coinbase or Bitpanda (CSV) or the account history from XTB (Excel from xStation 5)."
           }
         }
       }
