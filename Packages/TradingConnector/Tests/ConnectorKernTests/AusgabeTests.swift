@@ -109,7 +109,7 @@ private func gbeExport() throws -> JournalExport {
     #expect(text.contains("## Ziel aus dem letzten Review"))
     #expect(text.contains("- „Höchstens 2 Revanche-Trades“ (Mai 2025, Status verfehlt): Revanche-Trades, Zielwert 2,00, "
         + "Istwert 13 im Zeitraum des Ziels (83 Trades). Ergebnis laut App: 13 statt 2."))
-    #expect(!text.contains("Nur mit Stop") && !text.contains("keine in der App eingetragen"))
+    #expect(!text.contains("Nur mit Stop") && !text.contains("Ziele früherer Reviews: keine in der App eingetragen"))
     #expect(Ausgabe.datenstand(export).contains("2 Ziele aus Reviews."))
 
     // Juni ohne eigenes Ziel: das zuletzt geendete davor.
