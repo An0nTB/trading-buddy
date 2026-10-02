@@ -16,7 +16,7 @@ enum Katalog {
 
     static let werkzeuge = [
         Tool(name: "hole_datenstand",
-             description: "Welche Konten und welcher Zeitraum im Trading Buddy vorliegen. Zuerst aufrufen, wenn unklar ist, welche Daten es gibt.",
+             description: "Welche Konten und welcher Zeitraum in Brad vorliegen. Zuerst aufrufen, wenn unklar ist, welche Daten es gibt.",
              inputSchema: schema([:]), annotations: nurLesen),
         Tool(name: "hole_auswertung",
              description: "Wochen- oder Monatsauswertung: Kennzahlen mit Vorzeitraum, Kosten, Symbole, Fehlermuster, auffällige Trades, Ziele früherer Reviews mit Istwert, dazu das Rezept für die Antwort. Für Fragen wie „Wie lief mein Mai?“. Ohne Zeitraum gilt der letzte Monat mit Trades.",
@@ -40,10 +40,10 @@ enum Katalog {
 
     static let vorlagen = [
         Prompt(name: "monatsauswertung", title: "Monatsauswertung",
-               description: "Monat nach dem Trading-Buddy-Rezept auswerten",
+               description: "Monat nach Brads Rezept auswerten",
                arguments: [.init(name: "monat", description: "JJJJ-MM, leer für den letzten Monat mit Trades")]),
         Prompt(name: "wochenauswertung", title: "Wochenauswertung",
-               description: "Woche nach dem Trading-Buddy-Rezept auswerten",
+               description: "Woche nach Brads Rezept auswerten",
                arguments: [.init(name: "datum", description: "Ein Tag der Woche, JJJJ-MM-TT", required: true)])
     ]
 
@@ -121,7 +121,7 @@ enum Ausfuehrung {
 
 let server = Server(
     name: "trading-buddy",
-    version: "0.3.1",
+    version: "0.4.0",
     capabilities: .init(prompts: .init(listChanged: false), tools: .init(listChanged: false))
 )
 
