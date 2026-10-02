@@ -16,6 +16,14 @@ final class Nachrichtendienst {
     static let schluesselBudget = "marketauxBudget"
     static let schluesselQuellenAus = "nachrichtenQuellenAus"
     static let schluesselGesehenBis = "nachrichtenGesehenBis"
+    /// Zwischenspeicher der Meldungen (Application Support/TradingBuddy/nachrichten.json). Nur der Pfad; Ordner
+    /// und Datei entstehen erst beim ersten Schreiben. `nonisolated`, damit auch der Export für den Connector
+    /// (ExportOrdner, AP12) denselben Pfad liest.
+    nonisolated static let zwischenspeicherDatei: URL = {
+        let ordner = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+            ?? FileManager.default.temporaryDirectory
+        return ordner.appendingPathComponent("TradingBuddy/nachrichten.json")
+    }()
     /// Anzeigenamen der Quellen ohne RSS.
     static let alpaca = "Alpaca News"
     static let marketaux = "Marketaux"
@@ -58,10 +66,7 @@ final class Nachrichtendienst {
         merkliste = []
         quellenAus = Set(speicher.stringArray(forKey: Self.schluesselQuellenAus) ?? [])
         gesehenBis = speicher.object(forKey: Self.schluesselGesehenBis) as? Date
-        // Nur der Pfad; Ordner und Datei entstehen erst beim ersten Schreiben (Zwischenspeicher.ergaenze).
-        let ordner = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
-            ?? FileManager.default.temporaryDirectory
-        zwischenspeicher = Zwischenspeicher(datei: ordner.appendingPathComponent("TradingBuddy/nachrichten.json"))
+        zwischenspeicher = Zwischenspeicher(datei: Self.zwischenspeicherDatei)
     }
 
     // MARK: Schalter und Quellen
@@ -229,6 +234,10 @@ final class Nachrichtendienst {
         do {
             let alle = try await Task.detached(priority: .utility) { try ablage.ergaenze(neue, jetzt: jetzt) }.value
             meldungen = Self.sortiert(alle)
+            #if os(macOS)
+            // Exportdatei für den Connector neu schreiben, damit sie die neuen Meldungen trägt (AP12, hole_nachrichten).
+            _ = ExportOrdner.schreibe(journal)
+            #endif
         } catch {
             fehler["Zwischenspeicher"] = error.localizedDescription
             meldungen = Self.sortiert(Doppelte.entferne(neue + meldungen))
