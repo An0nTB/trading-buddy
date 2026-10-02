@@ -8,6 +8,10 @@ public struct Anfrage: Sendable {
     public var zeitraum: Zeitspanne
     /// Hinweis, wenn der Zeitraum nicht ausdrücklich gewählt wurde.
     public var vorgabe: String?
+    /// Kontowährung laut Export; `konto` enthält nur Trades in `konto.waehrung` (Summen nie über Währungen).
+    public var kontowaehrung: String = ""
+    /// Trades des Kontos in anderen Währungen, je Währung; sie stehen nicht in den Summen dieser Antwort.
+    public var andereWaehrungen: [String: [Trade]] = [:]
 
     public var zeitzone: TimeZone { export.nutzerZeitzone }
     public var kontoname: String { export.kurzname(konto) }
@@ -15,8 +19,19 @@ public struct Anfrage: Sendable {
     /// Zeitraum aus `monat` („JJJJ-MM“), `woche` (ein Tag der Woche, „JJJJ-MM-TT“)
     /// oder `von` und `bis` („JJJJ-MM-TT“, beide einschließlich). Ohne Angabe:
     /// der letzte Monat mit Trades. Konto über `konto` (Endziffern oder Broker), bei nur einem Konto entbehrlich.
+    /// Währung über `waehrung`; ohne Angabe die Kontowährung, gibt es darin keine Trades, die häufigste.
     public static func lies(_ argumente: [String: String], export: JournalExport) throws -> Anfrage {
-        let konto = try waehleKonto(argumente["konto"], in: export)
+        var konto = try waehleKonto(argumente["konto"], in: export)
+        let kontowaehrung = konto.waehrung.uppercased()
+        let (waehrung, andere) = try waehleWaehrung(argumente["waehrung"], konto)
+        konto.trades = konto.trades.filter { $0.waehrung(kontowaehrung: kontowaehrung) == waehrung }
+        konto.waehrung = waehrung
+        if waehrung != kontowaehrung {
+            // Ziele und Betragsgrenzen sind in Kontowährung eingetragen; gegen andere Beträge sind sie bedeutungslos.
+            konto.ziele = []
+            konto.regeln?.maxTagesverlust = nil
+            konto.regeln?.maxRisikoJeTrade = nil
+        }
         let zone = export.nutzerZeitzone
         var vorgabe: String?
         let zeitraum: Zeitspanne
@@ -41,7 +56,31 @@ public struct Anfrage: Sendable {
             zeitraum = Zeitspanne.monat(mit: letzter, zeitzone: zone)
             vorgabe = "Kein Zeitraum angegeben, daher der letzte Monat mit Trades."
         }
-        return Anfrage(export: export, konto: konto, zeitraum: zeitraum, vorgabe: vorgabe)
+        return Anfrage(export: export, konto: konto, zeitraum: zeitraum, vorgabe: vorgabe,
+                       kontowaehrung: kontowaehrung, andereWaehrungen: andere)
+    }
+
+    /// Gewählte Währung und die Trades der übrigen Währungen des Kontos.
+    static func waehleWaehrung(_ wunsch: String?, _ konto: JournalExport.Kontodaten) throws
+        -> (String, [String: [Trade]]) {
+        let kontowaehrung = konto.waehrung.uppercased()
+        let jeWaehrung = Dictionary(grouping: konto.trades) { $0.waehrung(kontowaehrung: kontowaehrung) }
+        let wunsch = wunsch?.trimmingCharacters(in: .whitespaces).uppercased() ?? ""
+        let gewaehlt: String
+        if !wunsch.isEmpty {
+            guard wunsch == kontowaehrung || jeWaehrung[wunsch] != nil else {
+                throw AnfrageFehler.waehrungUnbekannt(wunsch, Set(jeWaehrung.keys).union([kontowaehrung]).sorted())
+            }
+            gewaehlt = wunsch
+        } else if let haeufigste = jeWaehrung.max(by: { ($0.value.count, $1.key) < ($1.value.count, $0.key) }),
+                  jeWaehrung[kontowaehrung] == nil {
+            gewaehlt = haeufigste.key
+        } else {
+            gewaehlt = kontowaehrung
+        }
+        var andere = jeWaehrung
+        andere[gewaehlt] = nil
+        return (gewaehlt, andere)
     }
 
     public func auswertung() -> Auswertung {
@@ -106,6 +145,7 @@ public enum AnfrageFehler: Error, Equatable, Sendable {
     case vonOhneBis
     case bisVorVon(String, String)
     case keineTrades(String)
+    case waehrungUnbekannt(String, [String])
 
     /// Meldung für Claude, mit dem, was stattdessen geht.
     public var text: String {
@@ -126,6 +166,9 @@ public enum AnfrageFehler: Error, Equatable, Sendable {
             "ZEITRAUM UNGÜLTIG: \(von) bis \(bis). Gültige Tage angeben, `bis` nicht vor `von`."
         case let .keineTrades(konto):
             "KEINE TRADES: Für \(konto) sind noch keine abgeschlossenen Trades exportiert."
+        case let .waehrungUnbekannt(wunsch, vorhanden):
+            "WÄHRUNG UNBEKANNT: „\(wunsch)“ kommt in diesem Konto nicht vor. "
+                + "Vorhanden: \(vorhanden.joined(separator: ", "))."
         }
     }
 }
