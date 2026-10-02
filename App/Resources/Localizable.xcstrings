@@ -212,6 +212,16 @@
         }
       }
     },
+    "Keine Überschneidung mit dem Konto bei %@: anderes Depot? Bitte im Blatt zuordnen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No overlap with the account at %@: a different portfolio? Please assign it in the sheet."
+          }
+        }
+      }
+    },
     "Mitteilung nach stillem Import" : {
       "localizations" : {
         "en" : {
