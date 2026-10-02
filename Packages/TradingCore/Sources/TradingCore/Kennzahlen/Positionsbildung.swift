@@ -118,6 +118,6 @@ public enum Positionsbildung {
                      profit: v.betrag + einstand,
                      taxes: anteile.map(\.steuer).reduce(0, +) + v.steuer,
                      produktart: v.produktart != .unbekannt ? v.produktart : anteile.first?.produktart ?? .unbekannt,
-                     nurDatum: v.nurDatum || anteile.contains(where: \.nurDatum))
+                     nurDatum: v.nurDatum || anteile.contains(where: \.nurDatum), waehrung: v.waehrung)
     }
 }

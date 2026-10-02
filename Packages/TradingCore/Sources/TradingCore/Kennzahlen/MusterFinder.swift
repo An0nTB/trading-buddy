@@ -36,11 +36,15 @@ public enum MusterFinder {
     public static func finde(_ trades: [Trade], zeitzone: TimeZone,
                              aufteilungen: [Aufteilung] = Aufteilung.allCases,
                              mindestanzahl: Int = Kennzahlen.mindestanzahl) -> [Muster] {
-        let gesamtAnzahl = trades.count
-        let gesamtNetto: Decimal = trades.map(\.netProfit).reduce(0, +)
+        let alleAnzahl = trades.count
+        let alleNetto: Decimal = trades.map(\.netProfit).reduce(0, +)
         var ergebnis: [Muster] = []
         for aufteilung in aufteilungen {
             let gruppen = Kennzahlen.aufschluesseln(trades, nach: aufteilung, zeitzone: zeitzone)
+            // Trades ohne Uhrzeit gehören auch nicht in den Vergleichsrest (Gegencheck K3).
+            let ohne = gruppen.first { $0.schluessel == Gruppe.ohneUhrzeit }?.kennzahlen
+            let gesamtAnzahl = alleAnzahl - (ohne?.anzahl ?? 0)
+            let gesamtNetto = alleNetto - (ohne?.netto ?? 0)
             // „Ohne Uhrzeit“ beschreibt den Export, nicht das Verhalten; daraus entsteht kein Muster.
             for gruppe in gruppen where gruppe.schluessel != Gruppe.ohneUhrzeit {
                 let anzahl = gruppe.kennzahlen.anzahl
