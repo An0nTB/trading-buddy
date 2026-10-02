@@ -43,6 +43,8 @@ final class AppModell {
     private(set) var exportStand = ""
     /// Börsenuhr: Auswahl des Nutzers und die daraus gebaute Uhr (Paket TradingClock, Stand-Doc 15).
     let boersen = Boersenverwaltung()
+    /// Review-Ziele des gewählten Kontos, nach Beginn sortiert (Rezept Punkt 6 und 7, Migration v4 aus AP9 #37).
+    private(set) var ziele: [Reviewziel] = []
 
     // Zustand der Oberfläche
     var bereich: Bereich = .uebersicht
@@ -164,11 +166,13 @@ final class AppModell {
                 kontobewegungen = try journal.kontobewegungen(konto: konto)
                 journaleintraege = try journal.journaleintraege(konto: konto)
                 alleGeloeschten = try journal.geloeschteOrders(konto: konto)
+                ziele = try journal.ziele(konto: konto)
             } else {
                 positionen = []
                 kontobewegungen = Kontobewegungen()
                 journaleintraege = [:]
                 alleGeloeschten = []
+                ziele = []
             }
             positionsbildung = Positionsbildung.bilde(kontobewegungen.ausfuehrungen,
                                                       kapitalmassnahmen: kontobewegungen.kapitalmassnahmen)
@@ -216,6 +220,42 @@ final class AppModell {
             exportiere()
         } catch {
             fehler = error.localizedDescription
+        }
+    }
+
+    // MARK: Review-Ziele (Eingabe nur in der App; Export und Connector lesen sie, Entscheidung 28)
+
+    /// Offene Ziele, frühester Beginn zuerst.
+    var offeneZiele: [Reviewziel] { ziele.filter { $0.status == .offen } }
+
+    /// Legt ein Ziel für das gewählte Konto an; die Speicherung lehnt leeren Text und einen Zeitraum ohne Dauer ab.
+    func legeZielAn(_ ziel: Reviewziel) throws {
+        guard let journal, let konto else { throw Zielfehler.keinKonto }
+        try journal.legeZielAn(ziel, konto: konto)
+        ziele = try journal.ziele(konto: konto)
+        exportiere()
+    }
+
+    /// Hakt ein Ziel ab oder öffnet es wieder (dann ohne Ergebnis).
+    func setzeZielstatus(_ ziel: Reviewziel, _ status: Reviewziel.Status, ergebnis: String?) {
+        guard let journal, let konto, let id = ziel.id else { return }
+        do {
+            try journal.setzeZielstatus(id: id, status, ergebnis: status == .offen ? nil : ergebnis)
+            ziele = try journal.ziele(konto: konto)
+            exportiere()
+        } catch {
+            fehler = Zielfehler.text(error)
+        }
+    }
+
+    func loescheZiel(_ ziel: Reviewziel) {
+        guard let journal, let konto, let id = ziel.id else { return }
+        do {
+            try journal.loescheZiel(id: id)
+            ziele = try journal.ziele(konto: konto)
+            exportiere()
+        } catch {
+            fehler = Zielfehler.text(error)
         }
     }
 
