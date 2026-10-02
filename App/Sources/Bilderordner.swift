@@ -42,6 +42,71 @@ enum Bilderordner {
         return datei
     }
 
+    /// Wie `uebernimm(_:)` für beide Herkünfte; Daten (Fotoauswahl am iPhone) schreibt sie neu.
+    static func uebernimm(_ quelle: Bildquelle, jetzt: Date = Date(), zeitzone: TimeZone = .current) throws -> String {
+        switch quelle {
+        case .datei(let url):
+            return try uebernimm(url, jetzt: jetzt, zeitzone: zeitzone)
+        case .daten(let daten, let endung, let name):
+            let endung = endung.lowercased()
+            guard Bildverweis.endungen.contains(endung) else { throw Bildfehler.keinBild(name) }
+            let datei = relativerPfad(endung: endung, jetzt: jetzt, zeitzone: zeitzone)
+            guard let ziel = url(fuer: datei) else { throw Bildfehler.ungueltigerPfad }
+            do {
+                try FileManager.default.createDirectory(at: ziel.deletingLastPathComponent(),
+                                                        withIntermediateDirectories: true)
+                try daten.write(to: ziel, options: .withoutOverwriting)
+            } catch {
+                throw Bildfehler.kopieren(name)
+            }
+            return datei
+        }
+    }
+
+    /// Legt die Bilder ab und speichert je einen Verweis; scheitert der Verweis, fliegt die Kopie wieder
+    /// heraus. Nicht unterstützte Dateien überspringt sie. Gibt die erste Fehlermeldung zurück.
+    static func lege(_ quellen: [Bildquelle], bezug: Bildverweis.Bezug, jetzt: Date = Date(),
+                     zeitzone: TimeZone = .current, speichern: (Bildverweis) throws -> Void) -> String? {
+        var ersterFehler: String?
+        for quelle in quellen {
+            do {
+                let datei = try uebernimm(quelle, jetzt: jetzt, zeitzone: zeitzone)
+                do {
+                    try speichern(Bildverweis(datei: datei, bezug: bezug, erstellt: jetzt))
+                } catch {
+                    loesche(datei)
+                    throw error
+                }
+            } catch {
+                if ersterFehler == nil { ersterFehler = error.localizedDescription }
+            }
+        }
+        return ersterFehler
+    }
+
+    /// Löscht Bilddateien in den Monatsordnern, auf die kein Verweis zeigt (gelöschte Einträge, abgebrochenes
+    /// Ablegen). Ohne einen einzigen Verweis tut sie nichts: dann ist eher die Datenbank leer oder neu als
+    /// der Ordner voller Waisen. Läuft auf dem Hauptthread, damit kein gleichzeitiges Ablegen dazwischenkommt.
+    @MainActor
+    static func raeumeAuf(behalten: Set<String>) -> Int {
+        guard !behalten.isEmpty, let ordner = try? ordner() else { return 0 }
+        let dateisystem = FileManager.default
+        guard let monate = try? dateisystem.contentsOfDirectory(at: ordner, includingPropertiesForKeys: nil) else {
+            return 0
+        }
+        var geloescht = 0
+        for monat in monate {
+            let dateien = (try? dateisystem.contentsOfDirectory(at: monat, includingPropertiesForKeys: [.isRegularFileKey])) ?? []
+            for url in dateien {
+                let datei = "\(monat.lastPathComponent)/\(url.lastPathComponent)"
+                guard Bildverweis.istGueltig(datei), !behalten.contains(datei),
+                      (try? url.resourceValues(forKeys: [.isRegularFileKey]).isRegularFile) == true else { continue }
+                if (try? dateisystem.removeItem(at: url)) != nil { geloescht += 1 }
+            }
+        }
+        return geloescht
+    }
+
     /// Entfernt die Datei; fehlt sie schon, ist das kein Fehler.
     static func loesche(_ datei: String) {
         guard let url = url(fuer: datei) else { return }
@@ -52,6 +117,12 @@ enum Bilderordner {
         let tag = Journaltag(jetzt, zeitzone: zeitzone).description
         return "\(tag.prefix(7))/\(UUID().uuidString).\(endung)"
     }
+}
+
+/// Herkunft eines neuen Bildes: Datei (Ziehen, Dateiauswahl) oder Daten (Fotoauswahl am iPhone).
+enum Bildquelle {
+    case datei(URL)
+    case daten(Data, endung: String, name: String)
 }
 
 enum Bildfehler: LocalizedError {

@@ -23,8 +23,19 @@ struct TagView: View {
         .onAppear {
             guard ablage == nil else { return }
             ablage = modell.journal.map { JournalTagAblage($0) } ?? FluechtigeTagAblage.gemeinsam
+            raeumeBilderAuf()
         }
     }
+
+    /// Einmal je App-Start: Bilddateien ohne Verweis entfernen (Doc 28, offener Punkt; Tim 02.10.2026).
+    private func raeumeBilderAuf() {
+        guard !Self.aufgeraeumt, let journal = modell.journal,
+              let behalten = try? journal.bilddateien() else { return }
+        Self.aufgeraeumt = true
+        _ = Bilderordner.raeumeAuf(behalten: behalten)
+    }
+
+    @MainActor private static var aufgeraeumt = false
 }
 
 /// Inhalt der Tagesseite gegen eine beliebige Ablage.
@@ -50,8 +61,8 @@ struct TagSeite: View {
                         .foregroundStyle(.secondary)
                 }
                 if zweiSpalten {
-                    // Beide Spalten gleich breit, ohne Mindestbreite (Startabsturz-Regeln: keine harten Breiten).
-                    // Vorher drückte layoutPriority(1) links die rechte Spalte auf Fingerbreite (Tim 02.10.2026).
+                    // Beide Spalten gleich breit, ohne Mindestbreite (Regeln zum Startabsturz).
+                    // Vorher drückte layoutPriority(1) die rechte Spalte zusammen (Tim 02.10.2026).
                     HStack(alignment: .top, spacing: Abstand.kachelAbstand) {
                         linkeSpalte
                             .frame(maxWidth: .infinity)
