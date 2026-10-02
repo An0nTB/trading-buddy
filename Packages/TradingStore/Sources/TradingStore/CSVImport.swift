@@ -2,8 +2,8 @@ import Foundation
 import GRDB
 import TradingCore
 
-// Speicherung der CSV-Importe (Trade Republic, Scalable): Ausführungen, Geldbewegungen,
-// Kapitalmaßnahmen, verworfene Orders und Importhinweise (Migration v3).
+// Speicherung der CSV-Importe (Trade Republic, Scalable; Kryptobörsen Kraken, Binance, Coinbase, Bitpanda):
+// Ausführungen, Geldbewegungen, Kapitalmaßnahmen, verworfene Orders und Importhinweise (Migration v3).
 
 struct AusfuehrungZeile: Codable, FetchableRecord, PersistableRecord {
     static let databaseTableName = "ausfuehrung"
@@ -166,8 +166,13 @@ extension Journal {
     /// Namen in `Importlauf.importer` für die CSV-Importer.
     public static let tradeRepublicImporter = "TradeRepublic-CSV"
     public static let scalableImporter = "Scalable-CSV"
+    public static let krakenImporter = "Kraken-CSV"
+    public static let binanceImporter = "Binance-CSV"
+    public static let coinbaseImporter = "Coinbase-CSV"
+    public static let bitpandaImporter = "Bitpanda-CSV"
 
-    /// Liest einen CSV-Export von Trade Republic oder Scalable und speichert ihn.
+    /// Liest einen CSV-Export von Trade Republic, Scalable, Kraken, Binance, Coinbase oder Bitpanda und
+    /// speichert ihn.
     /// Das Format wird am Spaltenkopf erkannt, nicht am Dateinamen.
     ///
     /// Doppelte wie beim MT4-Import auf zwei Ebenen: dieselbe Datei (SHA-256) wird übersprungen,
@@ -177,7 +182,8 @@ extension Journal {
     /// - Parameters:
     ///   - kontonummer: steht nicht in der Datei; die App fragt sie ab oder nimmt eine feste Bezeichnung.
     ///   - kontowaehrung: Vorgabe EUR (Entscheidung 16).
-    ///   - zeitzone: nur für Scalable (deutsche Ortszeit); Trade Republic schreibt UTC.
+    ///   - zeitzone: nur für Scalable (deutsche Ortszeit); Trade Republic und die Kryptobörsen schreiben UTC
+    ///     oder Zeiten mit Versatz.
     @discardableResult
     public func importiereCSV(datei: Data, dateiname: String, kontonummer: String,
                               kontoname: String? = nil, kontowaehrung: String = "EUR",
@@ -200,6 +206,26 @@ extension Journal {
             importer = Self.scalableImporter
             quellzeit = zeitzone
             bewegungen = try ScalableCSV.lies(text, zeitzone: zeitzone)
+        } else if KrakenCSV.erkennt(text) {
+            broker = "Kraken"
+            importer = Self.krakenImporter
+            quellzeit = TimeZone(secondsFromGMT: 0)!
+            bewegungen = try KrakenCSV.lies(text)
+        } else if BinanceCSV.erkennt(text) {
+            broker = "Binance"
+            importer = Self.binanceImporter
+            quellzeit = TimeZone(secondsFromGMT: 0)!
+            bewegungen = try BinanceCSV.lies(text)
+        } else if CoinbaseCSV.erkennt(text) {
+            broker = "Coinbase"
+            importer = Self.coinbaseImporter
+            quellzeit = TimeZone(secondsFromGMT: 0)!
+            bewegungen = try CoinbaseCSV.lies(text)
+        } else if BitpandaCSV.erkennt(text) {
+            broker = "Bitpanda"
+            importer = Self.bitpandaImporter
+            quellzeit = TimeZone(secondsFromGMT: 0)!
+            bewegungen = try BitpandaCSV.lies(text)
         } else {
             throw CSVImportFehler.unbekanntesFormat(kopf: CSVTabelle(text: text).kopf)
         }
