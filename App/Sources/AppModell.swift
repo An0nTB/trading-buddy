@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import TradingCalendar
 import TradingCore
 import TradingStore
 
@@ -51,6 +52,8 @@ final class AppModell {
     private(set) var offenerAuszug: (importlauf: Importlauf, positionen: [OpenPosition])?
     /// Kurse offener Trades (P10): Zuordnungen, Beobachter, letzter Stand je Symbol.
     let kurse = Kursdienst()
+    /// Wirtschaftstermine (Paket TradingCalendar, Stand-Doc 25): nächste Termine und „über Termin gehalten“ (Doc 18 F9).
+    let termine = Termindienst()
 
     // Zustand der Oberfläche
     var bereich: Bereich = .uebersicht
@@ -60,6 +63,8 @@ final class AppModell {
     var tradeAuswahl: String?
     /// Zeigt in Trades nur Trades mit diesem Fehlermuster (Sprung von der Fehlermuster-Seite).
     var musterFilter: Fehlermuster?
+    /// Zeigt in Trades nur Trades, die über einen Termin ihrer Währung gehalten wurden (Sprung von der Kalender-Seite).
+    var nurUeberTermin = false
 
     init() {
         do {
@@ -276,6 +281,23 @@ final class AppModell {
         } catch {
             fehler = Zielfehler.text(error)
         }
+    }
+
+    // MARK: Terminkalender (Paket TradingCalendar, Stand-Doc 25; Doc 18 F9 „über Termin gehalten“)
+
+    /// Währungen aus den Symbolen der Trades und offenen Positionen des Kontos; leer, wenn kein Symbol passt.
+    var meineWaehrungen: Set<String> {
+        Termindienst.waehrungen(symbole: alleTrades.map(\.symbol) + offenePositionen.map(\.symbol))
+    }
+
+    /// Termine in der Haltezeit je Trade des gewählten Zeitraums; nur Trades mit mindestens einem Termin.
+    var termineJeTrade: [String: [Termin]] {
+        var ergebnis: [String: [Termin]] = [:]
+        for trade in trades {
+            let gefunden = termine.termine(fuer: trade)
+            if !gefunden.isEmpty { ergebnis[trade.id] = gefunden }
+        }
+        return ergebnis
     }
 
     // MARK: Steuer-Orientierung (Doc 22; E2, S1, S2 vom 02.10.2026; Orientierung, keine Steuerberechnung)
