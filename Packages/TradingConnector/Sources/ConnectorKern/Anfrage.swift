@@ -49,6 +49,12 @@ public struct Anfrage: Sendable {
                    zeitzone: zeitzone)
     }
 
+    /// Zahl aus den Werkzeug-Argumenten als Text. Ganze Zahlen wie „5“, alles andere (2.5, 1e100, NaN)
+    /// unverändert als Text, damit die Prüfung danach es ablehnt, statt dass die Umwandlung den Server beendet.
+    public static func zahltext(_ wert: Double) -> String {
+        Int(exactly: wert).map { String($0) } ?? String(wert)
+    }
+
     static func waehleKonto(_ wunsch: String?, in export: JournalExport) throws -> JournalExport.Kontodaten {
         let konten = export.konten
         let namen = konten.map(export.kurzname)

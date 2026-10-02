@@ -92,7 +92,8 @@ public enum Ausgabe {
         if anfrage.konto.ziele.isEmpty {
             t.append("- Ziele früherer Reviews: keine in der App eingetragen.")
         } else {
-            t.append("- Istwerte der Ziele rechnet der Rechenkern im Zeitraum des Ziels; der Status ist eigene Angabe.")
+            t.append("- Istwerte der Ziele rechnet der Rechenkern im Zeitraum des Ziels. Der Status ist eigene Angabe "
+                + "oder wird nach Fristende ohne Abhaken automatisch „verfehlt“; maßgeblich ist der Istwert.")
         }
         t.append("\n" + Rezept.text)
         return t.joined(separator: "\n")
