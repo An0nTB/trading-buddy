@@ -76,6 +76,72 @@
         }
       }
     },
+    "%lld Dateien importiert, zuletzt %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld Dateien importiert, zuletzt %2$@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld files imported, last %2$@"
+          }
+        }
+      }
+    },
+    "%lld Dateien warten auf dich" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld file is waiting for you"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld files are waiting for you"
+                }
+              }
+            }
+          }
+        },
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Datei wartet auf dich"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Dateien warten auf dich"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Aus dem Import-Ordner importiert" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Imported from the import folder"
+          }
+        }
+      }
+    },
     "Jahresbericht" : {
       "localizations" : {
         "en" : {
@@ -96,22 +162,32 @@
         }
       }
     },
-    "Vorjahr" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Previous year"
-          }
-        }
-      }
-    },
     "in diesem Jahr" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "this year"
+          }
+        }
+      }
+    },
+    "Mitteilung nach stillem Import" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notify after automatic import"
+          }
+        }
+      }
+    },
+    "Vorjahr" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Previous year"
           }
         }
       }
