@@ -152,7 +152,7 @@ extension MT5Bericht {
         func feld(_ name: String) -> String { kopf.firstIndex(of: name).map { zeile[$0] } ?? "" }
         func grenze(_ name: String) throws -> Decimal? {
             let text = feld(name)
-            return text.isEmpty ? nil : try MT4Werte.optionaleZahl(text)
+            return try text.isEmpty ? nil : MT4Werte.optionaleZahl(text)
         }
         guard let seite = Side(rawValue: feld("type").lowercased()) else {
             bericht.hinweise.append(Importhinweis(zeile: nr, vorgang: "Position \(feld("position")) \(feld("type"))",
