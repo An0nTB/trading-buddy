@@ -14,17 +14,23 @@ public struct Boersenauswahl: Sendable, Hashable, Codable {
     public var kalender: [Feiertagskalender]
     /// Welche Kalender zusätzlich für welche Börse gelten, je Börsenkennung eine Liste von Kalenderkennungen.
     public var kalenderJeBoerse: [String: [String]]
+    /// Welche Sitzungsarten je Börse mitzählen. Ohne Eintrag: nur Kernhandel.
+    public var sitzungsartenJeBoerse: [String: [Sitzungsart]]
 
     public init(angezeigt: [String] = [], angepassteZeiten: [String: [Handelszeit]] = [:], eigene: [Boerse] = [],
-                kalender: [Feiertagskalender] = [], kalenderJeBoerse: [String: [String]] = [:]) {
+                kalender: [Feiertagskalender] = [], kalenderJeBoerse: [String: [String]] = [:],
+                sitzungsartenJeBoerse: [String: [Sitzungsart]] = [:]) {
         self.angezeigt = angezeigt
         self.angepassteZeiten = angepassteZeiten
         self.eigene = eigene
         self.kalender = kalender
         self.kalenderJeBoerse = kalenderJeBoerse
+        self.sitzungsartenJeBoerse = sitzungsartenJeBoerse
     }
 
-    private enum CodingKeys: String, CodingKey { case angezeigt, angepassteZeiten, eigene, kalender, kalenderJeBoerse }
+    private enum CodingKeys: String, CodingKey {
+        case angezeigt, angepassteZeiten, eigene, kalender, kalenderJeBoerse, sitzungsartenJeBoerse
+    }
 
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -33,6 +39,9 @@ public struct Boersenauswahl: Sendable, Hashable, Codable {
         eigene = try c.decodeIfPresent([Boerse].self, forKey: .eigene) ?? []
         kalender = try c.decodeIfPresent([Feiertagskalender].self, forKey: .kalender) ?? []
         kalenderJeBoerse = try c.decodeIfPresent([String: [String]].self, forKey: .kalenderJeBoerse) ?? [:]
+        // Unbekannte Arten aus einer neueren App-Version überspringen statt die ganze Auswahl zu verwerfen.
+        let roh = try c.decodeIfPresent([String: [String]].self, forKey: .sitzungsartenJeBoerse) ?? [:]
+        sitzungsartenJeBoerse = roh.mapValues { $0.compactMap(Sitzungsart.init(rawValue:)) }
     }
 }
 
@@ -117,6 +126,7 @@ extension Boersenauswahl {
             }
             // Unbekannte Kalenderkennungen überspringen, damit ein gelöschter Kalender die Uhr nicht lahmlegt.
             return neu.mitKalendern((kalenderJeBoerse[b.id] ?? []).compactMap { kalenderNachId[$0] })
+                .mitSitzungsarten(Set(sitzungsartenJeBoerse[b.id] ?? [.kern]))
         }
         return (ergebnis, probleme)
     }
