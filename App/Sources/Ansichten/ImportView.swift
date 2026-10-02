@@ -317,6 +317,8 @@ struct ImportBlatt: View {
     @State private var lesefehler: String?
     @State private var ergebnis: ImportErgebnis?
     @State private var speicherfehler: String?
+    /// Produktart für Zeilen, deren Art die Datei nicht nennt (Scalable, XTB); `nil` heißt später je Symbol.
+    @State private var produktartVorgabe: Produktart?
 
     private static let waehrungen = ["EUR", "USD", "GBP", "CHF"]
 
@@ -572,6 +574,9 @@ struct ImportBlatt: View {
                 Text("Kosten").foregroundStyle(thema.textSchwach)
                 Text(broker.kostenText).foregroundStyle(thema.text)
             }
+            if broker == .scalable {
+                produktartZeile
+            }
         }
         Text(verbatim: broker.istKrypto
              ? String(localized: "Die Datei nennt kein Konto. Wähle bei jedem Export dieser Börse dasselbe Konto, sonst zählt die App Vorgänge doppelt.")
@@ -710,6 +715,7 @@ struct ImportBlatt: View {
                 Text("Kosten").foregroundStyle(thema.textSchwach)
                 Text("Kommission, Swap und Rollover aus dem Export; Kassenzeilen zu Positionen zählen nicht doppelt").foregroundStyle(thema.text)
             }
+            produktartZeile
         }
         if auszug.konto == nil {
             Text("Die Datei nennt keine Kontonummer. Gib dieselbe Nummer wie bei früheren Auszügen dieses Kontos an, sonst zählt die App Positionen doppelt.")
@@ -867,6 +873,27 @@ struct ImportBlatt: View {
         return String(localized: "Erkannt: MetaTrader 4 \(art) · \(auszug.broker) · Konto \(nummer) · Stichtag \(Format.datum(auszug.reportTime))")
     }
 
+    /// Zeile „Produktart“ für Dateien ohne Art (Scalable, XTB; TradingStore #96): gilt nur für Zeilen, deren Art der
+    /// Importer nicht kennt; „später je Symbol“ lässt sie offen, die Steuer-Seite fragt dann je Wertpapier nach.
+    private var produktartZeile: some View {
+        GridRow {
+            Text("Produktart").foregroundStyle(thema.textSchwach)
+            VStack(alignment: .leading, spacing: Abstand.raster) {
+                Picker("Produktart", selection: $produktartVorgabe) {
+                    Text("Später je Wertpapier (Steuer-Seite)").tag(Produktart?.none)
+                    ForEach(Produktartformat.waehlbar, id: \.self) { art in
+                        Text(verbatim: Produktartformat.titel(art)).tag(Produktart?.some(art))
+                    }
+                }
+                .labelsHidden()
+                .fixedSize()
+                Text("Die Datei nennt keine Produktart. Eine Vorgabe gilt für alle Zeilen dieser Datei ohne Art; gemischte Depots besser später je Wertpapier zuordnen.")
+                    .font(Schrift.beschriftung)
+                    .foregroundStyle(thema.textSchwach)
+            }
+        }
+    }
+
     private func erkennungCSV(_ broker: CSVBroker, _ bewegungen: Kontobewegungen) -> String {
         let zeiten = bewegungen.ausfuehrungen.map(\.zeit) + bewegungen.geldbewegungen.map(\.zeit)
             + bewegungen.kapitalmassnahmen.map(\.zeit)
@@ -956,7 +983,8 @@ struct ImportBlatt: View {
                 ergebnis = try modell.importiereCSV(daten: vorschau.daten, dateiname: vorschau.dateiname,
                                                     kontonummer: konto?.kontonummer ?? name,
                                                     kontoname: konto?.kontoname ?? name,
-                                                    waehrung: konto?.waehrung ?? waehrung, zeitzone: broker.zeitzone)
+                                                    waehrung: konto?.waehrung ?? waehrung, zeitzone: broker.zeitzone,
+                                                    produktartVorgabe: broker == .scalable ? produktartVorgabe : nil)
             case .xtb(let auszug)?:
                 // Nummer und Währung nur mitgeben, wenn die Datei sie nicht nennt; sonst prüft die
                 // Speicherung Datei gegen Angabe und bricht bei Widerspruch ab.
@@ -966,7 +994,7 @@ struct ImportBlatt: View {
                                                     kontonummer: auszug.konto == nil ? nummer : nil,
                                                     kontoname: bestehend?.kontoname ?? String(localized: "Konto \(maskiert(nummer))"),
                                                     waehrung: auszug.waehrung == nil ? (bestehend?.waehrung ?? waehrung) : nil,
-                                                    zeitzone: xtbZeit.zeitzone)
+                                                    zeitzone: xtbZeit.zeitzone, produktartVorgabe: produktartVorgabe)
             case nil:
                 return
             }
