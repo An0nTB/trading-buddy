@@ -3,20 +3,22 @@ import TradingStore
 
 /// Bereiche der App (Doc 10, Aufbau A): Seitenleiste am Mac und iPad, Tab-Leiste am iPhone.
 enum Bereich: String, Identifiable, Hashable {
-    case uebersicht, trades, kennzahlen, fehlermuster, kalender, tag, steuer, nachrichten, boersenuhr, positionsrechner, importieren, konten, einstellungen, mehr, ziele
+    case uebersicht, trades, kennzahlen, fehlermuster, kalender, tag, steuer, nachrichten, kurschart, boersenuhr, positionsrechner, importieren, konten, einstellungen, mehr, ziele, lernen
 
     var id: String { rawValue }
 
     /// Seitenleiste, Abschnitt „Journal“.
     static let journal: [Bereich] = [.uebersicht, .tag, .trades, .kennzahlen, .fehlermuster, .ziele, .kalender, .steuer]
     /// Seitenleiste, Abschnitt „Markt“ (Börsenuhr nach Tims Wunsch vom 01.10.2026, Positionsrechner aus #47; nicht in Aufbau A gezeichnet).
-    static let markt: [Bereich] = [.nachrichten, .boersenuhr, .positionsrechner]
+    static let markt: [Bereich] = [.nachrichten, .kurschart, .boersenuhr, .positionsrechner]
     /// Seitenleiste, Abschnitt „Daten“.
     static let daten: [Bereich] = [.importieren, .konten]
+    /// Seitenleiste, Abschnitt „Wissen“ (Lernbereich, Stand-Doc 40).
+    static let wissen: [Bereich] = [.lernen]
     /// Tab-Leiste am iPhone.
     static let tabs: [Bereich] = [.uebersicht, .trades, .kennzahlen, .kalender, .mehr]
     /// Einträge unter „Mehr“ am iPhone.
-    static let unterMehr: [Bereich] = [.tag, .fehlermuster, .ziele, .steuer, .nachrichten, .boersenuhr, .positionsrechner, .importieren, .konten, .einstellungen]
+    static let unterMehr: [Bereich] = [.tag, .fehlermuster, .ziele, .steuer, .nachrichten, .kurschart, .boersenuhr, .positionsrechner, .importieren, .konten, .lernen, .einstellungen]
 
     var titel: LocalizedStringKey {
         switch self {
@@ -29,12 +31,14 @@ enum Bereich: String, Identifiable, Hashable {
         case .tag: "Tag"
         case .steuer: "Steuer"
         case .nachrichten: "Nachrichten"
+        case .kurschart: "Kurschart"
         case .boersenuhr: "Börsenuhr"
         case .positionsrechner: "Positionsrechner"
         case .importieren: "Import"
         case .konten: "Konten und Kosten"
         case .einstellungen: "Einstellungen"
         case .mehr: "Mehr"
+        case .lernen: "Lernen"
         }
     }
 
@@ -49,12 +53,14 @@ enum Bereich: String, Identifiable, Hashable {
         case .tag: "sun.max"
         case .steuer: "percent"
         case .nachrichten: "newspaper"
+        case .kurschart: "chart.xyaxis.line"
         case .boersenuhr: "clock"
         case .positionsrechner: "plus.forwardslash.minus"
         case .importieren: "square.and.arrow.down"
         case .konten: "building.columns"
         case .einstellungen: "gear"
         case .mehr: "ellipsis"
+        case .lernen: "book"
         }
     }
 }
@@ -120,6 +126,14 @@ struct Seitenleiste: View {
                     }
                     Section("Daten") {
                         ForEach(Bereich.daten) { bereich in
+                            Label(bereich.titel, systemImage: bereich.symbol)
+                                .listItemTint(thema.akzent)
+                                .tag(bereich)
+                                .inNeuemFenster(bereich) // P12 Eigene Fenster
+                        }
+                    }
+                    Section("Wissen") {
+                        ForEach(Bereich.wissen) { bereich in
                             Label(bereich.titel, systemImage: bereich.symbol)
                                 .listItemTint(thema.akzent)
                                 .tag(bereich)
@@ -231,6 +245,7 @@ struct BereichInhalt: View {
         case .tag: TagView() // Paket P7 (#65); dauerhafte Ablage folgt mit TradingStore v8
         case .steuer: SteuerView()
         case .nachrichten: NachrichtenView()
+        case .kurschart: KurschartView() // Kurse-Thread, Stand-Doc 20 Abschnitt 11
         case .boersenuhr: BoersenuhrView()
         case .positionsrechner:
             // Kontostand kennt die App nicht (die Kapitalkurve startet bei 0), der Nutzer trägt ihn ein.
@@ -239,6 +254,7 @@ struct BereichInhalt: View {
         case .konten: KontenView()
         case .einstellungen: EinstellungenView()
         case .mehr: MehrListe()
+        case .lernen: LernenView() // Lernbereich Trading-Wissen (Stand-Doc 40)
         }
     }
 }
