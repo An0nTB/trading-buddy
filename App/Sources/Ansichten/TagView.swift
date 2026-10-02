@@ -84,7 +84,7 @@ struct TagSeite: View {
 
     private var rechteSpalte: some View {
         VStack(spacing: Abstand.kachelAbstand) {
-            TagTradesKarte(trades: tradesDesTages, istHeute: tagModell.istHeute)
+            TagTradesKarte(trades: tradesDesTages)
             TagBilderKarte(tagModell: tagModell)
             VerpassteListeKarte(tagModell: tagModell)
         }
@@ -253,7 +253,6 @@ struct VerfassungKarte: View {
 /// Trades des Kontos, die an diesem Tag eröffnet wurden; ein Klick springt in die Trade-Tabelle.
 struct TagTradesKarte: View {
     let trades: [Trade]
-    let istHeute: Bool
     @Environment(AppModell.self) private var modell
     @Environment(\.thema) private var thema
     @AppStorage(Ton.schluessel) private var ton = Ton.bro
@@ -296,11 +295,10 @@ struct TagTradesKarte: View {
 
     private var netto: Decimal { trades.map(\.netProfit).reduce(0, +) }
 
-    /// Brad-Text Nr. 11 (Tim 02.10.2026 04:16 UTC). Die Brad-Fassung sagt „Heute“, deshalb nur am
-    /// heutigen Tag; vergangene und künftige Tage zeigen die sachliche Fassung.
+    /// Text Nr. 11 in der Fassung für Henry (Tim 02.10.2026 11:04 UTC); passt auf jeden Tag.
     private var leerText: String {
         guard modell.konto != nil else { return String(localized: "Noch kein Konto importiert.") }
-        return (istHeute ? ton : .sachlich).text("Keine Trades an diesem Tag im gewählten Konto.",
-                                                 bro: "Heute nichts gehandelt. Zählt auch, Bro.")
+        return ton.text("Keine Trades an diesem Tag im gewählten Konto.",
+                        bro: "Kein Handel an diesem Tag. Geduld ist auch eine Position.")
     }
 }
