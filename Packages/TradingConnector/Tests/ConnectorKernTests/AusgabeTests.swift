@@ -132,6 +132,27 @@ private func gbeExport() throws -> JournalExport {
     #expect(!text.contains("## Ziel aus dem letzten Review"))
 }
 
+@Test func tradesNurMitDatumWerdenGekennzeichnet() throws {
+    let iso = ISO8601DateFormatter()
+    func trade(_ id: String, _ zeit: String, nurDatum: Bool) -> Trade {
+        let schluss = iso.date(from: zeit)!
+        return Trade(id: id, symbol: "SAP", side: .buy, lots: 1, openTime: schluss.addingTimeInterval(-86_400),
+                     closeTime: schluss, openPrice: 100, closePrice: 110, profit: 10, nurDatum: nurDatum)
+    }
+    let export = JournalExport(
+        konten: [.init(broker: "Trade Republic", kontonummer: "4711", waehrung: "EUR",
+                       trades: [trade("a", "2025-05-05T22:00:00Z", nurDatum: true),
+                                trade("b", "2025-05-06T22:00:00Z", nurDatum: true),
+                                trade("c", "2025-05-07T09:30:00Z", nurDatum: false)])],
+        zeitzone: TimeZone(identifier: "Europe/Berlin")!, erstellt: Date(timeIntervalSince1970: 1_790_000_000))
+    let anfrage = try Anfrage.lies(["monat": "2025-05"], export: export)
+    #expect(Ausgabe.auswertung(anfrage).contains("- 2 von 3 Trades nur mit Datum gebucht"))
+    let stunden = Ausgabe.aufschluesselung(anfrage, nach: .stunde)
+    #expect(stunden.contains("| ohne Uhrzeit (nur Datum) | 2 |") && stunden.contains("| 11 Uhr | 1 |"))
+    let liste = Ausgabe.trades(anfrage, auswahl: .chronologisch, muster: nil, anzahl: 3)
+    #expect(liste.contains("| a | 06.05.2025 | SAP |") && liste.contains("| c | 07.05.2025 11:30 | SAP |"))
+}
+
 @Test func vorlagenNennenDasWerkzeug() {
     #expect(Rezept.monatsvorlage(monat: "2025-05").contains("hole_auswertung mit monat=2025-05"))
     #expect(Rezept.monatsvorlage(monat: nil).contains("letzte Monat mit Trades"))
