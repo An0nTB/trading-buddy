@@ -142,12 +142,32 @@
         }
       }
     },
+    "Der Ordner „Bilder“ neben der Sicherung war nicht lesbar. Liegt die Sicherung nicht im gewählten Sicherungsordner, diesen Ordner zuerst wählen und die Sicherung erneut einspielen, dann kommen die Screenshots mit." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The “Bilder” folder next to the backup could not be read. If the backup is not in the chosen backup folder, choose that folder first and restore the backup again; the screenshots will then come along."
+          }
+        }
+      }
+    },
     "Mitteilung nach stillem Import" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Notify after automatic import"
+          }
+        }
+      }
+    },
+    "Ohne EZB-Kurs nicht enthalten: %lld Trades in Fremdwährung." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not included without an ECB rate: %lld trades in foreign currency."
           }
         }
       }
