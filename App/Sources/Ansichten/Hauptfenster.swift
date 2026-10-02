@@ -3,12 +3,12 @@ import TradingStore
 
 /// Bereiche der App (Doc 10, Aufbau A): Seitenleiste am Mac und iPad, Tab-Leiste am iPhone.
 enum Bereich: String, Identifiable, Hashable {
-    case uebersicht, trades, kennzahlen, fehlermuster, kalender, boersenuhr, positionsrechner, importieren, konten, einstellungen, mehr
+    case uebersicht, trades, kennzahlen, fehlermuster, kalender, tag, steuer, boersenuhr, positionsrechner, importieren, konten, einstellungen, mehr
 
     var id: String { rawValue }
 
     /// Seitenleiste, Abschnitt „Journal“.
-    static let journal: [Bereich] = [.uebersicht, .trades, .kennzahlen, .fehlermuster, .kalender]
+    static let journal: [Bereich] = [.uebersicht, .trades, .kennzahlen, .fehlermuster, .kalender, .tag, .steuer]
     /// Seitenleiste, Abschnitt „Markt“ (Börsenuhr nach Tims Wunsch vom 01.10.2026, Positionsrechner aus #47; nicht in Aufbau A gezeichnet).
     static let markt: [Bereich] = [.boersenuhr, .positionsrechner]
     /// Seitenleiste, Abschnitt „Daten“.
@@ -16,7 +16,7 @@ enum Bereich: String, Identifiable, Hashable {
     /// Tab-Leiste am iPhone.
     static let tabs: [Bereich] = [.uebersicht, .trades, .kennzahlen, .kalender, .mehr]
     /// Einträge unter „Mehr“ am iPhone.
-    static let unterMehr: [Bereich] = [.fehlermuster, .boersenuhr, .positionsrechner, .importieren, .konten, .einstellungen]
+    static let unterMehr: [Bereich] = [.fehlermuster, .tag, .steuer, .boersenuhr, .positionsrechner, .importieren, .konten, .einstellungen]
 
     var titel: LocalizedStringKey {
         switch self {
@@ -25,6 +25,8 @@ enum Bereich: String, Identifiable, Hashable {
         case .kennzahlen: "Kennzahlen"
         case .fehlermuster: "Fehlermuster"
         case .kalender: "Kalender"
+        case .tag: "Tag"
+        case .steuer: "Steuer"
         case .boersenuhr: "Börsenuhr"
         case .positionsrechner: "Positionsrechner"
         case .importieren: "Import"
@@ -41,6 +43,8 @@ enum Bereich: String, Identifiable, Hashable {
         case .kennzahlen: "chart.bar.xaxis"
         case .fehlermuster: "exclamationmark.triangle"
         case .kalender: "calendar"
+        case .tag: "sun.max"
+        case .steuer: "percent"
         case .boersenuhr: "clock"
         case .positionsrechner: "plus.forwardslash.minus"
         case .importieren: "square.and.arrow.down"
@@ -210,6 +214,11 @@ struct BereichInhalt: View {
         case .kalender:
             Platzhalter(titel: "Kalender folgt", symbol: "calendar",
                         text: "Termine kommen mit dem Wirtschaftskalender nach der ersten Version. Handelszeiten und Feiertage der Börsen zeigt die Börsenuhr.")
+        case .tag:
+            // Einhängepunkt für Paket P7 (Thread „Tagesseite in der App“): ersetzt diese Zeile durch seine Ansicht.
+            Platzhalter(titel: "Tagesseite folgt", symbol: "sun.max",
+                        text: "Tagesnotiz, Screenshots und verpasste Trades je Handelstag kommen mit Paket P7.")
+        case .steuer: SteuerView()
         case .boersenuhr: BoersenuhrView()
         case .positionsrechner:
             // Kontostand kennt die App nicht (die Kapitalkurve startet bei 0), der Nutzer trägt ihn ein.
