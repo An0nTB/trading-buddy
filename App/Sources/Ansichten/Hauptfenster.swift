@@ -129,7 +129,7 @@ struct Seitenleiste: View {
                 KontoZeile()
                     .fixedSize(horizontal: false, vertical: true)
             }
-            .navigationTitle("Trading Buddy")
+            .navigationTitle("Brad")
             .navigationSplitViewColumnWidth(min: 180, ideal: Abstand.seitenleiste)
         } detail: {
             BereichInhalt(bereich: modell.bereich)
