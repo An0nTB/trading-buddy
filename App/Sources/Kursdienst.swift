@@ -21,6 +21,13 @@ final class Kursdienst {
     /// Alle Quellen, die die App kennt; verbunden wird nur, was eine Zuordnung braucht.
     let quellen: [any Kursquelle] = [Kursquellen.kraken(), Kursquellen.coinbase(), Kursquellen.binance(),
                                      Kursquellen.alpaca(schluessel: Schluesselbund())]
+    /// Tageskerzen für die Analyse in Frag Henry (Paket A1, Doc 38), je Journal-Symbol; nur beschreibend.
+    private(set) var verlaeufe = Verlaufsstand.leer
+    private var verlaufLaeuft = false
+    private let verlaufsspeicher = Verlaufsspeicher(datei: Verlaufsspeicher.standardDatei())
+    /// Krypto über Kraken ohne Schlüssel, US-Aktien über Alpaca mit dem Schlüssel der Echtzeitkurse.
+    let verlaufsquellen: [any Verlaufsquelle] = [Kursverlaeufe.kraken(),
+                                                 Kursverlaeufe.alpaca(schluessel: Schluesselbund())]
 
     init(speicher: UserDefaults = .standard) {
         self.speicher = speicher
@@ -96,6 +103,21 @@ final class Kursdienst {
                 self.stand.uebernimm(ereignis)
             }
         }
+    }
+
+    /// Lädt Tageskerzen der letzten 12 Monate für diese Journal-Symbole (eigene Trades und Merkliste), höchstens
+    /// einmal in 20 Stunden; sonst gilt der Zwischenspeicher. Netz nur bei eingeschalteten Kursen, wie beim Beobachter.
+    func ladeVerlaeufe(fuer journalSymbole: [String], jetzt: Date = Date()) async {
+        if verlaeufe.geladen == nil, let gespeichert = verlaufsspeicher.lies() { verlaeufe = gespeichert }
+        guard aktiv, !verlaufLaeuft else { return }
+        let zuordnungen = Array(Set(journalSymbole)).sorted().compactMap { zuordnung(fuer: $0).zuordnung }
+        guard !zuordnungen.isEmpty,
+              !verlaeufe.istAktuell(fuer: zuordnungen.map(\.journalSymbol), jetzt: jetzt) else { return }
+        verlaufLaeuft = true
+        defer { verlaufLaeuft = false }
+        let neu = await Verlaufslader(quellen: verlaufsquellen).lade(zuordnungen, bisher: verlaeufe, jetzt: jetzt)
+        verlaeufe = neu
+        try? verlaufsspeicher.schreibe(neu)
     }
 
     private func speichere() {
