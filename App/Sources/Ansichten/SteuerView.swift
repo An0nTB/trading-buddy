@@ -1,5 +1,6 @@
 import SwiftUI
 import TradingCore
+import TradingRates
 import TradingStore
 #if os(macOS)
 import AppKit
@@ -55,11 +56,31 @@ struct SteuerView: View {
         return konto.broker + " · " + modell.waehrung + " · " + String(localized: "Verkaufsjahr nach deutscher Zeit")
     }
 
+    /// Stand der EZB-Referenzkurse (Paket TradingRates, Doc 34): bis wann Kurse vorliegen, USDT als Näherung.
+    private var ezbHinweis: String {
+        var teile: [String] = []
+        if let tag = modell.ezb.letzterTag {
+            teile.append(String(localized: "EZB-Referenzkurse bis \(String(format: "%02d.%02d.%d", tag.tag, tag.monat, tag.jahr))"))
+        } else {
+            teile.append(String(localized: "EZB-Referenzkurse noch nicht geladen; Beträge in Fremdwährung bleiben Lücke"))
+        }
+        if modell.hatKrypto, EZBKurse.istNaeherung("USDT") {
+            teile.append(String(localized: "USDT wie USD umgerechnet (Näherung)"))
+        }
+        if let fehler = modell.ezb.fehler {
+            teile.append(String(localized: "Abruf: \(fehler)"))
+        }
+        return teile.joined(separator: " · ")
+    }
+
     private var jahrBinding: Binding<Int> {
         Binding(get: { jahr }, set: { jahrAuswahl = $0 })
     }
 
     @ViewBuilder private var inhalt: some View {
+        Text(verbatim: ezbHinweis)
+            .font(Schrift.beschriftung)
+            .foregroundStyle(thema.textSchwach)
         let toepfe = modell.topfsummen(jahr: jahr)
         let krypto = modell.hatKrypto ? modell.kryptoJahr(jahr) : nil
         let luecken = Steuerluecken(toepfe: toepfe, krypto: krypto)

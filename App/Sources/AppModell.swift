@@ -2,6 +2,7 @@ import Foundation
 import Observation
 import TradingCalendar
 import TradingCore
+import TradingRates
 import TradingStore
 
 /// Zeitraum-Filter: alles oder ein Kalendermonat (Monatsanfang in der Zeitzone des Nutzers).
@@ -72,6 +73,10 @@ final class AppModell {
     /// Zeigt in Trades nur Trades, die über einen Termin ihrer Währung gehalten wurden (Sprung von der Kalender-Seite).
     var nurUeberTermin = false
 
+    /// EZB-Referenzkurse für die Steuer-Seite (Doc 34). Leer beim Start, damit init keine Datei liest;
+    /// `ladeEZBKurse()` liest den Zwischenspeicher und fragt die EZB nur, wenn der Kurs von heute fehlt.
+    var ezb: EZBKurse.Stand = .leer
+
     init() {
         do {
             let geoeffnet = try Journal(pfad: Self.datenbankpfad())
@@ -83,6 +88,7 @@ final class AppModell {
         } catch {
             fehler = error.localizedDescription
         }
+        Task { await ladeEZBKurse() }
     }
 
     var konto: Konto? { konten.first { $0.id == kontoId } ?? konten.first }
@@ -340,7 +346,12 @@ final class AppModell {
 
     /// Summen je Verlusttopf im Jahr über alle Trades des Kontos, unabhängig vom Zeitraum-Filter.
     func topfsummen(jahr: Int) -> [Topfsumme] {
-        Steuerorientierung.toepfe(alleTrades, kontowaehrung: waehrung, jahr: jahr)
+        Steuerorientierung.toepfe(alleTrades, kontowaehrung: waehrung, jahr: jahr, kurse: ezb.kurse)
+    }
+
+    /// Lädt die EZB-Kurse, wenn der Zwischenspeicher nicht aktuell ist; ohne Netz bleibt er gültig.
+    func ladeEZBKurse() async {
+        ezb = await EZBKurse().laden()
     }
 
     /// Ob das Konto Krypto-Ausführungen hat; dann zeigt die Steuerseite die Haltefrist.
@@ -348,7 +359,8 @@ final class AppModell {
 
     /// Krypto-Haltefrist im Jahr: FIFO je Coin über alle Ausführungen des Kontos.
     func kryptoJahr(_ jahr: Int) -> KryptoHaltefrist.Jahr {
-        KryptoHaltefrist.jahr(jahr, ausfuehrungen: kontobewegungen.ausfuehrungen, importhinweise: importhinweiseDesKontos)
+        KryptoHaltefrist.jahr(jahr, ausfuehrungen: kontobewegungen.ausfuehrungen, importhinweise: importhinweiseDesKontos,
+                             kurse: ezb.kurse)
     }
 
     /// Nicht sicher zugeordnete Zeilen aller Importe des gewählten Kontos.
@@ -401,8 +413,11 @@ final class AppModell {
         return alleTrades.filter { kalender.startOfDay(for: $0.openTime) == tag }
     }
 
-    /// Disziplin-Kurve der gefilterten Trades; die Verstöße stammen aus der Prüfung über alle Trades.
-    var disziplin: Disziplin { Disziplin(trades: trades, verstoesse: verstoesse) }
+    /// Disziplin-Kurve der gefilterten Trades; die Verstöße stammen aus der Prüfung über alle Trades,
+    /// Prop-Firm-Verstöße zählen mit (TradingCore 0.16.0; ein Trade mit beiden Arten zählt einmal).
+    var disziplin: Disziplin {
+        Disziplin(trades: trades, verstoesse: verstoesse, propFirm: propFirmErgebnis?.verstoesse ?? [])
+    }
 
     /// Stand der Challenge über alle Trades des Kontos; `nil` ohne Prop-Firm-Regeln.
     var propFirmErgebnis: PropFirmPruefung.Ergebnis? {

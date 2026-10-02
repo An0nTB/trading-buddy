@@ -30,6 +30,8 @@ packages:
     path: Packages/TradingNews
   TradingAssistant:
     path: Packages/TradingAssistant
+  TradingRates:
+    path: Packages/TradingRates
 targets:
   TradingBuddy:
     type: application
@@ -45,6 +47,7 @@ targets:
       - package: TradingCalendar
       - package: TradingNews
       - package: TradingAssistant
+      - package: TradingRates
     configFiles:
       Debug: Config/Base.xcconfig
       Release: Config/Base.xcconfig
