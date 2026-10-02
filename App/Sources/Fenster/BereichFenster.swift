@@ -19,10 +19,13 @@ struct BereichFensterSzene: Scene {
     }
 }
 
-/// Inhalt eines abgetrennten Fensters: die Seite wie im Hauptfenster, dazu am Mac die Stecknadel.
+/// Inhalt eines abgetrennten Fensters: die Seite wie im Hauptfenster, dazu am Mac die Stecknadel;
+/// die Börsenuhr wahlweise kompakt (F5).
 struct BereichFenster: View {
     let bereich: Bereich
     @Environment(\.thema) private var thema
+    /// Abgetrennte Börsenuhr kompakt oder voll; gilt für alle Börsenuhr-Fenster, Standard kompakt.
+    @AppStorage("boersenuhr.kompakt") private var kompakt = true
     #if os(macOS)
     @AppStorage private var angeheftet: Bool
     #endif
@@ -34,21 +37,44 @@ struct BereichFenster: View {
         #endif
     }
 
+    private var zeigtKompakt: Bool { bereich == .boersenuhr && kompakt }
+
+    private var mindestgroesse: CGSize { zeigtKompakt ? Bereich.kompaktgroesse : bereich.mindestgroesse }
+
     var body: some View {
         NavigationStack {
-            BereichInhalt(bereich: bereich)
-                .frame(minWidth: bereich.mindestgroesse.width, minHeight: bereich.mindestgroesse.height)
+            inhalt
+                .frame(minWidth: mindestgroesse.width, minHeight: mindestgroesse.height)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(thema.grund)
                 .navigationTitle(bereich.titel)
-                #if os(macOS)
                 .toolbar {
-                    ToolbarItem(placement: .primaryAction) { Stecknadel(angeheftet: $angeheftet) }
+                    // Werkzeugleiste immer gleich aufgebaut, nur der Inhalt ist bedingt (Startabsturz 02.10.2026).
+                    ToolbarItemGroup(placement: .primaryAction) {
+                        if bereich == .boersenuhr {
+                            Toggle(isOn: $kompakt) {
+                                Label("Kompakt", systemImage: "rectangle.compress.vertical")
+                            }
+                            .toggleStyle(.button)
+                            .help("Kompakte Börsenuhr mit Countdown oder volle Ansicht")
+                        }
+                        #if os(macOS)
+                        Stecknadel(angeheftet: $angeheftet)
+                        #endif
+                    }
                 }
-                #endif
         }
         #if os(macOS)
         .background(FensterEbene(angeheftet: angeheftet))
         #endif
+    }
+
+    @ViewBuilder
+    private var inhalt: some View {
+        if zeigtKompakt {
+            MiniBoersenuhr()
+        } else {
+            BereichInhalt(bereich: bereich)
+        }
     }
 }
