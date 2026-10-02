@@ -542,7 +542,7 @@ struct ImportBlatt: View {
             Kachel(titel: "Ausführungen", wert: "\(bewegungen.ausfuehrungen.count)",
                    zusatz: String(localized: "\(kaeufe) Käufe, \(verkaeufe) Verkäufe"))
             Kachel(titel: "Trades", wert: "\(bildung.trades.count)",
-                   zusatz: tradeWaehrungen.count > 1
+                   zusatz: !tradeWaehrungen.isEmpty && tradeWaehrungen != [anzeigeWaehrung.uppercased()]
                        ? String(localized: "nach FIFO, nur diese Datei · in \(tradeListe)")
                        : String(localized: "nach FIFO, nur diese Datei"))
             Kachel(titel: "Ein-/Auszahlungen", wert: einAus.kontowaehrungText,

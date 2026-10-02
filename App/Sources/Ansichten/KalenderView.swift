@@ -295,7 +295,7 @@ private struct TerminTradesKarte: View {
                     zelle(trade.symbol, trade)
                     zelle(Terminformat.imTrade(termine[trade.id] ?? []), trade)
                     zelle(Format.dauer(trade.holdingTime), trade)
-                    zelle(Format.geld(trade.netProfit, modell.waehrung), trade, farbe: thema.vorzeichen(trade.netProfit))
+                    zelle(Format.geld(trade.netProfit, trade.waehrung(kontowaehrung: modell.waehrung)), trade, farbe: thema.vorzeichen(trade.netProfit))
                         .gridColumnAlignment(.trailing)
                 }
             }
@@ -315,7 +315,7 @@ private struct TerminTradesKarte: View {
                             .foregroundStyle(thema.textSchwach)
                     }
                     Spacer()
-                    Text(verbatim: Format.geld(trade.netProfit, modell.waehrung))
+                    Text(verbatim: Format.geld(trade.netProfit, trade.waehrung(kontowaehrung: modell.waehrung)))
                         .font(Schrift.tabelle)
                         .monospacedDigit()
                         .foregroundStyle(thema.vorzeichen(trade.netProfit))
