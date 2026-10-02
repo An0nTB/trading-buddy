@@ -1,4 +1,5 @@
 import SwiftUI
+import TradingCalendar
 import TradingCore
 import TradingStore
 
@@ -7,6 +8,8 @@ struct TradeZeileDaten: Identifiable {
     var trade: Trade
     var setup: String
     var muster: [Fehlermuster]
+    /// Termine in der Haltezeit, die eine Währung des Symbols betreffen (Doc 18 F9); leer ohne Treffer.
+    var termine: [Termin] = []
     var id: String { trade.id }
 }
 
@@ -28,9 +31,13 @@ struct TradesView: View {
         let muster = modell.musterJeTrade
         let eintraege = modell.journaleintraege
         let musterFilter = modell.musterFilter
+        let termine = modell.termineJeTrade
+        let nurUeberTermin = modell.nurUeberTermin
         return modell.trades.compactMap { trade -> TradeZeileDaten? in
-            let zeile = TradeZeileDaten(trade: trade, setup: eintraege[trade.id]?.setup ?? "", muster: muster[trade.id] ?? [])
+            let zeile = TradeZeileDaten(trade: trade, setup: eintraege[trade.id]?.setup ?? "", muster: muster[trade.id] ?? [],
+                                        termine: termine[trade.id] ?? [])
             if nurMitMuster, zeile.muster.isEmpty { return nil }
+            if nurUeberTermin, zeile.termine.isEmpty { return nil }
             if let musterFilter, !zeile.muster.contains(musterFilter) { return nil }
             if nurOhneStop, trade.stopLoss != nil { return nil }
             if !suche.isEmpty, !trade.symbol.localizedCaseInsensitiveContains(suche), !trade.id.contains(suche),
@@ -55,6 +62,7 @@ struct TradesView: View {
     }
 
     var body: some View {
+        @Bindable var modell = modell
         let liste = gefiltert
         let muster = modell.musterJeTrade
         VStack(alignment: .leading, spacing: Abstand.kachelAbstand) {
@@ -67,6 +75,7 @@ struct TradesView: View {
                 #endif
                 Toggle("Nur mit Muster", isOn: $nurMitMuster)
                 Toggle("Stop fehlt (\(modell.ohneStop))", isOn: $nurOhneStop)
+                Toggle("Über Termin gehalten", isOn: $modell.nurUeberTermin)
             }
             .toggleStyle(.button)
             .padding(.horizontal, Abstand.seitenrand)
@@ -147,7 +156,14 @@ struct TradesView: View {
             }
             .width(min: 110, ideal: 120)
             TableColumn("Instrument", value: \.trade.symbol) { zeile in
-                Text(verbatim: zeile.trade.symbol)
+                HStack(spacing: Abstand.raster) {
+                    Text(verbatim: zeile.trade.symbol)
+                    if !zeile.termine.isEmpty {
+                        Image(systemName: "calendar")
+                            .foregroundStyle(thema.textSchwach)
+                            .help(Text(verbatim: Terminformat.imTrade(zeile.termine)))
+                    }
+                }
             }
             .width(min: 90, ideal: 100)
             TableColumn("Richtung", value: \.trade.side.rawValue) { zeile in
@@ -193,7 +209,8 @@ struct TradesView: View {
     private func tradeListe(_ liste: [TradeZeileDaten], _ muster: [String: [Fehlermuster]]) -> some View {
         List(liste) { zeile in
             NavigationLink(value: zeile.id) {
-                TradeZeile(trade: zeile.trade, muster: zeile.muster, waehrung: modell.waehrung, setup: zeile.setup)
+                TradeZeile(trade: zeile.trade, muster: zeile.muster, waehrung: modell.waehrung, setup: zeile.setup,
+                           ueberTermin: !zeile.termine.isEmpty)
             }
             .listRowBackground(thema.flaeche)
         }
@@ -250,6 +267,7 @@ struct TradeInspektor: View {
                     zeile("Swap", Format.geld(trade.swap, waehrung))
                     zeile("Netto", Format.geld(trade.netProfit, waehrung), farbe: thema.vorzeichen(trade.netProfit), fett: true)
                     zeile("R", Format.r(trade.rMultiple), farbe: trade.rMultiple.map(thema.vorzeichen))
+                    zeile("Termine", terminText)
                 }
             }
             #if os(macOS)
@@ -273,6 +291,14 @@ struct TradeInspektor: View {
                 }
             }
         }
+    }
+
+    /// Termine der Währungen des Symbols in der Haltezeit (Doc 18 F9), sonst warum keiner steht.
+    private var terminText: String {
+        let gefunden = modell.termine.termine(fuer: trade)
+        if !gefunden.isEmpty { return Terminformat.imTrade(gefunden) }
+        if Terminkalender.waehrungen(symbol: trade.symbol).isEmpty { return String(localized: "keine Währung erkannt") }
+        return modell.termine.abgedeckt(trade) ? String(localized: "keiner in der Haltezeit") : String(localized: "Zeitraum nicht erfasst")
     }
 
     private var untertitel: String {
@@ -461,6 +487,7 @@ struct TradeZeile: View {
     let muster: [Fehlermuster]
     let waehrung: String
     var setup = ""
+    var ueberTermin = false
     @Environment(\.thema) private var thema
 
     var body: some View {
@@ -501,6 +528,7 @@ struct TradeZeile: View {
         if !setup.isEmpty { teile.append(setup) }
         teile.append("\(Format.lots(trade.lots)) Lots")
         teile.append(Format.dauer(trade.holdingTime))
+        if ueberTermin { teile.append(String(localized: "über Termin gehalten")) }
         return teile.joined(separator: " · ")
     }
 }

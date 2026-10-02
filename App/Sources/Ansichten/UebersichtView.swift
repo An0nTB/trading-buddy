@@ -4,7 +4,7 @@ import TradingCore
 
 /// Übersicht (Doc 10, Reihe 1 und 6): Filter, vier Kacheln, Kapitalkurve, Fehlermuster, Review-Ziele, letzte Trades.
 /// Mit gesetzten Handelsregeln (P6) dazu Regel-Ampel, Disziplin-Kurve neben der Kapitalkurve und Challenge-Karte;
-/// mit offenen Positionen die Karte „Offene Positionen“ mit Kursen (P10).
+/// mit offenen Positionen die Karte „Offene Positionen“ mit Kursen (P10); dazu „Nächste Termine“ (TradingCalendar, Doc 25).
 struct UebersichtView: View {
     @Environment(AppModell.self) private var modell
     @Environment(\.thema) private var thema
@@ -20,6 +20,7 @@ struct UebersichtView: View {
                     KeineTrades()
                     if modell.konto != nil {
                         KurseKarte()
+                        NaechsteTermineKarte()
                         ZieleKarte()
                     }
                 } else {
@@ -44,6 +45,7 @@ struct UebersichtView: View {
                                farbe: verlauf.maxDrawdown > 0 ? thema.verlust : nil)
                     }
                     KurseKarte()
+                    NaechsteTermineKarte()
                     if modell.regeln.leer {
                         Kapitalkurve(punkte: verlauf.punkte)
                     } else {
