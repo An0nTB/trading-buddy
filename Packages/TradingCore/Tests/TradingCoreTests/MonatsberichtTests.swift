@@ -46,7 +46,7 @@ private let berichtTrades = [
     #expect(b.auswertung.kennzahlenVorzeitraum.netto == -100)
     #expect(b.regelverstoesse.map(\.trade) == ["D"])
     #expect(b.anzahl(.tagesverlust) == 1 && b.anzahl(.tradesJeTag) == 0)
-    #expect(b.disziplin.regeltreu == 3 && b.disziplin.verletzt == 1)
+    #expect(b.disziplin.regeltreu == 3 && b.disziplin.verletzt == 1 && b.propFirmVerstoesse.isEmpty)
     #expect(b.muster.isEmpty)
     #expect(b.ziele.map(\.text) == ["Höchstens 2 Trades je Tag", "Monatswechsel"])
     let topf = try #require(b.steuerBisMonatsende.first)

@@ -71,3 +71,31 @@ private let topstepAehnlich = PropFirmRegeln(
     let daten = try JSONEncoder().encode(regeln)
     #expect(try JSONDecoder().decode(Handelsregeln.self, from: daten) == regeln)
 }
+
+/// Tagesverlust-Balken (Antwort 12d, 02.10.2026). Sollwerte von Hand aus `propTrades`.
+@Test func propFirmTagesstaende() throws {
+    let e = PropFirmPruefung.pruefe(propTrades, regeln: topstepAehnlich)
+    #expect(e.tage.map(\.tag) == [zeit("2026-04-05T22:00:00Z"), zeit("2026-04-06T22:00:00Z"),
+                                  zeit("2026-04-12T22:00:00Z"), zeit("2026-04-13T22:00:00Z")])
+    #expect(e.tage.map(\.saldoBeginn) == [50_000, 52_000, 50_800, 53_200])
+    #expect(e.tage.map(\.saldoEnde) == [52_000, 50_800, 53_200, 51_900])
+    #expect(e.tage.map(\.tiefsterSaldo) == [50_000, 50_800, 50_800, 51_900])
+    #expect(e.tage.map(\.verbraucht) == [0, 1200, 0, 1300])
+    #expect(e.tage.map(\.anteilTagesverlust) == [0, Decimal(string: "1.2")!, 0, Decimal(string: "1.3")!])
+    #expect(e.tage.map(\.tagesverlustGrenze) == [49_000, 51_000, 49_800, 52_200])
+    // Nachgezogen ab höchstem Tagesend-Saldo, eingefroren bei 50.000.
+    #expect(e.tage.map(\.gesamtverlustGrenze) == [48_000, 50_000, 50_000, 50_000])
+    let ohneRegeln = PropFirmPruefung.pruefe(propTrades, regeln: PropFirmRegeln(name: "leer", startkapital: 50_000))
+    let erster = try #require(ohneRegeln.tage.first)
+    #expect(erster.tagesverlustGrenze == nil && erster.anteilTagesverlust == nil && erster.gesamtverlustGrenze == nil)
+}
+
+@Test func propFirmVerstoesseInDisziplin() {
+    let e = PropFirmPruefung.pruefe(propTrades, regeln: topstepAehnlich)
+    let eigene = [Regelverstoss(art: .manuell, trade: "B", tag: zeit("2026-04-06T00:00:00Z"))]
+    let d = Disziplin(trades: propTrades, verstoesse: eigene, propFirm: e.verstoesse)
+    // B, C, D, E, F verletzt; B nur einmal, obwohl eigener und Prop-Firm-Verstoß.
+    #expect(d.regeltreu == 1 && d.verletzt == 5)
+    #expect(d.punkte.map(\.wert) == [1, 0, -1, -2, -3, -4])
+    #expect(Disziplin(trades: propTrades, verstoesse: eigene).verletzt == 1)
+}
