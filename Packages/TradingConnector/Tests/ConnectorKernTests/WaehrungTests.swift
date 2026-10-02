@@ -53,6 +53,8 @@ private let gemischt = [trade("e1", "2025-05-05T10:00:00", netto: 10), trade("e2
     #expect(text.contains("Beträge in USD. Kontowährung ist EUR; Ziele und Betragsgrenzen der Handelsregeln gelten "
         + "dort und fehlen hier. Nur Trades in USD."))
     #expect(text.contains("EUR: 3 Trades, davon 3 im Zeitraum"))
+    #expect(text.contains("- Ziele früherer Reviews: gelten in der Kontowährung EUR und stehen nur in der Abfrage "
+        + "ohne waehrung."))
 
     #expect(throws: AnfrageFehler.waehrungUnbekannt("CHF", ["EUR", "USD"])) {
         try Anfrage.lies(["waehrung": "chf"], export: export(gemischt))
@@ -75,4 +77,19 @@ private let gemischt = [trade("e1", "2025-05-05T10:00:00", netto: 10), trade("e2
     let einfach = try Anfrage.lies(["monat": "2025-05"], export: export(Array(gemischt.prefix(3))))
     #expect(einfach.andereWaehrungen.isEmpty && Ausgabe.waehrungshinweis(einfach).isEmpty)
     #expect(!Ausgabe.datenstand(export(Array(gemischt.prefix(3)))).contains("anderer Währung"))
+}
+
+@Test func anzahlRegelnZaehlenAlleWaehrungenBetragsgrenzenNurDieEigene() throws {
+    // Ein Tag mit fünf Trades: drei in EUR, zwei in USD. Grenze 4 Trades je Tag, 100 Tagesverlust.
+    let tag = [trade("e1", "2025-05-05T08:00:00", netto: -30), trade("e2", "2025-05-05T09:00:00", netto: -30),
+               trade("u1", "2025-05-05T10:00:00", netto: -500, waehrung: "USD"),
+               trade("u2", "2025-05-05T11:00:00", netto: 5, waehrung: "USD"),
+               trade("e3", "2025-05-05T12:00:00", netto: 10)]
+    let regeln = Handelsregeln(maxTagesverlust: 100, maxTradesJeTag: 4)
+    let eur = try Anfrage.lies(["monat": "2025-05"], export: export(tag, regeln: regeln))
+    // e3 ist der fünfte Trade des Tages; der USD-Verlust zählt nicht in den EUR-Tagesverlust.
+    let inEur = eur.verstoesse(eur.konto.trades)
+    #expect(inEur.map(\.trade) == ["e3"] && inEur.map(\.art) == [.tradesJeTag])
+    let usd = try Anfrage.lies(["monat": "2025-05", "waehrung": "USD"], export: export(tag, regeln: regeln))
+    #expect(usd.verstoesse(usd.konto.trades).isEmpty)
 }
