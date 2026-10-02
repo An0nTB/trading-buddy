@@ -18,6 +18,7 @@ struct TradeZeileDaten: Identifiable {
 /// Trades (Doc 10, Reihe 4 und 6): am Mac und iPad Tabelle mit Inspektor rechts,
 /// am iPhone Liste mit zwei Zeilen je Trade und Detailseite.
 struct TradesView: View {
+    @AppStorage(Ton.schluessel) private var ton = Ton.bro
     @Environment(AppModell.self) private var modell
     @Environment(\.thema) private var thema
     #if os(iOS)
@@ -132,7 +133,7 @@ struct TradesView: View {
                             .padding(Abstand.kachelInnen)
                     }
                 } else {
-                    ContentUnavailableView("Kein Trade gewählt", systemImage: "cursorarrow.click",
+                    ContentUnavailableView(ton.text("Kein Trade gewählt", bro: "Pick einen Trade."), systemImage: "cursorarrow.click",
                                            description: Text("Wähle eine Zeile, um Zeiten, Kurse, Kosten, Journal und Fehlermuster zu sehen."))
                 }
             }
