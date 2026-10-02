@@ -32,11 +32,12 @@ let september = FragBradKontext(konto: "XTB …1234", von: zeit("2026-09-01 00:0
     #expect(!text.contains("Zeitraum:"))
 }
 
-@Test func tonBradHaengtDieTonbitteAn() throws {
-    let brad = try #require(FragBrad.text(.setups, kontext: september, ton: .brad, zeitzone: berlin))
+@Test func tonHenryHaengtDieTonbitteAn() throws {
+    let henry = try #require(FragBrad.text(.setups, kontext: september, ton: .henry, zeitzone: berlin))
     let sachlich = try #require(FragBrad.text(.setups, kontext: september, ton: .sachlich, zeitzone: berlin))
-    #expect(brad.hasSuffix(FragBrad.tonBrad))
-    #expect(!sachlich.contains("Brad"))
+    #expect(henry.hasSuffix(FragBrad.tonHenry))
+    #expect(!henry.contains("Alter") && !henry.contains("Bro"))
+    #expect(!sachlich.contains("Henry"))
 }
 
 @Test func jedeFrageTraegtDenRahmenOhneAnlageberatung() {
@@ -77,7 +78,7 @@ let september = FragBradKontext(konto: "XTB …1234", von: zeit("2026-09-01 00:0
 }
 
 @Test func tradeVorlageOhneTradeLiefertNichts() {
-    #expect(FragBrad.text(.trade, kontext: september, ton: .brad, zeitzone: berlin) == nil)
+    #expect(FragBrad.text(.trade, kontext: september, ton: .henry, zeitzone: berlin) == nil)
 }
 
 @Test func wocheUebergehtDenMonatsfilter() throws {
@@ -87,9 +88,9 @@ let september = FragBradKontext(konto: "XTB …1234", von: zeit("2026-09-01 00:0
 }
 
 @Test func eigeneFrageWirdBereinigtUndBegrenzt() throws {
-    #expect(FragBrad.text(.frei, kontext: september, freieFrage: "  \n ", ton: .brad, zeitzone: berlin) == nil)
+    #expect(FragBrad.text(.frei, kontext: september, freieFrage: "  \n ", ton: .henry, zeitzone: berlin) == nil)
     let lang = String(repeating: "a", count: 5_000)
-    let text = try #require(FragBrad.text(.frei, kontext: september, freieFrage: lang, ton: .brad, zeitzone: berlin))
+    let text = try #require(FragBrad.text(.frei, kontext: september, freieFrage: lang, ton: .henry, zeitzone: berlin))
     #expect(text.hasPrefix(String(repeating: "a", count: FragBrad.freitextGrenze) + "\n\n"))
     #expect(text.count < 2_500)
 }
@@ -113,7 +114,7 @@ let september = FragBradKontext(konto: "XTB …1234", von: zeit("2026-09-01 00:0
     var kontext = september
     kontext.instrument = "EURUSD"
     let frage = String(repeating: "ä", count: 5_000)
-    let text = try #require(FragBrad.text(.frei, kontext: kontext, freieFrage: frage, ton: .brad, zeitzone: berlin))
+    let text = try #require(FragBrad.text(.frei, kontext: kontext, freieFrage: frage, ton: .henry, zeitzone: berlin))
     // Anthropic kürzt den Text bei rund 14.000 Zeichen (Hilfe-Artikel, 30.06.2026).
     #expect(text.count < 14_000)
     #expect(FragBrad.link(text) != nil)
@@ -135,4 +136,19 @@ let september = FragBradKontext(konto: "XTB …1234", von: zeit("2026-09-01 00:0
     #expect(FragBradVorlage.verfuegbar(mitTrade: true, mitTag: false).contains(.trade))
     #expect(FragBradVorlage.verfuegbar(mitTrade: false, mitTag: true).contains(.tag))
     #expect(FragBradVorlage.verfuegbar(mitTrade: true, mitTag: true).count == FragBradVorlage.allCases.count)
+}
+
+@Test func emojiAusVielenCodepunktenSprengenDieGrenzeNicht() throws {
+    // Familie aus vier Personen: ein Zeichen, elf UTF-16-Einheiten. Nach Zeichen gekürzt wären es 16.500 Einheiten,
+    // dann schnitte Claude bei rund 14.000 den Rahmen ohne Anlageberatung ab (Gesamt-Gegencheck F2).
+    let familie = "\u{1F468}\u{200D}\u{1F469}\u{200D}\u{1F467}\u{200D}\u{1F466}"
+    #expect(familie.count == 1 && familie.utf16.count == 11)
+    let frage = String(repeating: familie, count: 3_000)
+    let gekuerzt = FragBrad.bereinigt(frage)
+    #expect(gekuerzt.utf16.count <= FragBrad.freitextGrenze)
+    #expect(gekuerzt.utf16.count > FragBrad.freitextGrenze - 11)
+    #expect(gekuerzt.allSatisfy { $0 == Character(familie) })
+    let text = try #require(FragBrad.text(.frei, kontext: september, freieFrage: frage, ton: .henry, zeitzone: berlin))
+    #expect(text.utf16.count < 2_500)
+    #expect(text.hasSuffix(FragBrad.tonHenry))
 }
