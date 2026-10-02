@@ -74,7 +74,9 @@ public struct Zeitspanne: Sendable, Equatable {
     /// bei ganzen Tagen dieselbe Zahl Tage, sonst dieselbe Dauer.
     public func vorzeitraum(zeitzone: TimeZone) -> Zeitspanne {
         let k = Self.kalender(zeitzone)
-        if let monate = k.dateComponents([.month], from: von, to: bis).month, monate > 0,
+        // Ganze Monate nur ab dem Ersten; sonst wären 28.02. bis 27.03. ein Monat (Dritter Gegencheck G8).
+        if k.component(.day, from: von) == 1,
+           let monate = k.dateComponents([.month], from: von, to: bis).month, monate > 0,
            k.date(byAdding: .month, value: monate, to: von) == bis,
            let start = k.date(byAdding: .month, value: -monate, to: von) {
             return Zeitspanne(von: start, bis: von)
