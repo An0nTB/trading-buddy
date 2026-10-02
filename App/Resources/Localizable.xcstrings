@@ -202,6 +202,16 @@
         }
       }
     },
+    "Wie beim letzten Kontoimport dieses Kontos." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Same as the last statement import for this account."
+          }
+        }
+      }
+    },
     "in diesem Jahr" : {
       "localizations" : {
         "en" : {
