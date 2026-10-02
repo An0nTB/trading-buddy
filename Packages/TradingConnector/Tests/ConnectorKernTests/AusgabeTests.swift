@@ -164,8 +164,8 @@ private func gbeExport() throws -> JournalExport {
     #expect(try JournalExport.lese(try export.json()).ton == "henry")
     // Ältere Exporte mit „bro“ (Brad) gelten wie Henry.
     export.ton = JournalExport.tonBro
-    #expect(export.personaTon && Ausgabe.auswertung(try Anfrage.lies(["monat": "2025-05"], export: export))
-        .contains(Rezept.personaRegel))
+    let alt = Ausgabe.auswertung(try Anfrage.lies(["monat": "2025-05"], export: export))
+    #expect(export.personaTon && alt.contains(Rezept.personaRegel))
     #expect(!Rezept.personaRegel.contains("Bro") && Rezept.personaRegel.contains("sachlich"))
 }
 
