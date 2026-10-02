@@ -160,6 +160,29 @@ private let alleMigrationen = ["v1 Konten, Importe, MT4-Auszüge", "v2 Journal j
     #expect(try journal.geschlossenePositionen(konto: konto).map(\.ticket) == ["90000128"])
 }
 
+@Test func offenePositionenDesLetztenAuszugs() throws {
+    let journal = try Journal.imSpeicher()
+    // Absichtlich nicht in Datumsfolge importiert: Maßgeblich ist der Stichtag, nicht die Reihenfolge.
+    for name in ["gbe-2025-05-25-daily", "gbe-2025-05-18-daily", "gbe-2025-05-22-daily"] {
+        try importiere(journal, name)
+    }
+    let konto = try nurKonto(journal)
+    let letzter = try #require(try journal.offenePositionenLetzterAuszug(konto: konto))
+    let laeufe = try journal.importe(konto: konto)
+    #expect(letzter.importlauf == laeufe.last)
+    #expect(letzter.importlauf.dateiname == "gbe-2025-05-25-daily.html")
+    // Sollwert wie in offenePositionenSindMomentaufnahmeJeAuszug: am 25.05. offen 90000130, Floating 1.01.
+    #expect(letzter.positionen.map(\.ticket) == ["90000130"])
+    let floating: Decimal = letzter.positionen.reduce(0) { $0 + $1.netProfit }
+    #expect(floating == d("1.01"))
+
+    // Konto ohne MT4-Auszug: keine Angabe statt einer leeren Liste.
+    let ohne = try journal.schreibe {
+        try Journal.konto($0, broker: "XTB", nummer: "1", name: "ohne MT4", waehrung: "EUR")
+    }
+    #expect(try journal.offenePositionenLetzterAuszug(konto: ohne)?.importlauf == nil)
+}
+
 @Test func abweichenderDoppelterBrichtAbUndAendertNichts() throws {
     let journal = try Journal.imSpeicher()
     try importiere(journal, "gbe-2025-05-31-monthly")
