@@ -48,10 +48,13 @@ extension Ausgabe {
     }
 
     /// Kursanalyse über die letzten `monate` Monate der Reihe; eine laufende Kerze bleibt dabei.
+    /// Gezählt wird ab dem letzten abgeschlossenen Tag wie in `Kursanalyse`, dazu 7 Tage Vorlauf: Die Veränderung
+    /// braucht eine Kerze am oder bis 7 Tage vor dem Zieltag (Wochenende, Feiertag). Ohne Vorlauf fehlte sie mit
+    /// laufender Kerze (Krypto) immer und bei Aktien, wenn der Zieltag kein Handelstag war (Befund G3, Doc 49).
     static func analyse(_ reihe: JournalExport.Kursreihe, monate: Int) -> Kursanalyse? {
-        guard let letzter = reihe.kerzen.last?.tag else { return nil }
+        guard let letzter = (reihe.kerzen.last { !$0.laufend } ?? reihe.kerzen.last)?.tag else { return nil }
         let utc = TimeZone(secondsFromGMT: 0)!
-        let ab = Journaltag(kalender(utc).date(byAdding: .day, value: -(monate * 365 / 12),
+        let ab = Journaltag(kalender(utc).date(byAdding: .day, value: -(monate * 365 / 12 + 7),
                                                to: letzter.beginn(in: utc))!, zeitzone: utc)
         return Kursanalyse(kerzen: reihe.kerzen.filter { $0.tag >= ab })
     }

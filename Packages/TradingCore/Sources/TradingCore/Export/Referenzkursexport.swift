@@ -30,9 +30,11 @@ extension JournalExport {
         }
     }
 
-    /// Auszug aus `kurse` für `Waehrungsangleich` über die Trades in `konten`: nur Währungen, die umgerechnet
-    /// werden, und nur die Tage, die die Suche ab dem Schlusstag braucht (`Referenzkurse.hoechstensTageZurueck`),
-    /// in UTC mit einem Tag Puffer je Seite, damit jede Zeitzone des Nutzers abgedeckt ist.
+    /// Auszug aus `kurse` für `Waehrungsangleich` und die Steuer-Orientierung über die Trades in `konten`: nur
+    /// Währungen, die umgerechnet werden (in die Kontowährung oder für die Steuer in Euro), und nur die Tage, die
+    /// die Suche ab dem Schlusstag braucht (`Referenzkurse.hoechstensTageZurueck`), in UTC mit einem Tag Puffer je
+    /// Seite, damit jede Zeitzone des Nutzers abgedeckt ist. Trades in Euro brauchen keinen Kurs; ein CHF-Konto mit
+    /// CHF-Trades braucht den CHF-Kurs für die Euro-Summen der Steuer (Befund G4, Doc 49).
     public static func referenzkursauszug(_ kurse: Referenzkurse, fuer konten: [Kontodaten]) -> [Tageskurse] {
         let utc = TimeZone(secondsFromGMT: 0)!
         var kalender = Calendar(identifier: .gregorian)
@@ -43,9 +45,10 @@ extension JournalExport {
             let kontowaehrung = konto.waehrung.uppercased()
             for t in konto.trades {
                 let waehrung = t.waehrung(kontowaehrung: kontowaehrung)
-                guard waehrung != kontowaehrung else { continue }
+                let angleich = waehrung != kontowaehrung
+                guard angleich || kurscode(waehrung) != "EUR" else { continue }
                 codes.insert(kurscode(waehrung))
-                codes.insert(kurscode(kontowaehrung))
+                if angleich { codes.insert(kurscode(kontowaehrung)) }
                 for zurueck in -1...(Referenzkurse.hoechstensTageZurueck + 1) {
                     guard let zeit = kalender.date(byAdding: .day, value: -zurueck, to: t.closeTime) else { continue }
                     tage.insert(Journaltag(zeit, zeitzone: utc))
