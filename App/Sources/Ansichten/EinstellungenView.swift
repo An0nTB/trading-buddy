@@ -94,11 +94,8 @@ struct AllgemeinFelder: View {
         Text("„Henry“ spricht Begrüßung, leere Seiten und Erfolgsmeldungen ruhig und trocken, „Sachlich“ nüchtern. Zahlen, Steuer, Regelverstöße, Warnungen und Fehler bleiben in beiden Stellungen sachlich; der Export für den Claude-Connector trägt die Einstellung mit.")
             .font(Schrift.beschriftung)
             .foregroundStyle(thema.textSchwach)
-        LabeledContent("Sprache") { Text("Wie System") }
+        SpracheFeld() // Paket 6 Englisch (App/Sources/Sprache/Sprache.swift)
         LabeledContent("Anzeigewährung") { Text("Kontowährung, Umrechnung folgt") }
-        Text("Die Sprache stellst du in den Systemeinstellungen je App um; die App liefert Deutsch und Englisch.")
-            .font(Schrift.beschriftung)
-            .foregroundStyle(thema.textSchwach)
     }
 }
 
