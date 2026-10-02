@@ -336,6 +336,7 @@ struct TradeInspektor: View {
                     zeile("Termine", terminText)
                 }
             }
+            AusstiegKarte(trade: trade, waehrung: waehrung) // Ausstiegsanalyse B3 (Doc 39)
             #if os(macOS)
             if let eintrag {
                 JournalEingabe(trade: trade, eintrag: eintrag)
