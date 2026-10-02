@@ -38,13 +38,13 @@ struct AlpacaVerlauf: Verlaufsquelle {
         return f.string(from: datum)
     }
 
-    private struct Kerze: Decodable {
+    struct Kerze: Decodable {
         let t: String
         let o, h, l, c: Zahl
         let v: Zahl?
     }
 
-    private enum Kerzen: Decodable {
+    enum Kerzen: Decodable {
         case liste([Kerze])
         case jeSymbol([String: [Kerze]])
 
@@ -58,7 +58,7 @@ struct AlpacaVerlauf: Verlaufsquelle {
         }
     }
 
-    private struct Antwort: Decodable {
+    struct Antwort: Decodable {
         let bars: Kerzen?
         let weiter: String?
 
@@ -68,7 +68,7 @@ struct AlpacaVerlauf: Verlaufsquelle {
         }
     }
 
-    private struct Fehler: Decodable {
+    struct Fehler: Decodable {
         let message: String?
     }
 
