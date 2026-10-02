@@ -5,9 +5,47 @@ on:
   push:
     branches: [main]
 
+# Ein neuer Push auf denselben PR bricht den laufenden Lauf ab; auf main läuft jeder Merge zu Ende.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
+  # Mac-Läufe sind knapp (Stau 02.10.2026, Tim Frage 9 = 1). Im PR laufen die Mac-Jobs für Kern,
+  # Speicher, Connector und App-Tests nur, wenn sich ihr Code ändert; auf main läuft immer alles.
+  # Übersprungene Jobs zählen für den Branch-Schutz als bestanden. Fällt dieser Job aus, ist jede
+  # Ausgabe leer und alle Mac-Jobs laufen (Bedingung `!= 'false'`).
+  aenderungen:
+    name: Geänderte Bereiche
+    runs-on: ubuntu-latest
+    outputs:
+      kern: ${{ steps.bereiche.outputs.kern }}
+      speicher: ${{ steps.bereiche.outputs.speicher }}
+      connector: ${{ steps.bereiche.outputs.connector }}
+      apptests: ${{ steps.bereiche.outputs.apptests }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - id: bereiche
+        run: |
+          alles() { for b in kern speicher connector apptests; do echo "$b=true" >> "$GITHUB_OUTPUT"; done; exit 0; }
+          [ "${{ github.event_name }}" = "pull_request" ] || alles
+          # Im PR ist HEAD der Merge-Commit; HEAD^1 ist der Stand von main.
+          DATEIEN="$(git diff --name-only HEAD^1 HEAD)" || alles
+          echo "$DATEIEN"
+          grep -q '^\.github/workflows/ci\.yml$' <<< "$DATEIEN" && alles
+          treffer() { grep -qE "$1" <<< "$DATEIEN" && echo true || echo false; }
+          echo "kern=$(treffer '^Packages/TradingCore/')" >> "$GITHUB_OUTPUT"
+          echo "speicher=$(treffer '^Packages/(TradingCore|TradingStore)/')" >> "$GITHUB_OUTPUT"
+          echo "connector=$(treffer '^(Packages/(TradingCore|TradingConnector)/|Connector/)')" >> "$GITHUB_OUTPUT"
+          echo "apptests=$(treffer '^(App/|Packages/|project\.yml$)')" >> "$GITHUB_OUTPUT"
+          cat "$GITHUB_OUTPUT"
+
   trading-core-macos:
     name: TradingCore (macOS)
+    needs: aenderungen
+    if: ${{ !cancelled() && needs.aenderungen.outputs.kern != 'false' }}
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,6 +69,8 @@ jobs:
 
   trading-store-macos:
     name: TradingStore (macOS)
+    needs: aenderungen
+    if: ${{ !cancelled() && needs.aenderungen.outputs.speicher != 'false' }}
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -101,6 +141,8 @@ jobs:
   # Tests der App-Schicht (App/Tests). Eigener Job, damit Tim über die Pflicht entscheiden kann.
   app-tests:
     name: App-Tests (macOS)
+    needs: aenderungen
+    if: ${{ !cancelled() && needs.aenderungen.outputs.apptests != 'false' }}
     runs-on: xcode-27
     steps:
       - uses: actions/checkout@v4
@@ -113,6 +155,8 @@ jobs:
 
   connector:
     name: Connector (macOS)
+    needs: aenderungen
+    if: ${{ !cancelled() && needs.aenderungen.outputs.connector != 'false' }}
     runs-on: macos-latest
     defaults:
       run:
