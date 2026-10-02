@@ -1,6 +1,6 @@
 name: TradingAssistant
 
-# „Frag Brad“: Fragetext und Link für Claude Desktop, nur Linux, ohne Netz.
+# „Frag Henry“: Fragetext und Link für Claude Desktop, nur Linux, ohne Netz.
 # Kein Pflicht-Check; läuft nur, wenn sich das Paket oder diese Datei ändert (wie TradingNews).
 on:
   pull_request:
