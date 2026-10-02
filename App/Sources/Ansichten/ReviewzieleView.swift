@@ -10,7 +10,7 @@ import TradingStore
 
 /// Karte auf der Übersicht: offene Ziele des Kontos; im Monatsfilter die Ziele, die den Monat berühren.
 struct ZieleKarte: View {
-    @AppStorage(Ton.schluessel) private var ton = Ton.bro
+    @AppStorage(Ton.schluessel) private var ton = Ton.henry
     @Environment(AppModell.self) private var modell
     @Environment(\.thema) private var thema
     @State private var neuesZiel = false
@@ -51,7 +51,7 @@ struct ZieleKarte: View {
         }
         switch modell.zeitraum {
         case .alle: return ton.text("Kein offenes Ziel. Lege nach dem Review genau ein messbares Ziel für den nächsten Zeitraum an.",
-                                    bro: "Kein Ziel, kein Plan, Bro. Nach dem Review genau ein messbares Ziel für den nächsten Zeitraum anlegen.")
+                                    henry: "Kein offenes Ziel. Wer keines hat, verfehlt auch keines. Nach dem Review genau ein messbares Ziel für den nächsten Zeitraum anlegen.")
         case .monat: return String(localized: "Kein Ziel berührt diesen Monat.")
         }
     }
