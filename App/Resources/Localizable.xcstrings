@@ -164,6 +164,16 @@
         }
       }
     },
+    "„Bis“ liegt vor „Von“." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“To” is before “From”."
+          }
+        }
+      }
+    },
     "„Henry“ spricht Begrüßung, leere Seiten und Erfolgsmeldungen ruhig und trocken, „Sachlich“ nüchtern. Zahlen, Steuer, Regelverstöße, Warnungen und Fehler bleiben in beiden Stellungen sachlich; der Export für den Claude-Connector trägt die Einstellung mit." : {
       "localizations" : {
         "en" : {
@@ -852,6 +862,16 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "%lld Konten, %lld Trades und Ausführungen, letzter Trade %@. Der aktuelle Stand wird ersetzt und vorher beiseitegelegt." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld accounts, %2$lld trades and executions, last trade %3$@. The current state is replaced and set aside first."
           }
         }
       }
@@ -2500,6 +2520,16 @@
         }
       }
     },
+    "Aufbewahren: %lld Sicherungen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep: %lld backups"
+          }
+        }
+      }
+    },
     "Aufschlüsselung" : {
       "localizations" : {
         "en" : {
@@ -2672,6 +2702,16 @@
         }
       }
     },
+    "Beide Tage zählen mit. Ein Trade zählt zum Tag, an dem er geschlossen wurde. Verglichen wird mit dem gleich langen Zeitraum davor." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Both days count. A trade counts towards the day on which it was closed. The comparison is with the period of equal length before."
+          }
+        }
+      }
+    },
     "Beispiele, Beobachtungen" : {
       "localizations" : {
         "en" : {
@@ -2748,6 +2788,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Report as PDF"
+          }
+        }
+      }
+    },
+    "Bericht für Zeitraum" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Report for period"
+          }
+        }
+      }
+    },
+    "Bericht sichern" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save report"
           }
         }
       }
@@ -2924,6 +2984,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Binance transaction history: the app does not read it, please export the trade history."
+          }
+        }
+      }
+    },
+    "Bis" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To"
           }
         }
       }
@@ -3741,6 +3811,16 @@
         }
       }
     },
+    "Die Datei ist keine lesbare Sicherung und wird nicht eingespielt. %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The file is not a readable backup and will not be restored. %@"
+          }
+        }
+      }
+    },
     "Die Datei ist weder Text (UTF-8) noch eine Excel-Datei." : {
       "localizations" : {
         "en" : {
@@ -3949,6 +4029,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "The overnight session belongs to the following day (trading day = end); it is dropped in the night before a holiday and starts on the evening of the holiday (Nasdaq FAQ)."
+          }
+        }
+      }
+    },
+    "Die Sicherung stammt aus einer neueren Version der App. Bitte zuerst die App aktualisieren." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The backup comes from a newer version of the app. Please update the app first."
           }
         }
       }
@@ -6281,6 +6371,16 @@
         }
       }
     },
+    "Gesichert werden die Datenbank und die Screenshots. Die App sichert beim Start und danach einmal am Tag, solange sie läuft. Schlüssel aus dem Schlüsselbund kommen nicht in die Sicherung." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The database and the screenshots are backed up. The app backs up at launch and then once a day while it is running. Keys from the keychain are not included in the backup."
+          }
+        }
+      }
+    },
     "gespeichert %@" : {
       "localizations" : {
         "en" : {
@@ -7616,6 +7716,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Each criterion becomes a checkbox per trade in the inspector. Rewording is harmless; removing and recreating loses the old ticks of this criterion."
+          }
+        }
+      }
+    },
+    "Jetzt sichern" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back up now"
           }
         }
       }
@@ -9339,6 +9449,16 @@
         }
       }
     },
+    "Letzte Sicherung" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last backup"
+          }
+        }
+      }
+    },
     "Letzte Trades" : {
       "localizations" : {
         "en" : {
@@ -10869,6 +10989,16 @@
         }
       }
     },
+    "noch keine" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "none yet"
+          }
+        }
+      }
+    },
     "Noch keine Einträge. Geduld ist auch eine Position." : {
       "localizations" : {
         "en" : {
@@ -11388,6 +11518,16 @@
         }
       }
     },
+    "Ordner wählen …" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose folder …"
+          }
+        }
+      }
+    },
     "Orientierung, kein Steuerbescheid. Ohne Steuersatz, Sparer-Pauschbetrag, Verlustvorträge und Teilfreistellung. Ergebnis je Trade = Kursergebnis + Kommission + Swap. Krypto-Haltefrist und Freigrenze stehen auf der Steuer-Seite der App." : {
       "localizations" : {
         "en" : {
@@ -11451,6 +11591,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Payoff %1$@ · Ø %2$@ / %3$@"
+          }
+        }
+      }
+    },
+    "PDF erstellen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create PDF"
           }
         }
       }
@@ -12511,6 +12661,76 @@
         }
       }
     },
+    "Sicherung" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup"
+          }
+        }
+      }
+    },
+    "Sicherung „%@“ einspielen?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restore backup “%@”?"
+          }
+        }
+      }
+    },
+    "Sicherung: %@, %lld neue Bilder" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup: %1$@, %2$lld new images"
+          }
+        }
+      }
+    },
+    "Sicherung: Fehler %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup: error %@"
+          }
+        }
+      }
+    },
+    "Sicherung: Journal nicht geöffnet" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup: journal not open"
+          }
+        }
+      }
+    },
+    "Sicherung: kein Zugriff auf %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup: no access to %@"
+          }
+        }
+      }
+    },
+    "Sicherung: noch kein Ordner gewählt oder Ordner nicht erreichbar" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup: no folder chosen yet or folder not reachable"
+          }
+        }
+      }
+    },
     "Silvester" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -13414,6 +13634,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Day change 00:00 server time (GMT+2/+3), here as Europe/Athens."
+          }
+        }
+      }
+    },
+    "Täglich sichern" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back up daily"
           }
         }
       }
@@ -14923,6 +15153,16 @@
         }
       }
     },
+    "Vor dem Wiederherstellen prüft die App die Datei und legt den aktuellen Stand beiseite." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Before restoring, the app checks the file and sets the current state aside."
+          }
+        }
+      }
+    },
     "Vorbörslich" : {
       "localizations" : {
         "en" : {
@@ -15287,6 +15527,36 @@
         }
       }
     },
+    "Wiederhergestellt aus %@, %lld Bilder zurückgeholt. Der vorherige Stand liegt in %@." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restored from %1$@, %2$lld images recovered. The previous state is in %3$@."
+          }
+        }
+      }
+    },
+    "Wiederherstellen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restore"
+          }
+        }
+      }
+    },
+    "Wiederherstellen …" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restore …"
+          }
+        }
+      }
+    },
     "Wissen" : {
       "localizations" : {
         "en" : {
@@ -15581,6 +15851,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Period"
+          }
+        }
+      }
+    },
+    "Zeitraum …" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Period …"
           }
         }
       }
