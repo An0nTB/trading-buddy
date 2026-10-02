@@ -19,7 +19,7 @@ enum Katalog {
              description: "Welche Konten und welcher Zeitraum in Brad vorliegen. Zuerst aufrufen, wenn unklar ist, welche Daten es gibt.",
              inputSchema: schema([:]), annotations: nurLesen),
         Tool(name: "hole_auswertung",
-             description: "Wochen- oder Monatsauswertung: Kennzahlen mit Vorzeitraum, Kosten, Symbole, Fehlermuster, auffällige Trades, Ziele früherer Reviews mit Istwert, dazu das Rezept für die Antwort. Für Fragen wie „Wie lief mein Mai?“. Ohne Zeitraum gilt der letzte Monat mit Trades.",
+             description: "Wochen- oder Monatsauswertung: Kennzahlen mit Vorzeitraum, Kosten, Symbole, Fehlermuster, Verstöße gegen die eigenen Handelsregeln, Muster mit Zufallsprüfung, auffällige Trades, Plan und verpasste Trades, Ziele früherer Reviews mit Istwert, dazu das Rezept für die Antwort. Für Fragen wie „Wie lief mein Mai?“. Ohne Zeitraum gilt der letzte Monat mit Trades.",
              inputSchema: schema(zeitraum), annotations: nurLesen),
         Tool(name: "hole_aufschluesselung",
              description: "Kennzahlen je Gruppe: Symbol, Richtung, Wochentag, Stunde, Trade-Nummer am Tag, Ergebnis des vorherigen Trades, Haltedauer oder eigene Journalangaben (Setup, Regeltreue, Zustand).",
@@ -35,7 +35,10 @@ enum Katalog {
                  "anzahl": .object(["type": .string("integer"),
                                     "description": .string("Höchstens so viele Trades, 1 bis 50, Vorgabe 10")])
              ]) { $1 }),
-             annotations: nurLesen)
+             annotations: nurLesen),
+        Tool(name: "hole_notizen",
+             description: "Tagesnotizen (Plan vor dem Handel, Rückblick, Verfassung) und verpasste Trades mit Grund im Wortlaut, je Tag mit Trades und Netto des Kontos.",
+             inputSchema: schema(zeitraum), annotations: nurLesen)
     ]
 
     static let vorlagen = [
@@ -90,6 +93,8 @@ enum Ausfuehrung {
                     return antwort("DIMENSION FEHLT: eine von \(erlaubt).", fehler: true)
                 }
                 return antwort(Ausgabe.aufschluesselung(try Anfrage.lies(argumente, export: export), nach: dimension))
+            case "hole_notizen":
+                return antwort(Ausgabe.notizen(try Anfrage.lies(argumente, export: export)))
             case "hole_trades":
                 let auswahl = argumente["auswahl"].flatMap(Tradeauswahl.init(rawValue:)) ?? .chronologisch
                 let muster = argumente["muster"].flatMap(Fehlermuster.init(rawValue:))
@@ -121,7 +126,7 @@ enum Ausfuehrung {
 
 let server = Server(
     name: "trading-buddy",
-    version: "0.4.0",
+    version: "0.5.0",
     capabilities: .init(prompts: .init(listChanged: false), tools: .init(listChanged: false))
 )
 

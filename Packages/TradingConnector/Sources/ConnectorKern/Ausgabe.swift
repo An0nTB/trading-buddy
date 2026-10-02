@@ -69,10 +69,17 @@ public enum Ausgabe {
             if abdeckung.zustand > 0 { t.append(journaltabelle(anfrage, a.trades, .zustand)) }
         }
 
+        let regeln = anfrage.regelabschnitt(a.trades)
+        t.append(contentsOf: regeln)
+        let muster = anfrage.musterabschnitt(a.trades)
+        t.append(contentsOf: muster)
+
         t.append("\n## Auffällige Trades")
         let beste = a.beste(3)
         let schlechteste = a.schlechteste(3).reversed().filter { !beste.contains($0) }
         t.append(tradetabelle(beste + schlechteste, a, zone))
+
+        t.append(contentsOf: anfrage.notizabschnitt(a.trades))
 
         let ziele = anfrage.zieleZumZeitraum()
         if !ziele.ziele.isEmpty {
@@ -94,6 +101,11 @@ public enum Ausgabe {
         t.append("- Journal ausgefüllt im Zeitraum: Setup \(abdeckung.setup), Regeltreue \(abdeckung.regeltreue), "
             + "Zustand \(abdeckung.zustand), Grund \(abdeckung.grund) von \(k.anzahl) Trades. "
             + "Gründe einzelner Trades über hole_trades.")
+        if regeln.isEmpty { t.append("- Handelsregeln: keine in der App eingetragen.") }
+        if muster.isEmpty {
+            t.append("- Muster: keine Gruppe mit je 30 Trades in Gruppe und Rest, also frühestens ab 60 Trades im Zeitraum.")
+        }
+        t.append(anfrage.notizlage(a.trades))
         if anfrage.konto.ziele.isEmpty {
             t.append("- Ziele früherer Reviews: keine in der App eingetragen.")
         } else {
