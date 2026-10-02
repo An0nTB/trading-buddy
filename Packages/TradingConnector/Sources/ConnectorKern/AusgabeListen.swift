@@ -10,7 +10,7 @@ extension Ausgabe {
     /// Konten und Zeitraum der Daten (Werkzeug `hole_datenstand`).
     public static func datenstand(_ export: JournalExport) -> String {
         let zone = export.nutzerZeitzone
-        var t = ["# Trading Buddy · Datenstand",
+        var t = ["# Brad · Datenstand",
                  "Export vom \(Format.datum(export.erstellt, zone)), Rechenkern \(export.rechenkern), "
                      + "Zeitzone \(export.zeitzone)."]
         if export.konten.isEmpty { t.append("Noch kein Konto importiert.") }
@@ -34,7 +34,7 @@ extension Ausgabe {
             return aufschluesselung(anfrage, nach: dimension)
         case let .journal(gruppe):
             let a = anfrage.auswertung()
-            return ["# Trading Buddy · \(gruppe.name) · \(Format.zeitraum(a.zeitraum, anfrage.zeitzone))",
+            return ["# Brad · \(gruppe.name) · \(Format.zeitraum(a.zeitraum, anfrage.zeitzone))",
                     kopf(anfrage), journaltabelle(anfrage, a.trades, gruppe),
                     "Eigene Angaben aus dem Journal. Gruppen unter 30 Trades nur beschreiben, nicht folgern."]
                 .joined(separator: "\n")
@@ -51,7 +51,7 @@ extension Ausgabe {
              Format.prozent(g.kennzahlen.trefferquote), Format.zahl(g.kennzahlen.profitfaktor),
              Format.r(g.kennzahlen.erwartungswertR)]
         }
-        return ["# Trading Buddy · \(dimensionsname(dimension)) · \(Format.zeitraum(a.zeitraum, zone))",
+        return ["# Brad · \(dimensionsname(dimension)) · \(Format.zeitraum(a.zeitraum, zone))",
                 kopf(anfrage),
                 Format.tabelle([dimensionsname(dimension), "Trades", "Netto", "Treffer", "Profitfaktor", "Erw. R"], zeilen),
                 "Gruppen unter 30 Trades nur beschreiben, nicht folgern."]
@@ -74,7 +74,7 @@ extension Ausgabe {
         }
         let n = min(max(anzahl, 1), 50)
         let gezeigt = Array(liste.prefix(n))
-        var t = ["# Trading Buddy · Trades \(Format.zeitraum(a.zeitraum, anfrage.zeitzone))"
+        var t = ["# Brad · Trades \(Format.zeitraum(a.zeitraum, anfrage.zeitzone))"
                      + (muster.map { " · \($0.bezeichnung)" } ?? ""),
                  kopf(anfrage),
                  tradetabelle(gezeigt, a, anfrage.zeitzone)]

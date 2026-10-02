@@ -46,7 +46,9 @@ enum ExportOrdner {
                 journal: eintraege.mapValues(\.angaben),
                 ziele: try journal.ziele(konto: konto))
         }
-        return JournalExport(konten: konten, zeitzone: zeitzone)
+        // Tonfall aus den Einstellungen (AP11, Schlüssel „brad.ton“); ohne Wahl gilt in der App „bro“.
+        let ton = UserDefaults.standard.string(forKey: "brad.ton") ?? JournalExport.tonBro
+        return JournalExport(konten: konten, zeitzone: zeitzone, ton: ton)
     }
 
     /// Abgeschlossene Trades eines Kontos wie in der App: Positionen aus MetaTrader und XTB,

@@ -139,7 +139,7 @@ jobs:
           grep -q "104 Trades" antwort.txt
           grep -q "83 (54" antwort.txt
           grep -q "hole_auswertung mit monat=2025-05" antwort.txt
-          grep -q "Trading Buddy · Trades" antwort.txt
+          grep -q "Brad · Trades" antwort.txt
           grep -q '"id":8' antwort.txt
       - name: Server meldet fehlenden Export-Ordner
         run: |
