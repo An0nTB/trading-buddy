@@ -211,7 +211,7 @@ struct ClaudeFelder: View {
                     Button("exportFolder.choose") { ordnerWaehlen = true }
                 }
             }
-            Text("Claude Desktop liest diesen Ordner über die Erweiterung „Trading Buddy“. Derselbe Ordner muss in den Einstellungen der Erweiterung stehen.")
+            Text("Claude Desktop liest diesen Ordner über die Erweiterung „Brad“. Derselbe Ordner muss in den Einstellungen der Erweiterung stehen.")
                 .font(Schrift.beschriftung)
                 .foregroundStyle(thema.textSchwach)
             LabeledContent("Exportierte Felder") {
