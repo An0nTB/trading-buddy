@@ -12,7 +12,7 @@ import TradingStore
 /// nach dem Einschalten mit den Quellen, und nichts davon läuft beim Start der App.
 @Observable @MainActor
 final class Nachrichtendienst {
-    static let schluesselAktiv = "nachrichtenAktiv"
+    nonisolated static let schluesselAktiv = "nachrichtenAktiv"
     static let schluesselBudget = "marketauxBudget"
     static let schluesselQuellenAus = "nachrichtenQuellenAus"
     static let schluesselGesehenBis = "nachrichtenGesehenBis"
@@ -86,6 +86,10 @@ final class Nachrichtendienst {
         aktiv = neu
         speicher.set(neu, forKey: Self.schluesselAktiv)
         if !neu { abruf = nil }
+        #if os(macOS)
+        // Ausgeschaltet: Meldungen verschwinden auch aus dem Export für den Connector (AP12).
+        if !neu { ExportOrdner.schreibe(journal) }
+        #endif
     }
 
     func setzeQuelle(_ quelle: String, an: Bool) {
@@ -121,7 +125,7 @@ final class Nachrichtendienst {
     var merklisteFehler: String? { fehler["Merkliste"] }
 
     /// Eintrag aus TradingCore als Suchbegriff des Nachrichtenpakets; die Arten heißen in beiden gleich.
-    static func begriff(_ eintrag: Merklisteneintrag) -> Merkbegriff {
+    nonisolated static func begriff(_ eintrag: Merklisteneintrag) -> Merkbegriff {
         Merkbegriff(art: Merkbegriff.Art(rawValue: eintrag.art.rawValue) ?? .stichwort, text: eintrag.begriff)
     }
 
