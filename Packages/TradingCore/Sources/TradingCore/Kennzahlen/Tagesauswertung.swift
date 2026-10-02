@@ -11,7 +11,7 @@ public struct Planwirkung: Sendable, Equatable {
     public var nettoMitPlan: Decimal
     public var nettoOhnePlan: Decimal
     /// Handelstage mit Plan, nach Tag sortiert; die App kann sie markieren.
-    public var tageMitPlanListe: [Kalendertag]
+    public var tageMitPlanListe: [Journaltag]
 
     /// Mindestzahl Handelstage je Seite, ab der ein Vergleich mehr als Beschreibung ist (Vorschlag).
     public static let mindestTage = 10
@@ -21,10 +21,10 @@ public struct Planwirkung: Sendable, Equatable {
     public var genugDaten: Bool { tageMitPlan >= Self.mindestTage && tageOhnePlan >= Self.mindestTage }
 
     public init(trades: [Trade], notizen: [Tagesnotiz], zeitzone: TimeZone) {
-        var notizJeTag: [Kalendertag: Tagesnotiz] = [:]
+        var notizJeTag: [Journaltag: Tagesnotiz] = [:]
         for n in notizen { notizJeTag[n.tag] = n }
-        var jeTag: [Kalendertag: [Trade]] = [:]
-        for t in trades { jeTag[Kalendertag(t.openTime, zeitzone: zeitzone), default: []].append(t) }
+        var jeTag: [Journaltag: [Trade]] = [:]
+        for t in trades { jeTag[Journaltag(t.openTime, zeitzone: zeitzone), default: []].append(t) }
 
         tageMitPlan = 0
         tageOhnePlan = 0
