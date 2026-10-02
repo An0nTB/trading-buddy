@@ -30,6 +30,13 @@ struct AlpacaLeser: Nachrichtenleser {
     let schluessel: AlpacaSchluessel
     /// Letzter Stand je Symbol: Abschlüsse und Kursblatt kommen getrennt und werden zusammengeführt.
     private var stand: [String: Kurs] = [:]
+    /// Zeit je Teil, damit ein frischer Abschluss ein altes Kursblatt nicht frisch aussehen lässt.
+    private var zeiten: [String: Teilzeiten] = [:]
+
+    private struct Teilzeiten: Sendable {
+        var abschluss: Date?
+        var blatt: Date?
+    }
 
     init(symbole: [String], schluessel: AlpacaSchluessel) {
         self.symbole = symbole
@@ -91,14 +98,21 @@ struct AlpacaLeser: Nachrichtenleser {
         guard let symbol = e.S else { return nil }
         let zeit = e.t.flatMap(Zeitstempel.lies) ?? empfangen
         var kurs = stand[symbol] ?? Kurs(symbol: symbol, zeit: zeit, quelle: "alpaca")
-        kurs.zeit = zeit
+        var teile = zeiten[symbol] ?? Teilzeiten()
         if e.T == "t" {
             kurs.letzter = e.p?.wert
+            teile.abschluss = zeit
         } else {
             kurs.geld = e.bp?.wert
             kurs.brief = e.ap?.wert
+            teile.blatt = zeit
         }
+        // Ein Kurs ist so alt wie sein ältester Teil; `istVeraltet` warnt dann auch bei altem Kursblatt.
+        let vorhanden: [Date?] = [kurs.letzter == nil ? nil : teile.abschluss,
+                                  kurs.geld == nil && kurs.brief == nil ? nil : teile.blatt]
+        kurs.zeit = vorhanden.compactMap { $0 }.min() ?? zeit
         stand[symbol] = kurs
+        zeiten[symbol] = teile
         return kurs.preis == nil ? nil : kurs
     }
 }
