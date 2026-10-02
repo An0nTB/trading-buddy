@@ -69,7 +69,8 @@ struct MT4Zeilenleser {
                 openTime: try zeit(z[1]), openPrice: try zahl(z[5]),
                 stopLoss: try MT4Werte.optionaleZahl(z[6]), takeProfit: try MT4Werte.optionaleZahl(z[7]),
                 closeTime: try zeit(z[8]), closePrice: try zahl(z[9]),
-                commission: try zahl(z[10]), swap: try zahl(z[11]), profit: try zahl(z[12])
+                commission: try zahl(z[10]), swap: try zahl(z[11]), profit: try zahl(z[12]),
+                produktart: .cfd
             ))
         case "Closed Transactions" where z.count == 11 && z[10].lowercased() == "cancelled":
             geloescht.append(CancelledOrder(
@@ -86,7 +87,8 @@ struct MT4Zeilenleser {
                 openTime: try zeit(z[1]), openPrice: try zahl(z[5]),
                 stopLoss: try MT4Werte.optionaleZahl(z[6]), takeProfit: try MT4Werte.optionaleZahl(z[7]),
                 currentPrice: try zahl(z[9]),
-                commission: try zahl(z[10]), swap: try zahl(z[11]), profit: try zahl(z[12])
+                commission: try zahl(z[10]), swap: try zahl(z[11]), profit: try zahl(z[12]),
+                produktart: .cfd
             ))
         case "Working Orders" where z.count >= 9:
             // Aufbau aus der Kopfzeile abgeleitet, noch ohne echtes Beispiel (ungeprüft).
