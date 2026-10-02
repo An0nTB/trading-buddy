@@ -98,6 +98,19 @@ jobs:
       - name: Bauen für iOS-Simulator
         run: xcodebuild -project TradingBuddy.xcodeproj -scheme TradingBuddy -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
 
+  # Tests der App-Schicht (App/Tests). Eigener Job, damit Tim über die Pflicht entscheiden kann.
+  app-tests:
+    name: App-Tests (macOS)
+    runs-on: xcode-27
+    steps:
+      - uses: actions/checkout@v4
+      - name: XcodeGen installieren
+        run: brew install xcodegen
+      - name: Xcode-Projekt erzeugen
+        run: xcodegen generate
+      - name: Tests
+        run: xcodebuild -project TradingBuddy.xcodeproj -scheme TradingBuddyTests -destination 'platform=macOS' -derivedDataPath build CODE_SIGNING_ALLOWED=NO test
+
   connector:
     name: Connector (macOS)
     runs-on: macos-latest
