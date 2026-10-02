@@ -3,20 +3,20 @@ import TradingStore
 
 /// Bereiche der App (Doc 10, Aufbau A): Seitenleiste am Mac und iPad, Tab-Leiste am iPhone.
 enum Bereich: String, Identifiable, Hashable {
-    case uebersicht, trades, kennzahlen, fehlermuster, kalender, tag, steuer, boersenuhr, positionsrechner, importieren, konten, einstellungen, mehr
+    case uebersicht, trades, kennzahlen, fehlermuster, kalender, tag, steuer, nachrichten, boersenuhr, positionsrechner, importieren, konten, einstellungen, mehr
 
     var id: String { rawValue }
 
     /// Seitenleiste, Abschnitt „Journal“.
-    static let journal: [Bereich] = [.uebersicht, .trades, .kennzahlen, .fehlermuster, .kalender, .tag, .steuer]
+    static let journal: [Bereich] = [.uebersicht, .tag, .trades, .kennzahlen, .fehlermuster, .kalender, .steuer]
     /// Seitenleiste, Abschnitt „Markt“ (Börsenuhr nach Tims Wunsch vom 01.10.2026, Positionsrechner aus #47; nicht in Aufbau A gezeichnet).
-    static let markt: [Bereich] = [.boersenuhr, .positionsrechner]
+    static let markt: [Bereich] = [.nachrichten, .boersenuhr, .positionsrechner]
     /// Seitenleiste, Abschnitt „Daten“.
     static let daten: [Bereich] = [.importieren, .konten]
     /// Tab-Leiste am iPhone.
     static let tabs: [Bereich] = [.uebersicht, .trades, .kennzahlen, .kalender, .mehr]
     /// Einträge unter „Mehr“ am iPhone.
-    static let unterMehr: [Bereich] = [.fehlermuster, .tag, .steuer, .boersenuhr, .positionsrechner, .importieren, .konten, .einstellungen]
+    static let unterMehr: [Bereich] = [.tag, .fehlermuster, .steuer, .nachrichten, .boersenuhr, .positionsrechner, .importieren, .konten, .einstellungen]
 
     var titel: LocalizedStringKey {
         switch self {
@@ -27,6 +27,7 @@ enum Bereich: String, Identifiable, Hashable {
         case .kalender: "Kalender"
         case .tag: "Tag"
         case .steuer: "Steuer"
+        case .nachrichten: "Nachrichten"
         case .boersenuhr: "Börsenuhr"
         case .positionsrechner: "Positionsrechner"
         case .importieren: "Import"
@@ -45,6 +46,7 @@ enum Bereich: String, Identifiable, Hashable {
         case .kalender: "calendar"
         case .tag: "sun.max"
         case .steuer: "percent"
+        case .nachrichten: "newspaper"
         case .boersenuhr: "clock"
         case .positionsrechner: "plus.forwardslash.minus"
         case .importieren: "square.and.arrow.down"
@@ -224,6 +226,7 @@ struct BereichInhalt: View {
         case .kalender: KalenderView()
         case .tag: TagView() // Paket P7 (#65); dauerhafte Ablage folgt mit TradingStore v8
         case .steuer: SteuerView()
+        case .nachrichten: NachrichtenView()
         case .boersenuhr: BoersenuhrView()
         case .positionsrechner:
             // Kontostand kennt die App nicht (die Kapitalkurve startet bei 0), der Nutzer trägt ihn ein.
