@@ -313,36 +313,43 @@ struct TagTradesKarte: View {
                     .help("In Trades zeigen")
                     Divider()
                 }
-                ForEach(netto, id: \.waehrung) { summe in
-                    HStack {
-                        if netto.count == 1 {
-                            Text("Netto").fontWeight(.semibold)
-                        } else {
-                            Text("Netto \(summe.waehrung)").fontWeight(.semibold)
-                        }
-                        Spacer()
-                        Text(verbatim: Format.geld(summe.betrag, summe.waehrung))
-                            .font(Schrift.tabelle.weight(.semibold))
-                            .foregroundStyle(thema.vorzeichen(summe.betrag))
-                    }
+                let stand = angleich
+                HStack {
+                    Text("Netto").fontWeight(.semibold)
+                    Spacer()
+                    Text(verbatim: Format.geld(netto(stand), modell.waehrung))
+                        .font(Schrift.tabelle.weight(.semibold))
+                        .foregroundStyle(thema.vorzeichen(netto(stand)))
+                }
+                if let hinweis = hinweis(stand) {
+                    Text(verbatim: hinweis)
+                        .font(Schrift.beschriftung)
+                        .foregroundStyle(thema.textSchwach)
                 }
             }
         }
     }
 
-    /// Netto je Währung im Original, nie ein Originalbetrag mit dem Zeichen der Kontowährung (zweiter
-    /// Gegencheck W1). Umrechnen in die Kontowährung folgt mit TradingCore 0.19.0 (#125).
-    private var netto: [Summe] {
-        let konto = modell.waehrung
-        let gruppen = Dictionary(grouping: trades) { $0.waehrung(kontowaehrung: konto) }
-        return gruppen.keys.sorted().map { code in
-            Summe(waehrung: code, betrag: gruppen[code, default: []].map(\.netProfit).reduce(0, +))
-        }
+    /// Trades in Kontowährung über die EZB-Referenzkurse am Schlusstag (TradingCore 0.19.0, zweiter
+    /// Gegencheck W1, Tim 02.10.2026 13:07 UTC „Umrechnen“). Einzelbeträge oben bleiben in der Tradewährung.
+    private var angleich: Waehrungsangleich {
+        Waehrungsangleich(trades, kontowaehrung: modell.waehrung, kurse: modell.ezb.kurse)
     }
 
-    private struct Summe {
-        let waehrung: String
-        let betrag: Decimal
+    /// Summe in Kontowährung; Trades ohne Kurs fehlen darin und stehen im Hinweis.
+    private func netto(_ angleich: Waehrungsangleich) -> Decimal {
+        angleich.trades.map(\.netProfit).reduce(0, +)
+    }
+
+    private func hinweis(_ angleich: Waehrungsangleich) -> String? {
+        if !angleich.ohneKurs.isEmpty {
+            let waehrungen = Set(angleich.ohneKurs.map { $0.waehrung(kontowaehrung: modell.waehrung) })
+                .sorted().joined(separator: ", ")
+            let anzahl = angleich.ohneKurs.count
+            return String(localized: "Ohne EZB-Kurs nicht im Netto enthalten: \(anzahl) in \(waehrungen).")
+        }
+        guard !angleich.umgerechnet.isEmpty else { return nil }
+        return String(localized: "Netto in \(modell.waehrung); Fremdwährung mit EZB-Kurs am Schlusstag umgerechnet (Näherung).")
     }
 
     /// Text Nr. 11 in der Fassung für Henry (Tim 02.10.2026 11:04 UTC); passt auf jeden Tag.
