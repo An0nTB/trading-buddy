@@ -12,16 +12,17 @@ extension View {
     }
 }
 
-/// Kontextmenü „In neuem Fenster öffnen“; am iPhone (keine weiteren Fenster) bleibt die Zeile unverändert.
+/// Kontextmenü „In neuem Fenster öffnen“; am iPhone (keine weiteren Fenster) bleibt es leer.
+/// Menü und Werkzeugleiste hängen immer an, nur ihr Inhalt ist bedingt: eine bedingt angehängte Werkzeugleiste
+/// baut die Fensterleiste bei jedem Durchlauf neu und kann eine Layout-Schleife auslösen (Startabsturz 02.10.2026).
 struct InNeuemFensterMenue: ViewModifier {
     let bereich: Bereich
     @Environment(\.supportsMultipleWindows) private var mehrereFenster
     @Environment(\.openWindow) private var openWindow
 
-    @ViewBuilder
     func body(content: Content) -> some View {
-        if mehrereFenster, Bereich.abtrennbar.contains(bereich) {
-            content.contextMenu {
+        content.contextMenu {
+            if mehrereFenster, Bereich.abtrennbar.contains(bereich) {
                 Button("In neuem Fenster öffnen", systemImage: "macwindow.badge.plus") {
                     openWindow(id: FensterID.bereich, value: bereich)
                 }
@@ -32,31 +33,25 @@ struct InNeuemFensterMenue: ViewModifier {
                 }
                 #endif
             }
-        } else {
-            content
         }
     }
 }
 
-/// Werkzeugleisten-Knopf für die gerade gezeigte Seite.
+/// Werkzeugleisten-Knopf für die gerade gezeigte Seite; Bereiche ohne eigenes Fenster zeigen ihn abgeschaltet.
 struct FensterSymbolLeiste: ViewModifier {
     let bereich: Bereich
     @Environment(\.supportsMultipleWindows) private var mehrereFenster
     @Environment(\.openWindow) private var openWindow
 
-    @ViewBuilder
     func body(content: Content) -> some View {
-        if mehrereFenster, Bereich.abtrennbar.contains(bereich) {
-            content.toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button("In eigenem Fenster öffnen", systemImage: "macwindow.badge.plus") {
-                        openWindow(id: FensterID.bereich, value: bereich)
-                    }
-                    .help("Diese Seite als eigenes Fenster öffnen, frei verschiebbar")
+        content.toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button("In eigenem Fenster öffnen", systemImage: "macwindow.badge.plus") {
+                    openWindow(id: FensterID.bereich, value: bereich)
                 }
+                .help("Diese Seite als eigenes Fenster öffnen, frei verschiebbar")
+                .disabled(!mehrereFenster || !Bereich.abtrennbar.contains(bereich))
             }
-        } else {
-            content
         }
     }
 }
