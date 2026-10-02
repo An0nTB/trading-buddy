@@ -384,7 +384,7 @@ struct KurseEinstellungen: View {
             schluesselID = ""
             geheimnis = ""
             hinterlegt = true
-            meldung = String(localized: "Gespeichert. Alpaca verbindet sich neu.")
+            meldung = Ton.aktuell.text("Gespeichert. Alpaca verbindet sich neu.", bro: "Drin. Alpaca verbindet sich neu.")
             modell.kurse.neustart()
             modell.nachrichten.neustart()
         } catch let fehler as Schluesselbund.Fehler {
@@ -398,7 +398,7 @@ struct KurseEinstellungen: View {
         do {
             try Schluesselbund.loesche()
             hinterlegt = false
-            meldung = String(localized: "Entfernt.")
+            meldung = Ton.aktuell.text("Entfernt.", bro: "Raus.")
             modell.kurse.neustart()
             modell.nachrichten.neustart()
         } catch let fehler as Schluesselbund.Fehler {
@@ -414,7 +414,7 @@ struct KurseEinstellungen: View {
                                              dienst: Schluesselbund.dienstMarketaux)
             marketauxToken = ""
             marketauxHinterlegt = true
-            marketauxMeldung = String(localized: "Gespeichert. Marketaux wird beim nächsten Abruf genutzt.")
+            marketauxMeldung = Ton.aktuell.text("Gespeichert. Marketaux wird beim nächsten Abruf genutzt.", bro: "Drin. Marketaux wird beim nächsten Abruf genutzt.")
             modell.nachrichten.neustart()
         } catch let fehler as Schluesselbund.Fehler {
             marketauxMeldung = fehler.text
@@ -427,7 +427,7 @@ struct KurseEinstellungen: View {
         do {
             try Schluesselbund.loescheText(dienst: Schluesselbund.dienstMarketaux)
             marketauxHinterlegt = false
-            marketauxMeldung = String(localized: "Entfernt.")
+            marketauxMeldung = Ton.aktuell.text("Entfernt.", bro: "Raus.")
             modell.nachrichten.neustart()
         } catch let fehler as Schluesselbund.Fehler {
             marketauxMeldung = fehler.text

@@ -130,9 +130,11 @@ struct StichprobenHinweis: View {
 
 /// Leerer Zustand, solange nichts importiert ist.
 struct KeineTrades: View {
+    @AppStorage(Ton.schluessel) private var ton = Ton.bro
     var body: some View {
-        ContentUnavailableView("Noch keine Trades", systemImage: "tray",
-                               description: Text("Importiere einen Kontoauszug unter „Import“."))
+        ContentUnavailableView(ton.text("Noch keine Trades", bro: "Noch nichts am Start, Alter."), systemImage: "tray",
+                               description: Text(verbatim: ton.text("Importiere einen Kontoauszug unter „Import“.",
+                                                                    bro: "Zieh einen Kontoauszug unter „Import“ rein, dann reden wir über Zahlen.")))
     }
 }
 
