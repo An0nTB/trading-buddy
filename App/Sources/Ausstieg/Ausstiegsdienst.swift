@@ -65,6 +65,18 @@ final class Ausstiegsdienst {
         return await analysen([trade])[trade.id]
     }
 
+    /// Kerzen für den Chart eines Trades (F8): Haltedauer, davor ein Viertel der Haltedauer (mindestens 30 Minuten),
+    /// danach mindestens der Nachlauf. Leer ohne Uhrzeit oder ohne gespeicherte Kurse.
+    func chartkerzen(_ trade: Trade) async -> [Zeitkerze] {
+        guard !trade.nurDatum, hatKerzen(trade.symbol) else { return [] }
+        let speicher = self.speicher
+        let symbol = trade.symbol
+        let rand = max(trade.holdingTime / 4, 1_800)
+        let von = trade.openTime.addingTimeInterval(-rand)
+        let bis = max(trade.openTime, trade.closeTime).addingTimeInterval(max(rand, Self.nachlauf))
+        return await Task.detached { speicher.kerzen(symbol: symbol, von: von, bis: bis) }.value
+    }
+
     /// Analysen mehrerer Trades nach Trade-ID. Liest je Symbol nur die Monate der Trades.
     func analysen(_ trades: [Trade]) async -> [String: Ausstiegsanalyse] {
         await analysen(trades, angeglichen: []).original
