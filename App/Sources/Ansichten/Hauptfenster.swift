@@ -3,12 +3,12 @@ import TradingStore
 
 /// Bereiche der App (Doc 10, Aufbau A): Seitenleiste am Mac und iPad, Tab-Leiste am iPhone.
 enum Bereich: String, Identifiable, Hashable {
-    case uebersicht, trades, kennzahlen, fehlermuster, kalender, tag, steuer, nachrichten, kurschart, boersenuhr, positionsrechner, importieren, konten, einstellungen, mehr, ziele, lernen
+    case uebersicht, trades, kennzahlen, fehlermuster, kalender, tag, steuer, nachrichten, kurschart, boersenuhr, positionsrechner, importieren, konten, einstellungen, mehr, ziele, lernen, ausstieg
 
     var id: String { rawValue }
 
     /// Seitenleiste, Abschnitt „Journal“.
-    static let journal: [Bereich] = [.uebersicht, .tag, .trades, .kennzahlen, .fehlermuster, .ziele, .kalender, .steuer]
+    static let journal: [Bereich] = [.uebersicht, .tag, .trades, .kennzahlen, .fehlermuster, .ausstieg, .ziele, .kalender, .steuer]
     /// Seitenleiste, Abschnitt „Markt“ (Börsenuhr nach Tims Wunsch vom 01.10.2026, Positionsrechner aus #47; nicht in Aufbau A gezeichnet).
     static let markt: [Bereich] = [.nachrichten, .kurschart, .boersenuhr, .positionsrechner]
     /// Seitenleiste, Abschnitt „Daten“.
@@ -18,7 +18,7 @@ enum Bereich: String, Identifiable, Hashable {
     /// Tab-Leiste am iPhone.
     static let tabs: [Bereich] = [.uebersicht, .trades, .kennzahlen, .kalender, .mehr]
     /// Einträge unter „Mehr“ am iPhone.
-    static let unterMehr: [Bereich] = [.tag, .fehlermuster, .ziele, .steuer, .nachrichten, .kurschart, .boersenuhr, .positionsrechner, .importieren, .konten, .lernen, .einstellungen]
+    static let unterMehr: [Bereich] = [.tag, .fehlermuster, .ausstieg, .ziele, .steuer, .nachrichten, .kurschart, .boersenuhr, .positionsrechner, .importieren, .konten, .lernen, .einstellungen]
 
     var titel: LocalizedStringKey {
         switch self {
@@ -27,6 +27,7 @@ enum Bereich: String, Identifiable, Hashable {
         case .kennzahlen: "Kennzahlen"
         case .fehlermuster: "Fehlermuster"
         case .ziele: "Ziele"
+        case .ausstieg: "Ausstieg"
         case .kalender: "Kalender"
         case .tag: "Tag"
         case .steuer: "Steuer"
@@ -49,6 +50,7 @@ enum Bereich: String, Identifiable, Hashable {
         case .kennzahlen: "chart.bar.xaxis"
         case .fehlermuster: "exclamationmark.triangle"
         case .ziele: "target"
+        case .ausstieg: "scope"
         case .kalender: "calendar"
         case .tag: "sun.max"
         case .steuer: "percent"
@@ -241,6 +243,7 @@ struct BereichInhalt: View {
         case .kennzahlen: KennzahlenView()
         case .fehlermuster: FehlermusterView()
         case .ziele: ZieleView()
+        case .ausstieg: AusstiegView() // Ausstiegsanalyse B3 (Doc 39, Stand-Doc 42)
         case .kalender: KalenderView()
         case .tag: TagView() // Paket P7 (#65); dauerhafte Ablage folgt mit TradingStore v8
         case .steuer: SteuerView()
