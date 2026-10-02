@@ -26,17 +26,28 @@ struct BerichtSeitenansicht: View {
     @Environment(\.thema) private var thema
 
     var body: some View {
-        VStack(alignment: .leading, spacing: BerichtMass.abschnittAbstand) {
-            BerichtKopf(kontext: kontext, seitentitel: seite.titel)
-            inhalt
-            Spacer(minLength: 0)
-            BerichtFuss(kontext: kontext, nummer: seite.rawValue + 1, anzahl: BerichtSeite.allCases.count)
-        }
-        .padding(.horizontal, BerichtMass.randSeitlich)
-        .padding(.vertical, BerichtMass.randOben)
-        .frame(width: BerichtMass.seite.width, height: BerichtMass.seite.height, alignment: .topLeading)
-        .background(thema.flaeche)
-        .clipped()
+        // Kopf und Fuß liegen über dem Inhalt und decken ihn ab: Läuft der Inhalt doch zu lang, wird er
+        // abgeschnitten, nie der Fuß mit dem Hinweis „Keine Kauf- oder Verkaufsempfehlung“.
+        inhalt
+            .padding(.top, BerichtMass.kopfReserve)
+            .padding(.bottom, BerichtMass.fussReserve)
+            .frame(width: BerichtMass.breite, height: BerichtMass.seite.height - 2 * BerichtMass.randOben,
+                   alignment: .topLeading)
+            .clipped()
+            .overlay(alignment: .top) {
+                BerichtKopf(kontext: kontext, seitentitel: seite.titel)
+                    .background(thema.flaeche)
+            }
+            .overlay(alignment: .bottom) {
+                BerichtFuss(kontext: kontext, nummer: seite.rawValue + 1, anzahl: BerichtSeite.allCases.count)
+                    .padding(.top, Abstand.raster * 2)
+                    .background(thema.flaeche)
+            }
+            .padding(.horizontal, BerichtMass.randSeitlich)
+            .padding(.vertical, BerichtMass.randOben)
+            .frame(width: BerichtMass.seite.width, height: BerichtMass.seite.height)
+            .background(thema.flaeche)
+            .clipped()
     }
 
     @ViewBuilder private var inhalt: some View {
