@@ -1,22 +1,72 @@
 {
-  "sourceLanguage": "de",
-  "strings": {
-    "exportFolder.choose": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Export-Ordner wählen"
+  "sourceLanguage" : "de",
+  "strings" : {
+    "Deutsch" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deutsch"
+          }
+        }
+      }
+    },
+    "Eine geänderte Sprache gilt nach einem Neustart der App. Zahlen, Beträge und Daten folgen der Region in den Systemeinstellungen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A new language takes effect after restarting the app. Numbers, amounts and dates follow the region in System Settings."
+          }
+        }
+      }
+    },
+    "English" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "English"
+          }
+        }
+      }
+    },
+    "Sprache" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Language"
+          }
+        }
+      }
+    },
+    "Wie System" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Same as system"
+          }
+        }
+      }
+    },
+    "exportFolder.choose" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export-Ordner wählen"
           }
         },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Choose export folder"
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose export folder"
           }
         }
       }
     }
   },
-  "version": "1.0"
+  "version" : "1.0"
 }
