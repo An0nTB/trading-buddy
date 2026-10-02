@@ -70,7 +70,31 @@ jobs:
       - name: Xcode-Projekt erzeugen
         run: xcodegen generate
       - name: Bauen für macOS
-        run: xcodebuild -project TradingBuddy.xcodeproj -scheme TradingBuddy -destination 'generic/platform=macOS' CODE_SIGNING_ALLOWED=NO build
+        run: xcodebuild -project TradingBuddy.xcodeproj -scheme TradingBuddy -destination 'generic/platform=macOS' -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
+      # Bauen allein findet keine Abstürze beim Start (#63). Drei Starts mit leerem Zuhause,
+      # je acht Sekunden; beendet sich die App vorher, ist der Job rot und das Protokoll steht im Log.
+      - name: Startprobe macOS (drei Starts)
+        run: |
+          APP="$(find build/Build/Products -maxdepth 2 -name '*.app' | head -1)"
+          BIN="$APP/Contents/MacOS/$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$APP/Contents/Info.plist")"
+          echo "Starte $BIN"
+          for i in 1 2 3; do
+            HEIM="$RUNNER_TEMP/heim$i"
+            mkdir -p "$HEIM"
+            CFFIXED_USER_HOME="$HEIM" "$BIN" > "$RUNNER_TEMP/start$i.log" 2>&1 &
+            PID=$!
+            sleep 8
+            if ! kill -0 "$PID" 2>/dev/null; then
+              CODE=0
+              wait "$PID" || CODE=$?
+              echo "Start $i: App hat sich nach weniger als 8 s beendet (Code $CODE)"
+              cat "$RUNNER_TEMP/start$i.log"
+              exit 1
+            fi
+            kill "$PID"
+            wait "$PID" 2>/dev/null || true
+            echo "Start $i: läuft nach 8 s"
+          done
       - name: Bauen für iOS-Simulator
         run: xcodebuild -project TradingBuddy.xcodeproj -scheme TradingBuddy -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
 
