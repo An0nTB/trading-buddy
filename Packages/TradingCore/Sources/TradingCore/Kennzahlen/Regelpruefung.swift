@@ -2,8 +2,9 @@ import Foundation
 
 /// Prüft abgeschlossene Trades gegen die eigenen Handelsregeln (Doc 18, F1).
 /// Tagesgrenze ist der Kalendertag der Eröffnung in der Zeitzone des Nutzers, wie bei „Überhandeln“.
-/// Gezählt wird nur, was zum Eröffnungszeitpunkt schon feststand: Verluste, die vorher am selben Tag
-/// geschlossen wurden. Ein Trade kann mehrere Regeln zugleich verletzen.
+/// Gezählt wird nur, was zum Eröffnungszeitpunkt schon feststand: Ergebnisse, die vorher am selben Tag
+/// geschlossen wurden, auch aus Positionen, die an einem früheren Tag eröffnet wurden.
+/// Ein Trade kann mehrere Regeln zugleich verletzen.
 public enum Regelpruefung {
     public static func pruefe(_ trades: [Trade], regeln: Handelsregeln, zeitzone: TimeZone,
                               manuell: Set<String> = []) -> [Regelverstoss] {
@@ -11,13 +12,14 @@ public enum Regelpruefung {
         kalender.timeZone = zeitzone
         let nachEroeffnung = trades.sorted { ($0.openTime, $0.id) < ($1.openTime, $1.id) }
         let jeTag = Dictionary(grouping: nachEroeffnung) { kalender.startOfDay(for: $0.openTime) }
+        let geschlossenJeTag = schlussJeTag(trades, kalender: kalender)
         var verstoesse: [Regelverstoss] = []
 
         for tag in jeTag.keys.sorted() {
             let tagesTrades = jeTag[tag]!
             for (nummer, t) in tagesTrades.enumerated() {
                 var arten: [Regelverstoss.Art] = []
-                let vorher = geschlossenVor(t, am: tag, in: tagesTrades, kalender: kalender)
+                let vorher = geschlossenVor(t, in: geschlossenJeTag[tag] ?? [])
                 if let max = regeln.maxTradesJeTag, nummer >= max { arten.append(.tradesJeTag) }
                 if let max = regeln.maxTagesverlust {
                     let netto = vorher.map(\.netProfit).reduce(0, +)
@@ -46,27 +48,32 @@ public enum Regelpruefung {
         public var verstoesse: Int
     }
 
-    /// Tagesstand je Handelstag, sortiert nach Tag.
+    /// Tagesstand je Handelstag, sortiert nach Tag. Trades zählen am Tag der Eröffnung,
+    /// Netto und Verluste in Folge am Tag des Schlusses (realisiert, auch aus Übernacht-Positionen).
     public static func tagesstaende(_ trades: [Trade], regeln: Handelsregeln, zeitzone: TimeZone,
                                     manuell: Set<String> = []) -> [Tagesstand] {
         var kalender = Calendar(identifier: .gregorian)
         kalender.timeZone = zeitzone
         let verstoesse = pruefe(trades, regeln: regeln, zeitzone: zeitzone, manuell: manuell)
         let jeTag = Dictionary(grouping: trades) { kalender.startOfDay(for: $0.openTime) }
-        return jeTag.keys.sorted().map { tag in
-            let tagesTrades = jeTag[tag]!
-            let nachSchluss = tagesTrades.sorted { ($0.closeTime, $0.id) < ($1.closeTime, $1.id) }
+        let geschlossenJeTag = schlussJeTag(trades, kalender: kalender)
+        return Set(jeTag.keys).union(geschlossenJeTag.keys).sorted().map { tag in
+            let nachSchluss = geschlossenJeTag[tag] ?? []
             let betroffen = Set(verstoesse.filter { $0.tag == tag }.map(\.trade))
-            return Tagesstand(tag: tag, trades: tagesTrades.count, netto: tagesTrades.map(\.netProfit).reduce(0, +),
+            return Tagesstand(tag: tag, trades: jeTag[tag]?.count ?? 0, netto: nachSchluss.map(\.netProfit).reduce(0, +),
                               verlusteInFolge: verlusteInFolge(nachSchluss), verstoesse: betroffen.count)
         }
     }
 
-    /// Trades desselben Tages, die vor der Eröffnung von `t` geschlossen wurden, nach Schlusszeit.
-    static func geschlossenVor(_ t: Trade, am tag: Date, in tagesTrades: [Trade], kalender: Calendar) -> [Trade] {
-        tagesTrades
-            .filter { $0.id != t.id && $0.closeTime <= t.openTime && kalender.startOfDay(for: $0.closeTime) == tag }
-            .sorted { ($0.closeTime, $0.id) < ($1.closeTime, $1.id) }
+    /// Trades je Kalendertag des Schlusses, nach Schlusszeit.
+    static func schlussJeTag(_ trades: [Trade], kalender: Calendar) -> [Date: [Trade]] {
+        let nachSchluss = trades.sorted { ($0.closeTime, $0.id) < ($1.closeTime, $1.id) }
+        return Dictionary(grouping: nachSchluss) { kalender.startOfDay(for: $0.closeTime) }
+    }
+
+    /// Trades, die am Tag von `t` vor seiner Eröffnung geschlossen wurden, gleich wann eröffnet; nach Schlusszeit.
+    static func geschlossenVor(_ t: Trade, in geschlossenAmTag: [Trade]) -> [Trade] {
+        geschlossenAmTag.filter { $0.id != t.id && $0.closeTime <= t.openTime }
     }
 
     /// Verluste am Ende der Folge, ohne Unterbrechung durch einen Gewinner oder Breakeven.
