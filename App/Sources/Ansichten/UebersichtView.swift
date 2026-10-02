@@ -21,6 +21,7 @@ struct UebersichtView: View {
                     if modell.konto != nil {
                         KurseKarte()
                         NaechsteTermineKarte()
+                        NachrichtenKarte()
                         ZieleKarte()
                     }
                 } else {
@@ -46,6 +47,7 @@ struct UebersichtView: View {
                     }
                     KurseKarte()
                     NaechsteTermineKarte()
+                    NachrichtenKarte()
                     if modell.regeln.leer {
                         Kapitalkurve(punkte: verlauf.punkte)
                     } else {
