@@ -74,9 +74,9 @@ struct KurseKarte: View {
             let alter = Int(eintrag.kurs.alter(jetzt: jetzt).rounded())
             let wann = alter < 60 ? String(localized: "vor \(alter) s") : String(localized: "vor \(alter / 60) Min.")
             teile.append(String(localized: "Kurs \(Format.kurs(preis)) (\(wann), \(modell.kurse.quellenname(eintrag.kurs.quelle)))"))
-            if let hinweis = eintrag.naeherung { teile.append(hinweis) }
+            if let hinweis = eintrag.naeherung { teile.append(hinweis.uebersetzt) }
         } else if let grund = modell.kurse.stand.ohneQuelle[p.symbol] ?? wahl.grund {
-            teile.append(grund)
+            teile.append(grund.uebersetzt)
         } else if let auszugskurs = p.auszugskurs {
             teile.append(String(localized: "Kurs laut Auszug \(Format.kurs(auszugskurs))"))
             if let zuordnung = wahl.zuordnung {
@@ -152,7 +152,7 @@ enum Verbindungstext {
         switch status {
         case .verbunden: String(localized: "\(name) verbunden")
         case .getrennt: String(localized: "\(name) getrennt, verbindet neu")
-        case .beendet(let grund): String(localized: "\(name) beendet: \(grund)")
+        case .beendet(let grund): String(localized: "\(name) beendet: \(grund.uebersetzt)")
         case .none: name
         }
     }
@@ -161,7 +161,7 @@ enum Verbindungstext {
         switch status {
         case .verbunden: String(localized: "verbunden")
         case .getrennt(let grund): String(localized: "getrennt (\(grund)), verbindet sich neu")
-        case .beendet(let grund): String(localized: "beendet: \(grund)")
+        case .beendet(let grund): String(localized: "beendet: \(grund.uebersetzt)")
         }
     }
 }
