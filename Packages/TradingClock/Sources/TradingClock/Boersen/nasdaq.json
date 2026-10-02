@@ -15,6 +15,44 @@
       ],
       "beginn": "09:30",
       "ende": "16:00"
+    },
+    {
+      "tage": [
+        "Mo",
+        "Di",
+        "Mi",
+        "Do",
+        "Fr"
+      ],
+      "beginn": "04:00",
+      "ende": "09:30",
+      "art": "vorboerslich"
+    },
+    {
+      "tage": [
+        "Mo",
+        "Di",
+        "Mi",
+        "Do",
+        "Fr"
+      ],
+      "beginn": "16:00",
+      "ende": "20:00",
+      "art": "nachboerslich"
+    },
+    {
+      "tage": [
+        "So",
+        "Mo",
+        "Di",
+        "Mi",
+        "Do"
+      ],
+      "beginn": "21:00",
+      "ende": "04:00",
+      "endeNachTagen": 1,
+      "art": "nacht",
+      "gueltigAb": "2026-12-06"
     }
   ],
   "feiertage": [
@@ -117,17 +155,30 @@
     }
   ],
   "datenGueltigBis": "2027-12-31",
-  "stand": "2026-10-01",
+  "stand": "2026-10-02",
   "quellen": [
     {
       "titel": "Nasdaq: Stock Market Holiday Schedule",
       "url": "https://www.nasdaq.com/market-activity/stock-market-holiday-schedule",
       "abgerufen": "2026-10-01"
+    },
+    {
+      "titel": "Nasdaq Global Trading Hours FAQ (Sitzungen, Start 06.12.2026, Feiertage)",
+      "url": "https://www.nasdaq.com/docs/nasdaq-global-trading-hours-faqs",
+      "abgerufen": "2026-10-02"
+    },
+    {
+      "titel": "Nasdaq Equity Trader Alert ETA2026-46: New Trading Hours Effective December 6, 2026",
+      "url": "https://www.nasdaqtrader.com/TraderNews.aspx?id=ETA2026-46",
+      "abgerufen": "2026-10-02"
     }
   ],
   "hinweise": [
-    "Handelszeit ist die Kernsitzung 09:30 bis 16:00; Pre-Market und After-Hours sind nicht abgebildet.",
+    "Standard ist der Kernhandel 09:30 bis 16:00; vorbörslich, nachbörslich und Nacht rechnet die Uhr nur, wenn sie zugeschaltet sind (Sitzungsart).",
     "Verkürzte Tage enden 13:00 Ortszeit.",
-    "2026 am 01.10.2026 mit nasdaq.com abgeglichen: stimmt überein. 2027 steht dort noch nicht; übernommen von NYSE (Annahme, beide folgen demselben US-Kalender)."
+    "2026 am 01.10.2026 mit nasdaq.com abgeglichen: stimmt überein. 2027 steht dort noch nicht; übernommen von NYSE (Annahme, beide folgen demselben US-Kalender).",
+    "Vorbörslich 04:00 bis 09:30, nachbörslich 16:00 bis 20:00, Nacht 21:00 bis 04:00 New York ab Sonntag 06.12.2026 (Nasdaq-FAQ 2026); Start unter Vorbehalt der SIP-Bereitschaft und SEC-Freigaben. Die Uhr rechnet standardmäßig nur den Kernhandel.",
+    "Die Nachtsitzung gehört zum Folgetag (Handelstag = Ende); sie entfällt in der Nacht vor einem Feiertag und beginnt am Abend des Feiertags (Nasdaq-FAQ).",
+    "Annahme, nicht geprüft: An verkürzten Tagen entfällt der nachbörsliche Handel, der vorbörsliche bleibt."
   ]
 }

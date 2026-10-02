@@ -30,6 +30,9 @@ public struct Boerse: Sendable, Hashable, Identifiable, Codable {
     public var quellen: [Quelle]
     /// Annahmen und Besonderheiten in Klartext.
     public var hinweise: [String]
+    /// Welche Sitzungsarten die Uhr mitrechnet; Standard nur Kernhandel. Steht nicht in der Datei,
+    /// sondern kommt aus der Auswahl des Nutzers (`mitSitzungsarten`).
+    public internal(set) var sitzungsarten: Set<Sitzungsart> = [.kern]
 
     public init(format: Int = Boerse.unterstuetztesFormat, id: String, name: String, mic: String? = nil,
                 zeitzone: String, durchgehend: Bool = false, handelszeiten: [Handelszeit] = [],
@@ -122,15 +125,22 @@ public struct Handelszeit: Sendable, Hashable, Codable {
     public var beginn: Uhrzeit
     public var ende: Uhrzeit
     public var endeNachTagen: Int
+    /// Kernhandel, vor- oder nachbörslich oder Nacht. In der Datei ohne Angabe: Kernhandel.
+    public var art: Sitzungsart
+    /// Erster Tag, an dem eine Sitzung nach dieser Zeit beginnt, zum Beispiel die Nasdaq-Nacht ab 06.12.2026.
+    public var gueltigAb: Kalendertag?
 
-    public init(tage: [Wochentag], beginn: Uhrzeit, ende: Uhrzeit, endeNachTagen: Int = 0) {
+    public init(tage: [Wochentag], beginn: Uhrzeit, ende: Uhrzeit, endeNachTagen: Int = 0,
+                art: Sitzungsart = .kern, gueltigAb: Kalendertag? = nil) {
         self.tage = tage
         self.beginn = beginn
         self.ende = ende
         self.endeNachTagen = endeNachTagen
+        self.art = art
+        self.gueltigAb = gueltigAb
     }
 
-    private enum CodingKeys: String, CodingKey { case tage, beginn, ende, endeNachTagen }
+    private enum CodingKeys: String, CodingKey { case tage, beginn, ende, endeNachTagen, art, gueltigAb }
 
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -138,6 +148,8 @@ public struct Handelszeit: Sendable, Hashable, Codable {
         beginn = try c.decode(Uhrzeit.self, forKey: .beginn)
         ende = try c.decode(Uhrzeit.self, forKey: .ende)
         endeNachTagen = try c.decodeIfPresent(Int.self, forKey: .endeNachTagen) ?? 0
+        art = try c.decodeIfPresent(Sitzungsart.self, forKey: .art) ?? .kern
+        gueltigAb = try c.decodeIfPresent(Kalendertag.self, forKey: .gueltigAb)
     }
 }
 
