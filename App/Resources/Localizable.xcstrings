@@ -1,7 +1,19 @@
 {
   "sourceLanguage" : "de",
   "strings" : {
-    "" : {},
+    "" : {
+
+    },
+    " · Feiertage nur bis %@ gepflegt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : " · holidays maintained only until %@"
+          }
+        }
+      }
+    },
     " (Ende am Folgetag)" : {
       "localizations" : {
         "en" : {
@@ -54,12 +66,136 @@
         }
       }
     },
-    " · Feiertage nur bis %@ gepflegt" : {
+    "–" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : " · holidays maintained only until %@"
+            "value" : "–"
+          }
+        }
+      }
+    },
+    "„%@“ ist kein unterstütztes Bild. Möglich sind PNG, JPEG und HEIC." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” is not a supported image. PNG, JPEG and HEIC are possible."
+          }
+        }
+      }
+    },
+    "„%@“ ließ sich nicht in den Bilderordner kopieren." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” could not be copied to the image folder."
+          }
+        }
+      }
+    },
+    "„%@“: Dateiformat %lld kennt diese Version nicht." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "„%1$@“: Dateiformat %2$lld kennt diese Version nicht."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%1$@”: this version does not know file format %2$lld."
+          }
+        }
+      }
+    },
+    "„%@“: Handelszeit ungültig (%@)." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "„%1$@“: Handelszeit ungültig (%2$@)."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%1$@”: invalid trading hours (%2$@)."
+          }
+        }
+      }
+    },
+    "„%@“: keine Handelszeiten angegeben." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@”: no trading hours specified."
+          }
+        }
+      }
+    },
+    "„%@“: Zeitzone „%@“ ist unbekannt. Erwartet wird ein IANA-Name wie Europe/Berlin." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "„%1$@“: Zeitzone „%2$@“ ist unbekannt. Erwartet wird ein IANA-Name wie Europe/Berlin."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%1$@”: time zone “%2$@” is unknown. Expected an IANA name like Europe/Berlin."
+          }
+        }
+      }
+    },
+    "„Henry“ spricht Begrüßung, leere Seiten und Erfolgsmeldungen ruhig und trocken, „Sachlich“ nüchtern. Zahlen, Steuer, Regelverstöße, Warnungen und Fehler bleiben in beiden Stellungen sachlich; der Export für den Claude-Connector trägt die Einstellung mit." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Henry” speaks greetings, empty pages and success messages calmly and drily, “Plain” soberly. Numbers, tax, rule violations, warnings and errors stay plain in both settings; the export for the Claude connector carries the setting along."
+          }
+        }
+      }
+    },
+    "„Regelsperre“ heißt: deine eigene Regel hat den Trade verboten. Er zählt als gewollt verpasst und nicht zum entgangenen Ergebnis." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Rule lock” means: your own rule prohibited the trade. It counts as intentionally missed and not towards the missed result."
+          }
+        }
+      }
+    },
+    "„ungeprüft“: Dieser Importer lief noch gegen keine echte Datei, nur gegen öffentliche Beispiele. Prüfe Stückzahlen und Beträge gegen die App deines Brokers." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“unverified”: this importer has not yet run against a real file, only against public samples. Check quantities and amounts against your broker’s app."
+          }
+        }
+      }
+    },
+    "%@ · bei %lld Trades mit Stop" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ · bei %2$lld Trades mit Stop"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · for %2$lld trades with stop"
           }
         }
       }
@@ -112,22 +248,6 @@
         }
       }
     },
-    "%@ %lld neue Trades, %lld schon bekannt, %lld Kassenoperationen (%lld bekannt), %lld Hinweise." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@ %2$lld neue Trades, %3$lld schon bekannt, %4$lld Kassenoperationen (%5$lld bekannt), %6$lld Hinweise."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ %2$lld new trades, %3$lld already known, %4$lld cash operations (%5$lld known), %6$lld notes."
-          }
-        }
-      }
-    },
     "%@ %lld neue Trades, %lld schon bekannt, %lld gelöschte Orders." : {
       "localizations" : {
         "de" : {
@@ -144,12 +264,18 @@
         }
       }
     },
-    "%@ Uhr" : {
+    "%@ %lld neue Trades, %lld schon bekannt, %lld Kassenoperationen (%lld bekannt), %lld Hinweise." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ %2$lld neue Trades, %3$lld schon bekannt, %4$lld Kassenoperationen (%5$lld bekannt), %6$lld Hinweise."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@"
+            "value" : "%1$@ %2$lld new trades, %3$lld already known, %4$lld cash operations (%5$lld known), %6$lld notes."
           }
         }
       }
@@ -262,6 +388,16 @@
         }
       }
     },
+    "%@ Uhr" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@"
+          }
+        }
+      }
+    },
     "%@ verbunden" : {
       "localizations" : {
         "en" : {
@@ -304,32 +440,6 @@
         }
       }
     },
-    "%@ · bei %lld Trades mit Stop" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@ · bei %2$lld Trades mit Stop"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ · for %2$lld trades with stop"
-          }
-        }
-      }
-    },
-    "%@. Trade des Tages" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@. Trade of the day"
-          }
-        }
-      }
-    },
     "%@: %@ von %@ (%@)" : {
       "localizations" : {
         "de" : {
@@ -362,12 +472,80 @@
         }
       }
     },
+    "%@. Trade des Tages" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@. Trade of the day"
+          }
+        }
+      }
+    },
+    "%lld · zählt nicht" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld · does not count"
+          }
+        }
+      }
+    },
+    "%lld als nicht regeltreu markiert" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld marked as not rule-compliant"
+          }
+        }
+      }
+    },
     "%lld Ausführungen importieren" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Import %lld executions"
+          }
+        }
+      }
+    },
+    "%lld betroffene Trades" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld affected trade"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld affected trades"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld bis %lld Uhr" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld bis %2$lld Uhr"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld:00 to %2$lld:00"
           }
         }
       }
@@ -390,6 +568,26 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "%lld davon automatisch (Frist abgelaufen)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld of them automatic (deadline passed)"
+          }
+        }
+      }
+    },
+    "%lld eigene Zuordnungen gespeichert; alles andere folgt dem Vorschlag des Pakets." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld custom assignments saved; everything else follows the package’s suggestion."
           }
         }
       }
@@ -540,6 +738,22 @@
         }
       }
     },
+    "%lld Käufe, %lld Verkäufe" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld Käufe, %2$lld Verkäufe"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld buys, %2$lld sells"
+          }
+        }
+      }
+    },
     "%lld Konten" : {
       "localizations" : {
         "en" : {
@@ -594,22 +808,6 @@
         }
       }
     },
-    "%lld Käufe, %lld Verkäufe" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$lld Käufe, %2$lld Verkäufe"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld buys, %2$lld sells"
-          }
-        }
-      }
-    },
     "%lld Lose ohne Euro-Wert" : {
       "localizations" : {
         "en" : {
@@ -654,12 +852,98 @@
         }
       }
     },
-    "%lld RSS" : {
+    "%lld mit abgelaufener Frist, Urteil offen" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld RSS"
+            "value" : "%lld past deadline, verdict open"
+          }
+        }
+      }
+    },
+    "%lld mit Verstoß" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld with violation"
+          }
+        }
+      }
+    },
+    "%lld nicht verbucht" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld not booked"
+          }
+        }
+      }
+    },
+    "%lld offen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld open"
+          }
+        }
+      }
+    },
+    "%lld offen, %lld zu beurteilen" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld offen, %2$lld zu beurteilen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld open, %2$lld to assess"
+          }
+        }
+      }
+    },
+    "%lld ohne Euro" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld without euro"
+          }
+        }
+      }
+    },
+    "%lld ohne Kauf" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld without purchase"
+          }
+        }
+      }
+    },
+    "%lld ohne Produktart" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld without product type"
+          }
+        }
+      }
+    },
+    "%lld ohne Stop" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld without stop"
           }
         }
       }
@@ -686,6 +970,26 @@
         }
       }
     },
+    "%lld regeltreu" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld rule-compliant"
+          }
+        }
+      }
+    },
+    "%lld RSS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld RSS"
+          }
+        }
+      }
+    },
     "%lld Tage" : {
       "localizations" : {
         "en" : {
@@ -704,22 +1008,6 @@
                 }
               }
             }
-          }
-        }
-      }
-    },
-    "%lld Tage unklar: %@ Sie zählen auf keiner Seite." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$lld Tage unklar: %2$@ Sie zählen auf keiner Seite."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld days unclear: %2$@ They count on neither side."
           }
         }
       }
@@ -746,6 +1034,22 @@
         }
       }
     },
+    "%lld Tage unklar: %@ Sie zählen auf keiner Seite." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld Tage unklar: %2$@ Sie zählen auf keiner Seite."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld days unclear: %2$@ They count on neither side."
+          }
+        }
+      }
+    },
     "%lld Trades" : {
       "localizations" : {
         "en" : {
@@ -764,6 +1068,22 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "%lld Trades · Gewinne %@ · Verluste %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld Trades · Gewinne %2$@ · Verluste %3$@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld trades · profits %2$@ · losses %3$@"
           }
         }
       }
@@ -938,22 +1258,6 @@
         }
       }
     },
-    "%lld Trades · Gewinne %@ · Verluste %@" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$lld Trades · Gewinne %2$@ · Verluste %3$@"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld trades · profits %2$@ · losses %3$@"
-          }
-        }
-      }
-    },
     "%lld Verkäufe ohne Kauf in den Daten (%@): Übertrag von einer anderen Börse? Anschaffung fehlt." : {
       "localizations" : {
         "de" : {
@@ -966,224 +1270,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$lld sales without a purchase in the data (%2$@): transferred from another exchange? Acquisition missing."
-          }
-        }
-      }
-    },
-    "%lld Verstöße" : {
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld violation"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld violations"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "%lld Zeilen" : {
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld row"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld rows"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "%lld als nicht regeltreu markiert" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld marked as not rule-compliant"
-          }
-        }
-      }
-    },
-    "%lld betroffene Trades" : {
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld affected trade"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld affected trades"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "%lld bis %lld Uhr" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$lld bis %2$lld Uhr"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld:00 to %2$lld:00"
-          }
-        }
-      }
-    },
-    "%lld davon automatisch (Frist abgelaufen)" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld of them automatic (deadline passed)"
-          }
-        }
-      }
-    },
-    "%lld eigene Zuordnungen gespeichert; alles andere folgt dem Vorschlag des Pakets." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld custom assignments saved; everything else follows the package’s suggestion."
-          }
-        }
-      }
-    },
-    "%lld mit Verstoß" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld with violation"
-          }
-        }
-      }
-    },
-    "%lld mit abgelaufener Frist, Urteil offen" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld past deadline, verdict open"
-          }
-        }
-      }
-    },
-    "%lld nicht verbucht" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld not booked"
-          }
-        }
-      }
-    },
-    "%lld offen" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld open"
-          }
-        }
-      }
-    },
-    "%lld offen, %lld zu beurteilen" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$lld offen, %2$lld zu beurteilen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld open, %2$lld to assess"
-          }
-        }
-      }
-    },
-    "%lld ohne Euro" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld without euro"
-          }
-        }
-      }
-    },
-    "%lld ohne Kauf" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld without purchase"
-          }
-        }
-      }
-    },
-    "%lld ohne Produktart" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld without product type"
-          }
-        }
-      }
-    },
-    "%lld ohne Stop" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld without stop"
-          }
-        }
-      }
-    },
-    "%lld regeltreu" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld rule-compliant"
           }
         }
       }
@@ -1210,6 +1296,28 @@
         }
       }
     },
+    "%lld Verstöße" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld violation"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld violations"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "%lld von %lld" : {
       "localizations" : {
         "de" : {
@@ -1222,38 +1330,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$lld of %2$lld"
-          }
-        }
-      }
-    },
-    "%lld von %lld Handelstagen" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$lld von %2$lld Handelstagen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld of %2$lld trading days"
-          }
-        }
-      }
-    },
-    "%lld von %lld Trades liefen über einen Termin ihrer Währung: Netto %@, Trefferquote %@" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$lld von %2$lld Trades liefen über einen Termin ihrer Währung: Netto %3$@, Trefferquote %4$@"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld of %2$lld trades were held through an event of their currency: net %3$@, win rate %4$@"
           }
         }
       }
@@ -1290,6 +1366,22 @@
         }
       }
     },
+    "%lld von %lld Handelstagen" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld von %2$lld Handelstagen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld of %2$lld trading days"
+          }
+        }
+      }
+    },
     "%lld von %lld offen · deine Zeit %@ (%@)" : {
       "localizations" : {
         "de" : {
@@ -1302,6 +1394,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$lld of %2$lld open · your time %3$@ (%4$@)"
+          }
+        }
+      }
+    },
+    "%lld von %lld Trades liefen über einen Termin ihrer Währung: Netto %@, Trefferquote %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld von %2$lld Trades liefen über einen Termin ihrer Währung: Netto %3$@, Trefferquote %4$@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld of %2$lld trades were held through an event of their currency: net %3$@, win rate %4$@"
           }
         }
       }
@@ -1348,12 +1456,34 @@
         }
       }
     },
-    "%lld · zählt nicht" : {
+    "%lld Zeilen" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld row"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld rows"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "1 bis 24 Stunden" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld · does not count"
+            "value" : "1 to 24 hours"
           }
         }
       }
@@ -1428,16 +1558,6 @@
         }
       }
     },
-    "1 bis 24 Stunden" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "1 to 24 hours"
-          }
-        }
-      }
-    },
     "1. Januar %@ bis %@, Beträge in Euro, Verkaufsjahr nach deutscher Zeit" : {
       "localizations" : {
         "de" : {
@@ -1484,12 +1604,12 @@
         }
       }
     },
-    "API-Token" : {
+    "ab dem 8. Trade des Tages" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "API token"
+            "value" : "from the 8th trade of the day"
           }
         }
       }
@@ -1670,6 +1790,26 @@
         }
       }
     },
+    "Alle %lld anzeigen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show all %lld"
+          }
+        }
+      }
+    },
+    "Alle %lld in Trades öffnen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open all %lld in Trades"
+          }
+        }
+      }
+    },
     "Alle %lld Lose zeigen" : {
       "localizations" : {
         "en" : {
@@ -1702,22 +1842,12 @@
         }
       }
     },
-    "Alle %lld anzeigen" : {
+    "alle bestätigt" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Show all %lld"
-          }
-        }
-      }
-    },
-    "Alle %lld in Trades öffnen" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Open all %lld in Trades"
+            "value" : "all confirmed"
           }
         }
       }
@@ -1748,6 +1878,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Show all days"
+          }
+        }
+      }
+    },
+    "alle von Hand beurteilt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "all assessed by hand"
           }
         }
       }
@@ -1922,6 +2062,16 @@
         }
       }
     },
+    "API-Token" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "API token"
+          }
+        }
+      }
+    },
     "Art" : {
       "localizations" : {
         "en" : {
@@ -2002,6 +2152,16 @@
         }
       }
     },
+    "automatisch" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "automatic"
+          }
+        }
+      }
+    },
     "Balken: Handelszeiten heute in deiner Ortszeit, Strich: jetzt. Nur der fortlaufende Handel, ohne Auktionen und ohne vor- und nachbörslichen Handel." : {
       "localizations" : {
         "en" : {
@@ -2018,6 +2178,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Condition"
+          }
+        }
+      }
+    },
+    "beendet: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ended: %@"
           }
         }
       }
@@ -2072,6 +2242,16 @@
         }
       }
     },
+    "berechnet" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "calculated"
+          }
+        }
+      }
+    },
     "Bereich" : {
       "localizations" : {
         "en" : {
@@ -2122,12 +2302,32 @@
         }
       }
     },
+    "Bestätigen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirm"
+          }
+        }
+      }
+    },
     "Beste Trades" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Best trades"
+          }
+        }
+      }
+    },
+    "bestehend" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "existing"
           }
         }
       }
@@ -2164,16 +2364,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Best day at most"
-          }
-        }
-      }
-    },
-    "Bestätigen" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Confirm"
           }
         }
       }
@@ -2248,22 +2438,22 @@
         }
       }
     },
-    "Bis Jahresende" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Until year end"
-          }
-        }
-      }
-    },
     "Bis einschließlich" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Up to and including"
+          }
+        }
+      }
+    },
+    "Bis Jahresende" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Until year end"
           }
         }
       }
@@ -2294,62 +2484,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sheet missing in the Excel file: %@"
-          }
-        }
-      }
-    },
-    "Broker führt Steuer ab" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Broker withholds tax"
-          }
-        }
-      }
-    },
-    "Broker führt keine Steuer ab" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Broker does not withhold tax"
-          }
-        }
-      }
-    },
-    "Brutto" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gross"
-          }
-        }
-      }
-    },
-    "Brutto %@ · Kosten %@ (%@)" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Brutto %1$@ · Kosten %2$@ (%3$@)"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gross %1$@ · costs %2$@ (%3$@)"
-          }
-        }
-      }
-    },
-    "Buchgewinn aus der Kursbewegung, ohne Kosten der Schließung; Kauf zum Geldkurs, Verkauf zum Briefkurs bewertet. Kurse über 30 s alt werden rot." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Paper profit from the price move, without closing costs; buys valued at the bid, sells at the ask. Prices older than 30 s turn red."
           }
         }
       }
@@ -2414,22 +2548,68 @@
         }
       }
     },
+    "Broker führt keine Steuer ab" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Broker does not withhold tax"
+          }
+        }
+      }
+    },
+    "Broker führt Steuer ab" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Broker withholds tax"
+          }
+        }
+      }
+    },
+    "Brutto" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gross"
+          }
+        }
+      }
+    },
+    "Brutto %@ · Kosten %@ (%@)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Brutto %1$@ · Kosten %2$@ (%3$@)"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gross %1$@ · costs %2$@ (%3$@)"
+          }
+        }
+      }
+    },
+    "Buchgewinn aus der Kursbewegung, ohne Kosten der Schließung; Kauf zum Geldkurs, Verkauf zum Briefkurs bewertet. Kurse über 30 s alt werden rot." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paper profit from the price move, without closing costs; buys valued at the bid, sells at the ask. Prices older than 30 s turn red."
+          }
+        }
+      }
+    },
     "CFD oder Forex" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "CFD or forex"
-          }
-        }
-      }
-    },
-    "CSV-Format nicht erkannt. Spalten der Datei: %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "CSV format not recognised. Columns in the file: %@"
           }
         }
       }
@@ -2510,12 +2690,32 @@
         }
       }
     },
+    "CSV-Format nicht erkannt. Spalten der Datei: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CSV format not recognised. Columns in the file: %@"
+          }
+        }
+      }
+    },
     "Danach keine neuen Trades am selben Tag. Zählt realisiert netto, Tag in deiner Zeitzone." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "No new trades on the same day after that. Counts realised net, day in your time zone."
+          }
+        }
+      }
+    },
+    "Das erste legt Henry beim ersten Import an." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Henry opens the first one at the first import."
           }
         }
       }
@@ -2552,16 +2752,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Risk must be greater than zero and must not exceed the account balance."
-          }
-        }
-      }
-    },
-    "Das erste legt Henry beim ersten Import an." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Henry opens the first one at the first import."
           }
         }
       }
@@ -2642,6 +2832,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Date “%@” is not YYYY-MM-DD."
+          }
+        }
+      }
+    },
+    "davon CFDs (Termingeschäfte, nur zur Information)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "of which CFDs (futures transactions, for information only)"
+          }
+        }
+      }
+    },
+    "davon CFDs %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "of which CFDs %@"
+          }
+        }
+      }
+    },
+    "dazu %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "plus %@"
           }
         }
       }
@@ -3026,6 +3246,16 @@
         }
       }
     },
+    "Die letzte Kerze ist der laufende Tag." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The last candle is the current day."
+          }
+        }
+      }
+    },
     "Die Merkliste ist leer. Auf der Seite „Nachrichten“ Vorschläge aus dem Journal bestätigen." : {
       "localizations" : {
         "en" : {
@@ -3042,6 +3272,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "The watchlist is empty. Suggestions from the journal are on the right; a single term will do."
+          }
+        }
+      }
+    },
+    "Die mitgelieferten Börsendaten fehlen im Paket." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bundled exchange data is missing from the package."
           }
         }
       }
@@ -3072,26 +3312,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "The event files of the TradingCalendar package could not be read: %@"
-          }
-        }
-      }
-    },
-    "Die letzte Kerze ist der laufende Tag." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The last candle is the current day."
-          }
-        }
-      }
-    },
-    "Die mitgelieferten Börsendaten fehlen im Paket." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The bundled exchange data is missing from the package."
           }
         }
       }
@@ -3256,32 +3476,12 @@
         }
       }
     },
-    "EZB-Referenzkurse bis %@" : {
+    "eigene" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ECB reference rates until %@"
-          }
-        }
-      }
-    },
-    "EZB-Referenzkurse noch nicht geladen; Beträge in Fremdwährung bleiben Lücke" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ECB reference rates not loaded yet; amounts in foreign currency remain a gap"
-          }
-        }
-      }
-    },
-    "EZB-Referenzkurse noch nicht geladen; Trades in Fremdwährung fehlen in den Euro-Summen." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ECB reference rates not loaded yet; trades in foreign currency are missing from the euro totals."
+            "value" : "custom"
           }
         }
       }
@@ -3436,6 +3636,16 @@
         }
       }
     },
+    "Eine geänderte Sprache gilt nach einem Neustart der App. Zahlen, Beträge und Daten folgen der Region in den Systemeinstellungen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A new language takes effect after restarting the app. Numbers, amounts and dates follow the region in System Settings."
+          }
+        }
+      }
+    },
     "Eine Karte je Setup: Bedingungen für den Einstieg, Stop- und Zielregel. Der Name verbindet die Karte mit dem Feld „Setup“ im Journal; im Inspektor der Trade-Liste hakst du die Kriterien je Trade ab." : {
       "localizations" : {
         "en" : {
@@ -3452,16 +3662,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "A template fills all fields from the firm’s rules; afterwards you can change any field."
-          }
-        }
-      }
-    },
-    "Eine geänderte Sprache gilt nach einem Neustart der App. Zahlen, Beträge und Daten folgen der Region in den Systemeinstellungen." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A new language takes effect after restarting the app. Numbers, amounts and dates follow the region in System Settings."
           }
         }
       }
@@ -3618,6 +3818,16 @@
         }
       }
     },
+    "entspricht %@ vom Startkapital" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "equals %@ of starting capital"
+          }
+        }
+      }
+    },
     "Erfolgskriterien aus dem Lernpfad. Der Haken bleibt auf diesem Gerät gespeichert." : {
       "localizations" : {
         "en" : {
@@ -3730,6 +3940,46 @@
         }
       }
     },
+    "Eröffnet" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opened"
+          }
+        }
+      }
+    },
+    "Eröffnet bis 15 Minuten nach einem Verlust, mit mehr Lots als üblich." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opened within 15 minutes after a loss, with more lots than usual."
+          }
+        }
+      }
+    },
+    "Eröffnung" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opening"
+          }
+        }
+      }
+    },
+    "erreicht" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "reached"
+          }
+        }
+      }
+    },
     "Erreicht" : {
       "localizations" : {
         "en" : {
@@ -3786,6 +4036,16 @@
         }
       }
     },
+    "erster Trade" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "first trade"
+          }
+        }
+      }
+    },
     "Erster Trade" : {
       "localizations" : {
         "en" : {
@@ -3812,36 +4072,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Expectancy in R per setup and your three most frequent mistakes are known."
-          }
-        }
-      }
-    },
-    "Eröffnet" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Opened"
-          }
-        }
-      }
-    },
-    "Eröffnet bis 15 Minuten nach einem Verlust, mit mehr Lots als üblich." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Opened within 15 minutes after a loss, with more lots than usual."
-          }
-        }
-      }
-    },
-    "Eröffnung" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Opening"
           }
         }
       }
@@ -3902,16 +4132,6 @@
         }
       }
     },
-    "Export: Ordner nicht erreichbar, bitte neu wählen" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Export: folder not reachable, please choose again"
-          }
-        }
-      }
-    },
     "Export: kein Zugriff auf %@" : {
       "localizations" : {
         "en" : {
@@ -3932,6 +4152,33 @@
         }
       }
     },
+    "Export: Ordner nicht erreichbar, bitte neu wählen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export: folder not reachable, please choose again"
+          }
+        }
+      }
+    },
+    "exportFolder.choose" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export-Ordner wählen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose export folder"
+          }
+        }
+      }
+    },
     "Exportierte Felder" : {
       "localizations" : {
         "en" : {
@@ -3942,12 +4189,42 @@
         }
       }
     },
-    "FTMO und FundedNext 00:00, Topstep 17:00 Chicago, Apex 18:00 New York." : {
+    "EZB-Referenzkurse bis %@" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "FTMO and FundedNext 00:00, Topstep 17:00 Chicago, Apex 18:00 New York."
+            "value" : "ECB reference rates until %@"
+          }
+        }
+      }
+    },
+    "EZB-Referenzkurse noch nicht geladen; Beträge in Fremdwährung bleiben Lücke" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ECB reference rates not loaded yet; amounts in foreign currency remain a gap"
+          }
+        }
+      }
+    },
+    "EZB-Referenzkurse noch nicht geladen; Trades in Fremdwährung fehlen in den Euro-Summen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ECB reference rates not loaded yet; trades in foreign currency are missing from the euro totals."
+          }
+        }
+      }
+    },
+    "Fälliges Ziel beurteilen, Ergebnis in einem Satz." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Assess the due goal, result in one sentence."
           }
         }
       }
@@ -4212,22 +4489,22 @@
         }
       }
     },
-    "Frag Henry zu diesem Trade …" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ask Henry about this trade …"
-          }
-        }
-      }
-    },
     "Frag Henry …" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ask Henry …"
+          }
+        }
+      }
+    },
+    "Frag Henry zu diesem Trade …" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ask Henry about this trade …"
           }
         }
       }
@@ -4262,12 +4539,54 @@
         }
       }
     },
+    "frei" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "free"
+          }
+        }
+      }
+    },
+    "frei seit %lld Tagen" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "free for %lld day"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "free for %lld days"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "Freitag" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Friday"
+          }
+        }
+      }
+    },
+    "freiwillig" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "optional"
           }
         }
       }
@@ -4292,12 +4611,12 @@
         }
       }
     },
-    "Fälliges Ziel beurteilen, Ergebnis in einem Satz." : {
+    "FTMO und FundedNext 00:00, Topstep 17:00 Chicago, Apex 18:00 New York." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Assess the due goal, result in one sentence."
+            "value" : "FTMO and FundedNext 00:00, Topstep 17:00 Chicago, Apex 18:00 New York."
           }
         }
       }
@@ -4318,6 +4637,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No own rules are set for this account. Only trades marked as not rule-compliant in the journal are counted."
+          }
+        }
+      }
+    },
+    "ganzer Tag in %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "whole day in %@"
+          }
+        }
+      }
+    },
+    "ganztägig" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "all day"
+          }
+        }
+      }
+    },
+    "ganztägig, %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "all day, %@"
           }
         }
       }
@@ -4358,6 +4707,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Secret (secret key)"
+          }
+        }
+      }
+    },
+    "gekauft %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "bought %@"
           }
         }
       }
@@ -4418,6 +4777,16 @@
         }
       }
     },
+    "gepflegt bis %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "maintained until %@"
+          }
+        }
+      }
+    },
     "Geprüft nach dem Import, nicht live. Regeln änderst du in den Einstellungen unter „Regeln“." : {
       "localizations" : {
         "en" : {
@@ -4438,22 +4807,22 @@
         }
       }
     },
+    "gerade eben" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "just now"
+          }
+        }
+      }
+    },
     "Gesamtgrenze" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Overall limit"
-          }
-        }
-      }
-    },
-    "Geschlossen" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Closed"
           }
         }
       }
@@ -4468,12 +4837,62 @@
         }
       }
     },
+    "geschlossen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "closed"
+          }
+        }
+      }
+    },
+    "Geschlossen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Closed"
+          }
+        }
+      }
+    },
+    "geschlossene Positionen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "closed positions"
+          }
+        }
+      }
+    },
+    "gespeichert %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "saved %@"
+          }
+        }
+      }
+    },
     "Gespeichert, keine Regel aktiv." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Saved, no rule active."
+          }
+        }
+      }
+    },
+    "Gespeichert:" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saved:"
           }
         }
       }
@@ -4518,12 +4937,22 @@
         }
       }
     },
-    "Gespeichert:" : {
+    "gestern %@" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Saved:"
+            "value" : "yesterday %@"
+          }
+        }
+      }
+    },
+    "getrennt (%@), verbindet sich neu" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "disconnected (%@), reconnecting"
           }
         }
       }
@@ -4664,6 +5093,26 @@
         }
       }
     },
+    "gilt ab %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "valid from %@"
+          }
+        }
+      }
+    },
+    "gilt für %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "applies to %@"
+          }
+        }
+      }
+    },
     "Graphit" : {
       "localizations" : {
         "en" : {
@@ -4714,6 +5163,62 @@
         }
       }
     },
+    "Größe" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Size"
+          }
+        }
+      }
+    },
+    "Größe nach Gewinnserie" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Size after winning streak"
+          }
+        }
+      }
+    },
+    "Größe nach Serie" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Size after streak"
+          }
+        }
+      }
+    },
+    "Größe schwankt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Size fluctuates"
+          }
+        }
+      }
+    },
+    "größtes %@ von %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "größtes %1$@ von %2$@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "largest %1$@ of %2$@"
+          }
+        }
+      }
+    },
     "Grund" : {
       "localizations" : {
         "en" : {
@@ -4760,46 +5265,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Groups whose net result per trade differs most clearly from the rest. Describes past trades, no forecast."
-          }
-        }
-      }
-    },
-    "Größe" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Size"
-          }
-        }
-      }
-    },
-    "Größe nach Gewinnserie" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Size after winning streak"
-          }
-        }
-      }
-    },
-    "Größe nach Serie" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Size after streak"
-          }
-        }
-      }
-    },
-    "Größe schwankt" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Size fluctuates"
           }
         }
       }
@@ -4900,6 +5365,26 @@
         }
       }
     },
+    "Häufige" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Common"
+          }
+        }
+      }
+    },
+    "Häufige Zeitzonen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Common time zones"
+          }
+        }
+      }
+    },
     "Hell" : {
       "localizations" : {
         "en" : {
@@ -4940,12 +5425,52 @@
         }
       }
     },
+    "heute" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "today"
+          }
+        }
+      }
+    },
     "Heute" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Today"
+          }
+        }
+      }
+    },
+    "heute %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "today %@"
+          }
+        }
+      }
+    },
+    "heute geschlossen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "closed today"
+          }
+        }
+      }
+    },
+    "heute um %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "today at %@"
           }
         }
       }
@@ -5030,26 +5555,6 @@
         }
       }
     },
-    "Häufige" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Common"
-          }
-        }
-      }
-    },
-    "Häufige Zeitzonen" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Common time zones"
-          }
-        }
-      }
-    },
     "Höchstens Lots je Trade" : {
       "localizations" : {
         "en" : {
@@ -5110,16 +5615,6 @@
         }
       }
     },
-    "ISIN" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ISIN"
-          }
-        }
-      }
-    },
     "Im Browser öffnen" : {
       "localizations" : {
         "en" : {
@@ -5146,6 +5641,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "The export only contains the last stop loss. No stop, no R; the trade is flagged. Adding the stop comes with the journal package."
+          }
+        }
+      }
+    },
+    "im gewählten Zeitraum keiner" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "none in the selected period"
+          }
+        }
+      }
+    },
+    "Im gewählten Zeitraum lief kein Trade über einen Termin seiner Währung." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No trade in the selected period was held through an event of its currency."
           }
         }
       }
@@ -5186,16 +5701,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Save in keychain"
-          }
-        }
-      }
-    },
-    "Im gewählten Zeitraum lief kein Trade über einen Termin seiner Währung." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No trade in the selected period was held through an event of its currency."
           }
         }
       }
@@ -5260,32 +5765,22 @@
         }
       }
     },
+    "in %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "in %@"
+          }
+        }
+      }
+    },
     "In Claude öffnen" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Open in Claude"
-          }
-        }
-      }
-    },
-    "In Folge" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "In a row"
-          }
-        }
-      }
-    },
-    "In Trades zeigen" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Show in Trades"
           }
         }
       }
@@ -5350,6 +5845,16 @@
         }
       }
     },
+    "In Folge" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In a row"
+          }
+        }
+      }
+    },
     "In neuem Fenster öffnen" : {
       "localizations" : {
         "en" : {
@@ -5366,6 +5871,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "In a new window, always on top"
+          }
+        }
+      }
+    },
+    "In Trades zeigen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show in Trades"
           }
         }
       }
@@ -5410,6 +5925,16 @@
         }
       }
     },
+    "ISIN" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ISIN"
+          }
+        }
+      }
+    },
     "Ja" : {
       "localizations" : {
         "en" : {
@@ -5436,6 +5961,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Per colour world: accent, profit, loss. Applies immediately, in light and dark."
+          }
+        }
+      }
+    },
+    "je Tag · %lld Trades" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "per day · %lld trade"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "per day · %lld trades"
+                }
+              }
+            }
           }
         }
       }
@@ -5470,22 +6017,6 @@
         }
       }
     },
-    "KW %lld, %@ bis %@" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "KW %1$lld, %2$@ bis %3$@"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "CW %1$lld, %2$@ to %3$@"
-          }
-        }
-      }
-    },
     "Kalender" : {
       "localizations" : {
         "en" : {
@@ -5496,22 +6027,22 @@
         }
       }
     },
-    "Kalender anlegen…" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Create calendar…"
-          }
-        }
-      }
-    },
     "Kalender „%@“ gibt es schon." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Calendar “%@” already exists."
+          }
+        }
+      }
+    },
+    "Kalender anlegen…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create calendar…"
           }
         }
       }
@@ -5566,22 +6097,22 @@
         }
       }
     },
-    "Karte löschen" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delete card"
-          }
-        }
-      }
-    },
     "Karte „%@“ löschen?" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Delete card “%@”?"
+          }
+        }
+      }
+    },
+    "Karte löschen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete card"
           }
         }
       }
@@ -5702,36 +6233,6 @@
         }
       }
     },
-    "Kein Trade dieses Kontos trägt das Setup. Die Karte und ihre Kriterien verschwinden." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No trade in this account carries the setup. The card and its criteria are removed."
-          }
-        }
-      }
-    },
-    "Kein Trade gewählt" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No trade selected"
-          }
-        }
-      }
-    },
-    "Kein Ziel berührt diesen Monat." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No goal touches this month."
-          }
-        }
-      }
-    },
     "Kein offenes Ziel. Lege nach dem Review genau ein messbares Ziel für den nächsten Zeitraum an." : {
       "localizations" : {
         "en" : {
@@ -5758,6 +6259,96 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No matching value"
+          }
+        }
+      }
+    },
+    "kein Schlüssel" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no key"
+          }
+        }
+      }
+    },
+    "kein Stop" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no stop"
+          }
+        }
+      }
+    },
+    "kein Stop, Risiko unbekannt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no stop, risk unknown"
+          }
+        }
+      }
+    },
+    "kein Tag über der Grenze" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no day over the limit"
+          }
+        }
+      }
+    },
+    "kein Termin" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no event"
+          }
+        }
+      }
+    },
+    "kein Token" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no token"
+          }
+        }
+      }
+    },
+    "Kein Trade dieses Kontos trägt das Setup. Die Karte und ihre Kriterien verschwinden." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No trade in this account carries the setup. The card and its criteria are removed."
+          }
+        }
+      }
+    },
+    "Kein Trade gewählt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No trade selected"
+          }
+        }
+      }
+    },
+    "Kein Ziel berührt diesen Monat." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No goal touches this month."
           }
         }
       }
@@ -5832,6 +6423,16 @@
         }
       }
     },
+    "keine Krypto-Verkäufe" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no crypto sales"
+          }
+        }
+      }
+    },
     "Keine Krypto-Verkäufe in diesem Jahr." : {
       "localizations" : {
         "en" : {
@@ -5852,6 +6453,26 @@
         }
       }
     },
+    "keine Meldung" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no headline"
+          }
+        }
+      }
+    },
+    "keine Meldung in den letzten 14 Tagen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no headline in the last 14 days"
+          }
+        }
+      }
+    },
     "Keine Meldung zur Merkliste in den letzten 14 Tagen." : {
       "localizations" : {
         "en" : {
@@ -5868,6 +6489,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No headlines about this security in the last 14 days."
+          }
+        }
+      }
+    },
+    "Keine offene Position, nichts zuzuordnen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No open position, nothing to assign."
           }
         }
       }
@@ -5922,6 +6553,16 @@
         }
       }
     },
+    "keine Trades" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no trades"
+          }
+        }
+      }
+    },
     "Keine Trades" : {
       "localizations" : {
         "en" : {
@@ -5972,6 +6613,16 @@
         }
       }
     },
+    "keine Währung erkannt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no currency recognised"
+          }
+        }
+      }
+    },
     "Keine Ziele, deren Zeitraum diesen Monat berührt." : {
       "localizations" : {
         "en" : {
@@ -5982,12 +6633,42 @@
         }
       }
     },
-    "Keine offene Position, nichts zuzuordnen." : {
+    "keiner Börse zugeordnet" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No open position, nothing to assign."
+            "value" : "not assigned to an exchange"
+          }
+        }
+      }
+    },
+    "keiner in den Daten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "none in the data"
+          }
+        }
+      }
+    },
+    "keiner in der Haltezeit" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "none in the holding period"
+          }
+        }
+      }
+    },
+    "keins" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "none"
           }
         }
       }
@@ -6152,6 +6833,16 @@
         }
       }
     },
+    "Konto …%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Account …%@"
+          }
+        }
+      }
+    },
     "Konto %@" : {
       "localizations" : {
         "en" : {
@@ -6198,16 +6889,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Account and time"
-          }
-        }
-      }
-    },
-    "Konto …%@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Account …%@"
           }
         }
       }
@@ -6620,12 +7301,38 @@
         }
       }
     },
+    "KW %lld, %@ bis %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "KW %1$lld, %2$@ bis %3$@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CW %1$lld, %2$@ to %3$@"
+          }
+        }
+      }
+    },
     "Land nach ISO 3166, z. B. CH (optional)" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Country per ISO 3166, e.g. CH (optional)"
+          }
+        }
+      }
+    },
+    "Längste Verlustserie" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Longest losing streak"
           }
         }
       }
@@ -6646,6 +7353,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Running"
+          }
+        }
+      }
+    },
+    "Läuft" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Running"
+          }
+        }
+      }
+    },
+    "Läuft die Frist ohne Abhaken ab, setzt der Speicher das Ziel beim nächsten Start auf „Verfehlt“ (Frist abgelaufen, nicht als erreicht abgehakt). „Erreicht“ und „Verfehlt“ fragen nach dem Ergebnis in einem Satz; Wiederöffnen bleibt im Menü möglich." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "If the deadline passes without a tick, the store sets the goal to “Missed” at the next launch (deadline passed, not ticked as reached). “Reached” and “Missed” ask for the result in one sentence; reopening remains possible in the menu."
+          }
+        }
+      }
+    },
+    "laut Auszug" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "per statement"
           }
         }
       }
@@ -6690,6 +7427,28 @@
         }
       }
     },
+    "letzte %lld Tage" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "last %lld day"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "last %lld days"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "Letzte Trades" : {
       "localizations" : {
         "en" : {
@@ -6710,56 +7469,6 @@
         }
       }
     },
-    "Lots" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lots"
-          }
-        }
-      }
-    },
-    "Lots je Trade" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lots per trade"
-          }
-        }
-      }
-    },
-    "Längste Verlustserie" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Longest losing streak"
-          }
-        }
-      }
-    },
-    "Läuft" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Running"
-          }
-        }
-      }
-    },
-    "Läuft die Frist ohne Abhaken ab, setzt der Speicher das Ziel beim nächsten Start auf „Verfehlt“ (Frist abgelaufen, nicht als erreicht abgehakt). „Erreicht“ und „Verfehlt“ fragen nach dem Ergebnis in einem Satz; Wiederöffnen bleibt im Menü möglich." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "If the deadline passes without a tick, the store sets the goal to “Missed” at the next launch (deadline passed, not ticked as reached). “Reached” and “Missed” ask for the result in one sentence; reopening remains possible in the menu."
-          }
-        }
-      }
-    },
     "Löschen" : {
       "localizations" : {
         "en" : {
@@ -6776,6 +7485,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Delete…"
+          }
+        }
+      }
+    },
+    "Lots" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lots"
+          }
+        }
+      }
+    },
+    "Lots je Trade" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lots per trade"
           }
         }
       }
@@ -6890,22 +7619,22 @@
         }
       }
     },
-    "Mehr Trades am Tag als erlaubt" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "More trades per day than allowed"
-          }
-        }
-      }
-    },
     "Mehr als die Hälfte der Pending Orders gelöscht." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "More than half of the pending orders deleted."
+          }
+        }
+      }
+    },
+    "Mehr Trades am Tag als erlaubt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "More trades per day than allowed"
           }
         }
       }
@@ -6940,22 +7669,22 @@
         }
       }
     },
-    "Meldungen werden geladen …" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Loading headlines …"
-          }
-        }
-      }
-    },
     "Meldungen · %lld zur Merkliste" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Headlines · %lld for the watchlist"
+          }
+        }
+      }
+    },
+    "Meldungen werden geladen …" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading headlines …"
           }
         }
       }
@@ -6990,22 +7719,22 @@
         }
       }
     },
-    "Merkliste und Markt · Stand %@ · Abruf beim Öffnen und auf Knopf" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Watchlist and market · as of %@ · fetched on opening and on button"
-          }
-        }
-      }
-    },
     "Merkliste und Markt · aus" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Watchlist and market · off"
+          }
+        }
+      }
+    },
+    "Merkliste und Markt · Stand %@ · Abruf beim Öffnen und auf Knopf" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Watchlist and market · as of %@ · fetched on opening and on button"
           }
         }
       }
@@ -7122,6 +7851,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Minutes after midnight, i.e. %@ local time"
+          }
+        }
+      }
+    },
+    "mit %@ (%lld) · ohne %@ (%lld)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "mit %1$@ (%2$lld) · ohne %3$@ (%4$lld)"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "with %1$@ (%2$lld) · without %3$@ (%4$lld)"
           }
         }
       }
@@ -7264,6 +8009,26 @@
         }
       }
     },
+    "morgen %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tomorrow %@"
+          }
+        }
+      }
+    },
+    "morgen um %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tomorrow at %@"
+          }
+        }
+      }
+    },
     "Morgen, %@" : {
       "localizations" : {
         "en" : {
@@ -7280,6 +8045,86 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pattern finder"
+          }
+        }
+      }
+    },
+    "Nach dem Einschalten holt die App Überschriften von finanzen.net, Börse Frankfurt, wallstreet-online, finanznachrichten.de, EZB und Fed (RSS, ohne Schlüssel), US-Firmennachrichten über Alpaca News und Meldungen zur Merkliste über Marketaux (beide mit Schlüssel aus dem Schlüsselbund). Jede Verbindung geht direkt von deinem Gerät zum Anbieter; die App zeigt nur Überschrift, Anriss, Quelle, Zeit und Link." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Once switched on, the app fetches headlines from finanzen.net, Börse Frankfurt, wallstreet-online, finanznachrichten.de, ECB and Fed (RSS, without a key), US company news via Alpaca News and watchlist headlines via Marketaux (both with a key from the keychain). Every connection goes directly from your device to the provider; the app only shows headline, teaser, source, time and link."
+          }
+        }
+      }
+    },
+    "nach dem Review genau eins anlegen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "create exactly one after the review"
+          }
+        }
+      }
+    },
+    "Nach dem vorherigen Trade" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "After the previous trade"
+          }
+        }
+      }
+    },
+    "nach einem Gewinn" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "after a profit"
+          }
+        }
+      }
+    },
+    "nach einem Trade ohne Ergebnis" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "after a trade without result"
+          }
+        }
+      }
+    },
+    "nach einem Verlust" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "after a loss"
+          }
+        }
+      }
+    },
+    "nach FIFO, nur diese Datei" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "by FIFO, this file only"
+          }
+        }
+      }
+    },
+    "nach FIFO, nur diese Datei · in %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "by FIFO, this file only · in %@"
           }
         }
       }
@@ -7304,36 +8149,6 @@
         }
       }
     },
-    "Nach Verlust" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "After loss"
-          }
-        }
-      }
-    },
-    "Nach dem Einschalten holt die App Überschriften von finanzen.net, Börse Frankfurt, wallstreet-online, finanznachrichten.de, EZB und Fed (RSS, ohne Schlüssel), US-Firmennachrichten über Alpaca News und Meldungen zur Merkliste über Marketaux (beide mit Schlüssel aus dem Schlüsselbund). Jede Verbindung geht direkt von deinem Gerät zum Anbieter; die App zeigt nur Überschrift, Anriss, Quelle, Zeit und Link." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Once switched on, the app fetches headlines from finanzen.net, Börse Frankfurt, wallstreet-online, finanznachrichten.de, ECB and Fed (RSS, without a key), US company news via Alpaca News and watchlist headlines via Marketaux (both with a key from the keychain). Every connection goes directly from your device to the provider; the app only shows headline, teaser, source, time and link."
-          }
-        }
-      }
-    },
-    "Nach dem vorherigen Trade" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "After the previous trade"
-          }
-        }
-      }
-    },
     "Nach oben" : {
       "localizations" : {
         "en" : {
@@ -7350,6 +8165,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Move down"
+          }
+        }
+      }
+    },
+    "Nach Verlust" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "After loss"
           }
         }
       }
@@ -7434,12 +8259,122 @@
         }
       }
     },
+    "Nächste 7 Tage" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next 7 days"
+          }
+        }
+      }
+    },
+    "Nächste Termine" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Upcoming events"
+          }
+        }
+      }
+    },
+    "Nächste Woche" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next week"
+          }
+        }
+      }
+    },
+    "Nächster Monat" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next month"
+          }
+        }
+      }
+    },
+    "Nächster Tag" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next day"
+          }
+        }
+      }
+    },
+    "Nächster Termin" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next event"
+          }
+        }
+      }
+    },
+    "Nächster Wechsel" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next change"
+          }
+        }
+      }
+    },
+    "nächstes Ende %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "next end %@"
+          }
+        }
+      }
+    },
     "Nacht" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Night"
+          }
+        }
+      }
+    },
+    "nah an der Grenze" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "close to the limit"
+          }
+        }
+      }
+    },
+    "Näherung" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Approximation"
+          }
+        }
+      }
+    },
+    "Näherung: Tagesverlust und Gesamtgrenze sind auf Schlusssalden geprüft, ohne Equity zwischen den Trades. Ein gemeldeter Verstoß ist sicher, ein fehlender nicht. Handelstag der Firma ab %@." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Approximation: daily loss and overall limit are checked on closing balances, without equity between trades. A reported violation is certain, a missing one is not. Firm’s trading day starts at %@."
           }
         }
       }
@@ -7588,6 +8523,16 @@
         }
       }
     },
+    "neu" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "new"
+          }
+        }
+      }
+    },
     "Neu seit letztem Besuch" : {
       "localizations" : {
         "en" : {
@@ -7638,6 +8583,16 @@
         }
       }
     },
+    "nicht gebraucht" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "not needed"
+          }
+        }
+      }
+    },
     "Nicht mehr im Vordergrund" : {
       "localizations" : {
         "en" : {
@@ -7648,12 +8603,94 @@
         }
       }
     },
+    "nicht verbucht" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "not booked"
+          }
+        }
+      }
+    },
     "Nicht zugeordnet" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Unassigned"
+          }
+        }
+      }
+    },
+    "noch %lld Tage" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld day left"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld days left"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "noch im Depot; werden beim Verkauf zu Trades" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "still in the portfolio; become trades when sold"
+          }
+        }
+      }
+    },
+    "Noch kein abgehaktes Ziel in den letzten sechs Monaten." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No ticked-off goal in the last six months yet."
+          }
+        }
+      }
+    },
+    "Noch kein abgehaktes Ziel. Das nächste Review hakt das offene Ziel ab und setzt genau ein neues." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No ticked-off goal yet. The next review ticks off the open goal and sets exactly one new one."
+          }
+        }
+      }
+    },
+    "noch kein Abruf" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no request yet"
+          }
+        }
+      }
+    },
+    "Noch kein eigener Kalender. Ein Kalender gilt zusätzlich zu den Feiertagen einer Börse; die Zuordnung steht bei der Börse unter „Einrichten“." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No custom calendar yet. A calendar applies in addition to an exchange’s holidays; the assignment is set at the exchange under “Set up”."
           }
         }
       }
@@ -7718,32 +8755,12 @@
         }
       }
     },
-    "Noch kein abgehaktes Ziel in den letzten sechs Monaten." : {
+    "noch kein Urteil in %@" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No ticked-off goal in the last six months yet."
-          }
-        }
-      }
-    },
-    "Noch kein abgehaktes Ziel. Das nächste Review hakt das offene Ziel ab und setzt genau ein neues." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No ticked-off goal yet. The next review ticks off the open goal and sets exactly one new one."
-          }
-        }
-      }
-    },
-    "Noch kein eigener Kalender. Ein Kalender gilt zusätzlich zu den Feiertagen einer Börse; die Zuordnung steht bei der Börse unter „Einrichten“." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No custom calendar yet. A calendar applies in addition to an exchange’s holidays; the assignment is set at the exchange under “Set up”."
+            "value" : "no verdict yet in %@"
           }
         }
       }
@@ -7828,6 +8845,16 @@
         }
       }
     },
+    "noch nicht gewählt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "not chosen yet"
+          }
+        }
+      }
+    },
     "Nordlicht" : {
       "localizations" : {
         "en" : {
@@ -7888,102 +8915,32 @@
         }
       }
     },
-    "Nächste 7 Tage" : {
+    "Ø mit allen Häkchen" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Next 7 days"
+            "value" : "Ø with all ticks"
           }
         }
       }
     },
-    "Nächste Termine" : {
+    "Ø ohne" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Upcoming events"
+            "value" : "Ø without"
           }
         }
       }
     },
-    "Nächste Woche" : {
+    "Ø R" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Next week"
-          }
-        }
-      }
-    },
-    "Nächster Monat" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Next month"
-          }
-        }
-      }
-    },
-    "Nächster Tag" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Next day"
-          }
-        }
-      }
-    },
-    "Nächster Termin" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Next event"
-          }
-        }
-      }
-    },
-    "Nächster Wechsel" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Next change"
-          }
-        }
-      }
-    },
-    "Näherung" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Approximation"
-          }
-        }
-      }
-    },
-    "Näherung: Tagesverlust und Gesamtgrenze sind auf Schlusssalden geprüft, ohne Equity zwischen den Trades. Ein gemeldeter Verstoß ist sicher, ein fehlender nicht. Handelstag der Firma ab %@." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Approximation: daily loss and overall limit are checked on closing balances, without equity between trades. A reported violation is certain, a missing one is not. Firm’s trading day starts at %@."
-          }
-        }
-      }
-    },
-    "OK" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OK"
+            "value" : "Ø R"
           }
         }
       }
@@ -7994,6 +8951,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "The app does not know whether this broker withholds tax. Trade Republic and Scalable Capital withhold; MetaTrader, XTB and crypto exchanges do not (research R5, 2026)."
+          }
+        }
+      }
+    },
+    "offen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "open"
           }
         }
       }
@@ -8038,6 +9005,16 @@
         }
       }
     },
+    "offene Position" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "open position"
+          }
+        }
+      }
+    },
     "Offene Positionen" : {
       "localizations" : {
         "en" : {
@@ -8048,12 +9025,62 @@
         }
       }
     },
+    "Öffnet %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opens %@"
+          }
+        }
+      }
+    },
+    "öffnet in" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "opens in"
+          }
+        }
+      }
+    },
     "Ohne Abzug durch den Broker kommen die Zahlen erst über die Steuererklärung zum Finanzamt; dafür ist diese Seite gedacht (Recherche R5, 2026)." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Without withholding by the broker, the figures only reach the tax office through the tax return; that is what this page is for (research R5, 2026)."
+          }
+        }
+      }
+    },
+    "Ohne diese Trades: Netto %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Without these trades: net %@"
+          }
+        }
+      }
+    },
+    "ohne Euro" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "without euro"
+          }
+        }
+      }
+    },
+    "ohne Handel" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no trading"
           }
         }
       }
@@ -8116,12 +9143,42 @@
         }
       }
     },
+    "ohne Setup" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "without setup"
+          }
+        }
+      }
+    },
     "Ohne Stop" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Without stop"
+          }
+        }
+      }
+    },
+    "ohne Stop kein R" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no stop, no R"
+          }
+        }
+      }
+    },
+    "ohne Uhrzeit" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "without time of day"
           }
         }
       }
@@ -8136,12 +9193,12 @@
         }
       }
     },
-    "Ohne diese Trades: Netto %@" : {
+    "OK" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Without these trades: net %@"
+            "value" : "OK"
           }
         }
       }
@@ -8156,22 +9213,22 @@
         }
       }
     },
-    "Orientierung, keine Steuerberechnung. Ergebnis je Trade = Kursergebnis + Kommission + Swap, ohne abgeführte Steuern." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Orientation, not a tax calculation. Result per trade = price result + commission + swap, without withheld taxes."
-          }
-        }
-      }
-    },
     "Orientierung, keine Steuerberechnung: ohne Steuersatz, Sparer-Pauschbetrag, Verlustvorträge und Teilfreistellung. Was zu melden ist, klärt die Steuerberatung." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Orientation, not a tax calculation: without tax rate, saver’s allowance, loss carry-forwards and partial exemption. What has to be reported is for your tax adviser to clarify."
+          }
+        }
+      }
+    },
+    "Orientierung, keine Steuerberechnung. Ergebnis je Trade = Kursergebnis + Kommission + Swap, ohne abgeführte Steuern." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Orientation, not a tax calculation. Result per trade = price result + commission + swap, without withheld taxes."
           }
         }
       }
@@ -8462,22 +9519,22 @@
         }
       }
     },
-    "RSS: %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "RSS: %@"
-          }
-        }
-      }
-    },
     "Recherche R5, Stand 01.10.2026" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Research R5, as of 1 Oct 2026"
+          }
+        }
+      }
+    },
+    "rechnerisch %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "calculated %@"
           }
         }
       }
@@ -8562,6 +9619,16 @@
         }
       }
     },
+    "Regelsperre · gewollt verpasst" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rule lock · intentionally missed"
+          }
+        }
+      }
+    },
     "Regelsperre (gewollt)" : {
       "localizations" : {
         "en" : {
@@ -8578,16 +9645,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Rule lock counts as intentionally missed and not towards the missed result. Missed is the sum of your estimates in R."
-          }
-        }
-      }
-    },
-    "Regelsperre · gewollt verpasst" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rule lock · intentionally missed"
           }
         }
       }
@@ -8774,22 +9831,12 @@
         }
       }
     },
-    "Rund um die Uhr geöffnet; Handelszeiten gelten hier nicht." : {
+    "RSS: %@" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open around the clock; trading hours do not apply here."
-          }
-        }
-      }
-    },
-    "Rund um die Uhr, auch am Wochenende" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Around the clock, including weekends"
+            "value" : "RSS: %@"
           }
         }
       }
@@ -8814,12 +9861,32 @@
         }
       }
     },
-    "SL" : {
+    "rund um die Uhr" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "SL"
+            "value" : "around the clock"
+          }
+        }
+      }
+    },
+    "Rund um die Uhr geöffnet; Handelszeiten gelten hier nicht." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open around the clock; trading hours do not apply here."
+          }
+        }
+      }
+    },
+    "Rund um die Uhr, auch am Wochenende" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Around the clock, including weekends"
           }
         }
       }
@@ -8880,6 +9947,16 @@
         }
       }
     },
+    "schlecht" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "poor"
+          }
+        }
+      }
+    },
     "Schlechteste Trades" : {
       "localizations" : {
         "en" : {
@@ -8906,6 +9983,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Closes %@"
+          }
+        }
+      }
+    },
+    "schließt in" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "closes in"
           }
         }
       }
@@ -9026,6 +10113,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "You can attach screenshots after the first save."
+          }
+        }
+      }
+    },
+    "sehr gut" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "very good"
           }
         }
       }
@@ -9176,6 +10273,16 @@
         }
       }
     },
+    "SL" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SL"
+          }
+        }
+      }
+    },
     "Sonntag" : {
       "localizations" : {
         "en" : {
@@ -9202,6 +10309,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Column missing in the file: %@"
+          }
+        }
+      }
+    },
+    "Später an Claude gehen: Zeiten, Instrument, Richtung, Lots, Kurse, Kosten, Ergebnis, Journal. Nicht: Kontonummer, Name, Saldo." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Will go to Claude later: times, instrument, direction, lots, prices, costs, result, journal. Not: account number, name, balance."
+          }
+        }
+      }
+    },
+    "Später je Wertpapier (Steuer-Seite)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Later per security (tax page)"
           }
         }
       }
@@ -9266,32 +10393,22 @@
         }
       }
     },
-    "Später an Claude gehen: Zeiten, Instrument, Richtung, Lots, Kurse, Kosten, Ergebnis, Journal. Nicht: Kontonummer, Name, Saldo." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Will go to Claude later: times, instrument, direction, lots, prices, costs, result, journal. Not: account number, name, balance."
-          }
-        }
-      }
-    },
-    "Später je Wertpapier (Steuer-Seite)" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Later per security (tax page)"
-          }
-        }
-      }
-    },
     "Stand" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "As of"
+          }
+        }
+      }
+    },
+    "Ständiges Umplanen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Constant replanning"
           }
         }
       }
@@ -9366,12 +10483,52 @@
         }
       }
     },
+    "steuerfrei" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tax-free"
+          }
+        }
+      }
+    },
+    "steuerfrei %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tax-free %@"
+          }
+        }
+      }
+    },
     "Steuerfrei %@" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tax-free %@"
+          }
+        }
+      }
+    },
+    "steuerfrei ab %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tax-free from %@"
+          }
+        }
+      }
+    },
+    "steuerpflichtig" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "taxable"
           }
         }
       }
@@ -9412,6 +10569,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Keyword"
+          }
+        }
+      }
+    },
+    "stimmt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "matches"
           }
         }
       }
@@ -9566,6 +10733,16 @@
         }
       }
     },
+    "storniert oder abgelehnt, zählen nie als Trade" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "cancelled or rejected, never count as a trade"
+          }
+        }
+      }
+    },
     "Stufe" : {
       "localizations" : {
         "en" : {
@@ -9592,16 +10769,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hour of opening"
-          }
-        }
-      }
-    },
-    "Ständiges Umplanen" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Constant replanning"
           }
         }
       }
@@ -9752,16 +10919,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "System follows the setting in System Settings, including the automatic switch in the evening."
-          }
-        }
-      }
-    },
-    "TP" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "TP"
           }
         }
       }
@@ -9986,22 +11143,22 @@
         }
       }
     },
+    "TP" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TP"
+          }
+        }
+      }
+    },
     "Trade" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Trade"
-          }
-        }
-      }
-    },
-    "Trade Republic und Scalable Capital führen die Steuer ab; maßgeblich ist die Steuerbescheinigung des Brokers (Recherche R5, 2026). Diese Seite dient dem Abgleich." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Trade Republic and Scalable Capital withhold tax; the broker’s tax certificate is authoritative (research R5, 2026). This page is for reconciliation."
           }
         }
       }
@@ -10022,6 +11179,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Trade without stop loss."
+          }
+        }
+      }
+    },
+    "Trade Republic und Scalable Capital führen die Steuer ab; maßgeblich ist die Steuerbescheinigung des Brokers (Recherche R5, 2026). Diese Seite dient dem Abgleich." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trade Republic and Scalable Capital withhold tax; the broker’s tax certificate is authoritative (research R5, 2026). This page is for reconciliation."
           }
         }
       }
@@ -10086,16 +11253,6 @@
         }
       }
     },
-    "Trades in %@ zum EZB-Kurs des Verkaufstags in Euro umgerechnet" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Trades in %@ converted to euro at the ECB rate of the day of sale"
-          }
-        }
-      }
-    },
     "Trades in %@ zählen hier ohne Umrechnung wie %@; die Steuer-Seite rechnet sie mit EZB-Kursen um." : {
       "localizations" : {
         "de" : {
@@ -10108,6 +11265,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Trades in %1$@ count here without conversion as %2$@; the tax page converts them with ECB rates."
+          }
+        }
+      }
+    },
+    "Trades in %@ zum EZB-Kurs des Verkaufstags in Euro umgerechnet" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trades in %@ converted to euro at the ECB rate of the day of sale"
           }
         }
       }
@@ -10192,128 +11359,122 @@
         }
       }
     },
-    "US-Arbeitsmarkt und -Inflation %@ bis %@, spätere Jahre veröffentlicht die BLS erst später" : {
+    "über 1 Tag" : {
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "US-Arbeitsmarkt und -Inflation %1$@ bis %2$@, spätere Jahre veröffentlicht die BLS erst später"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "US labour market and inflation %1$@ to %2$@, the BLS publishes later years only later"
+            "value" : "over 1 day"
           }
         }
       }
     },
-    "US-Firmen, Benzinga · Schlüssel im Schlüsselbund" : {
+    "über einen Tag" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "US companies, Benzinga · key in the keychain"
+            "value" : "over a day"
           }
         }
       }
     },
-    "US-Firmen, Benzinga · kein Schlüssel (Einstellungen › Kurse)" : {
+    "über Freigrenze 1.000 €" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "US companies, Benzinga · no key (Settings › Prices)"
+            "value" : "above exemption limit €1,000"
           }
         }
       }
     },
-    "USDT wie USD umgerechnet (Näherung)" : {
+    "Über Freigrenze 1.000 €" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "USDT converted as USD (approximation)"
+            "value" : "Above exemption limit €1,000"
           }
         }
       }
     },
-    "UTC laut Datei; die App zeigt deine Zeitzone" : {
+    "über Termin gehalten" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "UTC according to the file; the app shows your time zone"
+            "value" : "held through event"
           }
         }
       }
     },
-    "UTC ohne Sommerzeit" : {
+    "Über Termin gehalten" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "UTC without daylight saving time"
+            "value" : "Held through event"
           }
         }
       }
     },
-    "UTC+0 / UTC+1 (London)" : {
+    "Überblick" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "UTC+0 / UTC+1 (London)"
+            "value" : "Overview"
           }
         }
       }
     },
-    "UTC+1 / UTC+2 (Mitteleuropa)" : {
+    "Überhandeln" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "UTC+1 / UTC+2 (Central Europe)"
+            "value" : "Overtrading"
           }
         }
       }
     },
-    "UTC+1 / UTC+2 (Mitteleuropa, Vorgabe)" : {
+    "Überhandelt" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "UTC+1 / UTC+2 (Central Europe, default)"
+            "value" : "Overtraded"
           }
         }
       }
     },
-    "UTC+2 / UTC+3 (Osteuropa)" : {
+    "Übernehmen" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "UTC+2 / UTC+3 (Eastern Europe)"
+            "value" : "Apply"
           }
         }
       }
     },
-    "UTC+2 Winter / UTC+3 Sommer (Vorgabe, viele MT4-Broker)" : {
+    "Übersicht" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "UTC+2 winter / UTC+3 summer (default, many MT4 brokers)"
+            "value" : "Overview"
           }
         }
       }
     },
-    "UTC−5 / UTC−4 (New York)" : {
+    "Übersprungene Einträge" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "UTC−5 / UTC−4 (New York)"
+            "value" : "Skipped entries"
           }
         }
       }
@@ -10358,6 +11519,16 @@
         }
       }
     },
+    "unbekannt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "unknown"
+          }
+        }
+      }
+    },
     "Unbekannte Auftragsart: %@" : {
       "localizations" : {
         "en" : {
@@ -10384,22 +11555,22 @@
         }
       }
     },
-    "Unbekannte Zeitzone." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unknown time zone."
-          }
-        }
-      }
-    },
     "Unbekannte Zeitzone; erwartet wird ein Name wie Europe/Prague." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Unknown time zone; expected a name like Europe/Prague."
+          }
+        }
+      }
+    },
+    "Unbekannte Zeitzone." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown time zone."
           }
         }
       }
@@ -10426,6 +11597,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Unexpected columns in section %1$@: %2$@"
+          }
+        }
+      }
+    },
+    "ungeprüft" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "unverified"
           }
         }
       }
@@ -10526,6 +11707,28 @@
         }
       }
     },
+    "unter %lld Trades" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "below %lld trade"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "below %lld trades"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "Unter %lld Trades: Die Zahlen beschreiben nur, sie belegen noch kein Muster." : {
       "localizations" : {
         "en" : {
@@ -10548,6 +11751,56 @@
         }
       }
     },
+    "unter 1 Stunde" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "under 1 hour"
+          }
+        }
+      }
+    },
+    "unter 1 Tag" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "under 1 day"
+          }
+        }
+      }
+    },
+    "unter 5 Minuten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "under 5 minutes"
+          }
+        }
+      }
+    },
+    "unter 30: nur beschreiben" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "under 30: describe only"
+          }
+        }
+      }
+    },
+    "unter Freigrenze 1.000 €" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "below exemption limit €1,000"
+          }
+        }
+      }
+    },
     "Unter Freigrenze 1.000 €" : {
       "localizations" : {
         "en" : {
@@ -10564,6 +11817,132 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Verdict"
+          }
+        }
+      }
+    },
+    "US-Arbeitsmarkt und -Inflation %@ bis %@, spätere Jahre veröffentlicht die BLS erst später" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "US-Arbeitsmarkt und -Inflation %1$@ bis %2$@, spätere Jahre veröffentlicht die BLS erst später"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "US labour market and inflation %1$@ to %2$@, the BLS publishes later years only later"
+          }
+        }
+      }
+    },
+    "US-Firmen, Benzinga · kein Schlüssel (Einstellungen › Kurse)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "US companies, Benzinga · no key (Settings › Prices)"
+          }
+        }
+      }
+    },
+    "US-Firmen, Benzinga · Schlüssel im Schlüsselbund" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "US companies, Benzinga · key in the keychain"
+          }
+        }
+      }
+    },
+    "USDT wie USD umgerechnet (Näherung)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "USDT converted as USD (approximation)"
+          }
+        }
+      }
+    },
+    "UTC laut Datei; die App zeigt deine Zeitzone" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UTC according to the file; the app shows your time zone"
+          }
+        }
+      }
+    },
+    "UTC ohne Sommerzeit" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UTC without daylight saving time"
+          }
+        }
+      }
+    },
+    "UTC+0 / UTC+1 (London)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UTC+0 / UTC+1 (London)"
+          }
+        }
+      }
+    },
+    "UTC+1 / UTC+2 (Mitteleuropa, Vorgabe)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UTC+1 / UTC+2 (Central Europe, default)"
+          }
+        }
+      }
+    },
+    "UTC+1 / UTC+2 (Mitteleuropa)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UTC+1 / UTC+2 (Central Europe)"
+          }
+        }
+      }
+    },
+    "UTC+2 / UTC+3 (Osteuropa)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UTC+2 / UTC+3 (Eastern Europe)"
+          }
+        }
+      }
+    },
+    "UTC+2 Winter / UTC+3 Sommer (Vorgabe, viele MT4-Broker)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UTC+2 winter / UTC+3 summer (default, many MT4 brokers)"
+          }
+        }
+      }
+    },
+    "UTC−5 / UTC−4 (New York)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UTC−5 / UTC−4 (New York)"
           }
         }
       }
@@ -10624,12 +12003,32 @@
         }
       }
     },
+    "verbunden" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "connected"
+          }
+        }
+      }
+    },
     "Verfassung" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Condition"
+          }
+        }
+      }
+    },
+    "verfehlt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "missed"
           }
         }
       }
@@ -10664,22 +12063,22 @@
         }
       }
     },
-    "Verkaufsjahr nach deutscher Zeit" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Year of sale by German time"
-          }
-        }
-      }
-    },
     "Verkäufe ohne Kauf" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sales without purchase"
+          }
+        }
+      }
+    },
+    "Verkaufsjahr nach deutscher Zeit" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Year of sale by German time"
           }
         }
       }
@@ -10906,6 +12305,16 @@
         }
       }
     },
+    "verworfen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "discarded"
+          }
+        }
+      }
+    },
     "Verworfen" : {
       "localizations" : {
         "en" : {
@@ -10926,12 +12335,78 @@
         }
       }
     },
+    "vom Hoch der Kurve; ohne Startkapital kein Prozentwert" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "from the curve’s high; without starting capital no percentage"
+          }
+        }
+      }
+    },
     "Von" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "From"
+          }
+        }
+      }
+    },
+    "von %lld Abrufen · %lld Artikel je Begriff" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "von %1$lld Abrufen · %2$lld Artikel je Begriff"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "of %1$lld requests · %2$lld articles per term"
+          }
+        }
+      }
+    },
+    "von %lld Vorgängen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "of %lld transactions"
+          }
+        }
+      }
+    },
+    "von Hand" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "by hand"
+          }
+        }
+      }
+    },
+    "vor %lld Min." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld min ago"
+          }
+        }
+      }
+    },
+    "vor %lld s" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld s ago"
           }
         }
       }
@@ -11006,6 +12481,16 @@
         }
       }
     },
+    "vorläufig" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "provisional"
+          }
+        }
+      }
+    },
     "Vormonat %@" : {
       "localizations" : {
         "en" : {
@@ -11046,6 +12531,46 @@
         }
       }
     },
+    "Wähle eine Zeile, um Zeiten, Kurse, Kosten, Journal und Fehlermuster zu sehen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select a row to see times, prices, costs, journal and error patterns."
+          }
+        }
+      }
+    },
+    "Wähle einen Kontoauszug: MetaTrader 4 (HTML, GBE und andere Broker), den Transaktionsexport von Trade Republic oder Scalable Capital (CSV), den Trade- oder Transaktionsexport von Kraken, Binance, Coinbase oder Bitpanda (CSV) oder die Kontohistorie von XTB (Excel aus xStation 5)." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose an account statement: MetaTrader 4 (HTML, GBE and other brokers), the transaction export from Trade Republic or Scalable Capital (CSV), the trade or transaction export from Kraken, Binance, Coinbase or Bitpanda (CSV) or the account history from XTB (Excel from xStation 5)."
+          }
+        }
+      }
+    },
+    "Währungen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Currencies"
+          }
+        }
+      }
+    },
+    "wartet auf %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "waiting for %@"
+          }
+        }
+      }
+    },
     "Warum dieser Einstieg, ein Satz" : {
       "localizations" : {
         "en" : {
@@ -11062,6 +12587,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "What went to plan, what did not, what do I take away"
+          }
+        }
+      }
+    },
+    "weicht ab" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "differs"
           }
         }
       }
@@ -11138,6 +12673,16 @@
         }
       }
     },
+    "wie im Export" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "as in the export"
+          }
+        }
+      }
+    },
     "Wie System" : {
       "localizations" : {
         "en" : {
@@ -11178,42 +12723,122 @@
         }
       }
     },
-    "Wähle eine Zeile, um Zeiten, Kurse, Kosten, Journal und Fehlermuster zu sehen." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Select a row to see times, prices, costs, journal and error patterns."
-          }
-        }
-      }
-    },
-    "Wähle einen Kontoauszug: MetaTrader 4 (HTML, GBE und andere Broker), den Transaktionsexport von Trade Republic oder Scalable Capital (CSV), den Trade- oder Transaktionsexport von Kraken, Binance, Coinbase oder Bitpanda (CSV) oder die Kontohistorie von XTB (Excel aus xStation 5)." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choose an account statement: MetaTrader 4 (HTML, GBE and other brokers), the transaction export from Trade Republic or Scalable Capital (CSV), the trade or transaction export from Kraken, Binance, Coinbase or Bitpanda (CSV) or the account history from XTB (Excel from xStation 5)."
-          }
-        }
-      }
-    },
-    "Währungen" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Currencies"
-          }
-        }
-      }
-    },
     "XTB schreibt keine Zeitzone in die Datei; deutsche Ortszeit ist eine Annahme. Eine andere Wahl verschiebt alle Zeiten, und ein späterer Auszug mit anderer Wahl bricht als abweichend ab." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "XTB writes no time zone into the file; German local time is an assumption. A different choice shifts all times, and a later statement with a different choice is rejected as inconsistent."
+          }
+        }
+      }
+    },
+    "z. B. 2 R oder das Vortageshoch" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "e.g. 2 R or the previous day’s high"
+          }
+        }
+      }
+    },
+    "z. B. Ausbruch" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "e.g. breakout"
+          }
+        }
+      }
+    },
+    "z. B. FTMO 2-Step 100K Phase 1" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "e.g. FTMO 2-Step 100K Phase 1"
+          }
+        }
+      }
+    },
+    "z. B. Höchstens 2 Revanche-Trades" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "e.g. at most 2 revenge trades"
+          }
+        }
+      }
+    },
+    "z. B. Kurs über dem Tageshoch" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "e.g. price above the daily high"
+          }
+        }
+      }
+    },
+    "z. B. nur im Trend, nicht vor Zahlen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "e.g. only in a trend, not before earnings"
+          }
+        }
+      }
+    },
+    "z. B. Trend, Seitwärts, Nachrichten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "e.g. trend, range, news"
+          }
+        }
+      }
+    },
+    "z. B. unter das Tief der Signalkerze" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "e.g. below the low of the signal candle"
+          }
+        }
+      }
+    },
+    "Zählt abgehakte Ziele nach dem Ende ihres Zeitraums, letzte sechs Monate. Keine Wertung der Trades selbst, nur ob du dein Ziel gehalten hast." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Counts ticked-off goals after the end of their period, last six months. No rating of the trades themselves, only whether you kept your goal."
+          }
+        }
+      }
+    },
+    "Zählt Termine zwischen Eröffnung und Schließung, die eine Währung des Symbols betreffen (EURUSD: EUR und USD, GER40: EUR). Symbole ohne Währungskürzel zählen nicht. Einschätzung, ab zehn Trades belastbarer." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Counts events between opening and closing that concern a currency of the symbol (EURUSD: EUR and USD, GER40: EUR). Symbols without a currency code do not count. Assessment, more reliable from ten trades."
+          }
+        }
+      }
+    },
+    "Zählt, ob der Plan vor dem ersten Trade des Tages gespeichert war. Tage ohne Trades fallen heraus. Grundlage sind alle Trades des gewählten Kontos." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Counts whether the plan was saved before the first trade of the day. Days without trades drop out. Based on all trades of the selected account."
           }
         }
       }
@@ -11454,22 +13079,22 @@
         }
       }
     },
-    "Ziele ohne Lücke zwischen den Zeiträumen" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Goals without a gap between periods"
-          }
-        }
-      }
-    },
     "Ziele ohne Lücke · seit %@" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Goals without a gap · since %@"
+          }
+        }
+      }
+    },
+    "Ziele ohne Lücke zwischen den Zeiträumen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Goals without a gap between periods"
           }
         }
       }
@@ -11530,6 +13155,16 @@
         }
       }
     },
+    "Zu „%@“ gibt es keine Karte im Playbook. Lege sie unter Einstellungen › Playbook an, dann kannst du hier Kriterien abhaken." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "There is no card in the playbook for “%@”. Create it under Settings › Playbook, then you can tick off criteria here."
+          }
+        }
+      }
+    },
     "Zu früh raus" : {
       "localizations" : {
         "en" : {
@@ -11546,16 +13181,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Too late"
-          }
-        }
-      }
-    },
-    "Zu „%@“ gibt es keine Karte im Playbook. Lege sie unter Einstellungen › Playbook an, dann kannst du hier Kriterien abhaken." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "There is no card in the playbook for “%@”. Create it under Settings › Playbook, then you can tick off criteria here."
           }
         }
       }
@@ -11620,6 +13245,16 @@
         }
       }
     },
+    "Zusätzliche Feiertagskalender" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Additional holiday calendars"
+          }
+        }
+      }
+    },
     "Zustand" : {
       "localizations" : {
         "en" : {
@@ -11640,1645 +13275,12 @@
         }
       }
     },
-    "Zusätzliche Feiertagskalender" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Additional holiday calendars"
-          }
-        }
-      }
-    },
     "Zwischenspeicher 14 Tage, Älteres fällt weg" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cache 14 days, older items are dropped"
-          }
-        }
-      }
-    },
-    "Zählt Termine zwischen Eröffnung und Schließung, die eine Währung des Symbols betreffen (EURUSD: EUR und USD, GER40: EUR). Symbole ohne Währungskürzel zählen nicht. Einschätzung, ab zehn Trades belastbarer." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Counts events between opening and closing that concern a currency of the symbol (EURUSD: EUR and USD, GER40: EUR). Symbols without a currency code do not count. Assessment, more reliable from ten trades."
-          }
-        }
-      }
-    },
-    "Zählt abgehakte Ziele nach dem Ende ihres Zeitraums, letzte sechs Monate. Keine Wertung der Trades selbst, nur ob du dein Ziel gehalten hast." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Counts ticked-off goals after the end of their period, last six months. No rating of the trades themselves, only whether you kept your goal."
-          }
-        }
-      }
-    },
-    "Zählt, ob der Plan vor dem ersten Trade des Tages gespeichert war. Tage ohne Trades fallen heraus. Grundlage sind alle Trades des gewählten Kontos." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Counts whether the plan was saved before the first trade of the day. Days without trades drop out. Based on all trades of the selected account."
-          }
-        }
-      }
-    },
-    "ab dem 8. Trade des Tages" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "from the 8th trade of the day"
-          }
-        }
-      }
-    },
-    "alle bestätigt" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "all confirmed"
-          }
-        }
-      }
-    },
-    "alle von Hand beurteilt" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "all assessed by hand"
-          }
-        }
-      }
-    },
-    "automatisch" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "automatic"
-          }
-        }
-      }
-    },
-    "beendet: %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ended: %@"
-          }
-        }
-      }
-    },
-    "berechnet" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "calculated"
-          }
-        }
-      }
-    },
-    "bestehend" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "existing"
-          }
-        }
-      }
-    },
-    "davon CFDs %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "of which CFDs %@"
-          }
-        }
-      }
-    },
-    "davon CFDs (Termingeschäfte, nur zur Information)" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "of which CFDs (futures transactions, for information only)"
-          }
-        }
-      }
-    },
-    "dazu %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "plus %@"
-          }
-        }
-      }
-    },
-    "eigene" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "custom"
-          }
-        }
-      }
-    },
-    "entspricht %@ vom Startkapital" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "equals %@ of starting capital"
-          }
-        }
-      }
-    },
-    "erreicht" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "reached"
-          }
-        }
-      }
-    },
-    "erster Trade" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "first trade"
-          }
-        }
-      }
-    },
-    "exportFolder.choose" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Export-Ordner wählen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choose export folder"
-          }
-        }
-      }
-    },
-    "frei" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "free"
-          }
-        }
-      }
-    },
-    "frei seit %lld Tagen" : {
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "free for %lld day"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "free for %lld days"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "freiwillig" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "optional"
-          }
-        }
-      }
-    },
-    "ganzer Tag in %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "whole day in %@"
-          }
-        }
-      }
-    },
-    "ganztägig" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "all day"
-          }
-        }
-      }
-    },
-    "ganztägig, %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "all day, %@"
-          }
-        }
-      }
-    },
-    "gekauft %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "bought %@"
-          }
-        }
-      }
-    },
-    "gepflegt bis %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "maintained until %@"
-          }
-        }
-      }
-    },
-    "gerade eben" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "just now"
-          }
-        }
-      }
-    },
-    "geschlossen" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "closed"
-          }
-        }
-      }
-    },
-    "geschlossene Positionen" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "closed positions"
-          }
-        }
-      }
-    },
-    "gespeichert %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "saved %@"
-          }
-        }
-      }
-    },
-    "gestern %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "yesterday %@"
-          }
-        }
-      }
-    },
-    "getrennt (%@), verbindet sich neu" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "disconnected (%@), reconnecting"
-          }
-        }
-      }
-    },
-    "gilt ab %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "valid from %@"
-          }
-        }
-      }
-    },
-    "gilt für %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "applies to %@"
-          }
-        }
-      }
-    },
-    "größtes %@ von %@" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "größtes %1$@ von %2$@"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "largest %1$@ of %2$@"
-          }
-        }
-      }
-    },
-    "heute" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "today"
-          }
-        }
-      }
-    },
-    "heute %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "today %@"
-          }
-        }
-      }
-    },
-    "heute geschlossen" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "closed today"
-          }
-        }
-      }
-    },
-    "heute um %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "today at %@"
-          }
-        }
-      }
-    },
-    "im gewählten Zeitraum keiner" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "none in the selected period"
-          }
-        }
-      }
-    },
-    "in %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "in %@"
-          }
-        }
-      }
-    },
-    "je Tag · %lld Trades" : {
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "per day · %lld trade"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "per day · %lld trades"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "kein Schlüssel" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "no key"
-          }
-        }
-      }
-    },
-    "kein Stop" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "no stop"
-          }
-        }
-      }
-    },
-    "kein Stop, Risiko unbekannt" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "no stop, risk unknown"
-          }
-        }
-      }
-    },
-    "kein Tag über der Grenze" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "no day over the limit"
-          }
-        }
-      }
-    },
-    "kein Termin" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "no event"
-          }
-        }
-      }
-    },
-    "kein Token" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "no token"
-          }
-        }
-      }
-    },
-    "keine Krypto-Verkäufe" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "no crypto sales"
-          }
-        }
-      }
-    },
-    "keine Meldung" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "no headline"
-          }
-        }
-      }
-    },
-    "keine Meldung in den letzten 14 Tagen" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "no headline in the last 14 days"
-          }
-        }
-      }
-    },
-    "keine Trades" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "no trades"
-          }
-        }
-      }
-    },
-    "keine Währung erkannt" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "no currency recognised"
-          }
-        }
-      }
-    },
-    "keiner Börse zugeordnet" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "not assigned to an exchange"
-          }
-        }
-      }
-    },
-    "keiner in den Daten" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "none in the data"
-          }
-        }
-      }
-    },
-    "keiner in der Haltezeit" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "none in the holding period"
-          }
-        }
-      }
-    },
-    "keins" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "none"
-          }
-        }
-      }
-    },
-    "laut Auszug" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "per statement"
-          }
-        }
-      }
-    },
-    "letzte %lld Tage" : {
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "last %lld day"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "last %lld days"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "mit %@ (%lld) · ohne %@ (%lld)" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "mit %1$@ (%2$lld) · ohne %3$@ (%4$lld)"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "with %1$@ (%2$lld) · without %3$@ (%4$lld)"
-          }
-        }
-      }
-    },
-    "morgen %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "tomorrow %@"
-          }
-        }
-      }
-    },
-    "morgen um %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "tomorrow at %@"
-          }
-        }
-      }
-    },
-    "nach FIFO, nur diese Datei" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "by FIFO, this file only"
-          }
-        }
-      }
-    },
-    "nach FIFO, nur diese Datei · in %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "by FIFO, this file only · in %@"
-          }
-        }
-      }
-    },
-    "nach dem Review genau eins anlegen" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "create exactly one after the review"
-          }
-        }
-      }
-    },
-    "nach einem Gewinn" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "after a profit"
-          }
-        }
-      }
-    },
-    "nach einem Trade ohne Ergebnis" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "after a trade without result"
-          }
-        }
-      }
-    },
-    "nach einem Verlust" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "after a loss"
-          }
-        }
-      }
-    },
-    "nah an der Grenze" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "close to the limit"
-          }
-        }
-      }
-    },
-    "neu" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "new"
-          }
-        }
-      }
-    },
-    "nicht gebraucht" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "not needed"
-          }
-        }
-      }
-    },
-    "nicht verbucht" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "not booked"
-          }
-        }
-      }
-    },
-    "noch %lld Tage" : {
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld day left"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld days left"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "noch im Depot; werden beim Verkauf zu Trades" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "still in the portfolio; become trades when sold"
-          }
-        }
-      }
-    },
-    "noch kein Abruf" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "no request yet"
-          }
-        }
-      }
-    },
-    "noch kein Urteil in %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "no verdict yet in %@"
-          }
-        }
-      }
-    },
-    "noch nicht gewählt" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "not chosen yet"
-          }
-        }
-      }
-    },
-    "nächstes Ende %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "next end %@"
-          }
-        }
-      }
-    },
-    "offen" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "open"
-          }
-        }
-      }
-    },
-    "offene Position" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "open position"
-          }
-        }
-      }
-    },
-    "ohne Euro" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "without euro"
-          }
-        }
-      }
-    },
-    "ohne Handel" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "no trading"
-          }
-        }
-      }
-    },
-    "ohne Setup" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "without setup"
-          }
-        }
-      }
-    },
-    "ohne Stop kein R" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "no stop, no R"
-          }
-        }
-      }
-    },
-    "ohne Uhrzeit" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "without time of day"
-          }
-        }
-      }
-    },
-    "rechnerisch %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "calculated %@"
-          }
-        }
-      }
-    },
-    "rund um die Uhr" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "around the clock"
-          }
-        }
-      }
-    },
-    "schlecht" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "poor"
-          }
-        }
-      }
-    },
-    "schließt in" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "closes in"
-          }
-        }
-      }
-    },
-    "sehr gut" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "very good"
-          }
-        }
-      }
-    },
-    "steuerfrei" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "tax-free"
-          }
-        }
-      }
-    },
-    "steuerfrei %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "tax-free %@"
-          }
-        }
-      }
-    },
-    "steuerfrei ab %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "tax-free from %@"
-          }
-        }
-      }
-    },
-    "steuerpflichtig" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "taxable"
-          }
-        }
-      }
-    },
-    "stimmt" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "matches"
-          }
-        }
-      }
-    },
-    "storniert oder abgelehnt, zählen nie als Trade" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "cancelled or rejected, never count as a trade"
-          }
-        }
-      }
-    },
-    "unbekannt" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "unknown"
-          }
-        }
-      }
-    },
-    "ungeprüft" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "unverified"
-          }
-        }
-      }
-    },
-    "unter %lld Trades" : {
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "below %lld trade"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "below %lld trades"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "unter 1 Stunde" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "under 1 hour"
-          }
-        }
-      }
-    },
-    "unter 1 Tag" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "under 1 day"
-          }
-        }
-      }
-    },
-    "unter 30: nur beschreiben" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "under 30: describe only"
-          }
-        }
-      }
-    },
-    "unter 5 Minuten" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "under 5 minutes"
-          }
-        }
-      }
-    },
-    "unter Freigrenze 1.000 €" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "below exemption limit €1,000"
-          }
-        }
-      }
-    },
-    "verbunden" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "connected"
-          }
-        }
-      }
-    },
-    "verfehlt" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "missed"
-          }
-        }
-      }
-    },
-    "verworfen" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "discarded"
-          }
-        }
-      }
-    },
-    "vom Hoch der Kurve; ohne Startkapital kein Prozentwert" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "from the curve’s high; without starting capital no percentage"
-          }
-        }
-      }
-    },
-    "von %lld Abrufen · %lld Artikel je Begriff" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "von %1$lld Abrufen · %2$lld Artikel je Begriff"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "of %1$lld requests · %2$lld articles per term"
-          }
-        }
-      }
-    },
-    "von %lld Vorgängen" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "of %lld transactions"
-          }
-        }
-      }
-    },
-    "von Hand" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "by hand"
-          }
-        }
-      }
-    },
-    "vor %lld Min." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld min ago"
-          }
-        }
-      }
-    },
-    "vor %lld s" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld s ago"
-          }
-        }
-      }
-    },
-    "vorläufig" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "provisional"
-          }
-        }
-      }
-    },
-    "wartet auf %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "waiting for %@"
-          }
-        }
-      }
-    },
-    "weicht ab" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "differs"
-          }
-        }
-      }
-    },
-    "wie im Export" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "as in the export"
-          }
-        }
-      }
-    },
-    "z. B. 2 R oder das Vortageshoch" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "e.g. 2 R or the previous day’s high"
-          }
-        }
-      }
-    },
-    "z. B. Ausbruch" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "e.g. breakout"
-          }
-        }
-      }
-    },
-    "z. B. FTMO 2-Step 100K Phase 1" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "e.g. FTMO 2-Step 100K Phase 1"
-          }
-        }
-      }
-    },
-    "z. B. Höchstens 2 Revanche-Trades" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "e.g. at most 2 revenge trades"
-          }
-        }
-      }
-    },
-    "z. B. Kurs über dem Tageshoch" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "e.g. price above the daily high"
-          }
-        }
-      }
-    },
-    "z. B. Trend, Seitwärts, Nachrichten" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "e.g. trend, range, news"
-          }
-        }
-      }
-    },
-    "z. B. nur im Trend, nicht vor Zahlen" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "e.g. only in a trend, not before earnings"
-          }
-        }
-      }
-    },
-    "z. B. unter das Tief der Signalkerze" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "e.g. below the low of the signal candle"
-          }
-        }
-      }
-    },
-    "Öffnet %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Opens %@"
-          }
-        }
-      }
-    },
-    "Ø R" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ø R"
-          }
-        }
-      }
-    },
-    "Ø mit allen Häkchen" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ø with all ticks"
-          }
-        }
-      }
-    },
-    "Ø ohne" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ø without"
-          }
-        }
-      }
-    },
-    "Über Freigrenze 1.000 €" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Above exemption limit €1,000"
-          }
-        }
-      }
-    },
-    "Über Termin gehalten" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Held through event"
-          }
-        }
-      }
-    },
-    "Überblick" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Overview"
-          }
-        }
-      }
-    },
-    "Überhandeln" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Overtrading"
-          }
-        }
-      }
-    },
-    "Überhandelt" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Overtraded"
-          }
-        }
-      }
-    },
-    "Übernehmen" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Apply"
-          }
-        }
-      }
-    },
-    "Übersicht" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Overview"
-          }
-        }
-      }
-    },
-    "Übersprungene Einträge" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Skipped entries"
-          }
-        }
-      }
-    },
-    "öffnet in" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "opens in"
-          }
-        }
-      }
-    },
-    "über 1 Tag" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "over 1 day"
-          }
-        }
-      }
-    },
-    "über Freigrenze 1.000 €" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "above exemption limit €1,000"
-          }
-        }
-      }
-    },
-    "über Termin gehalten" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "held through event"
-          }
-        }
-      }
-    },
-    "über einen Tag" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "over a day"
-          }
-        }
-      }
-    },
-    "–" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "–"
-          }
-        }
-      }
-    },
-    "„%@“ ist kein unterstütztes Bild. Möglich sind PNG, JPEG und HEIC." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“%@” is not a supported image. PNG, JPEG and HEIC are possible."
-          }
-        }
-      }
-    },
-    "„%@“ ließ sich nicht in den Bilderordner kopieren." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“%@” could not be copied to the image folder."
-          }
-        }
-      }
-    },
-    "„%@“: Dateiformat %lld kennt diese Version nicht." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "„%1$@“: Dateiformat %2$lld kennt diese Version nicht."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“%1$@”: this version does not know file format %2$lld."
-          }
-        }
-      }
-    },
-    "„%@“: Handelszeit ungültig (%@)." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "„%1$@“: Handelszeit ungültig (%2$@)."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“%1$@”: invalid trading hours (%2$@)."
-          }
-        }
-      }
-    },
-    "„%@“: Zeitzone „%@“ ist unbekannt. Erwartet wird ein IANA-Name wie Europe/Berlin." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "„%1$@“: Zeitzone „%2$@“ ist unbekannt. Erwartet wird ein IANA-Name wie Europe/Berlin."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“%1$@”: time zone “%2$@” is unknown. Expected an IANA name like Europe/Berlin."
-          }
-        }
-      }
-    },
-    "„%@“: keine Handelszeiten angegeben." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“%@”: no trading hours specified."
-          }
-        }
-      }
-    },
-    "„Henry“ spricht Begrüßung, leere Seiten und Erfolgsmeldungen ruhig und trocken, „Sachlich“ nüchtern. Zahlen, Steuer, Regelverstöße, Warnungen und Fehler bleiben in beiden Stellungen sachlich; der Export für den Claude-Connector trägt die Einstellung mit." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“Henry” speaks greetings, empty pages and success messages calmly and drily, “Plain” soberly. Numbers, tax, rule violations, warnings and errors stay plain in both settings; the export for the Claude connector carries the setting along."
-          }
-        }
-      }
-    },
-    "„Regelsperre“ heißt: deine eigene Regel hat den Trade verboten. Er zählt als gewollt verpasst und nicht zum entgangenen Ergebnis." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“Rule lock” means: your own rule prohibited the trade. It counts as intentionally missed and not towards the missed result."
-          }
-        }
-      }
-    },
-    "„ungeprüft“: Dieser Importer lief noch gegen keine echte Datei, nur gegen öffentliche Beispiele. Prüfe Stückzahlen und Beträge gegen die App deines Brokers." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“unverified”: this importer has not yet run against a real file, only against public samples. Check quantities and amounts against your broker’s app."
           }
         }
       }
