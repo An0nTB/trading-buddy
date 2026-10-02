@@ -26,7 +26,8 @@ extension Anfrage {
     }
 
     /// Abschnitt „Eigene Handelsregeln“; leer, wenn weder Regeln noch Journal-Verstöße vorliegen.
-    func regelabschnitt(_ trades: [Trade]) -> [String] {
+    /// - Parameter propFirm: Zeile zur Prop-Firm-Prüfung aus `propFirmzeile`; ohne sie nur der Hinweis auf die App.
+    func regelabschnitt(_ trades: [Trade], propFirm: String? = nil) -> [String] {
         let verstoesse = verstoesse(trades)
         guard konto.regeln != nil || !verstoesse.isEmpty else { return [] }
         var t = ["\n## Eigene Handelsregeln (eingetragen in der App, geprüft nach dem Import)"]
@@ -53,7 +54,9 @@ extension Anfrage {
                 + "\(Format.zahl(ohne.netto)), Erwartungswert \(Format.r(ohne.erwartungswertR)). "
                 + "Ein Trade kann mehrere Regeln zugleich verletzen.")
         }
-        if konto.regeln?.propFirm != nil {
+        if let propFirm {
+            t.append(propFirm)
+        } else if konto.regeln?.propFirm != nil {
             t.append("Prop-Firm-Regeln sind eingetragen; ihre Prüfung zeigt die App, sie ist hier nicht enthalten.")
         }
         return t
@@ -61,8 +64,9 @@ extension Anfrage {
 
     /// Abschnitt „Muster“: Gruppen, die sich deutlich vom Rest unterscheiden, mit Zufallsprüfung.
     /// Leer, wenn keine Gruppe und kein Rest 30 Trades erreicht.
-    func musterabschnitt(_ trades: [Trade], hoechstens: Int = 5) -> [String] {
-        let gefunden = MusterFinder.finde(trades, zeitzone: zeitzone)
+    /// - Parameter vorgegeben: schon gefundene Muster (`Zeitraumbericht.muster`), sonst sucht der Abschnitt selbst.
+    func musterabschnitt(_ trades: [Trade], vorgegeben: [Muster]? = nil, hoechstens: Int = 5) -> [String] {
+        let gefunden = vorgegeben ?? MusterFinder.finde(trades, zeitzone: zeitzone)
         var gezeigt: [Muster] = []
         for m in gefunden where gezeigt.count < hoechstens {
             // Bei zwei Gruppen (etwa Kauf und Verkauf) ist das Gegenstück dieselbe Aussage.
