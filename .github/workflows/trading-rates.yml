@@ -1,0 +1,40 @@
+name: TradingRates
+
+# EZB-Referenzkurse: Linux und macOS (XMLParser und URLSession unterscheiden sich zwischen den Systemen),
+# ohne echtes Netz (Tests mit Testdateien im EZB-Aufbau). Kein Pflicht-Check; läuft nur, wenn sich
+# das Paket, TradingCore (Referenzkurse) oder diese Datei ändert.
+on:
+  pull_request:
+    paths:
+      - "Packages/TradingRates/**"
+      - "Packages/TradingCore/Sources/TradingCore/Steuer/**"
+      - ".github/workflows/trading-rates.yml"
+  push:
+    branches: [main]
+    paths:
+      - "Packages/TradingRates/**"
+      - "Packages/TradingCore/Sources/TradingCore/Steuer/**"
+      - ".github/workflows/trading-rates.yml"
+
+jobs:
+  trading-rates-linux:
+    name: TradingRates (Linux)
+    runs-on: ubuntu-latest
+    container: swift:6.2
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bauen
+        working-directory: Packages/TradingRates
+        run: swift build
+      - name: Tests
+        working-directory: Packages/TradingRates
+        run: swift test
+
+  trading-rates-macos:
+    name: TradingRates (macOS)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tests
+        working-directory: Packages/TradingRates
+        run: swift test
