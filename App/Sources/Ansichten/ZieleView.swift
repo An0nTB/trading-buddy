@@ -110,6 +110,7 @@ private struct ZieleKacheln: View {
         let imJahr = Zielbilanz.imJahr(ziele, jahr)
         let erreicht = imJahr.filter { $0.status == .erreicht }.count
         let verfehlt = imJahr.filter { $0.status == .verfehlt }.count
+        let automatischImJahr = Zielbilanz.zuBeurteilen(imJahr).count
         let folge = Zielbilanz.inFolge(ziele)
         LazyVGrid(columns: Raster.kacheln, spacing: Abstand.kachelAbstand) {
             Kachel(titel: "Offen", wert: String(offen.count),
@@ -120,7 +121,7 @@ private struct ZieleKacheln: View {
                    zusatz: erreichtZusatz(erreicht: erreicht, verfehlt: verfehlt, jahr: jahr),
                    farbe: erreicht > 0 ? thema.gewinn : nil)
             Kachel(titel: "Verfehlt \(String(jahr))", wert: String(verfehlt),
-                   zusatz: verfehltZusatz(verfehlt: verfehlt, automatisch: zuBeurteilen),
+                   zusatz: verfehltZusatz(verfehlt: verfehlt, automatisch: automatischImJahr),
                    farbe: verfehlt > 0 ? thema.verlust : nil)
             Kachel(titel: "In Folge", wert: String(folge.anzahl), zusatz: folgeZusatz(folge))
         }
@@ -130,8 +131,9 @@ private struct ZieleKacheln: View {
         if zuBeurteilen > 0 {
             return String(localized: "\(zuBeurteilen) mit abgelaufener Frist, Urteil offen")
         }
-        if let erstes = offen.first {
-            return String(localized: "nächstes Ende \(Format.datum(Zielbilanz.letzterTag(erstes)))")
+        // Frühestes Ende, nicht frühester Beginn (Gegencheck A7, Doc 36).
+        if let naechstes = offen.min(by: { Zielbilanz.letzterTag($0) < Zielbilanz.letzterTag($1) }) {
+            return String(localized: "nächstes Ende \(Format.datum(Zielbilanz.letzterTag(naechstes)))")
         }
         return String(localized: "nach dem Review genau eins anlegen")
     }
@@ -498,7 +500,12 @@ enum Zielbilanz {
         for versatz in (0..<monate).reversed() {
             guard let start = kalender.date(byAdding: .month, value: -versatz, to: aktuell),
                   let intervall = kalender.dateInterval(of: .month, for: start) else { continue }
-            let imMonat = abgehakt.filter { intervall.contains(letzterTag($0, kalender: kalender)) }
+            // `DateInterval.contains` schließt das Ende ein; ein Ziel mit letztem Tag am Monatsersten 00:00 zählte
+            // sonst in zwei Monaten (Gegencheck A2, Doc 36).
+            let imMonat = abgehakt.filter { ziel in
+                let tag = letzterTag(ziel, kalender: kalender)
+                return tag >= intervall.start && tag < intervall.end
+            }
             for status in Zielformat.abhakStatus {
                 werte.append(Monatswert(monat: start, status: status,
                                         anzahl: imMonat.filter { $0.status == status }.count))

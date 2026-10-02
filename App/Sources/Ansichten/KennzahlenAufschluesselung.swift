@@ -227,7 +227,7 @@ struct ReihenfolgeKarte: View {
                     teil("Trade-Nummer am Tag", nummer)
                 }
             }
-            Text("Vorheriger Trade nach Schlusszeit über alle Trades des Kontos; Trade-Nummer nach Eröffnung je Tag in deiner Zeitzone. Ab dem achten Trade eines Tages zusammengefasst.")
+            Text("Vorheriger Trade nach Schlusszeit und Trade-Nummer nach Eröffnung je Tag, beides innerhalb der gefilterten Trades und in deiner Zeitzone. Ab dem achten Trade eines Tages zusammengefasst.")
                 .font(Schrift.beschriftung)
                 .foregroundStyle(thema.textSchwach)
         }
