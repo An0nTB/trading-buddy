@@ -171,6 +171,9 @@ struct ImportView: View {
                     .font(Schrift.beschriftung)
                     .foregroundStyle(thema.textSchwach)
             }
+            #if os(macOS)
+            ImportordnerKarte() // Rückfragen und stille Importe aus dem Import-Ordner (Doc 45)
+            #endif
             if modell.importe.isEmpty {
                 ContentUnavailableView(ton.text("Noch kein Import", henry: "Ein Auszug, bitte."), systemImage: "square.and.arrow.down",
                                        description: Text("Wähle einen Kontoauszug: MetaTrader 4 (HTML, GBE und andere Broker), den Transaktionsexport von Trade Republic oder Scalable Capital (CSV), den Trade- oder Transaktionsexport von Kraken, Binance, Coinbase oder Bitpanda (CSV) oder die Kontohistorie von XTB (Excel aus xStation 5)."))

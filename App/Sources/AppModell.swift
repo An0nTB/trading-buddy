@@ -95,6 +95,9 @@ final class AppModell {
             schliesseAbgelaufeneZiele()
             laden()
             exportiere()
+            #if os(macOS)
+            if nebenwirkungen { Importordner.geteilt.verbinde(self) } // Import-Ordner beobachten (Doc 45)
+            #endif
         }
         if nebenwirkungen { Task { await ladeEZBKurse() } }
     }
