@@ -80,13 +80,13 @@ private func gbeMai() throws -> MT4Statement {
     let decoder = JSONDecoder()
     decoder.dateDecodingStrategy = .iso8601
     let gelesen = try decoder.decode(AlterExport.self, from: daten)
-    #expect(gelesen.format == 1 && gelesen.konten[0].trades == [trade])
+    #expect(gelesen.format == JournalExport.aktuellesFormat && gelesen.konten[0].trades == [trade])
 }
 
 @Test func neueresFormatWirdAbgelehnt() throws {
     let export = JournalExport(konten: [], zeitzone: utc, erstellt: zeit("2026-10-01T20:00:00"))
     let text = String(decoding: try export.json(), as: UTF8.self)
-        .replacingOccurrences(of: #""format":1"#, with: #""format":99"#)
+        .replacingOccurrences(of: "\"format\":\(JournalExport.aktuellesFormat)", with: #""format":99"#)
     #expect(throws: ExportFehler.neueresFormat(99)) { try JournalExport.lese(Data(text.utf8)) }
 }
 

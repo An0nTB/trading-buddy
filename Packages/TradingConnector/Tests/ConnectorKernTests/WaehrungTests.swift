@@ -93,3 +93,25 @@ private let gemischt = [trade("e1", "2025-05-05T10:00:00", netto: 10), trade("e2
     let usd = try Anfrage.lies(["monat": "2025-05", "waehrung": "USD"], export: export(tag, regeln: regeln))
     #expect(usd.verstoesse(usd.konto.trades).isEmpty)
 }
+
+@Test func umrechnungMitEZBKursenDerAppDatei() throws {
+    // 1 EUR = 1,25 USD am 05.05.2025: u1 mit +500 USD zählt +400 EUR. u2 (10.04.) hat keinen Kurs und bleibt draußen.
+    var datei = export(gemischt)
+    let tag = try #require(Journaltag("2025-05-05"))
+    let kurs = try #require(Decimal(string: "1.25"))
+    datei.referenzkurse = [JournalExport.Tageskurse(tag: tag, kurse: ["USD": kurs])]
+    let anfrage = try Anfrage.lies(["monat": "2025-05"], export: datei)
+    #expect(anfrage.konto.waehrung == "EUR" && anfrage.umgerechnet == ["USD": 1])
+    #expect(anfrage.konto.trades.map(\.id).sorted() == ["e1", "e2", "e3", "u1"])
+    #expect(anfrage.auswertung().kennzahlen.netto == 412)
+    #expect(anfrage.andereWaehrungen["USD"]?.map(\.id) == ["u2"])
+    let text = Ausgabe.auswertung(anfrage)
+    #expect(text.contains("Beträge in EUR. Umgerechnet in EUR mit dem EZB-Referenzkurs am Schlusstag (Näherung, wie in "
+        + "der App): USD 1 Trades; Kurse und Stops bleiben in ihrer Währung. Ohne EZB-Kurs am Schlusstag nicht "
+        + "umgerechnet und nicht in diesen Summen (eigene Abfrage mit waehrung): USD: 1 Trades, davon 0 im Zeitraum."))
+    #expect(Ausgabe.datenstand(datei).contains("davon in anderer Währung USD 2 (umgerechnet mit EZB-Referenzkursen, "
+        + "einzeln über waehrung)"))
+    // Mit waehrung: nur diese Währung, ohne Umrechnung.
+    let usd = try Anfrage.lies(["monat": "2025-05", "waehrung": "USD"], export: datei)
+    #expect(usd.umgerechnet.isEmpty && usd.auswertung().kennzahlen.netto == 500)
+}
