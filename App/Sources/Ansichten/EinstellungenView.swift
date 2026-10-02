@@ -26,6 +26,10 @@ struct EinstellungenView: View {
                 Form { RegelnEinstellungen() }
                     .formStyle(.grouped)
             }
+            Tab("Kurse", systemImage: "chart.line.uptrend.xyaxis") {
+                Form { KurseEinstellungen() }
+                    .formStyle(.grouped)
+            }
             Tab("Claude", systemImage: "sparkles") {
                 ClaudeFelder()
             }
@@ -45,6 +49,12 @@ struct EinstellungenView: View {
                 NavigationLink("Handelsregeln und Prop-Firm") {
                     Form { RegelnEinstellungen() }
                         .navigationTitle("Regeln")
+                }
+            }
+            Section("Kurse") {
+                NavigationLink("Kurse offener Trades") {
+                    Form { KurseEinstellungen() }
+                        .navigationTitle("Kurse")
                 }
             }
             Section("Claude") {
