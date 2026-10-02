@@ -70,6 +70,17 @@ struct BoersenEinstellungen: View {
                         .foregroundStyle(thema.verlust)
                 }
             }
+            if !verwaltung.probleme.isEmpty {
+                Section("Übersprungene Einträge") {
+                    ForEach(verwaltung.probleme, id: \.self) { problem in
+                        Label(problem, systemImage: "exclamationmark.circle")
+                            .foregroundStyle(thema.textSchwach)
+                    }
+                    Text("Diese Einträge der gespeicherten Auswahl nimmt die Uhr nicht, etwa nach einer nachträglich geänderten Datei. Löschen oder neu anlegen behebt es.")
+                        .font(Schrift.beschriftung)
+                        .foregroundStyle(thema.textSchwach)
+                }
+            }
         }
         .sheet(item: $bearbeitung) { bearbeitung in
             switch bearbeitung {
