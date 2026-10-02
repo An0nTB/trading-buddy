@@ -91,6 +91,17 @@ final class AppModell {
         Task { await ladeEZBKurse() }
     }
 
+    /// EZB-Kurse nachladen, wenn der letzte erfolgreiche Abruf älter als einen Tag ist (lange Laufzeit) oder der
+    /// Start ohne Netz war; höchstens ein Versuch je Stunde. `EZBKurse.laden()` fragt die EZB nur außerhalb der
+    /// Ruhezeit, sonst liest es nur den Zwischenspeicher (Zweiter Gegencheck X6).
+    private func ladeEZBKurseFallsVeraltet() {
+        let jetzt = Date()
+        if let versuch = ezbVersuch, jetzt.timeIntervalSince(versuch) < 60 * 60 { return }
+        let veraltet = ezb.abgerufen.map { jetzt.timeIntervalSince($0) > 24 * 60 * 60 } ?? true
+        guard veraltet || ezb.fehler != nil else { return }
+        Task { await ladeEZBKurse() }
+    }
+
     var konto: Konto? { konten.first { $0.id == kontoId } ?? konten.first }
     var waehrung: String { konto?.waehrung ?? "EUR" }
     /// Wochentag, Stunde und Tagesgrenze in der Zeitzone des Nutzers.
@@ -184,6 +195,7 @@ final class AppModell {
 
     func laden() {
         guard let journal else { return }
+        ladeEZBKurseFallsVeraltet()
         do {
             konten = try journal.konten()
             importe = try konten.flatMap { konto in
@@ -358,7 +370,15 @@ final class AppModell {
     }
 
     /// Lädt die EZB-Kurse, wenn der Zwischenspeicher nicht aktuell ist; ohne Netz bleibt er gültig.
+    /// Läuft gerade ein Abruf, und wann der letzte Versuch war (Zweiter Gegencheck X6).
+    private var ezbLaedt = false
+    private var ezbVersuch: Date?
+
     func ladeEZBKurse() async {
+        if ezbLaedt { return }
+        ezbLaedt = true
+        ezbVersuch = Date()
+        defer { ezbLaedt = false }
         ezb = await EZBKurse().laden()
     }
 
@@ -445,6 +465,7 @@ final class AppModell {
         guard let journal, let konto else { throw Regelfehler.keinKonto }
         try journal.setzeHandelsregeln(neu, konto: konto)
         regeln = try journal.handelsregeln(konto: konto)
+        exportiere() // Regeln stehen seit #100 im Export (Zweiter Gegencheck X4)
     }
 
     /// Setups, die schon einmal eingetragen wurden, alphabetisch.
@@ -598,8 +619,7 @@ final class AppModell {
         laden()
         if let konto = importe.first(where: { $0.lauf.id == ergebnis.importlaufId })?.konto,
            let id = konto.id, id != self.konto?.id {
-            kontoId = id
-            laden()
+            waehleKonto(id) // setzt Filter zurück wie der Kontowechsel in der Seitenleiste (Zweiter Gegencheck X3)
         }
         exportiere()
     }
