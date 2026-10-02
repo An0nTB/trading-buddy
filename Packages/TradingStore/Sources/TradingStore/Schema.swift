@@ -382,6 +382,23 @@ enum Schema {
             try db.create(index: "bild_trade", on: "bild", columns: ["kontoId", "ticket"])
         }
 
+        migrator.registerMigration("v9 Merkliste") { db in
+            // Merkliste für Nachrichten (Doc 26), für alle Konten. `schluessel` ist der Begriff in
+            // Kleinbuchstaben und verhindert Doppelte. Abgelehnte Vorschläge bleiben stehen, damit sie
+            // beim nächsten Vorschlag nicht wiederkommen.
+            try db.create(table: "merkliste") { t in
+                t.primaryKey("id", .text)
+                t.column("begriff", .text).notNull()
+                t.column("schluessel", .text).notNull().unique()
+                t.column("art", .text).notNull()
+                t.column("anzeigename", .text).notNull()
+                t.column("herkunft", .text).notNull()
+                t.column("status", .text).notNull()
+                t.column("notiz", .text).notNull()
+                t.column("erstellt", .datetime).notNull()
+            }
+        }
+
         return migrator
     }
 }
