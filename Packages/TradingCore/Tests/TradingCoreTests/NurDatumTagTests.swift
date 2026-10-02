@@ -49,7 +49,8 @@ private func kalender(_ zone: TimeZone) -> Calendar {
     ]
     // Plan am Vorabend des 3. März (New York) gespeichert: gilt für den 3., der Trade c liegt am 2.
     let notiz = Tagesnotiz(tag: Journaltag(jahr: 2026, monat: 3, tag: 3)!, plan: "Nur Ausbrüche",
-                           planErstellt: nurDatumZeit("2026-03-03T02:00:00Z"))
+                           planErstellt: nurDatumZeit("2026-03-03T02:00:00Z"),
+                           erstellt: nurDatumZeit("2026-03-03T02:00:00Z"))
     let wirkung = Planwirkung(trades: trades, notizen: [notiz], zeitzone: newYork)
     #expect(wirkung.tageMitPlan == 1)
     #expect(wirkung.tradesMitPlan == 2)
