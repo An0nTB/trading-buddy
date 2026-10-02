@@ -90,9 +90,10 @@ extension Journal {
     /// frei benannt; wer ein abgelaufenes Ziel nachträglich als erreicht abhakt, setzt `erreicht` direkt.
     @discardableResult
     public func schliesseAbgelaufeneZiele(konto: Konto? = nil, jetzt: Date = Date()) throws -> [Reviewziel] {
-        try schreibe { db in
+        if let konto, konto.id == nil { throw SpeicherFehler.ungueltigerWert("Konto ohne ID") }
+        return try schreibe { db in
             var anfrage = ZielZeile.filter(Column("status") == Reviewziel.Status.offen.rawValue && Column("bis") <= jetzt)
-            if let konto { anfrage = anfrage.filter(Column("kontoId") == konto.id!) }
+            if let kontoId = konto?.id { anfrage = anfrage.filter(Column("kontoId") == kontoId) }
             var geschlossen: [Reviewziel] = []
             for var zeile in try anfrage.order(Column("von"), Column("id")).fetchAll(db) {
                 zeile.status = Reviewziel.Status.verfehlt.rawValue
