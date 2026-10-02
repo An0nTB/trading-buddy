@@ -257,9 +257,6 @@ func art(_ text: String) throws -> Produktart {
     return wert
 }
 
-/// Produktart eines schon gespeicherten Vorgangs nach einem erneuten Import. `unbekannt` auf einer Seite ist
-/// keine Abweichung (ältere Importe und Exporte ohne Angabe kennen sie nicht); die bekannte Art gilt.
-/// `nil`, wenn beide Seiten verschiedene bekannte Arten nennen.
 /// Art aus der Importdatei, ergänzt um die Vorgabe des Nutzers: nur wenn der Importer keine erkennt und die
 /// gespeicherte Zeile (falls vorhanden) noch keine hat. So erzeugt eine falsche Vorgabe nie eine Abweichung.
 func vorgegeben(_ ausDatei: Produktart, gespeichert: String?, _ vorgabe: Produktart?) -> Produktart {
@@ -268,8 +265,9 @@ func vorgegeben(_ ausDatei: Produktart, gespeichert: String?, _ vorgabe: Produkt
     return vorgabe
 }
 
-func vereinteProduktart(_ alt: Produktart, _ neu: Produktart) -> Produktart? {
-    if alt == neu || neu == .unbekannt { return alt }
-    if alt == .unbekannt { return neu }
-    return nil
+/// Produktart eines schon gespeicherten Vorgangs nach einem erneuten Import. Die gespeicherte bekannte Art
+/// gilt, auch wenn die Datei eine andere nennt: Sie kann von Hand gesetzt sein (`setzeProduktart`), und die
+/// Art ist eine Einordnung, kein Wert des Vorgangs. Nur `unbekannt` ergänzt die Datei.
+func vereinteProduktart(_ alt: Produktart, _ neu: Produktart) -> Produktart {
+    alt == .unbekannt ? neu : alt
 }

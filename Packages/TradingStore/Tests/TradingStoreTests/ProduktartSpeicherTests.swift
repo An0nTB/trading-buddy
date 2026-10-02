@@ -79,16 +79,35 @@ private func nurKonto(_ journal: Journal) throws -> Konto {
     #expect(try journal.geschlossenePositionen(konto: nurKonto(journal)).allSatisfy { $0.produktart == .cfd })
 }
 
-@Test func widersprechendeProduktartIstEineAbweichung() throws {
+@Test func gespeicherteProduktartGiltBeimErneutenImport() throws {
+    // Gespeichert steht eine andere bekannte Art als in der Datei (von Hand gesetzt): keine Abweichung.
     let journal = try Journal.imSpeicher()
     try tr(journal, "trade_republic_2026_komma")
     try journal.schreibe {
         try $0.execute(sql: "UPDATE ausfuehrung SET produktart = 'krypto' WHERE vorgangId = 'tr-0002'")
     }
-    #expect(throws: SpeicherFehler.abweichenderDatensatz(tickets: ["tr-0002"])) {
-        try tr(journal, "trade_republic_alt_semikolon")
+    let zweiter = try tr(journal, "trade_republic_alt_semikolon")
+    #expect(zweiter.status == .gespeichert)
+    #expect(zweiter.csv.ausfuehrungenBekannt == 2)
+    let arten = try journal.kontobewegungen(konto: nurKonto(journal)).ausfuehrungen
+    #expect(arten.first { $0.id == "tr-0002" }?.produktart == .krypto)
+}
+
+@Test func handgesetzteProduktartUeberstehtMonatsauszug() throws {
+    // Befund S1: MT4 liefert CFD; nach der Korrektur von Hand bricht der Monatsauszug nicht mehr ab.
+    let journal = try Journal.imSpeicher()
+    try mt4(journal, "gbe-2025-05-14-daily")
+    let konto = try nurKonto(journal)
+    let vorher = try journal.geschlossenePositionen(konto: konto)
+    let symbol = try #require(vorher.first?.symbol)
+    let korrigiert = Set(vorher.filter { $0.symbol == symbol }.map(\.ticket))
+    #expect(try journal.setzeProduktart(konto: konto, symbol: symbol, .aktie) == korrigiert.count)
+    let monat = try mt4(journal, "gbe-2025-05-31-monthly")
+    #expect(monat.status == .gespeichert)
+    #expect(monat.geschlosseneBekannt == 4)
+    for p in try journal.geschlossenePositionen(konto: konto) {
+        #expect(p.produktart == (korrigiert.contains(p.ticket) ? .aktie : .cfd))
     }
-    #expect(try journal.importe(konto: nurKonto(journal)).count == 1)
 }
 
 @Test func migrationSetztNurMT4AufCFD() throws {
