@@ -157,4 +157,11 @@ private func konto(_ journal: Journal, _ nummer: String = "100001") throws -> Ko
     // Ohne Konto: alle Konten; zweiter Lauf ändert nichts mehr.
     #expect(try journal.schliesseAbgelaufeneZiele(jetzt: jetzt).map(\.id) == [mai2.id])
     #expect(try journal.schliesseAbgelaufeneZiele(jetzt: jetzt).isEmpty)
+
+    // Konto ohne ID: Fehler statt Absturz (Gesamt-Gegencheck 02.10.2026).
+    var ohneID = a
+    ohneID.id = nil
+    #expect(throws: SpeicherFehler.ungueltigerWert("Konto ohne ID")) {
+        try journal.schliesseAbgelaufeneZiele(konto: ohneID, jetzt: jetzt)
+    }
 }
