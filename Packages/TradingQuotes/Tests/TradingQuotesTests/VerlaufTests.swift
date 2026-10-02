@@ -136,7 +136,10 @@ let krakenDoku = #"{"error":[],"result":{"XXBTZUSD":[[1688671200,"30306.1","3030
     #expect(stand.verlaeufe["ETH"] == alt)
     #expect(stand.fehler["ETH"] == "HTTP 502")
     #expect(stand.fehler["X"] != nil)
-    #expect(stand.istAktuell(fuer: ["BTC", "ETH", "X"], jetzt: empfangen.addingTimeInterval(3600)))
+    #expect(stand.istAktuell(fuer: ["BTC", "ETH", "X"], jetzt: empfangen.addingTimeInterval(1800)))
+    // Nach einem Fehler neuer Versuch nach einer Stunde, ohne Fehler erst nach 20 Stunden.
+    #expect(!stand.istAktuell(fuer: ["BTC", "ETH"], jetzt: empfangen.addingTimeInterval(3600)))
+    #expect(stand.istAktuell(fuer: ["BTC"], jetzt: empfangen.addingTimeInterval(19 * 3600)))
     #expect(!stand.istAktuell(fuer: ["BTC", "SOL"], jetzt: empfangen))
     #expect(!stand.istAktuell(fuer: ["BTC"], jetzt: empfangen.addingTimeInterval(21 * 3600)))
 }
@@ -169,4 +172,17 @@ let krakenDoku = #"{"error":[],"result":{"XXBTZUSD":[[1688671200,"30306.1","3030
     #expect(verlauf("kraken", "BTC/USDT").waehrung == "USDT")
     #expect(verlauf("alpaca", "AAPL").waehrung == "USD")
     #expect(verlauf("kraken", "BTCEUR").waehrung == nil)
+}
+
+@Test func leereAntwortErsetztDenGespeichertenVerlaufNicht() async {
+    let leer = #"{"error":[],"result":{"ETH/EUR":[],"last":0}}"#
+    let lader = Verlaufslader(quellen: [Kursverlaeufe.kraken(abruf: testabruf(Abrufmitschnitt([(200, leer)])))],
+                              warte: { _ in })
+    let kerze = Tageskerze(zeit: tag0, eroeffnung: 1, hoch: 1, tief: 1, schluss: 1)
+    let alt = Kursverlauf(journalSymbol: "ETH", quelle: "kraken", quellSymbol: "ETH/EUR", kerzen: [kerze], geladen: tag0)
+    let bisher = Verlaufsstand(verlaeufe: ["ETH": alt], fehler: [:], geladen: tag0)
+    let zuordnung = Kurszuordnung(journalSymbol: "ETH", quelle: "kraken", quellSymbol: "ETH/EUR")
+    let stand = await lader.lade([zuordnung], bisher: bisher, jetzt: empfangen)
+    #expect(stand.verlaeufe["ETH"] == alt)
+    #expect(stand.fehler["ETH"] == "Keine Kerzen geliefert")
 }
