@@ -11,21 +11,23 @@ extension Fehlermuster {
         let nachSchluss = trades.sorted { ($0.closeTime, $0.id) < ($1.closeTime, $1.id) }
         let n = trades.count
         var befunde: [Befund?] = []
+        var kalender = Calendar(identifier: .gregorian)
+        kalender.timeZone = zeitzone
 
         // Revanche: kurz nach einem Verlust eröffnet, mit mehr Lots als üblich.
+        // Minutenabstände brauchen Uhrzeiten; Trades nur mit Datum fallen hier heraus.
         let medianLots = median(trades.map(\.lots))
-        let revanche = nachEroeffnung.filter { t in
+        let mitUhrzeit = nachEroeffnung.filter { !$0.nurDatum }
+        let revanche = mitUhrzeit.filter { t in
             guard let medianLots, t.lots > medianLots else { return false }
             return nachSchluss.contains { v in
-                v.outcome == .loss && v.id != t.id && v.closeTime <= t.openTime
+                v.outcome == .loss && !v.nurDatum && v.id != t.id && v.closeTime <= t.openTime
                     && t.openTime.timeIntervalSince(v.closeTime) <= s.revancheMinuten * 60
             }
         }
-        befunde.append(befund(.revancheTrade, revanche, stichprobe: n))
+        befunde.append(befund(.revancheTrade, revanche, stichprobe: mitUhrzeit.count))
 
         // Überhandeln: Tage mit deutlich mehr Trades als üblich.
-        var kalender = Calendar(identifier: .gregorian)
-        kalender.timeZone = zeitzone
         let jeTag = Dictionary(grouping: nachEroeffnung) { kalender.startOfDay(for: $0.openTime) }
         if let medianTag = median(jeTag.values.map { Decimal($0.count) }) {
             let grenze = medianTag + Decimal(s.ueberhandelnUeberMedian)
@@ -46,8 +48,8 @@ extension Fehlermuster {
         // Verlierer laufen lassen: Verlierer im Schnitt deutlich länger gehalten als Gewinner.
         let k = Kennzahlen(trades: trades)
         if let g = k.haltedauerGewinner, let v = k.haltedauerVerlierer, g > 0, v / g > s.haltedauerFaktor {
-            befunde.append(befund(.verliererLaufenLassen, nachEroeffnung.filter { $0.outcome == .loss },
-                                  stichprobe: n, wert: Decimal(v / g)))
+            befunde.append(befund(.verliererLaufenLassen, mitUhrzeit.filter { $0.outcome == .loss },
+                                  stichprobe: mitUhrzeit.count, wert: Decimal(v / g)))
         }
 
         // Verbilligen: Nachkauf in gleicher Richtung zu schlechterem Kurs, während die erste Position offen ist.
@@ -77,7 +79,7 @@ extension Fehlermuster {
         let medianRisiko = median(mitR.compactMap(\.risk))
         let nachSerie = mitR.filter { t in
             guard let medianRisiko, let risiko = t.risk, risiko > medianRisiko * s.groessenFaktor else { return false }
-            let davor = nachSchluss.filter { $0.closeTime <= t.openTime && $0.id != t.id }
+            let davor = nachSchluss.filter { $0.sicherGeschlossen(vor: t, kalender: kalender) }
             return davor.suffix(s.gewinnserie).count == s.gewinnserie
                 && davor.suffix(s.gewinnserie).allSatisfy { $0.outcome == .win }
         }

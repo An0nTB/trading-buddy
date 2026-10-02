@@ -36,7 +36,7 @@ public enum Haltedauerklasse: String, Sendable, CaseIterable {
 public struct Gruppe: Sendable, Equatable {
     /// Schlüssel als Text: Symbol, „buy“/„sell“, Wochentag „1“–„7“, Stunde „0“–„23“,
     /// Trade-Nummer, „nachGewinn“/„nachVerlust“/„nachBreakeven“/„erster“ oder Haltedauerklasse.
-    /// Trades ohne Uhrzeit (`Trade.nurDatum`) stehen bei Stunde und Haltedauer unter `ohneUhrzeit`.
+    /// Trades ohne Uhrzeit (`Trade.nurDatum`) stehen bei Stunde, Haltedauer und Trade-Nummer unter `ohneUhrzeit`.
     public var schluessel: String
 
     public static let ohneUhrzeit = "ohneUhrzeit"
@@ -78,6 +78,8 @@ extension Kennzahlen {
             var ergebnis = Array(repeating: "", count: trades.count)
             var zaehler: [Date: Int] = [:]
             for i in trades.indices.sorted(by: { (trades[$0].openTime, trades[$0].id) < (trades[$1].openTime, trades[$1].id) }) {
+                // Ohne Uhrzeit ist die Reihenfolge am Tag unbekannt; solche Trades zählen nicht mit.
+                guard !trades[i].nurDatum else { ergebnis[i] = Gruppe.ohneUhrzeit; continue }
                 let tag = kalender.startOfDay(for: trades[i].openTime)
                 zaehler[tag, default: 0] += 1
                 ergebnis[i] = String(zaehler[tag]!)

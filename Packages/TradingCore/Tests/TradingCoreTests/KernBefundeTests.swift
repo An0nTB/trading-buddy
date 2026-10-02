@@ -89,3 +89,30 @@ private func befundTrade(_ id: String, _ auf: String, _ zu: String, netto: Decim
     #expect(s.map(\.netto) == [0, -115])
     #expect(s.map(\.verstoesse) == [0, 1])
 }
+
+@Test func befundReihenfolgeOhneUhrzeit() {
+    func t(_ id: String, _ auf: String, _ zu: String, netto: Decimal, lots: Decimal = 1, nurDatum: Bool) -> Trade {
+        Trade(id: id, symbol: "SAP", side: .buy, lots: lots, openTime: befundZeit(auf), closeTime: befundZeit(zu),
+              openPrice: 100, closePrice: 100, profit: netto, nurDatum: nurDatum)
+    }
+    let a = t("A", "2026-03-02T00:00:00Z", "2026-03-02T00:00:00Z", netto: -50, nurDatum: true)
+    let b = t("B", "2026-03-02T00:00:00Z", "2026-03-02T00:00:00Z", netto: -60, nurDatum: true)
+    let c = t("C", "2026-03-02T10:00:00Z", "2026-03-02T10:30:00Z", netto: 10, lots: 5, nurDatum: false)
+    let d = t("D", "2026-03-03T09:00:00Z", "2026-03-03T09:10:00Z", netto: 5, nurDatum: false)
+    let utc = TimeZone(secondsFromGMT: 0)!
+    var kalender = Calendar(identifier: .gregorian)
+    kalender.timeZone = utc
+    // Am selben Tag ist die Reihenfolge unbekannt, am Folgetag sicher.
+    #expect(!a.sicherGeschlossen(vor: c, kalender: kalender))
+    #expect(!a.sicherGeschlossen(vor: b, kalender: kalender))
+    #expect(a.sicherGeschlossen(vor: d, kalender: kalender))
+    #expect(c.sicherGeschlossen(vor: d, kalender: kalender))
+    let trades = [a, b, c, d]
+    let regeln = Handelsregeln(maxTagesverlust: 100, stoppNachVerlusten: 2)
+    #expect(Regelpruefung.pruefe(trades, regeln: regeln, zeitzone: utc).isEmpty)
+    let nummern = Kennzahlen.aufschluesseln(trades, nach: .tradeNummerAmTag, zeitzone: utc)
+    #expect(nummern.map(\.schluessel) == ["1", Gruppe.ohneUhrzeit])
+    #expect(nummern.map(\.kennzahlen.anzahl) == [2, 2])
+    let befunde = Fehlermuster.pruefe(trades, zeitzone: utc)
+    #expect(!befunde.contains { $0.muster == .revancheTrade })
+}
