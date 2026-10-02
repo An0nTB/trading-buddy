@@ -159,6 +159,7 @@ struct Kapitalkurve: View {
 
 /// Die vier teuersten Fehlermuster im Zeitraum, Sprung zur Fehlermuster-Seite.
 struct FehlermusterKarte: View {
+    @AppStorage(Ton.schluessel) private var ton = Ton.bro
     @Environment(AppModell.self) private var modell
     @Environment(\.thema) private var thema
 
@@ -166,7 +167,7 @@ struct FehlermusterKarte: View {
         let befunde = Array(modell.befunde.sorted { $0.netto < $1.netto }.prefix(4))
         Karte("Fehlermuster", aktion: { modell.bereich = .fehlermuster }) {
             if befunde.isEmpty {
-                Text("Keine Regel hat im gewählten Zeitraum angeschlagen.")
+                Text(verbatim: ton.text("Keine Regel hat im gewählten Zeitraum angeschlagen.", bro: "Keine Regel angeschlagen. Sauber, Alter."))
                     .font(Schrift.fliesstext)
                     .foregroundStyle(thema.textSchwach)
             } else {
