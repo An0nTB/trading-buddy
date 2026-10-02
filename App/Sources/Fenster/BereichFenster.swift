@@ -15,8 +15,6 @@ struct BereichFensterSzene: Scene {
         }
         #if os(macOS)
         .defaultSize(width: 760, height: 560)
-        // Beim Start öffnet nur das Hauptfenster; abgetrennte Fenster kommen über die Wiederherstellung zurück.
-        .defaultLaunchBehavior(.suppressed)
         #endif
     }
 }
@@ -24,11 +22,8 @@ struct BereichFensterSzene: Scene {
 /// Inhalt eines abgetrennten Fensters: die Seite wie im Hauptfenster, dazu am Mac die Stecknadel.
 struct BereichFenster: View {
     let bereich: Bereich
-    @Environment(AppModell.self) private var modell
     @Environment(\.thema) private var thema
     #if os(macOS)
-    @Environment(\.appearsActive) private var aktiv
-    @Environment(\.openWindow) private var openWindow
     @AppStorage private var angeheftet: Bool
     #endif
 
@@ -54,11 +49,6 @@ struct BereichFenster: View {
         }
         #if os(macOS)
         .background(FensterEbene(angeheftet: angeheftet))
-        // Karten springen über `modell.bereich` in eine andere Seite des Hauptfensters; kommt der Sprung
-        // aus diesem Fenster, holt es das Hauptfenster nach vorn.
-        .onChange(of: modell.bereich) {
-            if aktiv { openWindow(id: FensterID.haupt) }
-        }
         #endif
     }
 }
