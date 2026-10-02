@@ -21,6 +21,12 @@ extension Ausgabe {
                 zeile += ", geschlossen \(Format.datum(erster, zone, mitZeit: false)) bis "
                     + Format.datum(letzter, zone, mitZeit: false)
             }
+            let fremd = Dictionary(grouping: konto.trades) { $0.waehrung(kontowaehrung: konto.waehrung) }
+                .filter { $0.key != konto.waehrung.uppercased() }
+            if !fremd.isEmpty {
+                zeile += ", davon in anderer Währung " + fremd.keys.sorted().map { "\($0) \(fremd[$0]!.count)" }
+                    .joined(separator: ", ") + " (Auswertung je Währung über waehrung)"
+            }
             zeile += ", \(konto.geloeschteOrders.count) gelöschte Orders"
             if !konto.ziele.isEmpty { zeile += ", \(konto.ziele.count) Ziele aus Reviews" }
             t.append(zeile + (konto.regeln == nil ? "." : ", Handelsregeln eingetragen."))

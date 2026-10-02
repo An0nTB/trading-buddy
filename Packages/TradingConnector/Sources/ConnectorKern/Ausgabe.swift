@@ -118,10 +118,27 @@ public enum Ausgabe {
     }
 
     static func kopf(_ anfrage: Anfrage, vergleich: String? = nil) -> String {
-        var text = "Konto \(anfrage.kontoname), Beträge in \(anfrage.konto.waehrung). "
+        var text = "Konto \(anfrage.kontoname), Beträge in \(anfrage.konto.waehrung). " + waehrungshinweis(anfrage)
         if let vergleich { text += "Vergleich: \(vergleich). " }
         text += "Zeitzone \(anfrage.export.zeitzone). Export vom \(Format.datum(anfrage.export.erstellt, anfrage.zeitzone)). "
         return text + gespeichert(anfrage.konto, anfrage.zeitzone)
+    }
+
+    /// Hinweis auf Trades in anderen Währungen; leer, wenn das Konto nur eine Währung hat.
+    static func waehrungshinweis(_ anfrage: Anfrage) -> String {
+        var text = ""
+        if anfrage.konto.waehrung != anfrage.kontowaehrung {
+            text += "Kontowährung ist \(anfrage.kontowaehrung); Ziele und Betragsgrenzen der Handelsregeln gelten dort "
+                + "und fehlen hier. "
+        }
+        guard !anfrage.andereWaehrungen.isEmpty else { return text }
+        let teile = anfrage.andereWaehrungen.keys.sorted().map { w in
+            let trades = anfrage.andereWaehrungen[w]!
+            let imZeitraum = trades.filter { anfrage.zeitraum.enthaelt($0.closeTime) }.count
+            return "\(w): \(trades.count) Trades, davon \(imZeitraum) im Zeitraum"
+        }
+        return text + "Nur Trades in \(anfrage.konto.waehrung). Nicht in diesen Summen (eigene Abfrage mit waehrung): "
+            + teile.joined(separator: "; ") + ". Beträge verschiedener Währungen nie zusammenrechnen. "
     }
 
     /// Alle gespeicherten Trades des Kontos, damit Claude Zeitraum und Gesamtbestand nicht verwechselt.
