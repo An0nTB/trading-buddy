@@ -163,18 +163,9 @@ public struct JournalExport: Sendable, Equatable, Codable {
     public static func lese(_ daten: Data) throws -> JournalExport {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
-        // Erst das Format, dann der Rest: Eine neuere Datei soll „bitte aktualisieren“ melden, nicht an einem
-        // geänderten Feld scheitern (Dritter Gegencheck G7).
-        if let kopf = try? decoder.decode(Formatkopf.self, from: daten), kopf.format > aktuellesFormat {
-            throw ExportFehler.neueresFormat(kopf.format)
-        }
         let export = try decoder.decode(JournalExport.self, from: daten)
         guard export.format <= aktuellesFormat else { throw ExportFehler.neueresFormat(export.format) }
         return export
-    }
-
-    private struct Formatkopf: Decodable {
-        var format: Int
     }
 }
 
