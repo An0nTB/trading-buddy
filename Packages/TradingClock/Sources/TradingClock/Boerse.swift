@@ -18,7 +18,8 @@ public struct Boerse: Sendable, Hashable, Identifiable, Codable {
     /// Rund um die Uhr an allen Tagen geöffnet (Krypto). Handelszeiten und Feiertage gelten dann nicht.
     public var durchgehend: Bool
     public var handelszeiten: [Handelszeit]
-    /// Tage ohne Handel. Es entfällt jede Sitzung, die an diesem Tag (Ortszeit) beginnt.
+    /// Tage ohne Handel. Es entfällt jede Sitzung, deren Handelstag dieser Tag ist (Ortszeit).
+    /// Handelstag ist der Tag, an dem die Sitzung endet; bei Sitzungen ohne Mitternacht also derselbe Tag.
     public var feiertage: [Feiertag]
     /// Tage mit früherem Schluss. Gilt für die Sitzung, die an diesem Tag (Ortszeit) endet.
     public var verkuerzteTage: [VerkuerzterTag]
@@ -85,6 +86,10 @@ public struct Boerse: Sendable, Hashable, Identifiable, Codable {
         guard format == Boerse.unterstuetztesFormat else {
             throw BoersenuhrFehler.unbekanntesFormat(id: id, format: format)
         }
+        guard !id.trimmingCharacters(in: .whitespaces).isEmpty,
+              !name.trimmingCharacters(in: .whitespaces).isEmpty else {
+            throw BoersenuhrFehler.leereKennungOderName(id: id)
+        }
         guard TimeZone(identifier: zeitzone) != nil else {
             throw BoersenuhrFehler.unbekannteZeitzone(id: id, zeitzone: zeitzone)
         }
@@ -103,8 +108,9 @@ public struct Boerse: Sendable, Hashable, Identifiable, Codable {
         }
     }
 
-    /// Die Zeitzone der Börse. `pruefe()` stellt sicher, dass es sie gibt.
-    public var timeZone: TimeZone { TimeZone(identifier: zeitzone)! }
+    /// Die Zeitzone der Börse. `pruefe()` stellt sicher, dass es sie gibt; ist sie trotzdem
+    /// unbekannt (Feld nachträglich geändert), rechnet die Uhr in UTC statt abzustürzen.
+    public var timeZone: TimeZone { TimeZone(identifier: zeitzone) ?? TimeZone(secondsFromGMT: 0)! }
 }
 
 /// Regelmäßige Handelszeit, zum Beispiel Montag bis Freitag 09:00 bis 17:30.
