@@ -5,6 +5,8 @@ public enum Terminart: String, Sendable, Hashable, Codable, CaseIterable {
     case zinsentscheid
     case arbeitsmarkt
     case inflation
+    /// Bankfeiertag einer Währung, ganztägig; dünner Handel, viele Broker schließen am 25.12. und 01.01.
+    case feiertag
 }
 
 /// Ein Wirtschaftstermin in Ortszeit seiner Zeitzone, in JSON etwa
@@ -14,7 +16,7 @@ public enum Terminart: String, Sendable, Hashable, Codable, CaseIterable {
 public struct Termin: Sendable, Hashable, Identifiable {
     public let id: String
     public let art: Terminart
-    /// Kürzel der Quelle: fed, ezb, boe, boj, snb, bls.
+    /// Kürzel der Quelle: fed, ezb, boe, boj, snb, bls; bei Feiertagen die Zentralbank der Währung.
     public let institution: String
     public let titel: String
     /// Beginn; bei Terminen mit Uhrzeit zugleich das Ende.
