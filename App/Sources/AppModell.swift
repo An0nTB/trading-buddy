@@ -48,6 +48,10 @@ final class AppModell {
     private(set) var ziele: [Reviewziel] = []
     /// Handelsregeln des gewählten Kontos (P6; Migration v5 aus AP9 #54); ohne gespeicherte Regeln leer.
     private(set) var regeln = Handelsregeln()
+    /// Setup-Karten des Playbooks, für alle Konten, nach Name (Doc 18 F3, Doc 23; Migration v7 aus AP9 #59).
+    private(set) var playbook: [Setup] = []
+    /// Checkliste je Trade des gewählten Kontos (Setup laut Journal und abgehakte Kriterien), Schlüssel ist das Ticket.
+    private(set) var checklisten: [String: Checkliste] = [:]
     /// Offene Positionen laut dem jüngsten MT4-Auszug des Kontos (AP9 #50); `nil` ohne MT4-Auszug.
     private(set) var offenerAuszug: (importlauf: Importlauf, positionen: [OpenPosition])?
     /// Kurse offener Trades (P10): Zuordnungen, Beobachter, letzter Stand je Symbol.
@@ -184,6 +188,7 @@ final class AppModell {
                 alleGeloeschten = try journal.geloeschteOrders(konto: konto)
                 ziele = try journal.ziele(konto: konto)
                 regeln = try journal.handelsregeln(konto: konto)
+                checklisten = try journal.checklisten(konto: konto)
                 offenerAuszug = try journal.offenePositionenLetzterAuszug(konto: konto)
             } else {
                 positionen = []
@@ -192,8 +197,10 @@ final class AppModell {
                 alleGeloeschten = []
                 ziele = []
                 regeln = Handelsregeln()
+                checklisten = [:]
                 offenerAuszug = nil
             }
+            playbook = try journal.playbook()
             positionsbildung = Positionsbildung.bilde(kontobewegungen.ausfuehrungen,
                                                       kapitalmassnahmen: kontobewegungen.kapitalmassnahmen)
             aktualisiereTrades()
@@ -412,6 +419,62 @@ final class AppModell {
 
     /// Setups, die schon einmal eingetragen wurden, alphabetisch.
     var bekannteSetups: [String] { Set(journaleintraege.values.compactMap(\.setup)).sorted() }
+
+    // MARK: Playbook (Doc 18 F3, Doc 23): Karten je Setup, Checkliste je Trade
+
+    /// Die Karte zum Setup-Namen aus dem Journal; `nil` ohne Namen oder ohne Karte dieses Namens.
+    func setupKarte(_ name: String?) -> Setup? {
+        guard let name else { return nil }
+        return playbook.first { $0.name == name }
+    }
+
+    /// Trades des gewählten Kontos mit diesem Setup laut Journal.
+    func anzahlTrades(setup name: String) -> Int {
+        journaleintraege.values.filter { $0.setup == name }.count
+    }
+
+    /// Legt eine Karte an oder ändert sie; die Speicherung lehnt leere Namen, doppelte Namen und leere Kriterien ab.
+    /// Beim Umbenennen ziehen die Journaleinträge mit.
+    @discardableResult
+    func speichereSetup(_ setup: Setup) throws -> Setup {
+        guard let journal else { throw SpeicherFehler.ungueltigerWert(String(localized: "Kein Journal geöffnet.")) }
+        let gespeichert = try journal.speichereSetup(setup)
+        playbook = try journal.playbook()
+        if let konto {
+            journaleintraege = try journal.journaleintraege(konto: konto)
+            aktualisiereTrades()
+        }
+        return gespeichert
+    }
+
+    /// Löscht die Karte; Setup-Namen im Journal und die Häkchen bleiben stehen.
+    func loescheSetup(_ setup: Setup) throws {
+        guard let journal, let id = setup.id else { return }
+        try journal.loescheSetup(id: id)
+        playbook = try journal.playbook()
+    }
+
+    /// Speichert die abgehakten Kriterien eines Trades; die Speicherung schreibt dabei das Setup ins Journal.
+    func setzeCheckliste(_ checkliste: Checkliste, trade: Trade) {
+        guard let journal, let konto else { return }
+        do {
+            try journal.setzeCheckliste(checkliste, konto: konto, ticket: trade.id)
+            checklisten[trade.id] = checkliste
+            var eintrag = journaleintraege[trade.id] ?? Journaleintrag(kontoId: konto.id ?? 0, ticket: trade.id)
+            eintrag.setup = checkliste.setup
+            eintrag.geaendertAm = Date()
+            journaleintraege[trade.id] = eintrag
+            aktualisiereTrades()
+            exportiere()
+        } catch {
+            fehler = Regelfehler.text(error)
+        }
+    }
+
+    /// Kennzahlen je Setup und Kriterium für die gefilterten Trades (TradingCore 0.11.0).
+    var playbookAuswertung: PlaybookAuswertung {
+        PlaybookAuswertung(trades: trades, playbook: playbook, checklisten: checklisten)
+    }
 
     /// Das Konto zu Broker und Nummer, falls schon angelegt.
     func bekanntesKonto(broker: String, kontonummer: String) -> Konto? {
