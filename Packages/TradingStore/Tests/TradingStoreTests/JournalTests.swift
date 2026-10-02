@@ -40,7 +40,7 @@ private func netto(_ positionen: [ClosedPosition]) -> Decimal {
 
 private let alleMigrationen = ["v1 Konten, Importe, MT4-Auszüge", "v2 Journal je Trade", "v3 Broker-Importe CSV",
                               "v4 Review-Ziele", "v5 Handelsregeln je Konto",
-                              "v6 Produktart", "v7 Playbook"]
+                              "v6 Produktart", "v7 Playbook", "v8 Tagesnotiz, verpasste Trades, Bilder"]
 
 @Test func migrationenLaufenUndSindWiederholbar() throws {
     let ordner = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
