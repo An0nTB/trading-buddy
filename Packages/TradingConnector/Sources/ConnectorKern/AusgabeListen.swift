@@ -98,8 +98,9 @@ extension Ausgabe {
     static func tradetabelle(_ trades: [Trade], _ a: Auswertung, _ zone: TimeZone) -> String {
         Format.tabelle(["Ticket", "Schluss", "Symbol", "Richtung", "Lots", "Netto", "R", "Haltedauer", "Muster"],
                        trades.map { t in
-                           [t.id, Format.datum(t.closeTime, zone), t.symbol, t.side == .buy ? "Kauf" : "Verkauf",
-                            Format.zahl(t.lots), Format.zahl(t.netProfit), Format.r(t.rMultiple), Format.dauer(t.holdingTime),
+                           [t.id, Format.datum(t.closeTime, zone, mitZeit: !t.nurDatum), t.symbol,
+                            t.side == .buy ? "Kauf" : "Verkauf", Format.zahl(t.lots), Format.zahl(t.netProfit),
+                            Format.r(t.rMultiple), t.nurDatum ? "–" : Format.dauer(t.holdingTime),
                             a.muster(t).map(\.bezeichnung).joined(separator: ", ")]
                        })
     }
@@ -117,6 +118,7 @@ extension Ausgabe {
     }
 
     static func gruppenname(_ schluessel: String, _ d: Aufteilung) -> String {
+        if schluessel == Gruppe.ohneUhrzeit { return "ohne Uhrzeit (nur Datum)" }
         let namen: [String: String] = switch d {
         case .richtung: ["buy": "Kauf", "sell": "Verkauf"]
         case .wochentag: ["1": "Mo", "2": "Di", "3": "Mi", "4": "Do", "5": "Fr", "6": "Sa", "7": "So"]

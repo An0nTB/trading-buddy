@@ -98,3 +98,12 @@ private let export = JournalExport(
     #expect(kurz.konten.map(kurz.kurzname) == ["GBE …1349", "GBE …11349"])
     #expect(try Anfrage.lies(["konto": "1349", "monat": "2025-05"], export: kurz).konto.kontonummer == "1349")
 }
+
+@Test func zahlenAusArgumentenBeendenDenServerNicht() {
+    #expect(Anfrage.zahltext(5) == "5")
+    #expect(Anfrage.zahltext(-3) == "-3")
+    #expect(Int(Anfrage.zahltext(1e100)) == nil)
+    #expect(Int(Anfrage.zahltext(.nan)) == nil)
+    #expect(Int(Anfrage.zahltext(.infinity)) == nil)
+    #expect(Int(Anfrage.zahltext(2.5)) == nil)
+}
