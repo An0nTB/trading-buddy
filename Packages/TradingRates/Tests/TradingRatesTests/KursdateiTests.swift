@@ -27,6 +27,13 @@ import TradingCore
     #expect(throws: EZBKursdatei.Fehler.keineKurse) { try EZBKursdatei.lies(Data()) }
 }
 
+@Test func abgebrocheneDateiIstEinFehler() throws {
+    // Verbindung bricht mitten im Verlauf ab: die ersten Tage wären lesbar, gelten aber nicht.
+    let ganz = try fixture("ezb-hist")
+    let halb = ganz.prefix(ganz.count * 2 / 3)
+    #expect(throws: EZBKursdatei.Fehler.unvollstaendig) { try EZBKursdatei.lies(Data(halb)) }
+}
+
 @Test func zahlenNurMitPunkt() {
     #expect(EZBKursdatei.zahl("1.1708") == Decimal(string: "1.1708", locale: Locale(identifier: "en_US_POSIX")))
     #expect(EZBKursdatei.zahl("1,1708") == nil)
