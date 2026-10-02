@@ -1,0 +1,42 @@
+# SwiftLint für Brad (Tim 02.10.2026, Antwort 18: Prüfkette ausbauen, zunächst ohne Pflicht).
+# Grenzen bewusst großzügig: Der Job soll Funde zeigen, nicht jeden PR rot machen. Metriken melden nur
+# Warnungen; Fehler gibt es erst bei klaren Ausreißern. Verschärfen nach Sichtung der ersten Funde.
+included:
+  - App/Sources
+  - Packages
+  - Connector
+excluded:
+  - "**/.build"
+  - build
+disabled_rules:
+  # Kurze Namen wie t, k, r sind im Kern üblich und lesbar im Kontext.
+  - identifier_name
+  - todo
+  # Deutsche Kommentare und Tabellen in Tests: nachgestellte Kommas sind gewollt.
+  - trailing_comma
+line_length:
+  warning: 130
+  error: 250
+file_length:
+  warning: 400
+  error: 1500
+type_body_length:
+  warning: 400
+  error: 1500
+function_body_length:
+  warning: 80
+  error: 400
+cyclomatic_complexity:
+  warning: 15
+  error: 50
+function_parameter_count:
+  warning: 8
+  error: 25
+large_tuple:
+  warning: 4
+  error: 8
+nesting:
+  type_level: 3
+force_try: warning
+force_cast: warning
+reporter: github-actions-logging

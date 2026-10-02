@@ -1,0 +1,55 @@
+name: Prüfkette
+
+# SwiftLint und Compiler-Warnungen (Tim 02.10.2026, Antwort 18), zunächst kein Pflicht-Check.
+# Nur Linux, damit keine macOS-Minuten anfallen. Läuft, wenn sich Swift-Code oder die Regeln ändern.
+on:
+  pull_request:
+    paths:
+      - "**/*.swift"
+      - ".swiftlint.yml"
+      - ".github/workflows/pruefkette.yml"
+  push:
+    branches: [main]
+    paths:
+      - "**/*.swift"
+      - ".swiftlint.yml"
+      - ".github/workflows/pruefkette.yml"
+
+jobs:
+  swiftlint:
+    name: SwiftLint (Linux)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: SwiftLint
+        run: |
+          docker run --rm -v "$PWD:/work" -w /work ghcr.io/realm/swiftlint:latest swiftlint version
+          docker run --rm -v "$PWD:/work" -w /work ghcr.io/realm/swiftlint:latest swiftlint lint --quiet
+
+  warnungen:
+    name: Compiler-Warnungen ${{ matrix.paket }} (Linux)
+    runs-on: ubuntu-latest
+    container: swift:6.2
+    strategy:
+      fail-fast: false
+      matrix:
+        paket: [TradingCore, TradingStore, TradingQuotes, TradingClock, TradingCalendar, TradingNews]
+    steps:
+      - uses: actions/checkout@v4
+      - name: SQLite-Header installieren
+        if: matrix.paket == 'TradingStore'
+        run: apt-get update && apt-get install -y libsqlite3-dev
+      # Nicht -warnings-as-errors: SwiftPM baut fremde Pakete mit -suppress-warnings, das beißt sich.
+      # Stattdessen zählen nur Warnungen aus dem eigenen Paket (Sources und Tests).
+      - name: Bauen und eigene Warnungen zählen
+        working-directory: Packages/${{ matrix.paket }}
+        shell: bash
+        run: |
+          set -o pipefail
+          swift build --build-tests 2>&1 | tee build.log
+          grep -E "/Packages/${{ matrix.paket }}/(Sources|Tests)/[^:]+:[0-9]+:[0-9]+: warning:" build.log \
+            | sort -u > warnungen.txt || true
+          anzahl=$(wc -l < warnungen.txt)
+          echo "Warnungen in ${{ matrix.paket }}: $anzahl"
+          sed -E 's#^.*/Packages/#Packages/#; s#^([^:]+):([0-9]+):([0-9]+): warning: (.*)$#::warning file=\1,line=\2,col=\3::\4#' warnungen.txt
+          test "$anzahl" -eq 0
