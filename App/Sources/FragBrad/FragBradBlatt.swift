@@ -16,7 +16,7 @@ struct FragBradBlatt: View {
     @Environment(\.dismiss) private var schliessen
     /// Ton-Schalter aus den Einstellungen (AP11, `Ton.swift`); nur „Sachlich“ lässt die Tonbitte weg,
     /// jeder andere oder fehlende Wert ist der Standard „Henry“.
-    @AppStorage(Ton.schluessel) private var tonWert = ""
+    @AppStorage(Ton.schluessel) private var tonWahl = Ton.henry
     @State private var vorlage: FragBradVorlage
     @State private var freieFrage = ""
     @State private var meldung: String?
@@ -31,7 +31,7 @@ struct FragBradBlatt: View {
                                    mitSymbol: symbol != nil)
     }
 
-    private var ton: FragBradTon { Ton(rawValue: tonWert) == .sachlich ? .sachlich : .henry }
+    private var ton: FragBradTon { tonWahl == .sachlich ? .sachlich : .henry }
 
     /// Wert für „Wert analysieren“: ausdrücklich gewählt, sonst Symbol des Trades, sonst Instrument im Filter.
     private var symbol: String? { anfrage.symbol ?? anfrage.trade?.symbol ?? modell.instrument }

@@ -66,6 +66,8 @@ struct KurseKarte: View {
                     .foregroundStyle(thema.textSchwach)
             }
         }
+        .contentShape(Rectangle())
+        .contextMenu { AnalyseMenuePunkt(symbol: p.symbol) }
     }
 
     private func untertitel(_ p: OffenePosition, eintrag: Kursstand.Eintrag?, wahl: Zuordnungswahl, jetzt: Date) -> String {
