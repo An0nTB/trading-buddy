@@ -78,7 +78,8 @@ public enum BinanceCSV {
             ergebnis.ausfuehrungen.append(Ausfuehrung(
                 id: id, zeit: try KryptoWerte.utc(feld("Date(UTC)"), zeile: zeile),
                 kennung: KryptoWerte.kennung(basis, gegen), name: basis, seite: kauf ? .buy : .sell,
-                menge: menge, preis: preis, betrag: kasse, gebuehr: gebuehr, waehrung: gegen, rohzeile: z))
+                menge: menge, preis: preis, betrag: kasse, gebuehr: gebuehr, waehrung: gegen,
+                produktart: .krypto, rohzeile: z))
         }
         return ergebnis
     }

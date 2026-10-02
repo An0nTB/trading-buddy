@@ -83,6 +83,8 @@ extension XTBAuszug {
                                                      folge: .nichtVerbucht))
                 continue
             }
+            // Produktart bleibt `unbekannt`: XTB führt CFD und echte Aktien im selben Blatt,
+            // und das Symbol allein trennt sie nicht belegt.
             auszug.positionen.append(ClosedPosition(
                 ticket: feld("position"), rohzeile: z, side: seite, lots: try zahl("volume"), symbol: feld("symbol"),
                 openTime: try zeit("open time"), openPrice: try zahl("open price"),

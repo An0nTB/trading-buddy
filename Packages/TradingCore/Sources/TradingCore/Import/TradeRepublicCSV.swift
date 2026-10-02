@@ -41,6 +41,8 @@ public enum TradeRepublicCSV {
     public static func lies(_ text: String) throws -> Kontobewegungen {
         let tabelle = CSVTabelle(text: text)
         let spalten = try tabelle.spalten(pflichtspalten)
+        // Optional: ältere Exporte ohne `asset_class` ergeben Produktart `unbekannt`.
+        let klasse = tabelle.kopf.firstIndex(of: "asset_class")
         var ergebnis = Kontobewegungen()
         for (n, z) in tabelle.zeilen.enumerated() {
             let zeile = n + 2
@@ -62,6 +64,7 @@ public enum TradeRepublicCSV {
                     preis: preis != 0 || menge == 0 ? preis : abs(betrag) / menge, betrag: betrag,
                     gebuehr: try zahl("fee"), steuer: try zahl("tax"), waehrung: feld("currency"),
                     sparplan: beschreibung.hasPrefix("Savings plan") || beschreibung.contains("Sparplan"),
+                    produktart: Produktart(tradeRepublic: klasse.map { $0 < z.count ? z[$0] : "" } ?? ""),
                     rohzeile: z)
             }
             func geld(_ geldart: Geldbewegung.Art) throws -> Geldbewegung {
