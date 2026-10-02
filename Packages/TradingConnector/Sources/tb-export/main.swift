@@ -5,12 +5,35 @@ import TradingCore
 // Zum Testen des Connectors, solange die App die Datei noch nicht schreibt.
 // Aufruf: tb-export --ziel <Ordner> [--waehrung EUR] [--serverzeit 3] [--trades-je-tag 3] Auszug.html …
 // `--trades-je-tag` setzt eine eigene Handelsregel für alle Konten, damit CI den Regelabschnitt prüft.
+// `--beispielkurse SYMBOL` legt erfundene Tageskerzen (Montag bis Freitag, 400 Tage bis 06.06.2025) für SYMBOL an,
+// damit CI `hole_kursanalyse` mit Kursen prüft; die Kurse sind gerechnet, keine Marktdaten.
 // Trades aus Tages- und Monatsauszügen zählen einmal (Konto plus Ticket, wie im Journal).
+
+/// Gerechnete Kerzen: Welle um 100 mit leichtem Anstieg, Spanne 1 um den Schluss, nur Werktage.
+func beispielreihe(_ symbol: String) -> JournalExport.Kursreihe {
+    let utc = TimeZone(secondsFromGMT: 0)!
+    var kalender = Calendar(identifier: .gregorian)
+    kalender.timeZone = utc
+    let ende = kalender.date(from: DateComponents(year: 2025, month: 6, day: 6))!
+    var kerzen: [Kerze] = []
+    var vorher: Decimal = 100
+    for i in 0..<400 {
+        let tag = kalender.date(byAdding: .day, value: i - 399, to: ende)!
+        guard !kalender.isDateInWeekend(tag) else { continue }
+        let schluss = Decimal(100 + 10 * sin(Double(i) / 20) + Double(i) * 0.05).gerundet(2)
+        kerzen.append(Kerze(tag: Journaltag(tag, zeitzone: utc), open: vorher, high: max(vorher, schluss) + 1,
+                            low: min(vorher, schluss) - 1, close: schluss))
+        vorher = schluss
+    }
+    return .init(symbol: symbol, quelle: "beispiel", waehrung: "USD", stand: ende.addingTimeInterval(86_400),
+                 kerzen: kerzen)
+}
 
 var zielOrdner: String?
 var waehrung = "EUR"
 var serverzeit = 3
 var tradesJeTag: Int?
+var beispielkurse: String?
 var dateien: [String] = []
 var argumente = CommandLine.arguments.dropFirst().makeIterator()
 while let arg = argumente.next() {
@@ -19,6 +42,7 @@ while let arg = argumente.next() {
     case "--waehrung": waehrung = argumente.next() ?? waehrung
     case "--serverzeit": serverzeit = argumente.next().flatMap { Int($0) } ?? serverzeit
     case "--trades-je-tag": tradesJeTag = argumente.next().flatMap { Int($0) }
+    case "--beispielkurse": beispielkurse = argumente.next()
     default: dateien.append(arg)
     }
 }
@@ -49,7 +73,7 @@ do {
                          geloeschteOrders: k.daten.geloescht.values.sorted(),
                          regeln: Handelsregeln(maxTradesJeTag: tradesJeTag))
         },
-        zeitzone: .current)
+        zeitzone: .current, kursverlauf: beispielkurse.map { [beispielreihe($0)] } ?? [])
     let pfad = URL(filePath: ziel, directoryHint: .isDirectory).appending(path: JournalExport.dateiname)
     try export.json().write(to: pfad, options: .atomic)
     for k in export.konten {
