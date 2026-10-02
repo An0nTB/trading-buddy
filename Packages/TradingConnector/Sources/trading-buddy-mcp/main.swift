@@ -8,6 +8,7 @@ enum Katalog {
     static let zeitraum: [String: Value] = [
         "monat": text("Kalendermonat JJJJ-MM, z. B. 2025-05"),
         "woche": text("Ein beliebiger Tag der gewünschten Woche (Montag bis Sonntag), JJJJ-MM-TT"),
+        "kw": text("ISO-Kalenderwoche JJJJ-Www, z. B. 2026-W40 (Montag bis Sonntag)"),
         "von": text("Erster Tag JJJJ-MM-TT, nur zusammen mit bis"),
         "bis": text("Letzter Tag JJJJ-MM-TT (einschließlich), nur zusammen mit von"),
         "konto": text("Konto über Endziffern oder Broker; nur nötig, wenn es mehrere gibt"),
@@ -20,7 +21,7 @@ enum Katalog {
              description: "Welche Konten und welcher Zeitraum in Henry vorliegen. Zuerst aufrufen, wenn unklar ist, welche Daten es gibt.",
              inputSchema: schema([:]), annotations: nurLesen),
         Tool(name: "hole_auswertung",
-             description: "Wochen- oder Monatsauswertung: Kennzahlen mit Vorzeitraum, Kosten, Symbole, Fehlermuster, Verstöße gegen die eigenen Handelsregeln, Muster mit Zufallsprüfung, auffällige Trades, Ausstieg (MAE und MFE aus Kerzen der App), Plan und verpasste Trades, Ziele früherer Reviews mit Istwert, dazu das Rezept für die Antwort. Für Fragen wie „Wie lief mein Mai?“. Ohne Zeitraum gilt der letzte Monat mit Trades.",
+             description: "Auswertung einer Woche (auch Kalenderwoche), eines Monats oder freier Tage wie der Wochenbericht der App: Kennzahlen mit Vorzeitraum, Ergebnis je Tag, Kosten, Symbole, Fehlermuster, Verstöße gegen die eigenen Handelsregeln und Prop-Firm-Grenzen, Muster mit Zufallsprüfung, auffällige Trades, Ausstieg (MAE und MFE aus Kerzen der App), Plan und verpasste Trades, Ziele früherer Reviews mit Istwert, Steuer-Orientierung je Topf seit Jahresbeginn, dazu das Rezept für die Antwort. Für Fragen wie „Wie lief mein Mai?“. Ohne Zeitraum gilt der letzte Monat mit Trades.",
              inputSchema: schema(zeitraum), annotations: nurLesen),
         Tool(name: "hole_aufschluesselung",
              description: "Kennzahlen je Gruppe: Symbol, Richtung, Wochentag, Stunde, Trade-Nummer am Tag, Ergebnis des vorherigen Trades, Haltedauer oder eigene Journalangaben (Setup, Regeltreue, Zustand).",
@@ -64,7 +65,7 @@ enum Katalog {
                arguments: [.init(name: "monat", description: "JJJJ-MM, leer für den letzten Monat mit Trades")]),
         Prompt(name: "wochenauswertung", title: "Wochenauswertung",
                description: "Woche nach Henrys Rezept auswerten",
-               arguments: [.init(name: "datum", description: "Ein Tag der Woche, JJJJ-MM-TT", required: true)]),
+               arguments: [.init(name: "datum", description: "Ein Tag der Woche, JJJJ-MM-TT, leer für die letzte abgeschlossene Woche")]),
         Prompt(name: "nachrichten", title: "Nachrichten zusammenfassen",
                description: "Nachrichten zur Merkliste und zum Markt zusammenfassen",
                arguments: [.init(name: "tage", description: "1 bis 7, leer für die letzten 24 Stunden")])
@@ -139,7 +140,7 @@ enum Ausfuehrung {
 
     static func vorlage(_ name: String, _ argumente: [String: String]?) -> GetPrompt.Result {
         let inhalt = switch name {
-        case "wochenauswertung": Rezept.wochenvorlage(datum: argumente?["datum"] ?? "")
+        case "wochenauswertung": Rezept.wochenvorlage(datum: argumente?["datum"])
         case "nachrichten": Rezept.nachrichtenvorlage(tage: argumente?["tage"])
         default: Rezept.monatsvorlage(monat: argumente?["monat"].flatMap { $0.isEmpty ? nil : $0 })
         }
@@ -153,7 +154,7 @@ enum Ausfuehrung {
 
 let server = Server(
     name: "trading-buddy",
-    version: "0.11.0",
+    version: "0.12.0",
     capabilities: .init(prompts: .init(listChanged: false), tools: .init(listChanged: false))
 )
 

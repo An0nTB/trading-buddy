@@ -1,3 +1,4 @@
+import Foundation
 import TradingCore
 
 /// Feste Gliederung der Wochen- und Monatsauswertung (R5, Kapitel 10 Abschnitt 5 und Kapitel 13 Abschnitt 4).
@@ -31,6 +32,9 @@ public enum Rezept {
         - Keine Kursprognosen, keine Zielkurse, keine Kauf- oder Produktempfehlungen.
         - Gibt es den Abschnitt „Ausstieg“, in Punkt 3 einen Satz dazu (MAE der Gewinner, Anteil der MFE,
           Verlierer mit 1 R Plus), nur beschreibend: keine Stop- oder Zielmarke vorschlagen.
+        - Gibt es den Abschnitt „Tage“, in Punkt 1 den besten und den schlechtesten Tag nennen.
+        - Den Abschnitt „Steuer-Orientierung“ nur nennen, wenn danach gefragt wird: Summen je Topf, keine
+          Steuerberechnung, keine Steuerberatung; maßgeblich sind Steuerbescheinigung und Steuerberatung.
         - Nur Zahlen aus den Henry-Werkzeugen verwenden; fehlt etwas, das sagen statt schätzen.
         - Details bei Bedarf: hole_trades (Trades je Muster, beste und schlechteste, mit Journal und Grund),
           hole_aufschluesselung (Setup, Regeltreue, Zustand, Wochentag, Stunde, Haltedauer, Trade-Nummer am Tag,
@@ -86,10 +90,21 @@ public enum Rezept {
             + "Rufe dazu hole_auswertung \(wahl) auf und folge dem Rezept am Ende der Werkzeugantwort."
     }
 
-    /// Vorlage „Wochenauswertung“; `datum` ist ein beliebiger Tag der Woche.
-    public static func wochenvorlage(datum: String) -> String {
-        "Erstelle meine Wochenauswertung für die Woche mit dem \(datum). "
-            + "Rufe dazu hole_auswertung mit woche=\(datum) auf und folge dem Rezept am Ende der Werkzeugantwort."
+    /// Vorlage „Wochenauswertung“; `datum` ist ein beliebiger Tag der Woche. Ohne Datum gilt die letzte
+    /// abgeschlossene Kalenderwoche vor `heute` in `zeitzone` (ISO, Montag bis Sonntag).
+    public static func wochenvorlage(datum: String?, heute: Date = Date(), zeitzone: TimeZone = .current) -> String {
+        if let datum, !datum.isEmpty {
+            return "Erstelle meine Wochenauswertung für die Woche mit dem \(datum). "
+                + "Rufe dazu hole_auswertung mit woche=\(datum) auf und folge dem Rezept am Ende der Werkzeugantwort."
+        }
+        let vorwoche = Zeitspanne.woche(mit: heute.addingTimeInterval(-7 * 86_400), zeitzone: zeitzone)
+        guard let kw = vorwoche.kalenderwoche(zeitzone: zeitzone) else {
+            return "Erstelle meine Wochenauswertung für die letzte abgeschlossene Woche. Rufe dazu hole_auswertung "
+                + "mit woche (ein Tag dieser Woche) auf und folge dem Rezept am Ende der Werkzeugantwort."
+        }
+        let text = "\(kw.jahr)-W\(kw.woche < 10 ? "0" : "")\(kw.woche)"
+        return "Erstelle meine Wochenauswertung für die letzte abgeschlossene Woche (KW \(kw.woche)/\(kw.jahr)). "
+            + "Rufe dazu hole_auswertung mit kw=\(text) auf und folge dem Rezept am Ende der Werkzeugantwort."
     }
 }
 
