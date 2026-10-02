@@ -11,11 +11,11 @@ enum BerichtPDF {
         farbwelt.thema(.light, getoent: false)
     }
 
-    static func daten(_ bericht: Monatsbericht, kontext: BerichtKontext, thema: Thema) -> Data? {
+    static func daten(_ bericht: Zeitraumbericht, kontext: BerichtKontext, thema: Thema) -> Data? {
         let daten = NSMutableData()
         guard let verbraucher = CGDataConsumer(data: daten as CFMutableData) else { return nil }
         var rahmen = CGRect(origin: .zero, size: BerichtMass.seite)
-        let info = [kCGPDFContextTitle as String: String(localized: "Monatsbericht \(kontext.monatsname)"),
+        let info = [kCGPDFContextTitle as String: kontext.titel,
                     kCGPDFContextCreator as String: "Henry"]
         guard let pdf = CGContext(consumer: verbraucher, mediaBox: &rahmen, info as CFDictionary) else { return nil }
         for seite in BerichtSeite.allCases {
@@ -35,9 +35,9 @@ enum BerichtPDF {
     }
 
     /// Schreibt das PDF in den temporären Ordner, für Teilen-Blatt und Vorschau.
-    static func temporaereDatei(_ bericht: Monatsbericht, kontext: BerichtKontext, thema: Thema) throws -> URL {
+    static func temporaereDatei(_ bericht: Zeitraumbericht, kontext: BerichtKontext, thema: Thema) throws -> URL {
         guard let daten = daten(bericht, kontext: kontext, thema: thema) else { throw BerichtFehler.pdf }
-        let ordner = FileManager.default.temporaryDirectory.appendingPathComponent("Monatsbericht", isDirectory: true)
+        let ordner = FileManager.default.temporaryDirectory.appendingPathComponent("Bericht", isDirectory: true)
         try FileManager.default.createDirectory(at: ordner, withIntermediateDirectories: true)
         let datei = ordner.appendingPathComponent(kontext.dateiname)
         try daten.write(to: datei, options: .atomic)
@@ -46,12 +46,10 @@ enum BerichtPDF {
 }
 
 enum BerichtFehler: LocalizedError {
-    case keinMonat
     case pdf
 
     var errorDescription: String? {
         switch self {
-        case .keinMonat: String(localized: "Für diesen Monat ließ sich kein Bericht bilden.")
         case .pdf: String(localized: "Das PDF ließ sich nicht erzeugen.")
         }
     }

@@ -4,7 +4,7 @@ import TradingCore
 // MARK: Seite 2: Regeln und Muster
 
 struct BerichtVerhalten: View {
-    let bericht: Monatsbericht
+    let bericht: Zeitraumbericht
     let kontext: BerichtKontext
 
     var body: some View {
@@ -18,7 +18,7 @@ struct BerichtVerhalten: View {
 
 /// Disziplin und Regelverstöße je Art. Sachlich, ohne Wertung (Doc 02 Zeile 43).
 struct BerichtRegeln: View {
-    let bericht: Monatsbericht
+    let bericht: Zeitraumbericht
     let kontext: BerichtKontext
     @Environment(\.thema) private var thema
 
@@ -26,7 +26,7 @@ struct BerichtRegeln: View {
         let d = bericht.disziplin
         let arten = Regelverstoss.Art.allCases.filter { bericht.anzahl($0) > 0 }
         BerichtAbschnitt(titel: "Handelsregeln",
-                         untertitel: String(localized: "Geprüft über alle Trades des Kontos, gezählt an Trades dieses Monats.")) {
+                         untertitel: String(localized: "Geprüft über alle Trades des Kontos, gezählt an Trades im Berichtszeitraum.")) {
             if !kontext.regelnHinterlegt {
                 BerichtHinweis(String(localized: "Für dieses Konto sind keine eigenen Regeln hinterlegt. Gezählt sind nur Trades, die im Journal als nicht regeltreu markiert sind."))
             }
@@ -49,14 +49,14 @@ struct BerichtRegeln: View {
                              wert: String(localized: "\(propFirmAnzahl(art)) Trades"), farbe: thema.verlust)
             }
             if arten.isEmpty && propFirmArten.isEmpty && kontext.regelnHinterlegt {
-                BerichtHinweis(String(localized: "Keine Regelverstöße in diesem Monat."))
+                BerichtHinweis(String(localized: "Keine Regelverstöße \(kontext.inDerSpanne)."))
             }
         }
     }
 }
 
 extension BerichtRegeln {
-    /// Prop-Firm-Verstöße des Monats je Art (aus `Monatsbericht.propFirmVerstoesse`), Trades einfach gezählt.
+    /// Prop-Firm-Verstöße der Spanne je Art (aus `Zeitraumbericht.propFirmVerstoesse`), Trades einfach gezählt.
     var propFirmArten: [PropFirmPruefung.Art] {
         PropFirmPruefung.Art.allCases.filter { propFirmAnzahl($0) > 0 }
     }
@@ -66,7 +66,7 @@ extension BerichtRegeln {
     }
 }
 
-/// Fehlermuster des Monats, wie auf der Seite Fehlermuster (gleicher Kurztext), teuerstes zuerst.
+/// Fehlermuster der Spanne, wie auf der Seite Fehlermuster (gleicher Kurztext), teuerstes zuerst.
 struct BerichtFehlermuster: View {
     static let hoechstens = 6
     let auswertung: Auswertung
@@ -77,7 +77,7 @@ struct BerichtFehlermuster: View {
         BerichtAbschnitt(titel: "Fehlermuster",
                          untertitel: String(localized: "Regeln aus dem Journal-Wissen (R5), Standardschwellen.")) {
             if befunde.isEmpty {
-                BerichtHinweis(String(localized: "Keine Fehlermuster in diesem Monat."))
+                BerichtHinweis(String(localized: "Keine Fehlermuster im Berichtszeitraum."))
             }
             ForEach(Array(befunde.prefix(Self.hoechstens).enumerated()), id: \.offset) { eintrag in
                 BerichtBefundZeile(befund: eintrag.element, ohne: auswertung.ohne(eintrag.element), waehrung: waehrung)
@@ -107,14 +107,14 @@ struct BerichtBefundZeile: View {
 
 /// Die stärksten Unterschiede laut Muster-Finder mit Zufallsanteil (Doc 18 F5).
 struct BerichtMusterFinder: View {
-    let bericht: Monatsbericht
+    let bericht: Zeitraumbericht
     let waehrung: String
 
     var body: some View {
         BerichtAbschnitt(titel: "Muster-Finder",
                          untertitel: String(localized: "Gruppen, deren Netto je Trade sich am deutlichsten vom Rest unterscheidet. Beschreibt vergangene Trades, keine Prognose.")) {
             if bericht.muster.isEmpty {
-                BerichtHinweis(String(localized: "Kein Muster: Verglichen wird erst, wenn eine Gruppe und der Rest je mindestens \(Kennzahlen.mindestanzahl) Trades haben. In diesem Monat: \(bericht.auswertung.trades.count) Trades."))
+                BerichtHinweis(String(localized: "Kein Muster: Verglichen wird erst, wenn eine Gruppe und der Rest je mindestens \(Kennzahlen.mindestanzahl) Trades haben. Im Berichtszeitraum: \(bericht.auswertung.trades.count) Trades."))
             } else {
                 ForEach(Array(bericht.muster.enumerated()), id: \.offset) { eintrag in
                     BerichtMusterZeile(muster: eintrag.element, trades: bericht.auswertung.trades, waehrung: waehrung)
@@ -145,7 +145,7 @@ struct BerichtMusterZeile: View {
 // MARK: Seite 3: Ziele, Tagebuch und Steuer
 
 struct BerichtTagebuchUndSteuer: View {
-    let bericht: Monatsbericht
+    let bericht: Zeitraumbericht
     let kontext: BerichtKontext
 
     var body: some View {
@@ -166,7 +166,7 @@ struct BerichtZiele: View {
     var body: some View {
         BerichtAbschnitt(titel: "Review-Ziele") {
             if ziele.isEmpty {
-                BerichtHinweis(String(localized: "Keine Ziele, deren Zeitraum diesen Monat berührt."))
+                BerichtHinweis(String(localized: "Keine Ziele, deren Zeitraum den Berichtszeitraum berührt."))
             }
             ForEach(Array(ziele.prefix(Self.hoechstens).enumerated()), id: \.offset) { eintrag in
                 VStack(alignment: .leading, spacing: 1) {
@@ -229,19 +229,19 @@ struct BerichtTagebuch: View {
     }
 }
 
-/// Steuer-Orientierung vom 1. Januar bis Monatsende, in Euro. Orientierung, kein Steuerbescheid (Doc 22).
+/// Steuer-Orientierung vom 1. Januar bis zum Ende der Spanne, in Euro. Orientierung, kein Steuerbescheid (Doc 22).
 struct BerichtSteuer: View {
-    let bericht: Monatsbericht
+    let bericht: Zeitraumbericht
     let kontext: BerichtKontext
     @Environment(\.thema) private var thema
 
     var body: some View {
         BerichtAbschnitt(titel: "Steuer-Orientierung", untertitel: untertitel) {
             BerichtHinweis(String(localized: "Orientierung, kein Steuerbescheid. Ohne Steuersatz, Sparer-Pauschbetrag, Verlustvorträge und Teilfreistellung. Ergebnis je Trade = Kursergebnis + Kommission + Swap. Krypto-Haltefrist und Freigrenze stehen auf der Steuer-Seite der App."))
-            if bericht.steuerBisMonatsende.isEmpty {
-                BerichtHinweis(String(localized: "Keine Verkäufe im Jahr bis Monatsende."))
+            if bericht.steuerBisEnde.isEmpty {
+                BerichtHinweis(String(localized: "Keine Verkäufe im Jahr bis zum Ende des Berichtszeitraums."))
             }
-            ForEach(bericht.steuerBisMonatsende, id: \.topf) { summe in
+            ForEach(bericht.steuerBisEnde, id: \.topf) { summe in
                 BerichtZeile(titel: summe.topf.berichtTitel, wert: wert(summe), farbe: summe.ohneEuro == summe.anzahl ? nil : thema.vorzeichen(summe.saldo))
                 BerichtHinweis(zusatz(summe))
             }
@@ -253,11 +253,9 @@ struct BerichtSteuer: View {
     }
 
     private var untertitel: String {
-        var kalender = Calendar(identifier: .gregorian)
-        kalender.timeZone = kontext.zeitzone
-        let monatsende = kalender.date(from: DateComponents(year: kontext.jahr, month: kontext.monat + 1, day: 0))
-        let bis = monatsende.map(Format.datum) ?? kontext.monatsname
-        return String(localized: "1. Januar \(String(kontext.jahr)) bis \(bis), Beträge in Euro, Verkaufsjahr nach deutscher Zeit")
+        // Steuerjahr ist das Jahr des letzten Tags; eine Woche über den Jahreswechsel zählt zum neuen Jahr.
+        let bis = BerichtKontext.datum(kontext.letzter)
+        return String(localized: "1. Januar \(String(bericht.steuerjahr)) bis \(bis), Beträge in Euro, Verkaufsjahr nach deutscher Zeit")
     }
 
     private func wert(_ summe: Topfsumme) -> String {
@@ -282,7 +280,7 @@ struct BerichtSteuer: View {
         guard let tag = kontext.ezbBis else {
             return String(localized: "EZB-Referenzkurse noch nicht geladen; Trades in Fremdwährung fehlen in den Euro-Summen.")
         }
-        let bis = String(format: "%02d.%02d.%d", tag.tag, tag.monat, tag.jahr)
+        let bis = BerichtKontext.datum(tag)
         return String(localized: "Fremdwährung zum EZB-Referenzkurs am Schlusstag umgerechnet (Näherung, USDT wie USD), Kurse bis \(bis).")
     }
 
@@ -297,7 +295,7 @@ struct BerichtSteuer: View {
 
 /// Was im Bericht fehlt oder anders gezählt ist.
 struct BerichtDatenhinweise: View {
-    let bericht: Monatsbericht
+    let bericht: Zeitraumbericht
     let kontext: BerichtKontext
 
     var body: some View {

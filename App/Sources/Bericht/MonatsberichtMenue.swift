@@ -7,12 +7,14 @@ import UniformTypeIdentifiers
 import PDFKit
 #endif
 
-/// Menü „Monatsbericht als PDF“ mit den Monaten, in denen Trades geschlossen wurden (neuester zuerst).
-/// Mac: Sichern-Dialog. iPhone und iPad: Vorschau mit Teilen-Knopf. Einhängen übernimmt AP11
+/// Menü „Bericht als PDF“ mit den Monaten und Kalenderwochen, in denen Trades geschlossen wurden
+/// (neueste zuerst). Mac: Sichern-Dialog. iPhone und iPad: Vorschau mit Teilen-Knopf. Einhängen übernimmt AP11
 /// (Menü „Ablage“ und Werkzeugleiste, Patch in uebergabe/Monatsbericht_PDF_einhaengen.patch).
 struct MonatsberichtMenue: View {
     /// Mehr Monate machen das Menü unübersichtlich; ältere Berichte sind selten.
     static let hoechstensMonate = 24
+    /// Ein Vierteljahr Wochen; der Wochenbericht dient der laufenden Auswertung.
+    static let hoechstensWochen = 13
     @Environment(AppModell.self) private var modell
     @AppStorage("farbwelt") private var farbwelt = Farbwelt.nordlicht
     #if os(iOS)
@@ -20,15 +22,25 @@ struct MonatsberichtMenue: View {
     #endif
 
     var body: some View {
-        Menu("Monatsbericht als PDF", systemImage: "doc.richtext") {
-            ForEach(modell.monate.prefix(Self.hoechstensMonate), id: \.self) { monat in
-                Button(Format.monat(monat)) {
-                    erstelle(monat)
+        let wochen = Array(modell.berichtWochen.prefix(Self.hoechstensWochen))
+        Menu("Bericht als PDF", systemImage: "doc.richtext") {
+            Section("Monatsbericht") {
+                ForEach(modell.monate.prefix(Self.hoechstensMonate), id: \.self) { monat in
+                    Button(Format.monat(monat)) {
+                        erstelle(modell.monatsbericht(monat))
+                    }
+                }
+            }
+            Section("Wochenbericht") {
+                ForEach(wochen, id: \.self) { montag in
+                    Button(wochentitel(montag)) {
+                        erstelle(modell.wochenbericht(montag))
+                    }
                 }
             }
         }
         .disabled(modell.monate.isEmpty)
-        .help("Monatsbericht des gewählten Kontos als PDF, zum Ablegen oder Weitergeben")
+        .help("Monats- oder Wochenbericht des gewählten Kontos als PDF, zum Ablegen oder Weitergeben")
         #if os(iOS)
         .sheet(item: $datei) { datei in
             BerichtVorschau(datei: datei)
@@ -36,11 +48,18 @@ struct MonatsberichtMenue: View {
         #endif
     }
 
-    private func erstelle(_ monat: Date) {
-        guard let ergebnis = modell.monatsbericht(monat) else {
-            modell.fehler = BerichtFehler.keinMonat.errorDescription
-            return
+    /// z. B. „KW 40: 28.09.2026 bis 04.10.2026“.
+    private func wochentitel(_ montag: Date) -> String {
+        let zeitraum = Zeitspanne.woche(mit: montag, zeitzone: modell.zeitzone)
+        let erster = BerichtKontext.datum(Journaltag(zeitraum.von, zeitzone: modell.zeitzone))
+        let letzter = BerichtKontext.datum(Journaltag(zeitraum.bis.addingTimeInterval(-1), zeitzone: modell.zeitzone))
+        guard let kw = zeitraum.kalenderwoche(zeitzone: modell.zeitzone) else {
+            return String(localized: "\(erster) bis \(letzter)")
         }
+        return String(localized: "KW \(kw.woche): \(erster) bis \(letzter)")
+    }
+
+    private func erstelle(_ ergebnis: (bericht: Zeitraumbericht, kontext: BerichtKontext)) {
         let thema = BerichtPDF.druckthema(farbwelt)
         #if os(macOS)
         guard let daten = BerichtPDF.daten(ergebnis.bericht, kontext: ergebnis.kontext, thema: thema) else {
@@ -48,7 +67,7 @@ struct MonatsberichtMenue: View {
             return
         }
         let panel = NSSavePanel()
-        panel.title = String(localized: "Monatsbericht sichern")
+        panel.title = String(localized: "Bericht sichern")
         panel.allowedContentTypes = [.pdf]
         panel.nameFieldStringValue = ergebnis.kontext.dateiname
         panel.canCreateDirectories = true
