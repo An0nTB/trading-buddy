@@ -62,7 +62,7 @@ struct AusstiegKarte: View {
             } else if gerechnet, dienst.hatKerzen(trade.symbol) {
                 hinweis("Keine gespeicherten Kurse in der Haltedauer dieses Trades.")
             } else if gerechnet {
-                hinweis("Für dieses Symbol sind keine Minutenkurse gespeichert. Import auf der Seite „Ausstieg“.")
+                hinweis("Für dieses Symbol sind keine Minutenkurse gespeichert. Abruf oder Import auf der Seite „Ausstieg“.")
             } else {
                 ProgressView()
                     .frame(maxWidth: .infinity)

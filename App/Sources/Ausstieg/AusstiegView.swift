@@ -105,7 +105,7 @@ struct AusstiegView: View {
             Karte("Auswertung") {
                 Group {
                     if dienst.bestand.isEmpty {
-                        Text("Noch keine Kurse gespeichert. Am Mac: MetaTrader, Extras, Verlaufszentrum, Symbol und M1 wählen, Exportieren; die CSV-Datei hier importieren.")
+                        Text("Noch keine Kurse gespeichert. „Kurse abrufen“ holt Minutenkurse für Krypto und US-Aktien. Für CFDs und Devisen gibt es keine freien Kurse; dafür am Mac den MetaTrader-Export (Verlaufszentrum, M1) importieren.")
                     } else {
                         Text("Für die Trades im gewählten Zeitraum liegen keine passenden Kurse vor. Trades ohne Uhrzeit im Auszug (Trade Republic, Scalable) bleiben außen vor.")
                     }
