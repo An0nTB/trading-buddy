@@ -86,3 +86,46 @@ private func export(mitKursen: Bool = true) -> JournalExport {
     #expect(kaputt != json && gelesen.kursverlauf?.first?.kerzen.isEmpty == true && gelesen.konten[0].trades.count == 3)
     #expect(Ausgabe.kursanalyse(gelesen, symbol: "BTCUSD").contains("Für BTCUSD liegen keine abgeschlossenen Tageskerzen vor."))
 }
+
+/// Tägliche Kerzen über 400 Tage bis `ende`, Schluss steigt um 1 je Kerze; `wochenende` wie Krypto,
+/// sonst nur Werktage wie eine Börse. Optional eine laufende Kerze am Tag nach `ende`.
+private func langeReihe(bis ende: String, wochenende: Bool, laufend: Bool) -> JournalExport.Kursreihe {
+    var kalender = Calendar(identifier: .gregorian)
+    kalender.timeZone = utc
+    let letzter = zeit(ende + "T00:00:00")
+    var liste: [Kerze] = []
+    var schluss: Decimal = 100
+    for zurueck in stride(from: 400, through: 0, by: -1) {
+        let tag = kalender.date(byAdding: .day, value: -zurueck, to: letzter)!
+        guard wochenende || !kalender.isDateInWeekend(tag) else { continue }
+        schluss += 1
+        liste.append(Kerze(tag: Journaltag(tag, zeitzone: utc), open: schluss - 1, high: schluss + 1, low: schluss - 2,
+                           close: schluss))
+    }
+    if laufend {
+        let morgen = Journaltag(kalender.date(byAdding: .day, value: 1, to: letzter)!, zeitzone: utc)
+        liste.append(Kerze(tag: morgen, open: schluss, high: schluss + 5, low: schluss, close: schluss + 3, laufend: true))
+    }
+    return .init(symbol: "X", quelle: "test", waehrung: "usd", stand: letzter, kerzen: liste)
+}
+
+@Test func veraenderungMitLaufenderKerzeUndOhneHandelstagAmStichtag() throws {
+    // Befund G3 (Doc 49): Der Ausschnitt muss die Basis am oder bis 7 Tage vor dem Zieltag enthalten.
+    let spannen: [(monate: Int, spanne: Kursanalyse.Spanne)] = [(1, .monat), (3, .quartal), (12, .jahr)]
+    let faelle = [("2026-10-01", true, true), ("2026-10-03", false, false), ("2026-10-04", false, false),
+                  ("2026-10-05", false, false), ("2026-10-06", false, true)]
+    for (ende, wochenende, laufend) in faelle {
+        let reihe = langeReihe(bis: ende, wochenende: wochenende, laufend: laufend)
+        let voll = try #require(Kursanalyse(kerzen: reihe.kerzen))
+        for (monate, spanne) in spannen {
+            let ausschnitt = try #require(Ausgabe.analyse(reihe, monate: monate))
+            #expect(ausschnitt.veraenderung[spanne] != nil, "\(ende) \(monate) Monate")
+            #expect(ausschnitt.veraenderung[spanne] == voll.veraenderung[spanne], "\(ende) \(monate) Monate")
+            #expect(ausschnitt.aktuellerKurs == voll.aktuellerKurs && ausschnitt.letzterTag == voll.letzterTag)
+        }
+    }
+    let krypto = Ausgabe.kursanalyse(JournalExport(konten: [], zeitzone: utc, erstellt: zeit("2026-10-02T12:00:00"),
+                                                   kursverlauf: [langeReihe(bis: "2026-10-01", wochenende: true,
+                                                                            laufend: true)]), symbol: "X")
+    #expect(!krypto.contains("| Veränderung 12 Monate | – |") && !krypto.contains("| Veränderung 1 Monat | – |"))
+}

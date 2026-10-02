@@ -17,16 +17,17 @@ final class Importordner {
 
     static let schluesselAktiv = "importOrdnerAktiv"
     static let schluesselLesezeichen = "importOrdnerLesezeichen"
-    static let schluesselErledigt = "importOrdnerErledigt"
+    /// JSON `[Signatur: Erledigt]`; der alte Schlüssel „importOrdnerErledigt“ (nur Zeitstempel) entfällt (G20).
+    static let schluesselErledigt = "importOrdnerErledigt2"
     /// Mitteilung nach stillem Import (Paket A4); Standard an, in den Einstellungen abschaltbar.
     static let schluesselMitteilung = "importOrdnerMitteilung"
     /// Größere Dateien sind kein Kontoauszug; die App liest sie nicht ein.
-    static let hoechstgroesse = 50 * 1024 * 1024
+    nonisolated static let hoechstgroesse = 50 * 1024 * 1024
     /// So lange nach der letzten Änderung wartet die App, damit eine Datei fertig geschrieben ist.
     static let ruhezeit: TimeInterval = 3
 
     /// Eine Datei, zu der die App nachfragt.
-    struct Rueckfrage: Identifiable, Equatable {
+    struct Rueckfrage: Identifiable, Equatable, Sendable {
         /// Signatur aus Name, Größe und Änderungszeit.
         let id: String
         let dateiname: String
@@ -57,11 +58,18 @@ final class Importordner {
     @ObservationIgnored private var vordergrund: NSObjectProtocol?
     /// Nur nach `verbinde` (die laufende App) gehen Mitteilungen raus, in Tests nicht.
     @ObservationIgnored private var mitteilen = false
+    /// Läuft gerade eine Prüfung; ein weiterer Anstoß setzt `nochmal`.
+    @ObservationIgnored private var laeuft = false
+    @ObservationIgnored private var nochmal = false
+    /// Rückfragen dieser Sitzung je Signatur, gültig für den Journalstand `rueckfragenStand` (Import-IDs).
+    @ObservationIgnored private var rueckfragenSpeicher: [String: Rueckfrage] = [:]
+    @ObservationIgnored private var rueckfragenStand: Set<Int64> = []
 
     init(speicher: UserDefaults = .standard) {
         self.speicher = speicher
         aktiv = speicher.bool(forKey: Self.schluesselAktiv)
         mitteilung = speicher.object(forKey: Self.schluesselMitteilung) as? Bool ?? true
+        speicher.removeObject(forKey: "importOrdnerErledigt")
     }
 
     /// Beim Start der App (AppModell, nur mit Nebenwirkungen): beobachtet, falls eingeschaltet.
@@ -72,7 +80,7 @@ final class Importordner {
             vordergrund = NotificationCenter.default.addObserver(
                 forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main
             ) { [weak self] _ in
-                Task { @MainActor in self?.pruefe() }
+                Task { @MainActor in await self?.pruefe() }
             }
         }
         starte()
@@ -105,7 +113,8 @@ final class Importordner {
 
     /// Die Datei soll nicht importiert werden: erledigt, bis sie sich ändert.
     func ignoriere(_ rueckfrage: Rueckfrage) {
-        merkeErledigt(rueckfrage.id)
+        merkeIgnoriert(rueckfrage.id)
+        rueckfragenSpeicher[rueckfrage.id] = nil
         rueckfragen.removeAll { $0.id == rueckfrage.id }
     }
 
@@ -164,7 +173,7 @@ final class Importordner {
             quelle = neu
         }
         stand = String(localized: "Beobachtet \(url.path)")
-        pruefe()
+        Task { await pruefe() }
     }
 
     private func halteAn() {
@@ -191,24 +200,60 @@ final class Importordner {
         nachlauf = Task { @MainActor [weak self] in
             try? await Task.sleep(for: .seconds(Self.ruhezeit))
             guard !Task.isCancelled else { return }
-            self?.pruefe()
+            await self?.pruefe()
         }
     }
 
     // MARK: Prüfung
 
-    /// Geht alle Dateien des Ordners durch, die noch nicht erledigt sind.
-    func pruefe(jetzt: Date = .now) {
+    /// Eine Datei des Ordners, die gelesen werden muss (noch nicht erledigt, nicht schon als Rückfrage bekannt).
+    struct Kandidat: Sendable {
+        let url: URL
+        let name: String
+        let signatur: String
+        let groesse: Int
+    }
+
+    /// Ergebnis für eine Datei aus dem Hintergrundlauf.
+    enum Ausgang: Sendable {
+        /// Gespeichert oder schon im Journal; `meldung` nur, wenn die Speicherung selbst lief.
+        case erledigt(signatur: String, name: String, hash: String, meldung: String?, gespeichert: Bool)
+        case rueckfrage(Rueckfrage)
+    }
+
+    /// Geht alle Dateien des Ordners durch, die noch nicht erledigt sind. Lesen, Prüfsumme, Erkennung und
+    /// Speichern laufen im Hintergrund (Gegencheck G19); Rückfragen zu unveränderten Dateien liest die App erst
+    /// wieder, wenn sich das Journal geändert hat. Kommt während eines Laufs ein weiterer Anstoß, folgt ein Lauf.
+    func pruefe(jetzt: Date = .now) async {
+        guard !laeuft else {
+            nochmal = true
+            return
+        }
+        laeuft = true
+        repeat {
+            nochmal = false
+            await lauf(jetzt: jetzt)
+        } while nochmal
+        laeuft = false
+    }
+
+    private func lauf(jetzt: Date) async {
         guard aktiv, let ordner, let modell, let journal = modell.journal else { return }
         let schluessel: [URLResourceKey] = [.isRegularFileKey, .fileSizeKey, .contentModificationDateKey]
         let dateien = (try? FileManager.default.contentsOfDirectory(
             at: ordner, includingPropertiesForKeys: schluessel,
             options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants])) ?? []
-        var erledigt = erledigteSignaturen()
+        // Gemerkten Signaturen nur trauen, solange ihr Hash im Journal steht (G20: nach einem Wiederherstellen
+        // oder Löschen eines Imports prüft die App die Datei neu).
         let bekannteHashes = Set(modell.importe.map(\.lauf.dateiHash))
+        let stand = Set(modell.importe.map(\.id))
+        if stand != rueckfragenStand {
+            rueckfragenSpeicher = [:]
+            rueckfragenStand = stand
+        }
+        let gemerkt = erledigteDateien()
         var offen: [Rueckfrage] = []
-        var importiert = false
-        var gespeichert: [Meldung] = []
+        var kandidaten: [Kandidat] = []
         var unfertig = false
         for url in dateien.sorted(by: { $0.lastPathComponent < $1.lastPathComponent }) {
             let name = url.lastPathComponent
@@ -218,49 +263,56 @@ final class Importordner {
                   let geaendert = werte.contentModificationDate
             else { continue }
             let signatur = "\(name)|\(groesse)|\(Int(geaendert.timeIntervalSince1970))"
-            guard erledigt[signatur] == nil else { continue }
+            if let eintrag = gemerkt[signatur], eintrag.hash.map({ bekannteHashes.contains($0) }) ?? true { continue }
+            if let bekannt = rueckfragenSpeicher[signatur] {
+                offen.append(bekannt)
+                continue
+            }
             guard jetzt.timeIntervalSince(geaendert) >= Self.ruhezeit else {
                 unfertig = true
                 continue
             }
-            func frage(_ grund: String) {
-                offen.append(Rueckfrage(id: signatur, dateiname: name, url: url, grund: grund))
+            kandidaten.append(Kandidat(url: url, name: name, signatur: signatur, groesse: groesse))
+        }
+        var importiert = false
+        var gespeichert: [Meldung] = []
+        var erledigt = gemerkt
+        if !kandidaten.isEmpty {
+            let konten = modell.konten
+            var zonen: [Int64: TimeZone] = [:]
+            for konto in konten {
+                if let id = konto.id, let zone = Self.letzteZeitzone(konto, importe: modell.importe) { zonen[id] = zone }
             }
-            guard groesse <= Self.hoechstgroesse else {
-                frage(String(localized: "Datei zu groß für einen Kontoauszug."))
-                continue
-            }
-            guard let daten = try? Data(contentsOf: url) else {
-                frage(String(localized: "Datei nicht lesbar."))
-                continue
-            }
-            // Schon gespeichert, etwa über „Prüfen“ im Blatt: erledigt, auch wenn das Konto mehrdeutig ist.
-            if bekannteHashes.contains(Journal.fingerabdruck(daten)) {
-                erledigt[signatur] = jetzt.timeIntervalSince1970
-                continue
-            }
-            let entscheidung = Importordnerregel.entscheide(daten: daten, dateiname: name, konten: modell.konten,
-                                                            zeitzone: { Self.letzteZeitzone($0, importe: modell.importe) })
-            do {
-                guard let ergebnis = try Self.importiere(entscheidung, daten: daten, dateiname: name, journal: journal)
-                else {
-                    if case .rueckfrage(let grund) = entscheidung { frage(grund) }
-                    continue
+            let liste = kandidaten
+            let zeitzonen = zonen
+            let ausgaenge = await Task.detached(priority: .utility) {
+                Importordner.verarbeite(liste, journal: journal, konten: konten, zonen: zeitzonen,
+                                        bekannteHashes: bekannteHashes)
+            }.value
+            // Neu lesen: „Ignorieren“ während des Laufs soll nicht verloren gehen.
+            erledigt = erledigteDateien()
+            for ausgang in ausgaenge {
+                switch ausgang {
+                case .erledigt(let signatur, let name, let hash, let meldung, let neu):
+                    erledigt[signatur] = Erledigt(zeit: jetzt.timeIntervalSince1970, hash: hash)
+                    importiert = importiert || neu
+                    if let meldung {
+                        melde(name, meldung, jetzt: jetzt)
+                        if neu, let eintrag = zuletzt.first { gespeichert.append(eintrag) }
+                    }
+                case .rueckfrage(let rueckfrage):
+                    rueckfragenSpeicher[rueckfrage.id] = rueckfrage
+                    offen.append(rueckfrage)
                 }
-                erledigt[signatur] = jetzt.timeIntervalSince1970
-                importiert = importiert || ergebnis.status == .gespeichert
-                melde(name, Self.text(ergebnis), jetzt: jetzt)
-                if ergebnis.status == .gespeichert, let neu = zuletzt.first { gespeichert.append(neu) }
-            } catch {
-                // Widerspruch zu den Summen, andere Kontowährung, abweichender Datensatz: das Blatt zeigt Einzelheiten.
-                frage(String(localized: "Import abgebrochen: bitte im Blatt prüfen."))
             }
         }
         speichere(erledigt)
-        rueckfragen = offen
+        rueckfragen = offen.sorted { $0.dateiname < $1.dateiname }
         if importiert {
             modell.laden()
             modell.exportiere()
+            // Das Journal hat sich geändert: Rückfragen beim nächsten Lauf neu bewerten.
+            rueckfragenStand = []
         }
         if mitteilen, mitteilung, let inhalt = Self.mitteilungstext(gespeichert, offen: offen.count) {
             Self.teileMit(titel: inhalt.titel, text: inhalt.text)
@@ -268,8 +320,63 @@ final class Importordner {
         if unfertig { pruefeSpaeter() }
     }
 
+    /// Liest, prüft und speichert die Kandidaten, abseits des Hauptthreads.
+    nonisolated static func verarbeite(_ kandidaten: [Kandidat], journal: Journal, konten: [Konto],
+                                       zonen: [Int64: TimeZone], bekannteHashes: Set<String>) -> [Ausgang] {
+        var ergebnis: [Ausgang] = []
+        var hashes = bekannteHashes
+        // Bekannte Vorgänge je Konto für die Überschneidungsprüfung (G21), nur bei Bedarf gelesen.
+        var vorgaengeJeKonto: [Int64: Set<String>] = [:]
+        func vorgaenge(_ konto: Konto) -> Set<String> {
+            guard let id = konto.id else { return [] }
+            if let bekannt = vorgaengeJeKonto[id] { return bekannt }
+            let bewegungen = try? journal.kontobewegungen(konto: konto)
+            let menge = Set((bewegungen?.ausfuehrungen.map(\.id) ?? []) + (bewegungen?.geldbewegungen.map(\.id) ?? [])
+                + (bewegungen?.kapitalmassnahmen.map(\.id) ?? []))
+            vorgaengeJeKonto[id] = menge
+            return menge
+        }
+        for k in kandidaten {
+            func frage(_ grund: String) {
+                ergebnis.append(.rueckfrage(Rueckfrage(id: k.signatur, dateiname: k.name, url: k.url, grund: grund)))
+            }
+            guard k.groesse <= hoechstgroesse else {
+                frage(String(localized: "Datei zu groß für einen Kontoauszug."))
+                continue
+            }
+            guard let daten = try? Data(contentsOf: k.url) else {
+                frage(String(localized: "Datei nicht lesbar."))
+                continue
+            }
+            // Schon gespeichert, etwa über „Prüfen“ im Blatt: erledigt, auch wenn das Konto mehrdeutig ist.
+            let hash = Journal.fingerabdruck(daten)
+            if hashes.contains(hash) {
+                ergebnis.append(.erledigt(signatur: k.signatur, name: k.name, hash: hash, meldung: nil, gespeichert: false))
+                continue
+            }
+            let entscheidung = Importordnerregel.entscheide(daten: daten, dateiname: k.name, konten: konten,
+                                                            zeitzone: { $0.id.flatMap { zonen[$0] } },
+                                                            vorgaenge: vorgaenge)
+            do {
+                guard let gespeichert = try importiere(entscheidung, daten: daten, dateiname: k.name, journal: journal)
+                else {
+                    if case .rueckfrage(let grund) = entscheidung { frage(grund) }
+                    continue
+                }
+                hashes.insert(hash)
+                if case .csv(_, let konto) = entscheidung, let id = konto.id { vorgaengeJeKonto[id] = nil }
+                ergebnis.append(.erledigt(signatur: k.signatur, name: k.name, hash: hash, meldung: text(gespeichert),
+                                          gespeichert: gespeichert.status == .gespeichert))
+            } catch {
+                // Widerspruch zu den Summen, andere Kontowährung, abweichender Datensatz: das Blatt zeigt Einzelheiten.
+                frage(String(localized: "Import abgebrochen: bitte im Blatt prüfen."))
+            }
+        }
+        return ergebnis
+    }
+
     /// Speichert still; `nil` bei einer Rückfrage.
-    static func importiere(_ entscheidung: Importordnerregel.Entscheidung, daten: Data, dateiname: String,
+    nonisolated static func importiere(_ entscheidung: Importordnerregel.Entscheidung, daten: Data, dateiname: String,
                            journal: Journal) throws -> ImportErgebnis? {
         switch entscheidung {
         case .mt4(let konto, let zone):
@@ -294,7 +401,7 @@ final class Importordner {
             .flatMap { TimeZone(identifier: $0.lauf.serverZeitzone) }
     }
 
-    private static func text(_ ergebnis: ImportErgebnis) -> String {
+    nonisolated private static func text(_ ergebnis: ImportErgebnis) -> String {
         switch ergebnis.status {
         case .dateiBereitsImportiert:
             return String(localized: "schon importiert, nichts geändert")
@@ -341,32 +448,40 @@ final class Importordner {
 
     // MARK: Erledigte Dateien
 
-    private func erledigteSignaturen() -> [String: Double] {
-        speicher.dictionary(forKey: Self.schluesselErledigt) as? [String: Double] ?? [:]
+    /// Eine erledigte Datei: Hash bei Import oder „schon im Journal“, `nil` bei „Ignorieren“ (gilt, bis sich die
+    /// Datei ändert). Ein Hash, der nicht mehr im Journal steht, macht den Eintrag ungültig (G20).
+    struct Erledigt: Codable, Equatable {
+        var zeit: Double
+        var hash: String?
+    }
+
+    private func erledigteDateien() -> [String: Erledigt] {
+        guard let daten = speicher.data(forKey: Self.schluesselErledigt) else { return [:] }
+        return (try? JSONDecoder().decode([String: Erledigt].self, from: daten)) ?? [:]
     }
 
     /// Hebt höchstens 1000 Einträge auf, die jüngsten.
-    private func speichere(_ erledigt: [String: Double]) {
+    private func speichere(_ erledigt: [String: Erledigt]) {
         let behalten = erledigt.count > 1000
-            ? Dictionary(uniqueKeysWithValues: erledigt.sorted { $0.value > $1.value }.prefix(1000).map { ($0.key, $0.value) })
+            ? Dictionary(uniqueKeysWithValues: erledigt.sorted { $0.value.zeit > $1.value.zeit }.prefix(1000).map { ($0.key, $0.value) })
             : erledigt
-        speicher.set(behalten, forKey: Self.schluesselErledigt)
+        if let daten = try? JSONEncoder().encode(behalten) { speicher.set(daten, forKey: Self.schluesselErledigt) }
     }
 
-    private func merkeErledigt(_ signatur: String) {
-        var erledigt = erledigteSignaturen()
-        erledigt[signatur] = Date.now.timeIntervalSince1970
+    private func merkeIgnoriert(_ signatur: String) {
+        var erledigt = erledigteDateien()
+        erledigt[signatur] = Erledigt(zeit: Date.now.timeIntervalSince1970, hash: nil)
         speichere(erledigt)
     }
 }
 
 extension Importordner {
     /// Nur für Tests: beobachtet `url` ohne Bookmark und ohne Dispatch-Quelle.
-    func pruefeTestweise(_ url: URL, modell: AppModell, jetzt: Date) {
+    func pruefeTestweise(_ url: URL, modell: AppModell, jetzt: Date) async {
         self.modell = modell
         ordner = url
         aktiv = true
-        pruefe(jetzt: jetzt)
+        await pruefe(jetzt: jetzt)
     }
 }
 #endif
