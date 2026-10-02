@@ -95,7 +95,7 @@ struct AllgemeinFelder: View {
             .font(Schrift.beschriftung)
             .foregroundStyle(thema.textSchwach)
         SpracheFeld() // Paket 6 Englisch (App/Sources/Sprache/Sprache.swift)
-        LabeledContent("Anzeigewährung") { Text("Kontowährung, Umrechnung folgt") }
+        LabeledContent("Anzeigewährung") { Text("Kontowährung; fremde Währungen zum EZB-Kurs umgerechnet") }
     }
 }
 
@@ -225,7 +225,7 @@ struct ClaudeFelder: View {
                 .font(Schrift.beschriftung)
                 .foregroundStyle(thema.textSchwach)
             LabeledContent("Exportierte Felder") {
-                Text("Ticketnummer, Zeiten, Instrument, Richtung, Lots, Kurse, Stop und Ziel, Kommission, Swap, Steuern (falls der Broker sie meldet), Ergebnis, Zeitpunkte gelöschter Orders, Journal (Stop, Setup, Regeltreue, Zustand, Marktumfeld, Grund), Ziele aus Reviews, eigene Handelsregeln, Tagesnotizen und verpasste Trades (ohne Bilder), Tonfall, Broker, Kontowährung, Zeitzone und die letzten vier Stellen der Kontonummer. Nicht: Name, volle Kontonummer, Saldo.")
+                Text("Ticketnummer, Zeiten, Instrument, Richtung, Lots, Kurse, Stop und Ziel, Kommission, Swap, Steuern (falls der Broker sie meldet), Ergebnis, Zeitpunkte gelöschter Orders, Journal (Stop, Setup, Regeltreue, Zustand, Marktumfeld, Grund), Ziele aus Reviews, eigene Handelsregeln, Tagesnotizen und verpasste Trades (ohne Bilder), Ausstiegsanalysen (falls Kerzen geladen), Nachrichten der letzten sieben Tage (falls eingeschaltet), Tageskerzen geladener Werte, EZB-Referenzkurse für Trades in fremder Währung, Tonfall, Broker, Kontowährung, Zeitzone und die letzten vier Stellen der Kontonummer. Nicht: Name, volle Kontonummer, Saldo.")
             }
             if let status = [fehler, modell.exportStand].first(where: { !$0.isEmpty }) {
                 Text(verbatim: status)
