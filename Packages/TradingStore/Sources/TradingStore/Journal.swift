@@ -130,7 +130,7 @@ public final class Journal: Sendable {
                     var vergleich = try alt.modell()
                     let produktart = vereinteProduktart(vergleich.produktart, p.produktart)
                     vergleich.produktart = p.produktart
-                    if let produktart, vergleich == p {
+                    if vergleich == p {
                         ergebnis.geschlosseneBekannt += 1
                         try Self.ergaenzeProduktart(db, alt, produktart)
                     } else {
