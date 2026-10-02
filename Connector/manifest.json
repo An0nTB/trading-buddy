@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "trading-buddy",
   "display_name": "Henry",
-  "version": "0.9.1",
+  "version": "0.10.0",
   "description": "Henry führt Buch über deine Trades. Kennzahlen, Fehlermuster und Wochen- oder Monatsauswertung aus deinem Journal. Nur lesend, die Daten bleiben auf deinem Mac.",
   "author": {
     "name": "Tim Bock"

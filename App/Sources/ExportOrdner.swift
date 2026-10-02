@@ -3,6 +3,7 @@ import Foundation
 import TradingCore
 import TradingNews
 import TradingQuotes
+import TradingRates
 import TradingStore
 
 /// Ordner, in den die App Daten für den Claude-Connector schreibt.
@@ -33,7 +34,8 @@ enum ExportOrdner {
 
     /// Exportdatei für den Connector aus allen Konten des Journals, mit dem Stop aus dem Journal
     /// wie in der App (`Trade.mitJournal`), den übrigen Journalangaben, den Review-Zielen, den Handelsregeln,
-    /// den Tagesnotizen, den verpassten Trades und den Tageskerzen geladener Kurse. Ohne Kontonamen und Rohzeilen;
+    /// den Tagesnotizen, den verpassten Trades, den Tageskerzen geladener Kurse und den EZB-Kursen für Trades in
+    /// fremder Währung. Ohne Kontonamen und Rohzeilen;
     /// von der Kontonummer nur die letzten vier Stellen, damit Claude die Konten unterscheiden kann
     /// (mehr nur, wenn zwei Konten desselben Brokers auf dieselben vier Stellen enden).
     static func export(_ journal: Journal, zeitzone: TimeZone) throws -> JournalExport {
@@ -59,7 +61,15 @@ enum ExportOrdner {
         return JournalExport(konten: konten, zeitzone: zeitzone, ton: ton,
                              tagesnotizen: notizen.map(JournalExport.Notiz.init),
                              verpassteTrades: verpasst.map(JournalExport.Verpasst.init),
-                             nachrichten: nachrichten(journal), kursverlauf: kursverlauf())
+                             nachrichten: nachrichten(journal), kursverlauf: kursverlauf(),
+                             referenzkurse: referenzkurse(konten))
+    }
+
+    /// EZB-Referenzkurse aus dem Zwischenspeicher von TradingRates, nur für die Tage und Währungen der Trades in
+    /// fremder Währung; der Connector rechnet damit wie die App in die Kontowährung um. Ohne Speicher keine Kurse.
+    private static func referenzkurse(_ konten: [JournalExport.Kontodaten]) -> [JournalExport.Tageskurse] {
+        guard let inhalt = Kursspeicher(datei: Kursspeicher.standardDatei()).lies() else { return [] }
+        return JournalExport.referenzkursauszug(Referenzkurse(kurse: inhalt.kurse), fuer: konten)
     }
 
     /// Tageskerzen aus dem Zwischenspeicher der Kurse (TradingQuotes, A1) unter dem Journal-Symbol, für
