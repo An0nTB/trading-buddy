@@ -221,7 +221,8 @@ struct LetzteTradesKarte: View {
                         .font(Schrift.beschriftung)
                         .foregroundStyle(thema.textSchwach)
                     Spacer()
-                    Text(verbatim: Format.geld(trade.netProfit, modell.waehrung))
+                    // Einzelbetrag in der Währung des Trades (Zweiter Gegencheck W1): BTC/USD nicht als Euro.
+                    Text(verbatim: Format.geld(trade.netProfit, trade.waehrung(kontowaehrung: modell.waehrung)))
                         .font(Schrift.tabelle)
                         .foregroundStyle(thema.vorzeichen(trade.netProfit))
                 }

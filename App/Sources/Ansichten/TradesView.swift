@@ -129,7 +129,7 @@ struct TradesView: View {
             Group {
                 if let trade = ausgewaehlterTrade {
                     ScrollView {
-                        TradeInspektor(trade: trade, muster: muster[trade.id] ?? [], waehrung: modell.waehrung)
+                        TradeInspektor(trade: trade, muster: muster[trade.id] ?? [], waehrung: trade.waehrung(kontowaehrung: modell.waehrung))
                             .padding(Abstand.kachelInnen)
                     }
                 } else {
@@ -228,7 +228,8 @@ struct TradesView: View {
             .alignment(.numeric)
             .customizationID("r")
             TableColumn("Netto", value: \.trade.netProfit) { zeile in
-                Text(verbatim: Format.geld(zeile.trade.netProfit, modell.waehrung))
+                // Betrag in der Währung des Trades (Zweiter Gegencheck W1); die Summenzeile bleibt Kontowährung.
+                Text(verbatim: Format.geld(zeile.trade.netProfit, zeile.trade.waehrung(kontowaehrung: modell.waehrung)))
                     .monospacedDigit()
                     .foregroundStyle(thema.vorzeichen(zeile.trade.netProfit))
             }
@@ -273,7 +274,7 @@ struct TradesView: View {
     private func tradeListe(_ liste: [TradeZeileDaten], _ muster: [String: [Fehlermuster]]) -> some View {
         List(liste) { zeile in
             NavigationLink(value: zeile.id) {
-                TradeZeile(trade: zeile.trade, muster: zeile.muster, waehrung: modell.waehrung, setup: zeile.setup,
+                TradeZeile(trade: zeile.trade, muster: zeile.muster, waehrung: zeile.trade.waehrung(kontowaehrung: modell.waehrung), setup: zeile.setup,
                            ueberTermin: !zeile.termine.isEmpty)
             }
             .listRowBackground(thema.flaeche)
@@ -282,7 +283,7 @@ struct TradesView: View {
         .navigationDestination(for: TradeZeileDaten.ID.self) { id in
             if let trade = modell.trades.first(where: { $0.id == id }) {
                 ScrollView {
-                    TradeInspektor(trade: trade, muster: muster[id] ?? [], waehrung: modell.waehrung)
+                    TradeInspektor(trade: trade, muster: muster[id] ?? [], waehrung: trade.waehrung(kontowaehrung: modell.waehrung))
                         .padding(Abstand.seitenrand)
                 }
                 .background(thema.grund)

@@ -68,7 +68,10 @@ struct SteuerView: View {
         }
         let fremde = modell.fremdwaehrungen.joined(separator: ", ")
         if !fremde.isEmpty {
-            teile.append(String(localized: "Trades in \(fremde) zum EZB-Kurs des Verkaufstags in Euro umgerechnet"))
+            // Ohne geladene Kurse nicht „umgerechnet“ behaupten (Zweiter Gegencheck X7).
+            teile.append(modell.ezb.letzterTag == nil
+                         ? String(localized: "Trades in \(fremde) werden nach dem Kursabruf in Euro umgerechnet")
+                         : String(localized: "Trades in \(fremde) zum EZB-Kurs des Verkaufstags in Euro umgerechnet"))
         }
         if modell.hatKrypto, EZBKurse.istNaeherung("USDT") {
             teile.append(String(localized: "USDT wie USD umgerechnet (Näherung)"))

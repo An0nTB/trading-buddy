@@ -85,7 +85,7 @@ struct BefundTrades: View {
                                     .font(Schrift.tabelle)
                                     .foregroundStyle(thema.textSchwach)
                             }
-                            Text(verbatim: Format.geld(trade.netProfit, modell.waehrung))
+                            Text(verbatim: Format.geld(trade.netProfit, trade.waehrung(kontowaehrung: modell.waehrung))) // W1
                                 .font(Schrift.tabelle)
                                 .foregroundStyle(thema.vorzeichen(trade.netProfit))
                                 .frame(width: 90, alignment: .trailing)
