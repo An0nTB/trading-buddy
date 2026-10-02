@@ -97,6 +97,40 @@ let finanzenFeed = Feed(quelle: "finanzen.net", titel: "News",
     #expect(ergebnis.meldungen.isEmpty)
 }
 
+@Test func marketauxFehlerBeiEinemBegriffStopptNichtDieUebrigen() async {
+    let gut = Antwort(status: 200, daten: Data(Beispiel.marketaux.utf8))
+    let laden = AufgezeichnetesLaden([
+        "api.marketaux.com/v1/news/all": [gut, Antwort(status: 400, daten: Data("<html>nein</html>".utf8)), gut]
+    ])
+    let abruf = Nachrichtenabruf(laden: laden, feeds: [], marketauxToken: { "t" },
+                                 budget: Abrufbudget(grenzeJeTag: 100, jetzt: jetzt))
+    let begriffe = [Merkbegriff(art: .symbol, text: "TSLA"), Merkbegriff(art: .symbol, text: "KAPUTT"),
+                    Merkbegriff(art: .symbol, text: "SAP.DE")]
+    let ergebnis = await abruf.aktualisiere(begriffe: begriffe, jetzt: jetzt)
+    #expect(await laden.anfragen.count == 3)
+    #expect(ergebnis.fehler == ["Marketaux KAPUTT": "Marketaux: Antwort 400"])
+    #expect(ergebnis.marketauxRest == 97)
+    #expect(!ergebnis.meldungen.isEmpty)
+
+    // Fehlgeschlagener Begriff hält den Mindestabstand: ein direkter zweiter Lauf fragt nichts neu an.
+    _ = await abruf.aktualisiere(begriffe: begriffe, jetzt: jetzt.addingTimeInterval(60))
+    #expect(await laden.anfragen.count == 3)
+}
+
+@Test func marketauxKontofehlerBrichtDieSchleifeAb() async {
+    let laden = AufgezeichnetesLaden([
+        "api.marketaux.com/v1/news/all": [Antwort(status: 402, daten: Data(Beispiel.marketauxFehler.utf8)),
+                                          Antwort(status: 200, daten: Data(Beispiel.marketaux.utf8))]
+    ])
+    let abruf = Nachrichtenabruf(laden: laden, feeds: [], marketauxToken: { "t" },
+                                 budget: Abrufbudget(grenzeJeTag: 100, jetzt: jetzt))
+    let begriffe = [Merkbegriff(art: .symbol, text: "TSLA"), Merkbegriff(art: .symbol, text: "SAP.DE")]
+    let ergebnis = await abruf.aktualisiere(begriffe: begriffe, jetzt: jetzt)
+    #expect(await laden.anfragen.count == 1)
+    #expect(ergebnis.fehler.keys.sorted() == ["Marketaux"])
+    #expect(ergebnis.marketauxRest == 99)
+}
+
 @Test func marketauxHTMLFehlerseiteZeigtStatus() async {
     let laden = AufgezeichnetesLaden([
         "api.marketaux.com/v1/news/all": [Antwort(status: 401, daten: Data("<html>nein</html>".utf8))]

@@ -170,20 +170,20 @@ public actor Nachrichtenabruf {
                             fehler["Marketaux"] = "Tagesgrenze von \(budget.grenzeJeTag) Abrufen erreicht"
                             break
                         }
-                        let antwort = try await laden.lade(anfrage)
-                        // Marketaux schickt Fehler als JSON, auch bei Status 4xx; erst lesen, dann Status prüfen.
-                        let meldungen: [Meldung]
+                        var status: Int?
                         do {
-                            meldungen = try Marketaux.lies(antwort.daten, jetzt: jetzt)
-                        } catch let fehler as Marketaux.Fehler {
-                            throw fehler
+                            let antwort = try await laden.lade(anfrage)
+                            status = antwort.status
+                            let meldungen = try liesMarketaux(antwort, jetzt: jetzt)
+                            staende[schluessel, default: Stand()].meldungen = meldungen
+                            staende[schluessel, default: Stand()].abgerufen = jetzt
                         } catch {
-                            try pruefe(antwort, anbieter: "Marketaux")
-                            throw error
+                            if Self.betrifftAlleBegriffe(error, status: status) { throw error }
+                            // Nur dieser Begriff scheitert: Versuch zählt (Mindestabstand), alte Meldungen
+                            // bleiben, die übrigen Begriffe laufen weiter.
+                            staende[schluessel, default: Stand()].abgerufen = jetzt
+                            fehler["Marketaux \(begriff.text)"] = beschreibung(error)
                         }
-                        try pruefe(antwort, anbieter: "Marketaux")
-                        staende[schluessel, default: Stand()].meldungen = meldungen
-                        staende[schluessel, default: Stand()].abgerufen = jetzt
                     }
                 }
             } catch {
@@ -219,6 +219,38 @@ public actor Nachrichtenabruf {
         stand.etag = antwort.kopf["etag"]
         stand.geaendert = antwort.kopf["last-modified"]
         staende[schluessel] = stand
+    }
+
+    private func liesMarketaux(_ antwort: Antwort, jetzt: Date) throws -> [Meldung] {
+        // Marketaux schickt Fehler als JSON, auch bei Status 4xx; erst lesen, dann Status prüfen.
+        let meldungen: [Meldung]
+        do {
+            meldungen = try Marketaux.lies(antwort.daten, jetzt: jetzt)
+        } catch let fehler as Marketaux.Fehler {
+            throw fehler
+        } catch {
+            try pruefe(antwort, anbieter: "Marketaux")
+            throw error
+        }
+        try pruefe(antwort, anbieter: "Marketaux")
+        return meldungen
+    }
+
+    /// Fehler, die jeden weiteren Begriff genauso träfen (Schlüssel, Kontingent, Dienst oder Netz): dann
+    /// bricht die Schleife ab, statt das Tagesbudget mit sicheren Fehlschlägen zu verbrauchen.
+    static func betrifftAlleBegriffe(_ fehler: Error, status: Int?) -> Bool {
+        let kontoweit: (Int) -> Bool = { [401, 402, 403, 429].contains($0) || $0 >= 500 }
+        if let status, kontoweit(status) { return true }
+        switch fehler {
+        case let f as Marketaux.Fehler:
+            return ["invalid_api_token", "usage_limit_reached", "rate_limit_reached"].contains(f.code)
+        case let f as HTTPFehler:
+            return kontoweit(f.status)
+        case is DecodingError:
+            return false
+        default:
+            return true
+        }
     }
 
     private func pruefe(_ antwort: Antwort, anbieter: String) throws {
