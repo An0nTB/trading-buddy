@@ -15,6 +15,13 @@ public struct Waehrungsangleich: Sendable, Equatable {
     /// Fremde Währungen in den übergebenen Trades, sortiert.
     public var fremdwaehrungen: [String]
 
+    /// IDs aus `ohneKurs`. Die Regelprüfung zählt diese Trades mit, rechnet aber nicht mit ihren Beträgen
+    /// (Dritter Gegencheck G1, Doc 49).
+    public var ohneKursIDs: Set<String> { Set(ohneKurs.map(\.id)) }
+
+    /// - Parameter zeitzone: bestimmt den Kurstag. Vorgabe deutsche Zeit wie bei der EZB und der
+    ///   Steuer-Orientierung; App, Bericht und Connector übergeben keine andere, damit derselbe Trade überall
+    ///   denselben Kurs bekommt (Dritter Gegencheck G6, Doc 49).
     public init(_ trades: [Trade], kontowaehrung: String, kurse: Referenzkurse?,
                 zeitzone: TimeZone = Steuerorientierung.deutscheZeit) {
         let konto = kontowaehrung.uppercased()
@@ -26,7 +33,9 @@ public struct Waehrungsangleich: Sendable, Equatable {
             let waehrung = t.waehrung(kontowaehrung: konto)
             guard waehrung != konto else { angeglichen.append(t); continue }
             fremd.insert(waehrung)
-            guard let faktor = kurse?.umrechnen(1, von: waehrung, nach: konto, am: t.closeTime, zeitzone: zeitzone)
+            // Ohne Kurse rechnet ein leerer Satz: Gleichgesetztes (USDT wie USD) bleibt so umrechenbar (G5).
+            let satz = kurse ?? Referenzkurse(kurse: [:])
+            guard let faktor = satz.umrechnen(1, von: waehrung, nach: konto, am: t.closeTime, zeitzone: zeitzone)
             else { ohneKurs.append(t); continue }
             var u = t
             u.profit = t.profit * faktor
