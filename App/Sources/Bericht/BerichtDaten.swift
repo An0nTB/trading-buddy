@@ -3,17 +3,23 @@ import TradingCore
 import TradingRates
 import TradingStore
 
-// Monats- und Wochenbericht als PDF (Doc 18 F11, Doc 32, Entscheidung 47 vom 02.10.2026; Wochenbericht
-// Tim 02.10.2026, Frage 4, Doc 47). Gerechnet wird in TradingCore (`Zeitraumbericht`); die Dateien unter
-// Bericht/ holen nur die Eingaben und zeichnen.
+// Monats-, Wochen- und Jahresbericht als PDF (Doc 18 F11, Doc 32, Entscheidung 47 vom 02.10.2026; Wochenbericht
+// Tim 02.10.2026, Frage 4, Doc 47; Jahresbericht Tim 02.10.2026, Paket A6). Gerechnet wird in TradingCore
+// (`Zeitraumbericht`); die Dateien unter Bericht/ holen nur die Eingaben und zeichnen.
 
 /// Welche Spanne der Bericht abdeckt; bestimmt Titel, Vergleichsname und Dateiname.
 enum BerichtArt: Equatable {
     case monat
+    /// Kalenderjahr, 1. Januar bis 31. Dezember.
+    case jahr(Int)
     /// ISO-Kalenderwoche (Montag bis Sonntag).
     case woche(jahr: Int, nummer: Int)
     /// Frei gewählte Tage.
     case zeitraum
+
+    var istJahr: Bool {
+        if case .jahr = self { true } else { false }
+    }
 }
 
 /// Kopfangaben des PDFs neben dem `Zeitraumbericht`. Die Kontonummer steht höchstens mit den letzten
@@ -60,6 +66,8 @@ struct BerichtKontext {
         switch art {
         case .monat:
             String(format: "Henry Monatsbericht %04d-%02d.pdf", erster.jahr, erster.monat)
+        case let .jahr(jahr):
+            String(format: "Henry Jahresbericht %04d.pdf", jahr)
         case let .woche(jahr, nummer):
             String(format: "Henry Wochenbericht %04d-W%02d.pdf", jahr, nummer)
         case .zeitraum:
@@ -72,15 +80,17 @@ struct BerichtKontext {
     var vergleichsname: String {
         switch art {
         case .monat: String(localized: "Vormonat")
+        case .jahr: String(localized: "Vorjahr")
         case .woche: String(localized: "Vorwoche")
         case .zeitraum: String(localized: "Vorzeitraum")
         }
     }
 
-    /// „in diesem Monat“, „in dieser Woche“ oder „in diesem Zeitraum“.
+    /// „in diesem Monat“, „in diesem Jahr“, „in dieser Woche“ oder „in diesem Zeitraum“.
     var inDerSpanne: String {
         switch art {
         case .monat: String(localized: "in diesem Monat")
+        case .jahr: String(localized: "in diesem Jahr")
         case .woche: String(localized: "in dieser Woche")
         case .zeitraum: String(localized: "in diesem Zeitraum")
         }
@@ -105,6 +115,14 @@ extension AppModell {
                        titel: String(localized: "Wochenbericht KW \(kw.woche)/\(String(kw.jahr))"), jetzt: jetzt)
     }
 
+    /// Jahresbericht für das Kalenderjahr `jahr` (Zeitzone des Nutzers). Verglichen wird mit dem Vorjahr.
+    func jahresbericht(_ jahr: Int, jetzt: Date = Date()) -> (bericht: Zeitraumbericht, kontext: BerichtKontext)? {
+        guard let zeitraum = Zeitspanne.tage(von: DateComponents(year: jahr, month: 1, day: 1),
+                                             bis: DateComponents(year: jahr, month: 12, day: 31), zeitzone: zeitzone)
+        else { return nil }
+        return bericht(zeitraum, art: .jahr(jahr), titel: String(localized: "Jahresbericht \(String(jahr))"), jetzt: jetzt)
+    }
+
     /// Bericht über `zeitraum` und alle Trades des gewählten Kontos, unabhängig vom Zeitraum- und
     /// Instrumentfilter der Oberfläche. Tagesnotizen und verpasste Trades gelten für alle Konten, wie auf
     /// der Tagesseite.
@@ -124,6 +142,11 @@ extension AppModell {
                                      zeitzone: zeitzone, erstellt: jetzt, regelnHinterlegt: !regeln.leer,
                                      brokerFuehrtSteuerAb: brokerFuehrtSteuerAb, ezbBis: ezb.letzterTag)
         return (bericht, kontext)
+    }
+
+    /// Kalenderjahre mit mindestens einem geschlossenen Trade des Kontos, neuestes zuerst.
+    var berichtJahre: [Int] {
+        Set(alleTrades.map { Journaltag($0.closeTime, zeitzone: zeitzone).jahr }).sorted(by: >)
     }
 
     /// Montage der Wochen mit mindestens einem geschlossenen Trade des Kontos, neueste zuerst.
