@@ -1,0 +1,10 @@
+"You can use this transaction report to inform your likely tax obligations. For US customers, Sells, Converts, and Rewards Income, and Coinbase Earn transactions are taxable events. For final tax obligations, please consult your tax advisor."
+
+
+
+Transactions
+User,SYNTHETISCH,0000
+
+Timestamp,Transaction Type,Asset,Quantity Transacted,EUR Spot Price at Transaction,EUR Subtotal,EUR Total (inclusive of fees),EUR Fees,Notes
+2021-04-01T10:00:00Z,Buy,ETH,0.5,1500.00,,760.00,10.00,Bought 0.5 ETH for €760.00 EUR
+2021-05-01T10:00:00Z,Sell,ETH,0.5,2400.00,1200.00,1185.00,15.00,"Sold 0.5 ETH for €1,185.00 EUR"
