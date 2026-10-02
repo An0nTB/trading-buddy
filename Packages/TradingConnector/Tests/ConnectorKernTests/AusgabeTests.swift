@@ -18,7 +18,7 @@ private func gbeExport() throws -> JournalExport {
 
 @Test func monatsauswertungEnthaeltZahlenUndRezept() throws {
     let text = Ausgabe.auswertung(try Anfrage.lies(["monat": "2025-05"], export: try gbeExport()))
-    #expect(text.contains("# Trading Buddy · Auswertung Mai 2025"))
+    #expect(text.contains("# Brad · Auswertung Mai 2025"))
     #expect(text.contains("Vergleich: April 2025"))
     #expect(text.contains("| Trades (Gewinner/Verlierer) | 83 (54/29) | 0 (0/0) |"))
     #expect(text.contains("| Netto | 7,14 | 0,00 |"))
@@ -67,7 +67,7 @@ private func gbeExport() throws -> JournalExport {
     #expect(text.contains("Setup 2, Regeltreue 2, Zustand 2, Grund 1 von 83"))
 
     let setups = Ausgabe.aufschluesselung(anfrage, nach: try #require(Aufschluesselung(rawValue: "setup")))
-    #expect(setups.contains("# Trading Buddy · Setup") && setups.contains("| Ausbruch | 1 |"))
+    #expect(setups.contains("# Brad · Setup") && setups.contains("| Ausbruch | 1 |"))
     #expect(Aufschluesselung(rawValue: "wochentag") == .kern(.wochentag))
     #expect(Aufschluesselung(rawValue: "unsinn") == nil)
 
@@ -151,6 +151,18 @@ private func gbeExport() throws -> JournalExport {
     #expect(stunden.contains("| ohne Uhrzeit (nur Datum) | 2 |") && stunden.contains("| 11 Uhr | 1 |"))
     let liste = Ausgabe.trades(anfrage, auswahl: .chronologisch, muster: nil, anzahl: 3)
     #expect(liste.contains("| a | 06.05.2025 | SAP |") && liste.contains("| c | 07.05.2025 11:30 | SAP |"))
+}
+
+@Test func broTonNurWennInDerAppEingeschaltet() throws {
+    var export = try gbeExport()
+    let sachlich = Ausgabe.auswertung(try Anfrage.lies(["monat": "2025-05"], export: export))
+    #expect(!sachlich.contains("Bro, hier ist dein Mai") && sachlich.contains("## Rezept für die Antwort (Brad)"))
+    export.ton = "sachlich"
+    #expect(!Ausgabe.auswertung(try Anfrage.lies(["monat": "2025-05"], export: export)).contains("Bro,"))
+    export.ton = JournalExport.tonBro
+    #expect(Ausgabe.auswertung(try Anfrage.lies(["monat": "2025-05"], export: export)).contains(Rezept.broRegel))
+    let daten = try export.json()
+    #expect(try JournalExport.lese(daten).ton == "bro")
 }
 
 @Test func vorlagenNennenDasWerkzeug() {
