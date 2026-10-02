@@ -33,9 +33,13 @@ public enum Journalgruppe: String, Sendable, CaseIterable {
 public enum Aufschluesselung: Sendable, Equatable {
     case kern(Aufteilung)
     case journal(Journalgruppe)
+    /// Produktart laut Broker-Export (`Trade.produktart`).
+    case produktart
 
     public init?(rawValue: String) {
-        if let a = Aufteilung(rawValue: rawValue) {
+        if rawValue == "produktart" {
+            self = .produktart
+        } else if let a = Aufteilung(rawValue: rawValue) {
             self = .kern(a)
         } else if let j = Journalgruppe(rawValue: rawValue) {
             self = .journal(j)
@@ -45,7 +49,7 @@ public enum Aufschluesselung: Sendable, Equatable {
     }
 
     public static var alleWerte: [String] {
-        Aufteilung.allCases.map(\.rawValue) + Journalgruppe.allCases.map(\.rawValue)
+        Aufteilung.allCases.map(\.rawValue) + Journalgruppe.allCases.map(\.rawValue) + ["produktart"]
     }
 }
 
