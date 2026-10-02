@@ -26,13 +26,17 @@ struct Schluesselbund: AlpacaSchluesselquelle {
         return AlpacaSchluessel(schluesselID: eintrag.id, geheimnis: eintrag.geheimnis)
     }
 
-    /// Ersetzt den gespeicherten Schlüssel.
+    /// Ersetzt den gespeicherten Schlüssel. Erst aktualisieren, nur ohne Eintrag neu anlegen:
+    /// Scheitert das Schreiben, bleibt der alte Schlüssel erhalten (Codex-Review 02.10.2026).
     static func speichere(_ schluessel: AlpacaSchluessel) throws {
         let daten = try JSONEncoder().encode(Eintrag(id: schluessel.schluesselID, geheimnis: schluessel.geheimnis))
-        try loesche()
-        var eintrag = grundabfrage()
-        eintrag[kSecValueData as String] = daten
-        let status = SecItemAdd(eintrag as CFDictionary, nil)
+        let aenderung = [kSecValueData as String: daten]
+        var status = SecItemUpdate(grundabfrage() as CFDictionary, aenderung as CFDictionary)
+        if status == errSecItemNotFound {
+            var eintrag = grundabfrage()
+            eintrag[kSecValueData as String] = daten
+            status = SecItemAdd(eintrag as CFDictionary, nil)
+        }
         guard status == errSecSuccess else { throw Fehler.schluesselbund(status) }
     }
 
