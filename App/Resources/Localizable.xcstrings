@@ -15,9 +15,21 @@
     " (Ende nach %lld Tagen)" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : " (ends after %lld days)"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : " (ends after %lld day)"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : " (ends after %lld days)"
+                }
+              }
+            }
           }
         }
       }
@@ -363,9 +375,21 @@
     "%lld Dateien" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld files"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld file"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld files"
+                }
+              }
+            }
           }
         }
       }
@@ -383,9 +407,21 @@
     "%lld Feiertage" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld holidays"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld holiday"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld holidays"
+                }
+              }
+            }
           }
         }
       }
@@ -393,9 +429,21 @@
     "%lld Geldbewegungen gesamt" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld cash movements in total"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld cash movement in total"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld cash movements in total"
+                }
+              }
+            }
           }
         }
       }
@@ -419,9 +467,21 @@
     "%lld Handelstage" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld trading days"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld trading day"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld trading days"
+                }
+              }
+            }
           }
         }
       }
@@ -429,9 +489,21 @@
     "%lld Hinweise" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld notes"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld note"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld notes"
+                }
+              }
+            }
           }
         }
       }
@@ -449,9 +521,21 @@
     "%lld Kalender" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld calendars"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld calendar"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld calendars"
+                }
+              }
+            }
           }
         }
       }
@@ -459,9 +543,21 @@
     "%lld Konten" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld accounts"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld account"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld accounts"
+                }
+              }
+            }
           }
         }
       }
@@ -469,9 +565,21 @@
     "%lld Krypto-Lose ohne Euro" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld crypto lots without euro"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld crypto lot without euro"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld crypto lots without euro"
+                }
+              }
+            }
           }
         }
       }
@@ -505,9 +613,21 @@
     "%lld Lose ohne Euro-Wert" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld lots without a euro value"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld lot without a euro value"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld lots without a euro value"
+                }
+              }
+            }
           }
         }
       }
@@ -515,9 +635,21 @@
     "%lld Meldungen" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld headlines"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld headline"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld headlines"
+                }
+              }
+            }
           }
         }
       }
@@ -535,9 +667,21 @@
     "%lld Regeln mit Treffern" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld rules with hits"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld rule with hits"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld rules with hits"
+                }
+              }
+            }
           }
         }
       }
@@ -545,9 +689,21 @@
     "%lld Tage" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld days"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld day"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld days"
+                }
+              }
+            }
           }
         }
       }
@@ -571,9 +727,21 @@
     "%lld Tage über der Grenze" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld days over the limit"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld day over the limit"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld days over the limit"
+                }
+              }
+            }
           }
         }
       }
@@ -581,9 +749,21 @@
     "%lld Trades" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld trades"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld trade"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld trades"
+                }
+              }
+            }
           }
         }
       }
@@ -601,9 +781,21 @@
     "%lld Trades importieren" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import %lld trades"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Import %lld trade"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Import %lld trades"
+                }
+              }
+            }
           }
         }
       }
@@ -653,9 +845,21 @@
     "%lld Trades ohne Euro" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld trades without euro"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld trade without euro"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld trades without euro"
+                }
+              }
+            }
           }
         }
       }
@@ -663,9 +867,21 @@
     "%lld Trades ohne Euro-Wert nicht enthalten" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld trades without a euro value not included"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld trade without a euro value not included"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld trades without a euro value not included"
+                }
+              }
+            }
           }
         }
       }
@@ -683,9 +899,21 @@
     "%lld Trades ohne Stop im Export" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld trades without stop in the export"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld trade without stop in the export"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld trades without stop in the export"
+                }
+              }
+            }
           }
         }
       }
@@ -745,9 +973,21 @@
     "%lld Verstöße" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld violations"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld violation"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld violations"
+                }
+              }
+            }
           }
         }
       }
@@ -755,9 +995,21 @@
     "%lld Zeilen" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld rows"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld row"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld rows"
+                }
+              }
+            }
           }
         }
       }
@@ -775,9 +1027,21 @@
     "%lld betroffene Trades" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld affected trades"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld affected trade"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld affected trades"
+                }
+              }
+            }
           }
         }
       }
@@ -927,9 +1191,21 @@
     "%lld verkürzte Tage" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld shortened days"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld shortened day"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld shortened days"
+                }
+              }
+            }
           }
         }
       }
@@ -1043,9 +1319,21 @@
     "%lld weitere Bestände" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld more holdings"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld more holding"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld more holdings"
+                }
+              }
+            }
           }
         }
       }
@@ -1385,9 +1673,21 @@
     "Alle %lld Lose zeigen" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Show all %lld lots"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Show all %lld lot"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Show all %lld lots"
+                }
+              }
+            }
           }
         }
       }
@@ -3249,9 +3549,21 @@
     "Ende nach %lld Tagen" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ends after %lld days"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Ends after %lld day"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Ends after %lld days"
+                }
+              }
+            }
           }
         }
       }
@@ -6817,9 +7129,21 @@
     "Mit Plan · %lld Tage" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "With plan · %lld days"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "With plan · %lld day"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "With plan · %lld days"
+                }
+              }
+            }
           }
         }
       }
@@ -7209,9 +7533,21 @@
     "Netto nach Kosten je Gruppe im gewählten Zeitraum. Wochentag und Stunde nach der Eröffnung in deiner Zeitzone. Unter %lld Trades je Gruppe beschreibt die Zahl nur." : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Net after costs per group in the selected period. Weekday and hour by opening time in your time zone. Below %lld trades per group, the number is descriptive only."
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Net after costs per group in the selected period. Weekday and hour by opening time in your time zone. Below %lld trade per group, the number is descriptive only."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Net after costs per group in the selected period. Weekday and hour by opening time in your time zone. Below %lld trades per group, the number is descriptive only."
+                }
+              }
+            }
           }
         }
       }
@@ -7735,9 +8071,21 @@
     "Ohne Plan · %lld Tage" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Without plan · %lld days"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Without plan · %lld day"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Without plan · %lld days"
+                }
+              }
+            }
           }
         }
       }
@@ -8267,9 +8615,21 @@
     "Regeltreue: Anteil der Trades, bei denen alle Kriterien der Karte abgehakt sind. Effekt: Erwartung je Trade mit dem Kriterium minus ohne; unter %lld Trades je Seite nur beschreibend." : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rule compliance: share of trades where all of the card’s criteria are ticked. Effect: expectancy per trade with the criterion minus without; below %lld trades per side, descriptive only."
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Rule compliance: share of trades where all of the card’s criteria are ticked. Effect: expectancy per trade with the criterion minus without; below %lld trade per side, descriptive only."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Rule compliance: share of trades where all of the card’s criteria are ticked. Effect: expectancy per trade with the criterion minus without; below %lld trades per side, descriptive only."
+                }
+              }
+            }
           }
         }
       }
@@ -10125,9 +10485,21 @@
     "Unter %lld Tagen je Seite: beschreibt nur, belegt nichts" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Below %lld days per side: descriptive only, proves nothing"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Below %lld day per side: descriptive only, proves nothing"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Below %lld days per side: descriptive only, proves nothing"
+                }
+              }
+            }
           }
         }
       }
@@ -10135,9 +10507,21 @@
     "Unter %lld Tagen je Seite: beschreibt nur, belegt nichts." : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Below %lld days per side: descriptive only, proves nothing."
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Below %lld day per side: descriptive only, proves nothing."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Below %lld days per side: descriptive only, proves nothing."
+                }
+              }
+            }
           }
         }
       }
@@ -10145,9 +10529,21 @@
     "Unter %lld Trades: Die Zahlen beschreiben nur, sie belegen noch kein Muster." : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Below %lld trades: the numbers only describe, they do not prove a pattern yet."
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Below %lld trade: the numbers only describe, they do not prove a pattern yet."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Below %lld trades: the numbers only describe, they do not prove a pattern yet."
+                }
+              }
+            }
           }
         }
       }
@@ -10673,9 +11069,21 @@
     "Weitere %lld Meldungen zeigen" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Show %lld more headlines"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Show %lld more headline"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Show %lld more headlines"
+                }
+              }
+            }
           }
         }
       }
@@ -11452,9 +11860,21 @@
     "frei seit %lld Tagen" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "free for %lld days"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "free for %lld day"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "free for %lld days"
+                }
+              }
+            }
           }
         }
       }
@@ -11678,9 +12098,21 @@
     "je Tag · %lld Trades" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "per day · %lld trades"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "per day · %lld trade"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "per day · %lld trades"
+                }
+              }
+            }
           }
         }
       }
@@ -11848,9 +12280,21 @@
     "letzte %lld Tage" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "last %lld days"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "last %lld day"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "last %lld days"
+                }
+              }
+            }
           }
         }
       }
@@ -11994,9 +12438,21 @@
     "noch %lld Tage" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld days left"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld day left"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld days left"
+                }
+              }
+            }
           }
         }
       }
@@ -12254,9 +12710,21 @@
     "unter %lld Trades" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "below %lld trades"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "below %lld trade"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "below %lld trades"
+                }
+              }
+            }
           }
         }
       }
