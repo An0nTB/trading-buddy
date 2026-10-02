@@ -57,9 +57,20 @@ struct MT4KursimportBlatt: View {
     @State private var vorschau: Result<[Zeitkerze], MT4Kursimportfehler>?
     @State private var speichert = false
     @State private var speicherfehler: String?
+    /// Serverzeit wurde aus dem letzten Kontoimport übernommen (G23).
+    @State private var ausKonto = false
 
     private var serverzeit: Binding<Serverzeit> {
         Binding(get: { Serverzeit(rawValue: serverzeitWert) ?? .vorgabe }, set: { serverzeitWert = $0.rawValue })
+    }
+
+    /// Serverzeit des jüngsten Kontoimports des gewählten Kontos, wenn sie eine der wählbaren ist. Kurse und
+    /// Auszug desselben Brokers laufen in derselben Serverzeit (G23, Doc 49).
+    private var kontoServerzeit: Serverzeit? {
+        guard let id = modell.konto?.id else { return nil }
+        return modell.importe.filter { $0.konto.id == id }
+            .max { $0.lauf.importiertAm < $1.lauf.importiertAm }
+            .flatMap { Serverzeit(rawValue: $0.lauf.serverZeitzone) }
     }
 
     private var journalSymbole: [String] {
@@ -92,6 +103,10 @@ struct MT4KursimportBlatt: View {
             if symbol.isEmpty {
                 symbol = MT4Kursdatei.vermutetesSymbol(datei.dateiname, journal: journalSymbole) ?? ""
             }
+            if let zone = kontoServerzeit {
+                serverzeitWert = zone.rawValue
+                ausKonto = true
+            }
         }
         .task(id: serverzeitWert) { await lies() }
     }
@@ -119,6 +134,14 @@ struct MT4KursimportBlatt: View {
                     ForEach(Serverzeit.allCases) { Text($0.name).tag($0) }
                 }
                 .labelsHidden()
+            }
+            if ausKonto, serverzeitWert == kontoServerzeit?.rawValue {
+                GridRow {
+                    Color.clear.frame(width: 0, height: 0)
+                    Text("Wie beim letzten Kontoimport dieses Kontos.")
+                        .font(Schrift.beschriftung)
+                        .foregroundStyle(thema.textSchwach)
+                }
             }
         }
     }
