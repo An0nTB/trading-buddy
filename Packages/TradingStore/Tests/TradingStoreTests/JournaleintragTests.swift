@@ -95,5 +95,5 @@ private let zeit = Date(timeIntervalSince1970: 1_759_350_000)
     let journal = try Journal(pfad: pfad)
     #expect(try journal.angewandteMigrationen() == ["v1 Konten, Importe, MT4-Auszüge", "v2 Journal je Trade", "v3 Broker-Importe CSV",
                                                    "v4 Review-Ziele", "v5 Handelsregeln je Konto",
-                                                   "v6 Produktart", "v7 Playbook"])
+                                                   "v6 Produktart", "v7 Playbook", "v8 Tagesnotiz, verpasste Trades, Bilder"])
 }
