@@ -1,0 +1,28 @@
+name: TradingAssistant
+
+# „Frag Brad“: Fragetext und Link für Claude Desktop, nur Linux, ohne Netz.
+# Kein Pflicht-Check; läuft nur, wenn sich das Paket oder diese Datei ändert (wie TradingNews).
+on:
+  pull_request:
+    paths:
+      - "Packages/TradingAssistant/**"
+      - ".github/workflows/trading-assistant.yml"
+  push:
+    branches: [main]
+    paths:
+      - "Packages/TradingAssistant/**"
+      - ".github/workflows/trading-assistant.yml"
+
+jobs:
+  trading-assistant-linux:
+    name: TradingAssistant (Linux)
+    runs-on: ubuntu-latest
+    container: swift:6.2
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bauen
+        working-directory: Packages/TradingAssistant
+        run: swift build
+      - name: Tests
+        working-directory: Packages/TradingAssistant
+        run: swift test
