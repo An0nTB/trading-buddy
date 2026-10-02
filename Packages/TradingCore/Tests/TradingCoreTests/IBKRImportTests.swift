@@ -85,7 +85,9 @@ private func utc(_ iso: String) -> Date {
     #expect(geld.map(\.betrag) == [2000, Decimal(string: "2.5")!, Decimal(string: "-0.38")!,
                                    Decimal(string: "1.23")!, Decimal(string: "-1.5")!])
     #expect(geld.map(\.waehrung) == ["EUR", "USD", "USD", "EUR", "USD"])
-    #expect(geld.allSatisfy(\.nurDatum))
+    // Keypath als Argument in #expect baut nicht (rethrows im Makro), deshalb vorher auswerten.
+    let alleNurDatum = geld.allSatisfy(\.nurDatum)
+    #expect(alleNurDatum)
     #expect(geld[0].zeit == utc("2025-04-30T22:00:00Z"))
     #expect(geld[1].kennung == "US0378331005")
     #expect(geld[3].kennung == nil)
