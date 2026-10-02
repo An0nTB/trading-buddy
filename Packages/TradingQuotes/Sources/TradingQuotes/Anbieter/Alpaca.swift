@@ -103,8 +103,9 @@ struct AlpacaLeser: Nachrichtenleser {
             kurs.letzter = e.p?.wert
             teile.abschluss = zeit
         } else {
-            kurs.geld = e.bp?.wert
-            kurs.brief = e.ap?.wert
+            // IEX meldet 0, wenn auf einer Seite kein Angebot steht; 0 ist dann kein Kurs (Gegencheck Q2).
+            kurs.geld = e.bp.flatMap { $0.wert > 0 ? $0.wert : nil }
+            kurs.brief = e.ap.flatMap { $0.wert > 0 ? $0.wert : nil }
             teile.blatt = zeit
         }
         // Die Zeit folgt dem Teil, mit dem bewertet wird (`bewertungskurs`): dem Kursblatt, sonst dem Abschluss.
