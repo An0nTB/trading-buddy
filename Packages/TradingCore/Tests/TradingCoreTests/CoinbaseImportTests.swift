@@ -126,4 +126,13 @@ private func zeitpunkt(_ iso: String) -> Date {
     #expect(!CoinbaseCSV.erkennt(ohneWaehrung))
     #expect(throws: CSVImportFehler.fehlendeSpalte("Price Currency")) { try CoinbaseCSV.lies(ohneWaehrung) }
     #expect(throws: CSVImportFehler.unbekanntesFormat(kopf: ["a", "b"])) { try CoinbaseCSV.lies("a,b\n1,2\n") }
+
+    let kopf = "ID,Timestamp,Transaction Type,Asset,Quantity Transacted,Price Currency,Price at Transaction,Subtotal,"
+        + "Total (inclusive of fees and/or spread),Fees and/or Spread,Notes"
+    let fremd = "\nTransactions\nUser,X,0\n\(kopf)\nsyn1,2026-03-01 08:00:00 UTC,Deposit,EUR,100,USD,$1.08,$108.00,$106.00,$2.00,\n"
+    let kf = try CoinbaseCSV.lies(fremd)
+    #expect(kf.geldbewegungen.count == 1)
+    #expect(kf.geldbewegungen[0].betrag == 100)
+    #expect(kf.geldbewegungen[0].gebuehr == 0)
+    #expect(kf.hinweise == [Importhinweis(zeile: 5, vorgang: "Deposit EUR Gebühr USD", folge: .nichtVerbucht)])
 }

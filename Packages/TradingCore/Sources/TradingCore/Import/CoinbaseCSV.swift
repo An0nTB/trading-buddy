@@ -109,10 +109,17 @@ public enum CoinbaseCSV {
         let wert = zwischensumme != 0 ? zwischensumme : menge * preis
 
         if typ == "Deposit" || typ == "Withdrawal" {
-            guard fiat.contains(asset), gebuehr == 0 || gegen == asset else { return hinweis() }
+            guard fiat.contains(asset) else { return hinweis() }
+            // Gebühr in anderer Währung als die Buchung: Buchung ohne Gebühr, Gebühr als eigener Hinweis.
+            let fremd = gebuehr != 0 && gegen != asset
             e.geldbewegungen.append(Geldbewegung(
                 id: r.id, zeit: try r.zeit(), art: typ == "Deposit" ? .einzahlung : .auszahlung,
-                betrag: typ == "Deposit" ? menge : -menge, gebuehr: -gebuehr, waehrung: asset, rohzeile: r.z))
+                betrag: typ == "Deposit" ? menge : -menge, gebuehr: fremd ? 0 : -gebuehr, waehrung: asset,
+                rohzeile: r.z))
+            if fremd {
+                e.hinweise.append(Importhinweis(zeile: r.nummer, vorgang: "\(typ) \(asset) Gebühr \(gegen)",
+                                                folge: .nichtVerbucht))
+            }
             return
         }
         guard KryptoWerte.geldwaehrungen.contains(gegen), !fiat.contains(asset) else { return hinweis() }
