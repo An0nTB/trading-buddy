@@ -28,6 +28,8 @@ public struct Sicherungspruefung: Sendable, Equatable {
     public var geschlossenePositionen: Int
     /// Zeitpunkt des letzten Imports in der Datei, falls es einen gibt.
     public var letzterImport: Date?
+    /// Jüngste Ausführung oder Schließung einer Position in der Datei, falls es eine gibt.
+    public var letzterTrade: Date?
 
     /// `aktuell` und `aelter` lassen sich wiederherstellen.
     public var laesstSichWiederherstellen: Bool { zustand == .aktuell || zustand == .aelter }
@@ -35,7 +37,7 @@ public struct Sicherungspruefung: Sendable, Equatable {
     static func beschaedigt(_ grund: String) -> Sicherungspruefung {
         Sicherungspruefung(zustand: .beschaedigt, hinweis: grund, migrationen: [], fehlendeMigrationen: [],
                            unbekannteMigrationen: [], konten: 0, ausfuehrungen: 0, geschlossenePositionen: 0,
-                           letzterImport: nil)
+                           letzterImport: nil, letzterTrade: nil)
     }
 }
 
@@ -47,12 +49,15 @@ extension Journal {
     public static let sicherungsPraefix = "Journal-Sicherung-"
     static let sicherungsEndung = ".sqlite"
 
-    /// Schreibt eine konsistente Kopie der Datenbank nach `ziel` und prüft sie. Eine vorhandene Datei an
-    /// `ziel` wird erst ersetzt, wenn die Kopie vollständig ist. Schreiben in die Datenbank während der
-    /// Sicherung ist erlaubt; ob es in der Kopie landet, ist offen.
+    /// Schreibt eine konsistente Kopie der Datenbank nach `ziel` und prüft sie; erst die geprüfte Kopie
+    /// erscheint unter `ziel`. Eine vorhandene Datei an `ziel` wird nicht überschrieben (Fehler). Schreiben in
+    /// die Datenbank während der Sicherung ist erlaubt; ob es in der Kopie landet, ist offen.
     @discardableResult
     public func sichere(nach ziel: URL) throws -> Sicherungspruefung {
         let fm = FileManager.default
+        guard !fm.fileExists(atPath: ziel.path) else {
+            throw SpeicherFehler.ungueltigerWert("\(ziel.lastPathComponent) gibt es schon")
+        }
         let teil = ziel.deletingLastPathComponent()
             .appendingPathComponent(".\(ziel.lastPathComponent).\(UUID().uuidString).teil")
         defer { try? fm.removeItem(at: teil) }
@@ -63,7 +68,7 @@ extension Journal {
         guard pruefung.zustand == .aktuell else {
             throw SpeicherFehler.ungueltigerWert("Sicherung fehlerhaft: \(pruefung.hinweis)")
         }
-        // rename ersetzt eine vorhandene Datei in einem Schritt (gleicher Ordner, POSIX).
+        // rename legt die fertige Datei in einem Schritt ab (gleicher Ordner, POSIX).
         guard rename(teil.path, ziel.path) == 0 else {
             throw SpeicherFehler.ungueltigerWert("Sicherung nicht abgelegt (Fehler \(errno))")
         }
@@ -152,6 +157,10 @@ extension Journal {
         }
         let letzter = try db.tableExists("importlauf")
             ? Date.fetchOne(db, sql: "SELECT MAX(importiertAm) FROM importlauf") : nil
+        let ausgefuehrt: Date? = try db.tableExists("ausfuehrung")
+            ? Date.fetchOne(db, sql: "SELECT MAX(zeit) FROM ausfuehrung") : nil
+        let geschlossen: Date? = try Date.fetchOne(db, sql: "SELECT MAX(closeTime) FROM geschlossenePosition")
+        let trade: Date? = [ausgefuehrt, geschlossen].compactMap { $0 }.max()
         let zustand: Sicherungspruefung.Zustand = !unbekannt.isEmpty ? .neuer : fehlend.isEmpty ? .aktuell : .aelter
         return Sicherungspruefung(
             zustand: zustand,
@@ -159,7 +168,7 @@ extension Journal {
             migrationen: bekannt.filter { gelaufen.contains($0) } + unbekannt,
             fehlendeMigrationen: fehlend, unbekannteMigrationen: unbekannt,
             konten: try anzahl("konto"), ausfuehrungen: try anzahl("ausfuehrung"),
-            geschlossenePositionen: try anzahl("geschlossenePosition"), letzterImport: letzter)
+            geschlossenePositionen: try anzahl("geschlossenePosition"), letzterImport: letzter, letzterTrade: trade)
     }
 
     static func sicherungsname(_ zeit: Date, zeitzone: TimeZone) -> String {
