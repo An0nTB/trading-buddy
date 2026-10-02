@@ -113,7 +113,17 @@ final class AppModell {
             if nebenwirkungen { Task { [weak self] in await Sicherungsdienst.laufe { self?.journal } } }
             #endif
         }
-        if nebenwirkungen { Task { await ladeEZBKurse() } }
+        if nebenwirkungen {
+            Task { await ladeEZBKurse() }
+            // Lange Laufzeit ohne Import oder Kontowechsel: stündlich prüfen, ob die Kurse veraltet sind (X6, Doc 49).
+            Task { [weak self] in
+                while !Task.isCancelled {
+                    try? await Task.sleep(for: .seconds(60 * 60))
+                    guard let self else { return }
+                    self.ladeEZBKurseFallsVeraltet()
+                }
+            }
+        }
     }
 
     /// `false` nur in Tests: kein Export, kein EZB-Abruf.
