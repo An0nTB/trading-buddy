@@ -1,0 +1,28 @@
+name: TradingCalendar
+
+# Terminkalender: nur Linux, weil das Paket nichts Apple-Eigenes nutzt und macOS-Minuten knapp sind.
+# Läuft nur, wenn sich das Paket oder diese Datei ändert; kein Pflicht-Check auf main.
+on:
+  pull_request:
+    paths:
+      - "Packages/TradingCalendar/**"
+      - ".github/workflows/trading-calendar.yml"
+  push:
+    branches: [main]
+    paths:
+      - "Packages/TradingCalendar/**"
+      - ".github/workflows/trading-calendar.yml"
+
+jobs:
+  trading-calendar-linux:
+    name: TradingCalendar (Linux)
+    runs-on: ubuntu-latest
+    container: swift:6.2
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bauen
+        working-directory: Packages/TradingCalendar
+        run: swift build
+      - name: Tests
+        working-directory: Packages/TradingCalendar
+        run: swift test
