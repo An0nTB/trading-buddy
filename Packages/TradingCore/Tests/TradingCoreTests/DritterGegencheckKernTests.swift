@@ -2,7 +2,8 @@ import Foundation
 import Testing
 @testable import TradingCore
 
-/// Kern-Befunde aus dem dritten Gegencheck (Doc 49: G1, G5, G8; G4 und G7 bringt AP12 in #177). Sollwerte von Hand (02.10.2026).
+/// Kern-Befunde aus dem dritten Gegencheck (Doc 49: G1, G5, G8; G4 und G7 bringt AP12 in #177).
+/// Sollwerte von Hand (02.10.2026).
 private let gUTC = TimeZone(secondsFromGMT: 0)!
 
 private func gZeit(_ iso: String) -> Date {
