@@ -3,21 +3,102 @@
   "jahr": 2027,
   "stand": "2026-10-02",
   "vollstaendig": [
-    "zinsentscheid"
+    "zinsentscheid",
+    "feiertag"
   ],
   "quellen": [
     "https://www.bankofengland.co.uk/monetary-policy/upcoming-mpc-dates und https://www.bankofengland.co.uk/news/2024/september/monetary-policy-committee-dates-for-2025 (abgerufen 02.10.2026); 12 Uhr laut Monetary Policy Summary",
     "https://www.boj.or.jp/en/mopo/mpmsche_minu/index.htm und past.htm (abgerufen 02.10.2026); keine feste Uhrzeit",
     "https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.en.html und https://www.ecb.europa.eu/press/tvservices/webcast/html/index.en.html (abgerufen 02.10.2026); Uhrzeit 14:15 laut https://www.ecb.europa.eu/press/govcdec/html/index.en.html",
     "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm (abgerufen 02.10.2026); Uhrzeit: FOMC-Statement 29.07.2026 „2:00 p.m. EDT“",
-    "https://www.snb.ch/en/the-snb/mandates-goals/monetary-policy/decisions und Event-Schedule (abgerufen 02.10.2026); 09:30 laut Event-Schedule 2027"
+    "https://www.snb.ch/en/the-snb/mandates-goals/monetary-policy/decisions und Event-Schedule (abgerufen 02.10.2026); 09:30 laut Event-Schedule 2027",
+    "Feiertage USA: 5 U.S.C. 6103 nach Regel, Samstagsregel laut Fed K.8 https://www.federalreserve.gov/aboutthefed/k8.htm (abgerufen 02.10.2026)",
+    "Feiertage Großbritannien: https://www.gov.uk/bank-holidays.json (abgerufen 02.10.2026), gleich mit TradingClock lse.json",
+    "Feiertage Euroraum: TARGET-Schließtage nach Regel (ungeprüft)",
+    "Feiertage Japan: Feiertagsgesetz und Bankgesetz nach Regel (ungeprüft)"
   ],
   "hinweise": [
+    "Feiertage nur an Werktagen; Art feiertag deckt USD, EUR, GBP und JPY ab, CHF fehlt noch.",
     "Zeiten in Ortszeit der Zeitzone; Termine ohne Uhrzeit gelten den ganzen Tag dort.",
     "Fed: jeder Termin gilt als vorläufig, bis die vorige Sitzung ihn bestätigt (Fed-Kalender).",
     "BLS hat die US-Termine 2027 noch nicht veröffentlicht."
   ],
   "termine": [
+    {
+      "id": "feiertag-jpy-2027-01-01",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Neujahr",
+      "datum": "2027-01-01",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+    },
+    {
+      "id": "feiertag-eur-2027-01-01",
+      "art": "feiertag",
+      "institution": "ezb",
+      "titel": "Feiertag Euroraum: Neujahr",
+      "datum": "2027-01-01",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "EUR"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: TARGET-Schließtag nach Regel berechnet"
+    },
+    {
+      "id": "feiertag-gbp-2027-01-01",
+      "art": "feiertag",
+      "institution": "boe",
+      "titel": "Feiertag Großbritannien: Neujahr",
+      "datum": "2027-01-01",
+      "zeitzone": "Europe/London",
+      "waehrungen": [
+        "GBP"
+      ],
+      "hinweis": "Bank Holiday England und Wales"
+    },
+    {
+      "id": "feiertag-usd-2027-01-01",
+      "art": "feiertag",
+      "institution": "fed",
+      "titel": "Feiertag USA: Neujahr",
+      "datum": "2027-01-01",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "hinweis": "Bankfeiertag der Fed (Fedwire geschlossen)"
+    },
+    {
+      "id": "feiertag-jpy-2027-01-11",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Tag der Volljährigkeit",
+      "datum": "2027-01-11",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+    },
+    {
+      "id": "feiertag-usd-2027-01-18",
+      "art": "feiertag",
+      "institution": "fed",
+      "titel": "Feiertag USA: Martin Luther King Jr. Day",
+      "datum": "2027-01-18",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "hinweis": "Bankfeiertag der Fed (Fedwire geschlossen)"
+    },
     {
       "id": "boj-2027-01-22",
       "art": "zinsentscheid",
@@ -65,6 +146,44 @@
       "waehrungen": [
         "EUR"
       ]
+    },
+    {
+      "id": "feiertag-jpy-2027-02-11",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Staatsgründung",
+      "datum": "2027-02-11",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+    },
+    {
+      "id": "feiertag-usd-2027-02-15",
+      "art": "feiertag",
+      "institution": "fed",
+      "titel": "Feiertag USA: Washington's Birthday",
+      "datum": "2027-02-15",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "hinweis": "Bankfeiertag der Fed (Fedwire geschlossen)"
+    },
+    {
+      "id": "feiertag-jpy-2027-02-23",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Geburtstag des Kaisers",
+      "datum": "2027-02-23",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
     },
     {
       "id": "boj-2027-03-18",
@@ -128,6 +247,69 @@
       ]
     },
     {
+      "id": "feiertag-jpy-2027-03-22",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Ersatzfeiertag",
+      "datum": "2027-03-22",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+    },
+    {
+      "id": "feiertag-eur-2027-03-26",
+      "art": "feiertag",
+      "institution": "ezb",
+      "titel": "Feiertag Euroraum: Karfreitag",
+      "datum": "2027-03-26",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "EUR"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: TARGET-Schließtag nach Regel berechnet"
+    },
+    {
+      "id": "feiertag-gbp-2027-03-26",
+      "art": "feiertag",
+      "institution": "boe",
+      "titel": "Feiertag Großbritannien: Karfreitag",
+      "datum": "2027-03-26",
+      "zeitzone": "Europe/London",
+      "waehrungen": [
+        "GBP"
+      ],
+      "hinweis": "Bank Holiday England und Wales"
+    },
+    {
+      "id": "feiertag-eur-2027-03-29",
+      "art": "feiertag",
+      "institution": "ezb",
+      "titel": "Feiertag Euroraum: Ostermontag",
+      "datum": "2027-03-29",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "EUR"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: TARGET-Schließtag nach Regel berechnet"
+    },
+    {
+      "id": "feiertag-gbp-2027-03-29",
+      "art": "feiertag",
+      "institution": "boe",
+      "titel": "Feiertag Großbritannien: Ostermontag",
+      "datum": "2027-03-29",
+      "zeitzone": "Europe/London",
+      "waehrungen": [
+        "GBP"
+      ],
+      "hinweis": "Bank Holiday England und Wales"
+    },
+    {
       "id": "boj-2027-04-28",
       "art": "zinsentscheid",
       "institution": "boj",
@@ -138,6 +320,19 @@
         "JPY"
       ],
       "hinweis": "zweiter Sitzungstag; Uhrzeit nicht fest, ganzer Tag in Tokio"
+    },
+    {
+      "id": "feiertag-jpy-2027-04-29",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Showa-Tag",
+      "datum": "2027-04-29",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
     },
     {
       "id": "fed-2027-04-28",
@@ -174,6 +369,81 @@
       "waehrungen": [
         "EUR"
       ]
+    },
+    {
+      "id": "feiertag-jpy-2027-05-03",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Verfassungstag",
+      "datum": "2027-05-03",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+    },
+    {
+      "id": "feiertag-gbp-2027-05-03",
+      "art": "feiertag",
+      "institution": "boe",
+      "titel": "Feiertag Großbritannien: Early May Bank Holiday",
+      "datum": "2027-05-03",
+      "zeitzone": "Europe/London",
+      "waehrungen": [
+        "GBP"
+      ],
+      "hinweis": "Bank Holiday England und Wales"
+    },
+    {
+      "id": "feiertag-jpy-2027-05-04",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Tag des Grüns",
+      "datum": "2027-05-04",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+    },
+    {
+      "id": "feiertag-jpy-2027-05-05",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Kindertag",
+      "datum": "2027-05-05",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+    },
+    {
+      "id": "feiertag-gbp-2027-05-31",
+      "art": "feiertag",
+      "institution": "boe",
+      "titel": "Feiertag Großbritannien: Spring Bank Holiday",
+      "datum": "2027-05-31",
+      "zeitzone": "Europe/London",
+      "waehrungen": [
+        "GBP"
+      ],
+      "hinweis": "Bank Holiday England und Wales"
+    },
+    {
+      "id": "feiertag-usd-2027-05-31",
+      "art": "feiertag",
+      "institution": "fed",
+      "titel": "Feiertag USA: Memorial Day",
+      "datum": "2027-05-31",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "hinweis": "Bankfeiertag der Fed (Fedwire geschlossen)"
     },
     {
       "id": "fed-2027-06-09",
@@ -237,6 +507,31 @@
       ]
     },
     {
+      "id": "feiertag-usd-2027-07-05",
+      "art": "feiertag",
+      "institution": "fed",
+      "titel": "Feiertag USA: Independence Day",
+      "datum": "2027-07-05",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "hinweis": "Bankfeiertag der Fed (Fedwire geschlossen)"
+    },
+    {
+      "id": "feiertag-jpy-2027-07-19",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Tag des Meeres",
+      "datum": "2027-07-19",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+    },
+    {
       "id": "boj-2027-07-22",
       "art": "zinsentscheid",
       "institution": "boj",
@@ -285,6 +580,43 @@
       ]
     },
     {
+      "id": "feiertag-jpy-2027-08-11",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Tag der Berge",
+      "datum": "2027-08-11",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+    },
+    {
+      "id": "feiertag-gbp-2027-08-30",
+      "art": "feiertag",
+      "institution": "boe",
+      "titel": "Feiertag Großbritannien: Summer Bank Holiday",
+      "datum": "2027-08-30",
+      "zeitzone": "Europe/London",
+      "waehrungen": [
+        "GBP"
+      ],
+      "hinweis": "Bank Holiday England und Wales"
+    },
+    {
+      "id": "feiertag-usd-2027-09-06",
+      "art": "feiertag",
+      "institution": "fed",
+      "titel": "Feiertag USA: Labor Day",
+      "datum": "2027-09-06",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "hinweis": "Bankfeiertag der Fed (Fedwire geschlossen)"
+    },
+    {
       "id": "ezb-2027-09-09",
       "art": "zinsentscheid",
       "institution": "ezb",
@@ -322,6 +654,19 @@
       ]
     },
     {
+      "id": "feiertag-jpy-2027-09-20",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Tag der Achtung vor dem Alter",
+      "datum": "2027-09-20",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+    },
+    {
       "id": "boj-2027-09-22",
       "art": "zinsentscheid",
       "institution": "boj",
@@ -334,6 +679,19 @@
       "hinweis": "zweiter Sitzungstag; Uhrzeit nicht fest, ganzer Tag in Tokio"
     },
     {
+      "id": "feiertag-jpy-2027-09-23",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Herbst-Tagundnachtgleiche",
+      "datum": "2027-09-23",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+    },
+    {
       "id": "snb-2027-09-23",
       "art": "zinsentscheid",
       "institution": "snb",
@@ -344,6 +702,31 @@
       "waehrungen": [
         "CHF"
       ]
+    },
+    {
+      "id": "feiertag-jpy-2027-10-11",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Tag des Sports",
+      "datum": "2027-10-11",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+    },
+    {
+      "id": "feiertag-usd-2027-10-11",
+      "art": "feiertag",
+      "institution": "fed",
+      "titel": "Feiertag USA: Columbus Day",
+      "datum": "2027-10-11",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "hinweis": "Bankfeiertag der Fed (Fedwire geschlossen)"
     },
     {
       "id": "fed-2027-10-27",
@@ -382,6 +765,19 @@
       "hinweis": "zweiter Sitzungstag; Uhrzeit nicht fest, ganzer Tag in Tokio"
     },
     {
+      "id": "feiertag-jpy-2027-11-03",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Kulturtag",
+      "datum": "2027-11-03",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+    },
+    {
       "id": "boe-2027-11-04",
       "art": "zinsentscheid",
       "institution": "boe",
@@ -392,6 +788,43 @@
       "waehrungen": [
         "GBP"
       ]
+    },
+    {
+      "id": "feiertag-usd-2027-11-11",
+      "art": "feiertag",
+      "institution": "fed",
+      "titel": "Feiertag USA: Veterans Day",
+      "datum": "2027-11-11",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "hinweis": "Bankfeiertag der Fed (Fedwire geschlossen)"
+    },
+    {
+      "id": "feiertag-jpy-2027-11-23",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Tag des Dankes für die Arbeit",
+      "datum": "2027-11-23",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+    },
+    {
+      "id": "feiertag-usd-2027-11-25",
+      "art": "feiertag",
+      "institution": "fed",
+      "titel": "Feiertag USA: Thanksgiving",
+      "datum": "2027-11-25",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "hinweis": "Bankfeiertag der Fed (Fedwire geschlossen)"
     },
     {
       "id": "fed-2027-12-08",
@@ -453,6 +886,43 @@
         "JPY"
       ],
       "hinweis": "zweiter Sitzungstag; Uhrzeit nicht fest, ganzer Tag in Tokio"
+    },
+    {
+      "id": "feiertag-gbp-2027-12-27",
+      "art": "feiertag",
+      "institution": "boe",
+      "titel": "Feiertag Großbritannien: Weihnachten (Ersatztag)",
+      "datum": "2027-12-27",
+      "zeitzone": "Europe/London",
+      "waehrungen": [
+        "GBP"
+      ],
+      "hinweis": "Bank Holiday England und Wales"
+    },
+    {
+      "id": "feiertag-gbp-2027-12-28",
+      "art": "feiertag",
+      "institution": "boe",
+      "titel": "Feiertag Großbritannien: Boxing Day (Ersatztag)",
+      "datum": "2027-12-28",
+      "zeitzone": "Europe/London",
+      "waehrungen": [
+        "GBP"
+      ],
+      "hinweis": "Bank Holiday England und Wales"
+    },
+    {
+      "id": "feiertag-jpy-2027-12-31",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Bankfeiertag",
+      "datum": "2027-12-31",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "vorlaeufig": true,
+      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
     }
   ]
 }
