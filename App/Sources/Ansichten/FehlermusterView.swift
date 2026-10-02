@@ -4,7 +4,7 @@ import TradingCore
 /// Fehlermuster im gewählten Zeitraum: je Regel eine Karte mit Treffern, Kosten und Regel im Klartext.
 /// Die Seite ist noch nicht gezeichnet (Doc 10, Abschnitt 10); Schwellen bearbeiten kommt später.
 struct FehlermusterView: View {
-    @AppStorage(Ton.schluessel) private var ton = Ton.bro
+    @AppStorage(Ton.schluessel) private var ton = Ton.henry
     @Environment(AppModell.self) private var modell
     @Environment(\.thema) private var thema
 
@@ -19,7 +19,7 @@ struct FehlermusterView: View {
                 if modell.trades.isEmpty {
                     KeineTrades()
                 } else if befunde.isEmpty {
-                    Text(verbatim: ton.text("Keine Regel hat im gewählten Zeitraum angeschlagen.", bro: "Keine Regel angeschlagen. Sauber, Alter."))
+                    Text(verbatim: ton.text("Keine Regel hat im gewählten Zeitraum angeschlagen.", henry: "Keine Regel angeschlagen. So soll es sein."))
                         .font(Schrift.fliesstext)
                         .foregroundStyle(thema.textSchwach)
                 } else {
