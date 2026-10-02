@@ -336,6 +336,9 @@ struct TradeInspektor: View {
                     zeile("Termine", terminText)
                 }
             }
+            if trade.produktart == .unbekannt {
+                ProduktartFrage(trade: trade) // Scalable, XTB (Doc 23)
+            }
             AusstiegKarte(trade: trade, waehrung: waehrung) // Ausstiegsanalyse B3 (Doc 39)
             #if os(macOS)
             if let eintrag {
