@@ -162,6 +162,16 @@
         }
       }
     },
+    "IBKR-Auszug ohne Kontonummer: bitte im Blatt angeben." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IBKR statement without account number: please enter it in the sheet."
+          }
+        }
+      }
+    },
     "Jahresbericht" : {
       "localizations" : {
         "en" : {
@@ -188,6 +198,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Price history of the trade with %lld bars, entry and exit marked"
+          }
+        }
+      }
+    },
+    "MetaTrader-5-Bericht nicht lesbar: bitte im Blatt prüfen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MetaTrader 5 report not readable: please check it in the sheet."
+          }
+        }
+      }
+    },
+    "MetaTrader-5-Bericht ohne Kontonummer: bitte im Blatt angeben." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MetaTrader 5 report without account number: please enter it in the sheet."
           }
         }
       }
