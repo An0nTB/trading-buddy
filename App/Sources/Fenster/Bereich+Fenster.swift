@@ -2,7 +2,7 @@ import SwiftUI
 
 /// Kennungen der Fenster-Szenen (Stand-Doc 27).
 enum FensterID {
-    /// Hauptfenster mit Seitenleiste; am Mac ein Einzelfenster, damit Sprünge es nach vorn holen können.
+    /// Hauptfenster mit Seitenleiste.
     static let haupt = "haupt"
     /// Abgetrennte Bereiche, ein Fenster je Bereich.
     static let bereich = "bereich"
