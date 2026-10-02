@@ -56,11 +56,11 @@ final class AppModell {
     /// Offene Positionen laut dem jüngsten MT4-Auszug des Kontos (AP9 #50); `nil` ohne MT4-Auszug.
     private(set) var offenerAuszug: (importlauf: Importlauf, positionen: [OpenPosition])?
     /// Kurse offener Trades (P10): Zuordnungen, Beobachter, letzter Stand je Symbol.
-    let kurse = Kursdienst()
+    let kurse: Kursdienst
     /// Wirtschaftstermine (Paket TradingCalendar, Stand-Doc 25): nächste Termine und „über Termin gehalten“ (Doc 18 F9).
     let termine = Termindienst()
     /// Nachrichten und Merkliste (Doc 26); Standard aus, nichts davon läuft beim Start.
-    let nachrichten = Nachrichtendienst()
+    let nachrichten: Nachrichtendienst
 
     // Zustand der Oberfläche
     var bereich: Bereich = .uebersicht
@@ -88,6 +88,18 @@ final class AppModell {
     /// Nutzers und kein EZB-Abruf, sonst überschriebe ein Testlauf am Mac die echte Exportdatei.
     init(journal: Journal?, nebenwirkungen: Bool = true) {
         self.nebenwirkungen = nebenwirkungen
+        if nebenwirkungen {
+            kurse = Kursdienst()
+            nachrichten = Nachrichtendienst()
+        } else {
+            // Tests (G27, Doc 49): eigene Einstellungen, Schlüsselbund im Arbeitsspeicher, Kursdatei im temporären Ordner.
+            let speicher = UserDefaults(suiteName: "TradingBuddyTests.AppModell") ?? .standard
+            let schluessel = Schluesselbund(ablage: SpeicherSchluesselablage())
+            kurse = Kursdienst(speicher: speicher, schluesselbund: schluessel,
+                               verlaufsdatei: FileManager.default.temporaryDirectory
+                                   .appendingPathComponent("appt-verlaeufe-\(UUID().uuidString).json"))
+            nachrichten = Nachrichtendienst(speicher: speicher, schluesselbund: schluessel)
+        }
         if nebenwirkungen { anzeigewaehrung = UserDefaults.standard.string(forKey: Self.anzeigewaehrungSchluessel) }
         if let journal {
             self.journal = journal
@@ -106,6 +118,9 @@ final class AppModell {
 
     /// `false` nur in Tests: kein Export, kein EZB-Abruf.
     private let nebenwirkungen: Bool
+    /// Wie oft `exportiere()` angestoßen wurde, auch ohne Nebenwirkungen; Tests prüfen damit, dass Änderungen
+    /// den Export für den Connector auslösen (G28, Doc 49).
+    private(set) var exportAnstoesse = 0
 
     /// EZB-Kurse nachladen, wenn der letzte erfolgreiche Abruf älter als einen Tag ist (lange Laufzeit) oder der
     /// Start ohne Netz war; höchstens ein Versuch je Stunde. `EZBKurse.laden()` fragt die EZB nur außerhalb der
@@ -544,10 +559,11 @@ final class AppModell {
         }
     }
 
-    /// Trades, die an diesem Kalendertag (Zeitzone des Nutzers) eröffnet wurden.
+    /// Trades, die an diesem Kalendertag (Zeitzone des Nutzers) eröffnet wurden, in Kontowährung wie die Grenzen der
+    /// Regeln (Dritter Gegencheck G12: die Risiko-Ampel las sonst Fremdwährung als Kontowährung).
     func trades(eroeffnetAm tag: Date) -> [Trade] {
         let kalender = self.kalender
-        return alleTrades.filter { kalender.startOfDay(for: $0.openTime) == tag }
+        return angleich.trades.filter { kalender.startOfDay(for: $0.openTime) == tag }
     }
 
     /// Disziplin-Kurve der gefilterten Trades; die Verstöße stammen aus der Prüfung über alle Trades,
@@ -728,6 +744,7 @@ final class AppModell {
 
     /// Schreibt die Exportdatei für den Claude-Connector neu (AP12), nur am Mac.
     func exportiere() {
+        exportAnstoesse += 1
         guard nebenwirkungen else { return }
         #if os(macOS)
         exportStand = ExportOrdner.schreibe(journal, zeitzone: zeitzone)

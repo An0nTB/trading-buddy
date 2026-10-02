@@ -139,7 +139,10 @@ struct Filterleiste: View {
 func anzeigewaehrungOptionen(_ modell: AppModell) -> some View {
     let konto = modell.waehrung.uppercased()
     Text("Kontowährung (\(konto))").tag(String?.none)
-    ForEach(modell.anzeigewaehrungen.filter { $0 != konto }, id: \.self) { code in
+    // Gespeicherte Wahl gleich der Kontowährung (Wechsel auf ein USD-Konto bei Wahl USD) bleibt als Eintrag stehen,
+    // sonst hätte der Picker keinen passenden Tag (Dritter Gegencheck G14).
+    let gewaehlt = modell.anzeigewaehrung?.uppercased()
+    ForEach(modell.anzeigewaehrungen.filter { $0 != konto || $0 == gewaehlt }, id: \.self) { code in
         Text(verbatim: code).tag(String?.some(code))
     }
 }
