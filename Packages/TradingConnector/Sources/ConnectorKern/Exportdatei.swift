@@ -23,7 +23,7 @@ public enum Exportdatei {
             return .keinZugriff(pfad: datei.path, fehler: error.localizedDescription)
         }
         do {
-            return .geladen(try JournalExport.lese(daten))
+            return .geladen(try JournalExport.lese(daten).mitTageslage())
         } catch ExportFehler.neueresFormat(let format) {
             return .unlesbar(pfad: datei.path, fehler: "Format \(format) ist neuer als dieser Connector "
                 + "(\(JournalExport.aktuellesFormat)). Bitte die Erweiterung aktualisieren.")
