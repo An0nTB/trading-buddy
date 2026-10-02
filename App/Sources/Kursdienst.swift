@@ -123,13 +123,14 @@ final class Kursdienst {
         if verlaeufe.geladen == nil, let gespeichert = verlaufsspeicher.lies() { verlaeufe = gespeichert }
         guard aktiv, !verlaufLaeuft else { return }
         let zuordnungen = Array(Set(journalSymbole)).sorted().compactMap { zuordnung(fuer: $0).zuordnung }
-        guard !zuordnungen.isEmpty,
-              !verlaeufe.istAktuell(fuer: zuordnungen.map(\.journalSymbol), jetzt: jetzt) else { return }
+        let offen = Set(verlaeufe.zuErneuern(zuordnungen.map(\.journalSymbol), jetzt: jetzt))
+        guard !offen.isEmpty else { return }
         verlaufLaeuft = true
         defer { verlaufLaeuft = false }
-        let neu = await Verlaufslader(quellen: verlaufsquellen).lade(zuordnungen, bisher: verlaeufe, jetzt: jetzt)
-        verlaeufe = neu
-        try? verlaufsspeicher.schreibe(neu)
+        let teil = zuordnungen.filter { offen.contains($0.journalSymbol) }
+        let neu = await Verlaufslader(quellen: verlaufsquellen).lade(teil, bisher: verlaeufe, jetzt: jetzt)
+        verlaeufe = verlaeufe.ergaenzt(um: neu, symbole: teil.map(\.journalSymbol), jetzt: jetzt)
+        try? verlaufsspeicher.schreibe(verlaeufe)
     }
 
     private func speichere() {

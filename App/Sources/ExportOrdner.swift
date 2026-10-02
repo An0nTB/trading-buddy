@@ -35,25 +35,28 @@ enum ExportOrdner {
     /// Exportdatei für den Connector aus allen Konten des Journals, mit dem Stop aus dem Journal
     /// wie in der App (`Trade.mitJournal`), den übrigen Journalangaben, den Review-Zielen, den Handelsregeln,
     /// den Tagesnotizen, den verpassten Trades, den Tageskerzen geladener Kurse, den EZB-Kursen für Trades in
-    /// fremder Währung und den Ausstiegsanalysen aus `ausstieg` (Trade-ID → Analyse). Ohne Kontonamen und Rohzeilen;
+    /// fremder Währung und den Ausstiegsanalysen aus `ausstieg` (Konto nach `ausstiegskonto` → Trade-ID → Analyse,
+    /// damit gleiche Tickets in zwei Konten nicht dieselbe Analyse bekommen). Ohne Kontonamen und Rohzeilen;
     /// von der Kontonummer nur die letzten vier Stellen, damit Claude die Konten unterscheiden kann
     /// (mehr nur, wenn zwei Konten desselben Brokers auf dieselben vier Stellen enden).
     static func export(_ journal: Journal, zeitzone: TimeZone,
-                       ausstieg: [String: Ausstiegsanalyse] = [:]) throws -> JournalExport {
+                       ausstieg: [String: [String: Ausstiegsanalyse]] = [:]) throws -> JournalExport {
         let alle = try journal.konten()
         let konten = try alle.map { konto in
             let eintraege = try journal.journaleintraege(konto: konto)
             let andere = alle.filter { $0.broker == konto.broker }.map(\.kontonummer)
             let stellen = JournalExport.endziffern(konto.kontonummer, neben: andere)
             let trades = try Self.trades(journal, konto).map { $0.mitJournal(eintraege[$0.id]) }
+            let nummer = String(konto.kontonummer.suffix(stellen))
+            let analysen = ausstieg[ausstiegskonto(konto.broker, nummer)] ?? [:]
             return JournalExport.Kontodaten(
-                broker: konto.broker, kontonummer: String(konto.kontonummer.suffix(stellen)), waehrung: konto.waehrung,
+                broker: konto.broker, kontonummer: nummer, waehrung: konto.waehrung,
                 trades: trades,
                 geloeschteOrders: try journal.geloeschteOrders(konto: konto).map(\.cancelledAt),
                 journal: eintraege.mapValues(\.angaben),
                 ziele: try journal.ziele(konto: konto),
                 regeln: try journal.handelsregeln(konto: konto),
-                ausstieg: trades.compactMap { ausstieg[$0.id].map { JournalExport.Ausstieg($0) } })
+                ausstieg: trades.compactMap { analysen[$0.id].map { JournalExport.Ausstieg($0) } })
         }
         // Tonfall aus den Einstellungen (AP11, `Ton`); ohne Wahl gilt in der App „bro“.
         let ton = Ton.aktuell.rawValue
@@ -139,7 +142,9 @@ enum ExportOrdner {
         do {
             let daten = try export(journal, zeitzone: zeitzone, ausstieg: ausstieg)
             try daten.json().write(to: ordner.appending(path: JournalExport.dateiname), options: .atomic)
-            aktualisiereAusstieg(daten.konten.flatMap(\.trades), journal: journal, zeitzone: zeitzone)
+            let jeKonto = Dictionary(daten.konten.map { (ausstiegskonto($0.broker, $0.kontonummer), $0.trades) },
+                                     uniquingKeysWith: { erste, _ in erste })
+            aktualisiereAusstieg(jeKonto, journal: journal, zeitzone: zeitzone)
             let trades = daten.konten.reduce(0) { $0 + $1.trades.count }
             return String(localized: "Export: \(trades) Trades aus \(daten.konten.count) Konten, \(Date.now.formatted(date: .omitted, time: .shortened))")
         } catch {
@@ -147,8 +152,13 @@ enum ExportOrdner {
         }
     }
 
-    /// Ausstiegsanalysen (Doc 39, B4) zum Stand `ausstiegStand`, für den nächsten Export.
-    @MainActor private static var ausstieg: [String: Ausstiegsanalyse] = [:]
+    /// Ausstiegsanalysen (Doc 39, B4) zum Stand `ausstiegStand`, für den nächsten Export; je Konto, weil
+    /// Tickets nur innerhalb eines Kontos eindeutig sind (Befund G25, Doc 49).
+    @MainActor private static var ausstieg: [String: [String: Ausstiegsanalyse]] = [:]
+
+    /// Schlüssel eines Kontos im Export: Broker und die exportierten Endziffern (`JournalExport.endziffern`
+    /// macht sie je Broker eindeutig).
+    static func ausstiegskonto(_ broker: String, _ nummer: String) -> String { broker + "\u{1F}" + nummer }
     @MainActor private static var ausstiegStand: Ausstiegsstand?
     @MainActor private static var ausstiegLaeuft = false
     /// Während eines Laufs kam ein neuer Export: danach noch einmal mit dessen Trades rechnen.
@@ -158,14 +168,14 @@ enum ExportOrdner {
     private struct Ausstiegsstand: Equatable {
         var kerzen: Int
         var bestand: [Kerzenbestand]
-        var trades: [Trade]
+        var trades: [String: [Trade]]
     }
 
     /// Rechnet die Ausstiegsanalysen im Hintergrund wie die Seite „Ausstieg“ (`Ausstiegsdienst`, Minutenkerzen
     /// auf dem Mac) und schreibt den Export neu, wenn sich etwas geändert hat. Liest die Kerzen nur, wenn sich
     /// Speicher oder Trades seit dem letzten Lauf geändert haben, nicht bei jedem Nachrichtenabruf.
     @MainActor
-    private static func aktualisiereAusstieg(_ trades: [Trade], journal: Journal, zeitzone: TimeZone) {
+    private static func aktualisiereAusstieg(_ trades: [String: [Trade]], journal: Journal, zeitzone: TimeZone) {
         guard !ausstiegLaeuft else {
             ausstiegNachlauf = true
             return
@@ -181,7 +191,11 @@ enum ExportOrdner {
                 if ausstiegNachlauf { schreibe(journal, zeitzone: zeitzone) }
                 return
             }
-            let neu = await dienst.analysen(trades)
+            var neu: [String: [String: Ausstiegsanalyse]] = [:]
+            for (konto, liste) in trades {
+                let analysen = await dienst.analysen(liste)
+                if !analysen.isEmpty { neu[konto] = analysen }
+            }
             ausstiegStand = stand
             ausstiegLaeuft = false
             if neu != ausstieg || ausstiegNachlauf {
