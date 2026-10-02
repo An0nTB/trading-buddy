@@ -73,8 +73,8 @@ extension Ausgabe {
             var kopfzeile = "### \(Format.wochentag(beginn, zone)) \(Format.datum(beginn, zone, mitZeit: false))"
             kopfzeile += trades.isEmpty ? " · keine Trades"
                 : " · \(trades.count) Trades, netto \(Format.zahl(trades.map(\.netProfit).reduce(0, +)))"
-            if n.plan != nil, let erster = trades.map(\.openTime).min() {
-                kopfzeile += " · Plan vor dem ersten Trade: \(n.modell.hatPlan(vor: erster) ? "ja" : "nein")"
+            if n.plan != nil, !trades.isEmpty {
+                kopfzeile += " · Plan vor dem ersten Trade: \(planVorErstemTrade(n.modell, trades, tag: n.tag, zone))"
             }
             if let v = n.verfassung { kopfzeile += " · Verfassung \(v)/5" }
             t.append(kopfzeile)
@@ -95,6 +95,20 @@ extension Ausgabe {
             if verpasst.count > 50 { t.append("\(verpasst.count - 50) weitere nicht gezeigt.") }
         }
         return t.joined(separator: "\n")
+    }
+
+    /// „ja“, „nein“ oder „unklar“ wie `Tagesauswertung` im Rechenkern: Trades ohne Uhrzeit (`nurDatum`) zählen
+    /// nicht als erster Trade; hat der Tag nur solche, ist sicher nur ein Plan von vor Tagesbeginn.
+    static func planVorErstemTrade(_ notiz: Tagesnotiz, _ trades: [Trade], tag: Journaltag, _ zone: TimeZone) -> String {
+        if let erster = trades.filter({ !$0.nurDatum }).map(\.openTime).min() {
+            return notiz.hatPlan(vor: erster) ? "ja" : "nein"
+        }
+        var kalender = Calendar(identifier: .gregorian)
+        kalender.timeZone = zone
+        let beginn = tag.beginn(in: zone)
+        let ende = kalender.date(byAdding: .day, value: 1, to: beginn) ?? beginn
+        if notiz.hatPlan(vor: beginn) { return "ja" }
+        return notiz.hatPlan(vor: ende) ? "unklar (Trades ohne Uhrzeit)" : "nein"
     }
 }
 

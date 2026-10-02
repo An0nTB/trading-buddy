@@ -122,3 +122,18 @@ private func trade(_ id: String, _ eroeffnet: String, _ side: Side = .buy, profi
     let leer = JournalExport(konten: [], zeitzone: berlin)
     #expect(!String(decoding: try leer.json(), as: UTF8.self).contains("tagesnotizen"))
 }
+
+@Test func planVorErstemTradeOhneUhrzeitWieImRechenkern() throws {
+    let tag = try #require(Journaltag("2025-05-05"))
+    var ohneUhrzeit = trade("d", "2025-05-04T22:00:00Z", profit: 5)
+    ohneUhrzeit.nurDatum = true
+    let mitUhrzeit = trade("z", "2025-05-05T08:00:00Z", profit: 5)
+    func plan(_ erstellt: String) -> Tagesnotiz {
+        JournalExport.Notiz(tag: tag, plan: "Nur Ausbruch", planErstellt: zeit(erstellt)).modell
+    }
+    let morgens = plan("2025-05-05T07:00:00Z")
+    #expect(Ausgabe.planVorErstemTrade(morgens, [ohneUhrzeit], tag: tag, berlin) == "unklar (Trades ohne Uhrzeit)")
+    #expect(Ausgabe.planVorErstemTrade(morgens, [ohneUhrzeit, mitUhrzeit], tag: tag, berlin) == "ja")
+    #expect(Ausgabe.planVorErstemTrade(plan("2025-05-04T21:00:00Z"), [ohneUhrzeit], tag: tag, berlin) == "ja")
+    #expect(Ausgabe.planVorErstemTrade(plan("2025-05-05T23:00:00Z"), [ohneUhrzeit], tag: tag, berlin) == "nein")
+}
