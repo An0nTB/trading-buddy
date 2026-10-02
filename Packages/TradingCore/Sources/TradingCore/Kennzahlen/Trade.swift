@@ -21,11 +21,14 @@ public struct Trade: Sendable, Equatable, Identifiable {
     /// Abgeführte oder erstattete Steuern (Trade Republic, Scalable); bei MetaTrader 0.
     public var taxes: Decimal
     public var produktart: Produktart
+    /// Kauf oder Verkauf nur mit Datum gebucht (Trade Republic, Scalable): Uhrzeit und Haltedauer sind
+    /// dann nicht bekannt; Stunden- und Haltedauer-Auswertungen lassen solche Trades aus.
+    public var nurDatum: Bool
 
     public init(id: String, symbol: String, side: Side, lots: Decimal, openTime: Date, closeTime: Date,
                 openPrice: Decimal, closePrice: Decimal, stopLoss: Decimal? = nil, takeProfit: Decimal? = nil,
                 commission: Decimal = 0, swap: Decimal = 0, profit: Decimal, taxes: Decimal = 0,
-                produktart: Produktart = .unbekannt) {
+                produktart: Produktart = .unbekannt, nurDatum: Bool = false) {
         self.id = id
         self.symbol = symbol
         self.side = side
@@ -41,6 +44,7 @@ public struct Trade: Sendable, Equatable, Identifiable {
         self.profit = profit
         self.taxes = taxes
         self.produktart = produktart
+        self.nurDatum = nurDatum
     }
 
     public init(_ p: ClosedPosition) {

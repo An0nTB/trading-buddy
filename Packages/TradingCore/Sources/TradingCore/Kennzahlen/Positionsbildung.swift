@@ -4,6 +4,8 @@ import Foundation
 /// die ältesten offenen Käufe derselben Kennung, so wie das deutsche Steuerrecht für
 /// Wertpapiere im Depot rechnet. Kosten und Steuern der Käufe gehen anteilig in den Trade ein.
 /// Splits ändern die Stückzahl der offenen Käufe, der Einstand bleibt gleich.
+/// Käufe und Verkäufe in verschiedenen Währungen werden nie gegeneinander gerechnet: Ohne Umrechnungskurs
+/// ergäbe 10 EUR plus 10 USD sonst „20“. Ein Verkauf ohne Kauf in seiner Währung zählt als ohne Bestand.
 public enum Positionsbildung {
     public struct Ergebnis: Sendable, Equatable {
         /// Ein Trade je Verkauf, nach Verkaufszeit.
@@ -35,32 +37,45 @@ public enum Positionsbildung {
         }
     }
 
+    private struct Bestand: Hashable {
+        var kennung: String
+        var waehrung: String
+        init(_ a: Ausfuehrung) { kennung = a.kennung; waehrung = a.waehrung }
+    }
+
     public static func bilde(_ ausfuehrungen: [Ausfuehrung], kapitalmassnahmen: [Kapitalmassnahme] = []) -> Ergebnis {
         let splits = kapitalmassnahmen.filter { $0.art == .split }.map { Ereignis.split($0) }
         let handel = ausfuehrungen.map { $0.seite == .buy ? Ereignis.kauf($0) : Ereignis.verkauf($0) }
         let ereignisse = (splits + handel).enumerated()
             .sorted { ($0.element.zeit, $0.element.rang, $0.offset) < ($1.element.zeit, $1.element.rang, $1.offset) }
             .map { $0.element }
-        var bestand: [String: [Ausfuehrung]] = [:]
+        var bestand: [Bestand: [Ausfuehrung]] = [:]
         var trades: [Trade] = []
         var ohneBestand: [Ausfuehrung] = []
         for ereignis in ereignisse {
             switch ereignis {
             case .split(let m):
-                bestand[m.kennung] = teile(bestand[m.kennung] ?? [], zusatz: m.menge)
+                // Der Split gilt für alle Käufe der Kennung, gleich in welcher Währung.
+                let schluessel = bestand.keys.filter { $0.kennung == m.kennung }
+                var geteilt = teile(schluessel.flatMap { bestand[$0] ?? [] }, zusatz: m.menge)[...]
+                for s in schluessel {
+                    let anzahl = bestand[s]?.count ?? 0
+                    bestand[s] = Array(geteilt.prefix(anzahl))
+                    geteilt = geteilt.dropFirst(anzahl)
+                }
             case .kauf(let a):
-                bestand[a.kennung, default: []].append(a)
+                bestand[Bestand(a), default: []].append(a)
             case .verkauf(let a):
                 var rest = a.menge
                 var lose: [(kauf: Ausfuehrung, menge: Decimal)] = []
-                var kaeufe = bestand[a.kennung] ?? []
+                var kaeufe = bestand[Bestand(a)] ?? []
                 while rest > 0, let kauf = kaeufe.first {
                     let menge = min(rest, kauf.menge)
                     lose.append((kauf: kauf, menge: menge))
                     rest -= menge
                     if menge == kauf.menge { kaeufe.removeFirst() } else { kaeufe[0] = anteil(kauf, kauf.menge - menge) }
                 }
-                bestand[a.kennung] = kaeufe
+                bestand[Bestand(a)] = kaeufe
                 if rest < a.menge { trades.append(trade(verkauf: rest == 0 ? a : anteil(a, a.menge - rest), lose: lose)) }
                 if rest > 0 { ohneBestand.append(anteil(a, rest)) }
             }
@@ -102,6 +117,7 @@ public enum Positionsbildung {
                      commission: anteile.map(\.gebuehr).reduce(0, +) + v.gebuehr,
                      profit: v.betrag + einstand,
                      taxes: anteile.map(\.steuer).reduce(0, +) + v.steuer,
-                     produktart: v.produktart != .unbekannt ? v.produktart : anteile.first?.produktart ?? .unbekannt)
+                     produktart: v.produktart != .unbekannt ? v.produktart : anteile.first?.produktart ?? .unbekannt,
+                     nurDatum: v.nurDatum || anteile.contains(where: \.nurDatum))
     }
 }
