@@ -67,6 +67,7 @@ struct BereichFenster: View {
         #if os(macOS)
         .background(FensterEbene(angeheftet: angeheftet))
         #endif
+        .fragBradBlatt() // Frag Henry (Doc 31): Blatt im eigenen Fenster
     }
 
     @ViewBuilder
