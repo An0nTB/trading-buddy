@@ -19,6 +19,28 @@ public enum PropFirmPruefung {
         public var tag: Date
     }
 
+    /// Ein Handelstag der Firma für den Tagesverlust-Balken: wie viel der Tagesgrenze realisiert verbraucht war.
+    /// Nur Tage mit geschlossenen Trades; offene Verluste fehlen (siehe `nurNaeherung`).
+    public struct Tagesstand: Sendable, Equatable {
+        /// Beginn des Handelstags der Firma.
+        public var tag: Date
+        public var saldoBeginn: Decimal
+        public var saldoEnde: Decimal
+        /// Tiefster realisierter Saldo des Tages, mindestens `saldoBeginn` eingerechnet.
+        public var tiefsterSaldo: Decimal
+        /// Saldo, unter dem der Tagesverlust verletzt ist; `nil` ohne Regel.
+        public var tagesverlustGrenze: Decimal?
+        /// Gesamtverlust-Grenze an diesem Tag (bei nachgezogener Grenze bis Vortag nachgezogen); `nil` ohne Regel.
+        public var gesamtverlustGrenze: Decimal?
+
+        /// Realisierter Tagesverlust am tiefsten Punkt, 0 bei keinem Verlust.
+        public var verbraucht: Decimal { max(0, saldoBeginn - tiefsterSaldo) }
+        /// Anteil der Tagesgrenze, z. B. 0,6 für 60 %; über 1 heißt verletzt. `nil` ohne Regel.
+        public var anteilTagesverlust: Decimal? {
+            tagesverlustGrenze.flatMap { g in saldoBeginn > g ? verbraucht / (saldoBeginn - g) : nil }
+        }
+    }
+
     public struct Ergebnis: Sendable, Equatable {
         public var verstoesse: [Verstoss]
         /// Realisierter Saldo nach dem letzten Trade.
@@ -32,6 +54,8 @@ public enum PropFirmPruefung {
         public var konsistenzAnteil: Decimal?
         /// Alle Ziele erreicht und kein Verstoß; `nil` ohne Gewinnziel.
         public var bestanden: Bool?
+        /// Handelstage mit Schluss, nach Tag; der letzte ist „heute“ für den Balken.
+        public var tage: [Tagesstand]
     }
 
     public static func pruefe(_ trades: [Trade], regeln r: PropFirmRegeln) -> Ergebnis {
@@ -62,6 +86,7 @@ public enum PropFirmPruefung {
         var gesamtVerletzt = false
         var tagesnetto: [Date: Decimal] = [:]
         var zielErreicht: Date?
+        var staende: [Tagesstand] = []
         func grenze() -> Decimal? {
             guard let max = r.maxGesamtverlust else { return nil }
             guard r.gesamtverlustart == .nachgezogenTagesende else { return r.startkapital - max }
@@ -73,8 +98,13 @@ public enum PropFirmPruefung {
                 if aktuellerTag != nil { hoch = max(hoch, saldo) }
                 tagesbeginn = saldo
                 aktuellerTag = d
+                staende.append(Tagesstand(tag: d, saldoBeginn: saldo, saldoEnde: saldo, tiefsterSaldo: saldo,
+                                       tagesverlustGrenze: r.maxTagesverlust.map { saldo - $0 },
+                                       gesamtverlustGrenze: grenze()))
             }
             saldo += t.netProfit
+            staende[staende.count - 1].saldoEnde = saldo
+            staende[staende.count - 1].tiefsterSaldo = min(staende[staende.count - 1].tiefsterSaldo, saldo)
             tagesnetto[d, default: 0] += t.netProfit
             if let max = r.maxTagesverlust, saldo < tagesbeginn - max,
                !verstoesse.contains(where: { $0.art == .tagesverlust && $0.tag == d }) {
@@ -110,7 +140,7 @@ public enum PropFirmPruefung {
         }
         return Ergebnis(verstoesse: verstoesse, saldo: saldo, gesamtverlustGrenze: grenze(),
                         gewinnzielErreicht: zielErreicht, handelstage: tage, konsistenzAnteil: anteil,
-                        bestanden: bestanden)
+                        bestanden: bestanden, tage: staende)
     }
 
     /// Liegt ein Samstag 00:00 Ortszeit der Firma zwischen Eröffnung und Schluss?
