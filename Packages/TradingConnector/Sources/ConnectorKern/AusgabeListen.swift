@@ -25,7 +25,9 @@ extension Ausgabe {
                 .filter { $0.key != konto.waehrung.uppercased() }
             if !fremd.isEmpty {
                 zeile += ", davon in anderer Währung " + fremd.keys.sorted().map { "\($0) \(fremd[$0]!.count)" }
-                    .joined(separator: ", ") + " (Auswertung je Währung über waehrung)"
+                    .joined(separator: ", ")
+                zeile += export.angleichskurse == nil ? " (Auswertung je Währung über waehrung)"
+                    : " (umgerechnet mit EZB-Referenzkursen, einzeln über waehrung)"
             }
             zeile += ", \(konto.geloeschteOrders.count) gelöschte Orders"
             if !konto.ziele.isEmpty { zeile += ", \(konto.ziele.count) Ziele aus Reviews" }
