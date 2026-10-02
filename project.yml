@@ -20,6 +20,8 @@ packages:
     path: Packages/TradingCore
   TradingStore:
     path: Packages/TradingStore
+  TradingClock:
+    path: Packages/TradingClock
 targets:
   TradingBuddy:
     type: application
@@ -30,6 +32,7 @@ targets:
     dependencies:
       - package: TradingCore
       - package: TradingStore
+      - package: TradingClock
     configFiles:
       Debug: Config/Base.xcconfig
       Release: Config/Base.xcconfig

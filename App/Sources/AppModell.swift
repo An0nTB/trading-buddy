@@ -41,6 +41,8 @@ final class AppModell {
     var fehler: String?
     /// Stand der Exportdatei für den Claude-Connector, angezeigt im Reiter Claude der Einstellungen.
     private(set) var exportStand = ""
+    /// Börsenuhr: Auswahl des Nutzers und die daraus gebaute Uhr (Paket TradingClock, Stand-Doc 15).
+    let boersen = Boersenverwaltung()
 
     // Zustand der Oberfläche
     var bereich: Bereich = .uebersicht
