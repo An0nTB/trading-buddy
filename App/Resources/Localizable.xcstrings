@@ -12661,6 +12661,16 @@
         }
       }
     },
+    "Sicherung" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup"
+          }
+        }
+      }
+    },
     "Sicherung „%@“ einspielen?" : {
       "localizations" : {
         "en" : {
