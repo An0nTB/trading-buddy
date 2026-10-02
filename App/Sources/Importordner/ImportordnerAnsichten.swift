@@ -11,6 +11,8 @@ struct ImportordnerFelder: View {
         let ordner = Importordner.geteilt
         Form {
             Toggle("Import-Ordner beobachten", isOn: Binding(get: { ordner.aktiv }, set: { ordner.setzeAktiv($0) }))
+            Toggle("Mitteilung nach stillem Import", isOn: Binding(get: { ordner.mitteilung },
+                                                                  set: { ordner.setzeMitteilung($0) }))
             LabeledContent("Ordner") {
                 VStack(alignment: .leading, spacing: Abstand.raster) {
                     Text(verbatim: ordner.ordnerPfad ?? String(localized: "noch nicht gewählt"))
