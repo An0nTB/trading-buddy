@@ -165,3 +165,20 @@ private func konto(_ journal: Journal, _ nummer: String = "100001") throws -> Ko
         try journal.schliesseAbgelaufeneZiele(konto: ohneID, jetzt: jetzt)
     }
 }
+
+@Test func wiederGeoeffnetesZielBleibtOffen() throws {
+    // Befund A7 (Gesamt-Gegencheck 02.10.2026): wer ein verfehltes Ziel nach Ablauf wieder öffnet, will es offen.
+    let journal = try Journal.imSpeicher()
+    let k = try konto(journal)
+    let ziel = try journal.legeZielAn(Reviewziel(text: "Mai", von: mai.0, bis: mai.1, erstellt: mai.0), konto: k)
+    let id = try #require(ziel.id)
+    #expect(try journal.schliesseAbgelaufeneZiele(jetzt: mai.1).map(\.id) == [id])
+    try journal.setzeZielstatus(id: id, .offen, jetzt: juni.0.addingTimeInterval(3600))
+    #expect(try journal.schliesseAbgelaufeneZiele(jetzt: juli.0).isEmpty)
+    #expect(try journal.ziele(konto: k, status: .offen).map(\.id) == [id])
+
+    // Nach Ablauf angelegt, aber nicht mehr angefasst: schließt wie jedes andere.
+    let spaet = try journal.legeZielAn(Reviewziel(text: "Mai nachgetragen", von: mai.0, bis: mai.1,
+                                                  erstellt: erstellt), konto: k)
+    #expect(try journal.schliesseAbgelaufeneZiele(jetzt: juli.0).map(\.id) == [spaet.id])
+}
