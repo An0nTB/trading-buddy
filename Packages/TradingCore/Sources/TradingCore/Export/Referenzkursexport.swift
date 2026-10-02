@@ -30,8 +30,9 @@ extension JournalExport {
         }
     }
 
-    /// Auszug aus `kurse` für `Waehrungsangleich` über die Trades in `konten`: nur Währungen, die umgerechnet
-    /// werden, und nur die Tage, die die Suche ab dem Schlusstag braucht (`Referenzkurse.hoechstensTageZurueck`),
+    /// Auszug aus `kurse` für `Waehrungsangleich` und die Steuer über die Trades in `konten`: nur Währungen, die
+    /// umgerechnet werden (bei Konten außerhalb des Euro auch die Kontowährung), und nur die Tage, die die Suche
+    /// ab dem Schlusstag braucht (`Referenzkurse.hoechstensTageZurueck`),
     /// in UTC mit einem Tag Puffer je Seite, damit jede Zeitzone des Nutzers abgedeckt ist.
     public static func referenzkursauszug(_ kurse: Referenzkurse, fuer konten: [Kontodaten]) -> [Tageskurse] {
         let utc = TimeZone(secondsFromGMT: 0)!
@@ -43,7 +44,9 @@ extension JournalExport {
             let kontowaehrung = konto.waehrung.uppercased()
             for t in konto.trades {
                 let waehrung = t.waehrung(kontowaehrung: kontowaehrung)
-                guard waehrung != kontowaehrung else { continue }
+                // Konten außerhalb des Euro brauchen den Euro-Kurs jedes Trades für die Steuer im Connector
+                // (Dritter Gegencheck G4); Euro-Konten nur die Tage mit Fremdwährung.
+                guard waehrung != kontowaehrung || kurscode(kontowaehrung) != "EUR" else { continue }
                 codes.insert(kurscode(waehrung))
                 codes.insert(kurscode(kontowaehrung))
                 for zurueck in -1...(Referenzkurse.hoechstensTageZurueck + 1) {
