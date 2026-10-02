@@ -146,10 +146,16 @@ struct TradesView: View {
         #endif
     }
 
-    /// Tabelle mit Spalten Geschlossen, Instrument, Richtung, Setup, Lots, R, Netto, Hinweise; Klick wählt für den Inspektor.
+    /// Tabelle mit Spalten Eröffnet, Geschlossen, Instrument, Richtung, Setup, Lots, R, Netto, Hinweise; Klick wählt für den Inspektor.
     private func tradeTabelle(_ liste: [TradeZeileDaten]) -> some View {
         @Bindable var modell = modell
         return Table(liste, selection: $modell.tradeAuswahl, sortOrder: $sortierung) {
+            TableColumn("Eröffnet", value: \.trade.openTime) { zeile in
+                // Ausführungszeitpunkt; bei Pending Orders also die Aktivierung (Tim, 02.10.2026 03:10 UTC).
+                Text(verbatim: Format.zeit(zeile.trade.openTime))
+                    .monospacedDigit()
+            }
+            .width(min: 110, ideal: 120)
             TableColumn("Geschlossen", value: \.trade.closeTime) { zeile in
                 Text(verbatim: Format.zeit(zeile.trade.closeTime))
                     .monospacedDigit()
