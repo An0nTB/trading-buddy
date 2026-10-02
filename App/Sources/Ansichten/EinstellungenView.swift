@@ -76,7 +76,7 @@ struct EinstellungenView: View {
     }
 }
 
-/// Reiter Allgemein: Sprache und Anzeigewährung (beide folgen dem System bzw. dem Konto).
+/// Reiter Allgemein: Ton, Sprache und Anzeigewährung (Kontowährung oder eine andere per Klick, B4).
 struct AllgemeinFelder: View {
     @AppStorage(Ton.schluessel) private var ton = Ton.henry
     @Environment(AppModell.self) private var modell
@@ -95,7 +95,11 @@ struct AllgemeinFelder: View {
             .font(Schrift.beschriftung)
             .foregroundStyle(thema.textSchwach)
         SpracheFeld() // Paket 6 Englisch (App/Sources/Sprache/Sprache.swift)
-        LabeledContent("Anzeigewährung") { Text("Kontowährung; fremde Währungen zum EZB-Kurs umgerechnet") }
+        @Bindable var modell = modell
+        Picker("Anzeigewährung", selection: $modell.anzeigewaehrung) { anzeigewaehrungOptionen(modell) }
+        Text("Summen auf Übersicht, Kennzahlen, Fehlermuster und Kalender zum EZB-Kurs des Schlusstags (Näherung). Regeln, Steuer und einzelne Trades bleiben in ihrer Währung. Auch oben in der Übersicht umschaltbar.")
+            .font(Schrift.beschriftung)
+            .foregroundStyle(thema.textSchwach)
     }
 }
 

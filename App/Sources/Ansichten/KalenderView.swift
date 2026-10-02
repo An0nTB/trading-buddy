@@ -51,7 +51,8 @@ struct KalenderView: View {
         let bisJahresende = kommende.filter { $0.beginn < jahresende }
         let termine = modell.termineJeTrade
         let mitTermin = modell.trades.filter { termine[$0.id] != nil }
-        let kennzahlen = Kennzahlen(trades: mitTermin)
+        // Summe in der Anzeigewährung (W3, B4); die Zahl der Trades zählt auch die ohne Kurs.
+        let kennzahlen = Kennzahlen(trades: modell.angeglicheneTrades.filter { termine[$0.id] != nil })
         LazyVGrid(columns: Raster.kacheln, spacing: Abstand.kachelAbstand) {
             Kachel(titel: "Nächster Termin",
                    wert: kommende.first.map(Terminformat.institution) ?? "–",
@@ -67,7 +68,7 @@ struct KalenderView: View {
                    wert: String(localized: "\(mitTermin.count) Trades"),
                    zusatz: mitTermin.isEmpty
                        ? String(localized: "im gewählten Zeitraum keiner")
-                       : String(localized: "Netto \(Format.geld(kennzahlen.netto, modell.waehrung)) · Treffer \(Format.prozent(kennzahlen.trefferquote))"),
+                       : String(localized: "Netto \(Format.geld(kennzahlen.netto, modell.summenwaehrung)) · Treffer \(Format.prozent(kennzahlen.trefferquote))"),
                    farbe: mitTermin.isEmpty ? nil : thema.vorzeichen(kennzahlen.netto))
         }
     }
@@ -270,8 +271,10 @@ private struct TerminTradesKarte: View {
     }
 
     private func zusammenfassung(_ mit: [Trade], _ ohne: [Trade]) -> String {
-        let kennzahlen = Kennzahlen(trades: mit)
-        var text = String(localized: "\(mit.count) von \(mit.count + ohne.count) Trades liefen über einen Termin ihrer Währung: Netto \(Format.geld(kennzahlen.netto, modell.waehrung)), Trefferquote \(Format.prozent(kennzahlen.trefferquote))")
+        // Netto in der Anzeigewährung (W3, B4): dieselben Trades nach Umrechnung, ohne die ohne Kurs.
+        let ids = Set(mit.map(\.id))
+        let kennzahlen = Kennzahlen(trades: modell.angeglicheneTrades.filter { ids.contains($0.id) })
+        var text = String(localized: "\(mit.count) von \(mit.count + ohne.count) Trades liefen über einen Termin ihrer Währung: Netto \(Format.geld(kennzahlen.netto, modell.summenwaehrung)), Trefferquote \(Format.prozent(kennzahlen.trefferquote))")
         if !ohne.isEmpty {
             text += String(localized: " (sonst \(Format.prozent(Kennzahlen(trades: ohne).trefferquote)))")
         }

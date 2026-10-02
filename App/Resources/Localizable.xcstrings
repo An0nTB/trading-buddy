@@ -7369,12 +7369,12 @@
         }
       }
     },
-    "Kontowährung; fremde Währungen zum EZB-Kurs umgerechnet" : {
+    "Kontowährung (%@)" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Account currency; other currencies converted at the ECB rate"
+            "value" : "Account currency (%@)"
           }
         }
       }
@@ -11415,6 +11415,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Total incomplete: not every position has a price in the same currency."
+          }
+        }
+      }
+    },
+    "Summen auf Übersicht, Kennzahlen, Fehlermuster und Kalender zum EZB-Kurs des Schlusstags (Näherung). Regeln, Steuer und einzelne Trades bleiben in ihrer Währung. Auch oben in der Übersicht umschaltbar." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Totals on Overview, Statistics, Error patterns and Calendar at the ECB rate of the closing day (approximation). Rules, tax and individual trades stay in their currency. Also switchable at the top of the Overview."
           }
         }
       }
