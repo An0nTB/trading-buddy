@@ -75,10 +75,17 @@ extension Journal {
                 if let alt = try GeschlossenZeile
                     .filter(Column("kontoId") == kontoId && Column("ticket") == p.ticket).fetchOne(db) {
                     var vergleich = try alt.modell()
+                    let produktart = vereinteProduktart(vergleich.produktart, p.produktart)
                     vergleich.rohzeile = p.rohzeile
                     vergleich.openTime = gleicheZeit(vergleich.openTime, p.openTime)
                     vergleich.closeTime = gleicheZeit(vergleich.closeTime, p.closeTime)
-                    if vergleich == p { ergebnis.geschlosseneBekannt += 1 } else { abweichend.append(p.ticket) }
+                    vergleich.produktart = p.produktart
+                    if let produktart, vergleich == p {
+                        ergebnis.geschlosseneBekannt += 1
+                        try Self.ergaenzeProduktart(db, alt, produktart)
+                    } else {
+                        abweichend.append(p.ticket)
+                    }
                 } else {
                     try GeschlossenZeile(kontoId: kontoId, importlaufId: laufId, p).insert(db)
                     ergebnis.geschlosseneNeu += 1

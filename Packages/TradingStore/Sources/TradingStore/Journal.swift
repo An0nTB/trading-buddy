@@ -127,8 +127,15 @@ public final class Journal: Sendable {
                 if let alt = try GeschlossenZeile
                     .filter(Column("kontoId") == konto.id! && Column("ticket") == p.ticket)
                     .fetchOne(db) {
-                    if try alt.modell() == p { ergebnis.geschlosseneBekannt += 1 }
-                    else { abweichend.append(p.ticket) }
+                    var vergleich = try alt.modell()
+                    let produktart = vereinteProduktart(vergleich.produktart, p.produktart)
+                    vergleich.produktart = p.produktart
+                    if let produktart, vergleich == p {
+                        ergebnis.geschlosseneBekannt += 1
+                        try Self.ergaenzeProduktart(db, alt, produktart)
+                    } else {
+                        abweichend.append(p.ticket)
+                    }
                 } else {
                     try neu.insert(db)
                     ergebnis.geschlosseneNeu += 1
@@ -166,6 +173,13 @@ public final class Journal: Sendable {
     /// SHA-256 des Dateiinhalts als Hex-Text: der Fingerabdruck einer Datei.
     public static func fingerabdruck(_ datei: Data) -> String {
         SHA256.hash(data: datei).map { String(format: "%02x", $0) }.joined()
+    }
+
+    /// Trägt eine beim erneuten Import erst bekannt gewordene Produktart in die gespeicherte Position ein.
+    static func ergaenzeProduktart(_ db: Database, _ alt: GeschlossenZeile, _ produktart: Produktart) throws {
+        guard produktart.rawValue != alt.produktart else { return }
+        try GeschlossenZeile.filter(Column("kontoId") == alt.kontoId && Column("ticket") == alt.ticket)
+            .updateAll(db, Column("produktart").set(to: produktart.rawValue))
     }
 
     static func konto(_ db: Database, broker: String, nummer: String,
