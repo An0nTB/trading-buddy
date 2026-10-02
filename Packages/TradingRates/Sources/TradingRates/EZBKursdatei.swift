@@ -12,18 +12,22 @@ public enum EZBKursdatei {
     public enum Fehler: Error, Sendable, Equatable {
         /// Keine Kurse gefunden, z. B. eine HTML-Fehlerseite statt XML.
         case keineKurse
+        /// Die Datei bricht mitten im XML ab (z. B. Verbindung beim Laden der Verlaufsdatei getrennt).
+        /// Ein Teil darf nicht als Erfolg in den Zwischenspeicher, sonst fehlen die alten Tage dauerhaft.
+        case unvollstaendig
     }
 
-    /// Alle Tage mit ihren Kursen. Unlesbare Zeilen fallen weg; eine Datei ganz ohne Kurse ist ein Fehler.
+    /// Alle Tage mit ihren Kursen. Unlesbare Kurszeilen fallen weg; eine Datei ganz ohne Kurse
+    /// oder eine abgebrochene Datei ist ein Fehler.
     public static func lies(_ daten: Data) throws -> [Journaltag: [String: Decimal]] {
         let sammler = Sammler()
         let parser = XMLParser(data: daten)
         parser.delegate = sammler
         parser.shouldResolveExternalEntities = false
-        _ = parser.parse()
-        // Auch bei einem Fehler mitten in der Datei gelten die bis dahin gelesenen Tage.
+        let vollstaendig = parser.parse()
         let kurse = sammler.kurse.filter { !$0.value.isEmpty }
         guard !kurse.isEmpty else { throw Fehler.keineKurse }
+        guard vollstaendig else { throw Fehler.unvollstaendig }
         return kurse
     }
 

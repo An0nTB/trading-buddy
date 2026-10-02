@@ -151,3 +151,16 @@ import TradingCore
     #expect(stand.kurse.kurse[tag("2010-06-01")] == nil)
     #expect(speicher.lies()?.kurse.count == 4)
 }
+
+@Test func abgebrochenerVerlaufWirdNichtGespeichert() async throws {
+    // Erster Abruf bricht ab: nichts speichern, damit der nächste Start den ganzen Verlauf erneut lädt.
+    let speicher = neuerSpeicher()
+    let ganz = try fixture("ezb-hist")
+    let abruf = AufgezeichneterAbruf(Data(ganz.prefix(ganz.count * 2 / 3)))
+    let jetzt = zeit("2026-09-30 10:00")
+    let stand = await EZBKurse(speicher: speicher, abruf: abruf.abruf, jetzt: { jetzt }).laden()
+    #expect(stand.quelle == .keine)
+    #expect(stand.fehler != nil)
+    #expect(speicher.lies() == nil)
+    #expect(EZBKurse.welcheDatei(letzterTag: speicher.lies()?.letzterTag, abgerufen: nil, jetzt: jetzt) == .verlauf)
+}
