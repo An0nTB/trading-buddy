@@ -92,7 +92,8 @@ struct Zeitkerzenspeicher: Sendable {
     /// Übernimmt Kerzen eines Symbols. Gespeicherte Kerzen, die in `fenster` beginnen (Ende ausgeschlossen), werden durch die neuen
     /// ersetzt (ein erneuter Abruf oder Import desselben Zeitraums ersetzt den alten, auch wenn er weniger Kerzen
     /// liefert); außerhalb bleibt alles stehen. Ohne `fenster` gilt die Spanne der neuen Kerzen.
-    /// Bei gleichem Beginn gilt die neue Kerze.
+    /// Bei gleichem Beginn gilt die neue Kerze. Feinere gespeicherte Kerzen bleiben stehen: Ein Stundenexport
+    /// über Monate mit Minutenkursen ersetzt diese nicht, seine Kerzen fallen dort weg, wo Minutenkerzen liegen.
     /// - Returns: der neue Stand des Symbols, `nil`, wenn danach keine Kerze mehr gespeichert ist.
     @discardableResult
     func speichere(_ neue: [Zeitkerze], symbol: String, quelle: String, fenster: DateInterval? = nil) throws -> Kerzenbestand? {
@@ -105,6 +106,7 @@ struct Zeitkerzenspeicher: Sendable {
         } else {
             return bestand().first { $0.symbol == symbol }
         }
+        let neueDauer = gueltig.map(\.dauer).min() ?? 0
         var jeMonat: [String: [Zeitkerze]] = [:]
         for kerze in gueltig { jeMonat[Self.monat(kerze.beginn), default: []].append(kerze) }
         let betroffen = Set(Self.monate(von: spanne.start, bis: spanne.end)).union(jeMonat.keys)
@@ -113,10 +115,17 @@ struct Zeitkerzenspeicher: Sendable {
         for monat in betroffen.sorted() {
             let alt = lies(symbol: symbol, monat: monat)
             var jeBeginn: [Date: Zeitkerze] = [:]
-            for kerze in alt?.kerzen ?? [] where !(kerze.beginn >= spanne.start && kerze.beginn < spanne.end) {
-                jeBeginn[kerze.beginn] = kerze
+            var feiner: [Zeitkerze] = []
+            for kerze in alt?.kerzen ?? [] {
+                let imFenster = kerze.beginn >= spanne.start && kerze.beginn < spanne.end
+                if !imFenster {
+                    jeBeginn[kerze.beginn] = kerze
+                } else if kerze.dauer < neueDauer {
+                    jeBeginn[kerze.beginn] = kerze
+                    feiner.append(kerze)
+                }
             }
-            let dazu = jeMonat[monat] ?? []
+            let dazu = (jeMonat[monat] ?? []).filter { !Self.ueberdeckt($0, von: feiner) }
             for kerze in dazu { jeBeginn[kerze.beginn] = kerze }
             let datei = monatsdatei(symbol: symbol, monat: monat)
             guard !jeBeginn.isEmpty else {
@@ -130,6 +139,17 @@ struct Zeitkerzenspeicher: Sendable {
             try Self.encoder.encode(inhalt).write(to: datei, options: .atomic)
         }
         return try aktualisiereBestand(symbol: symbol)
+    }
+
+    /// Ob eine Kerze eine der feineren (aufsteigend sortierten) Kerzen zeitlich berührt.
+    static func ueberdeckt(_ kerze: Zeitkerze, von feiner: [Zeitkerze]) -> Bool {
+        var unten = 0
+        var oben = feiner.count
+        while unten < oben {
+            let mitte = (unten + oben) / 2
+            if feiner[mitte].ende <= kerze.beginn { unten = mitte + 1 } else { oben = mitte }
+        }
+        return unten < feiner.count && feiner[unten].beginn < kerze.ende
     }
 
     /// Löscht alle Kerzen eines Symbols.
