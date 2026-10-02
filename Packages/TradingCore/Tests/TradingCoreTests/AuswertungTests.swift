@@ -45,20 +45,26 @@ private func gbeMai() throws -> MT4Statement {
     let konto = JournalExport.Kontodaten(
         broker: "GBE", kontonummer: "0001", waehrung: "EUR", trades: [trade],
         journal: ["7": Journalangaben(setup: "Ausbruch", regeltreue: false, zustand: 2, grund: "FOMO"),
-                  "8": Journalangaben()])
+                  "8": Journalangaben()],
+        ziele: [Reviewziel(id: 1, text: "Höchstens 2 Revanche-Trades", von: zeit("2025-04-30T22:00:00"),
+                           bis: zeit("2025-05-31T22:00:00"), messgroesse: "Revanche-Trades", zielwert: 2,
+                           status: .verfehlt, ergebnis: "13 statt 2", erstellt: zeit("2025-04-30T20:00:00"))])
     #expect(konto.journal.keys.sorted() == ["7"])  // leere Angaben fallen weg
     let export = JournalExport(konten: [konto], zeitzone: berlin, erstellt: zeit("2026-10-01T20:00:00"))
     let daten = try export.json()
     #expect(try JournalExport.lese(daten) == export)
 
-    // Datei einer älteren App ohne Journal: liest sich mit leerem Journal.
+    // Datei einer älteren App ohne Journal und Ziele: liest sich mit leerem Journal und ohne Ziele.
     var roh = try #require(try JSONSerialization.jsonObject(with: daten) as? [String: Any])
     var konten = try #require(roh["konten"] as? [[String: Any]])
     konten[0]["journal"] = nil
+    konten[0]["ziele"] = nil
     roh["konten"] = konten
     let alt = try JSONSerialization.data(withJSONObject: roh)
     #expect(String(decoding: alt, as: UTF8.self).contains("journal") == false)
+    #expect(String(decoding: alt, as: UTF8.self).contains("ziele") == false)
     #expect(try JournalExport.lese(alt).konten[0].journal.isEmpty)
+    #expect(try JournalExport.lese(alt).konten[0].ziele.isEmpty)
 
     // Neue Datei mit Journal, gelesen wie von einem Connector vor dem Journal (Aufbau eingefroren).
     struct AlterExport: Decodable {

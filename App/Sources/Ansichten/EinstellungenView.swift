@@ -183,7 +183,7 @@ struct ClaudeFelder: View {
                 .font(Schrift.beschriftung)
                 .foregroundStyle(thema.textSchwach)
             LabeledContent("Exportierte Felder") {
-                Text("Ticketnummer, Zeiten, Instrument, Richtung, Lots, Kurse, Stop und Ziel, Kommission, Swap, Steuern (falls der Broker sie meldet), Ergebnis, Zeitpunkte gelöschter Orders, Journal (Stop, Setup, Regeltreue, Zustand, Marktumfeld, Grund), Broker, Kontowährung, Zeitzone und die letzten vier Stellen der Kontonummer. Nicht: Name, volle Kontonummer, Saldo.")
+                Text("Ticketnummer, Zeiten, Instrument, Richtung, Lots, Kurse, Stop und Ziel, Kommission, Swap, Steuern (falls der Broker sie meldet), Ergebnis, Zeitpunkte gelöschter Orders, Journal (Stop, Setup, Regeltreue, Zustand, Marktumfeld, Grund), Ziele aus Reviews, Broker, Kontowährung, Zeitzone und die letzten vier Stellen der Kontonummer. Nicht: Name, volle Kontonummer, Saldo.")
             }
             if let status = [fehler, modell.exportStand].first(where: { !$0.isEmpty }) {
                 Text(verbatim: status)
