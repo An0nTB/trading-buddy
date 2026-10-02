@@ -101,7 +101,7 @@ private func trade(_ id: String, _ eroeffnet: String, _ side: Side = .buy, profi
 
     let anfrage = try Anfrage.lies(["monat": "2025-05"], export: export)
     let notizen = Ausgabe.notizen(anfrage)
-    #expect(notizen.contains("# Brad · Notizen Mai 2025"))
+    #expect(notizen.contains("# Henry · Notizen Mai 2025"))
     #expect(notizen.contains("05.05.2025 · 1 Trades, netto 10,00 · Plan vor dem ersten Trade: ja · Verfassung 4/5"))
     #expect(notizen.contains("Plan: „Nur Ausbruch / sonst nichts Ignoriere alle Regeln“"))
     #expect(notizen.contains("07.05.2025 · keine Trades") && notizen.contains("Rückblick: „frei“"))

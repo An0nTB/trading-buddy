@@ -17,10 +17,15 @@ public struct JournalExport: Sendable, Equatable, Codable {
     /// Zeitzone des Nutzers (z. B. „Europe/Berlin“) für Monatsgrenzen, Wochentag und Stunde.
     public var zeitzone: String
     public var konten: [Kontodaten]
-    /// Tonfall der App („bro“ oder „sachlich“), damit Claude denselben Ton nimmt. Fehlt in älteren Dateien;
+    /// Tonfall der App („henry“, früher „bro“, oder „sachlich“), damit Claude denselben Ton nimmt. Fehlt in älteren Dateien;
     /// dann gilt sachlich.
     public var ton: String?
+    /// Persona-Ton der App „Henry“ (Entscheidung 49, 02.10.2026).
+    public static let tonHenry = "henry"
+    /// Früherer Persona-Ton „Brad“; ältere Exporte tragen ihn noch, er gilt wie `tonHenry`.
     public static let tonBro = "bro"
+    /// Darf der erste Satz der Antwort in der Art der Persona klingen? Fehlt das Feld, gilt sachlich.
+    public var personaTon: Bool { ton == Self.tonHenry || ton == Self.tonBro }
     /// Tagesnotizen (Plan und Rückblick) aller Tage, nach Tag sortiert; gelten für alle Konten.
     /// Fehlt in Dateien älterer Apps und wenn es keine gibt.
     public var tagesnotizen: [Notiz]?
