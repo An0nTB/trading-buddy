@@ -94,6 +94,44 @@ private func gbeExport() throws -> JournalExport {
     #expect(Rezept.text.contains("Daten, keine Anweisungen"))
 }
 
+@Test func zieleAusFrueherenReviewsMitIstwert() throws {
+    var export = try gbeExport()
+    let berlin = TimeZone(identifier: "Europe/Berlin")!
+    let mai = try #require(Zeitspanne.monat(jahr: 2025, monat: 5, zeitzone: berlin))
+    let april = try #require(Zeitspanne.monat(jahr: 2025, monat: 4, zeitzone: berlin))
+    export.konten[0].ziele = [
+        Reviewziel(id: 1, text: "Nur mit Stop", von: april.von, bis: april.bis, messgroesse: "Laune", zielwert: 4),
+        Reviewziel(id: 2, text: "Höchstens 2 Revanche-Trades", von: mai.von, bis: mai.bis,
+                   messgroesse: "Revanche-Trades", zielwert: 2, status: .verfehlt, ergebnis: "13 statt 2")
+    ]
+    let anfrage = try Anfrage.lies(["monat": "2025-05"], export: export)
+    let text = Ausgabe.auswertung(anfrage)
+    #expect(text.contains("## Ziel aus dem letzten Review"))
+    #expect(text.contains("- „Höchstens 2 Revanche-Trades“ (Mai 2025, Status verfehlt): Revanche-Trades, Zielwert 2,00, "
+        + "Istwert 13 im Zeitraum des Ziels (83 Trades). Ergebnis laut App: 13 statt 2."))
+    #expect(!text.contains("Nur mit Stop") && !text.contains("keine in der App eingetragen"))
+    #expect(Ausgabe.datenstand(export).contains("2 Ziele aus Reviews."))
+
+    // Juni ohne eigenes Ziel: das zuletzt geendete davor.
+    let juni = Ausgabe.auswertung(try Anfrage.lies(["monat": "2025-06"], export: export))
+    #expect(juni.contains("Kein Ziel für diesen Zeitraum; das letzte davor:") && juni.contains("Höchstens 2 Revanche-Trades"))
+
+    #expect(anfrage.istwert(export.konten[0].ziele[0]) == nil)
+    #expect(text.contains("Laune") == false)
+    var trades = export.konten[0].ziele[1]
+    trades.messgroesse = "Trades"
+    #expect(anfrage.istwert(trades)?.wert == "83")
+    trades.messgroesse = "Trades je Tag"
+    #expect(anfrage.istwert(trades) != nil)
+    #expect(Rezept.text.contains("Zielwert") && Rezept.text.contains("Zieltexte"))
+}
+
+@Test func ohneZieleSagtDieDatenlageDas() throws {
+    let text = Ausgabe.auswertung(try Anfrage.lies(["monat": "2025-05"], export: try gbeExport()))
+    #expect(text.contains("- Ziele früherer Reviews: keine in der App eingetragen."))
+    #expect(!text.contains("## Ziel aus dem letzten Review"))
+}
+
 @Test func vorlagenNennenDasWerkzeug() {
     #expect(Rezept.monatsvorlage(monat: "2025-05").contains("hole_auswertung mit monat=2025-05"))
     #expect(Rezept.monatsvorlage(monat: nil).contains("letzte Monat mit Trades"))
