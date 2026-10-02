@@ -157,3 +157,16 @@ let krakenDoku = #"{"error":[],"result":{"XXBTZUSD":[[1688671200,"30306.1","3030
     #expect(text.contains(#""hoch":"58123.45""#))
     try? FileManager.default.removeItem(at: datei.deletingLastPathComponent())
 }
+
+@Test func handelstagUndWaehrungFuerDenExport() {
+    let kraken = Tageskerze(zeit: tag0, eroeffnung: 1, hoch: 1, tief: 1, schluss: 1)
+    let alpaca = Tageskerze(zeit: zeit("2024-01-15T05:00:00Z"), eroeffnung: 1, hoch: 1, tief: 1, schluss: 1)
+    #expect(kraken.handelstag == "2023-11-15")
+    #expect(alpaca.handelstag == "2024-01-15")
+    func verlauf(_ quelle: String, _ symbol: String) -> Kursverlauf {
+        Kursverlauf(journalSymbol: symbol, quelle: quelle, quellSymbol: symbol, kerzen: [], geladen: tag0)
+    }
+    #expect(verlauf("kraken", "BTC/USDT").waehrung == "USDT")
+    #expect(verlauf("alpaca", "AAPL").waehrung == "USD")
+    #expect(verlauf("kraken", "BTCEUR").waehrung == nil)
+}
