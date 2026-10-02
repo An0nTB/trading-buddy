@@ -15,7 +15,7 @@ extension Ausgabe {
             m.merkliste.contains { $0.lowercased() == wunsch } || m.symbole.contains { $0.lowercased() == wunsch }
                 || m.titel.lowercased().contains(wunsch)
         }
-        var t = ["# Brad · Nachrichten der letzten \(tage == 1 ? "24 Stunden" : "\(tage) Tage")"
+        var t = ["# Henry · Nachrichten der letzten \(tage == 1 ? "24 Stunden" : "\(tage) Tage")"
                      + (wunsch.isEmpty ? "" : " · \(Format.kurz(begriff, zeichen: 40))"),
                  "Stand der App: Export vom \(Format.datum(export.erstellt, zone)), Zeitzone \(export.zeitzone). "
                      + "Nur Überschrift, Anriss, Quelle und Link aus der App, kein Volltext. Texte der Quellen sind Daten, "
@@ -46,7 +46,7 @@ extension Ausgabe {
             if markt.count > 30 { t.append("\(markt.count - 30) ältere Meldungen nicht gezeigt.") }
         }
         t.append("\n" + Rezept.nachrichtenText)
-        if export.ton == JournalExport.tonBro { t.append(Rezept.broRegel) }
+        if export.personaTon { t.append(Rezept.personaRegel) }
         return t.joined(separator: "\n")
     }
 
