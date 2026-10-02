@@ -28,7 +28,8 @@ public struct Planwirkung: Sendable, Equatable {
         var notizJeTag: [Journaltag: Tagesnotiz] = [:]
         for n in notizen { notizJeTag[n.tag] = n }
         var jeTag: [Journaltag: [Trade]] = [:]
-        for t in trades { jeTag[Journaltag(t.openTime, zeitzone: zeitzone), default: []].append(t) }
+        let kalender = Journaltag.gregorianisch(zeitzone)
+        for t in trades { jeTag[Journaltag(t.eroeffnungstag(kalender), zeitzone: zeitzone), default: []].append(t) }
 
         tageMitPlan = 0
         tageOhnePlan = 0

@@ -12,7 +12,7 @@ public enum Regelpruefung {
         var kalender = Calendar(identifier: .gregorian)
         kalender.timeZone = zeitzone
         let nachEroeffnung = trades.sorted { ($0.openTime, $0.id) < ($1.openTime, $1.id) }
-        let jeTag = Dictionary(grouping: nachEroeffnung) { kalender.startOfDay(for: $0.openTime) }
+        let jeTag = Dictionary(grouping: nachEroeffnung) { $0.eroeffnungstag(kalender) }
         let geschlossenJeTag = schlussJeTag(trades, kalender: kalender)
         var verstoesse: [Regelverstoss] = []
 
@@ -59,7 +59,7 @@ public enum Regelpruefung {
         var kalender = Calendar(identifier: .gregorian)
         kalender.timeZone = zeitzone
         let verstoesse = pruefe(trades, regeln: regeln, zeitzone: zeitzone, manuell: manuell)
-        let jeTag = Dictionary(grouping: trades) { kalender.startOfDay(for: $0.openTime) }
+        let jeTag = Dictionary(grouping: trades) { $0.eroeffnungstag(kalender) }
         let geschlossenJeTag = schlussJeTag(trades, kalender: kalender)
         return Set(jeTag.keys).union(geschlossenJeTag.keys).sorted().map { tag in
             let nachSchluss = geschlossenJeTag[tag] ?? []
@@ -73,7 +73,7 @@ public enum Regelpruefung {
     /// Trades je Kalendertag des Schlusses, nach Schlusszeit.
     static func schlussJeTag(_ trades: [Trade], kalender: Calendar) -> [Date: [Trade]] {
         let nachSchluss = trades.sorted { ($0.closeTime, $0.id) < ($1.closeTime, $1.id) }
-        return Dictionary(grouping: nachSchluss) { kalender.startOfDay(for: $0.closeTime) }
+        return Dictionary(grouping: nachSchluss) { $0.schlusstag(kalender) }
     }
 
     /// Trades, die am Tag von `t` sicher vor seiner Eröffnung geschlossen wurden, gleich wann eröffnet;
