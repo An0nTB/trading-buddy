@@ -3,12 +3,12 @@ import TradingStore
 
 /// Bereiche der App (Doc 10, Aufbau A): Seitenleiste am Mac und iPad, Tab-Leiste am iPhone.
 enum Bereich: String, Identifiable, Hashable {
-    case uebersicht, trades, kennzahlen, fehlermuster, kalender, tag, steuer, nachrichten, boersenuhr, positionsrechner, importieren, konten, einstellungen, mehr
+    case uebersicht, trades, kennzahlen, fehlermuster, kalender, tag, steuer, nachrichten, boersenuhr, positionsrechner, importieren, konten, einstellungen, mehr, ziele
 
     var id: String { rawValue }
 
     /// Seitenleiste, Abschnitt „Journal“.
-    static let journal: [Bereich] = [.uebersicht, .tag, .trades, .kennzahlen, .fehlermuster, .kalender, .steuer]
+    static let journal: [Bereich] = [.uebersicht, .tag, .trades, .kennzahlen, .fehlermuster, .ziele, .kalender, .steuer]
     /// Seitenleiste, Abschnitt „Markt“ (Börsenuhr nach Tims Wunsch vom 01.10.2026, Positionsrechner aus #47; nicht in Aufbau A gezeichnet).
     static let markt: [Bereich] = [.nachrichten, .boersenuhr, .positionsrechner]
     /// Seitenleiste, Abschnitt „Daten“.
@@ -16,7 +16,7 @@ enum Bereich: String, Identifiable, Hashable {
     /// Tab-Leiste am iPhone.
     static let tabs: [Bereich] = [.uebersicht, .trades, .kennzahlen, .kalender, .mehr]
     /// Einträge unter „Mehr“ am iPhone.
-    static let unterMehr: [Bereich] = [.tag, .fehlermuster, .steuer, .nachrichten, .boersenuhr, .positionsrechner, .importieren, .konten, .einstellungen]
+    static let unterMehr: [Bereich] = [.tag, .fehlermuster, .ziele, .steuer, .nachrichten, .boersenuhr, .positionsrechner, .importieren, .konten, .einstellungen]
 
     var titel: LocalizedStringKey {
         switch self {
@@ -24,6 +24,7 @@ enum Bereich: String, Identifiable, Hashable {
         case .trades: "Trades"
         case .kennzahlen: "Kennzahlen"
         case .fehlermuster: "Fehlermuster"
+        case .ziele: "Ziele"
         case .kalender: "Kalender"
         case .tag: "Tag"
         case .steuer: "Steuer"
@@ -43,6 +44,7 @@ enum Bereich: String, Identifiable, Hashable {
         case .trades: "list.bullet.rectangle"
         case .kennzahlen: "chart.bar.xaxis"
         case .fehlermuster: "exclamationmark.triangle"
+        case .ziele: "target"
         case .kalender: "calendar"
         case .tag: "sun.max"
         case .steuer: "percent"
@@ -139,6 +141,7 @@ struct Seitenleiste: View {
         #if os(macOS)
         .frame(minWidth: 900, minHeight: 600)
         #endif
+        .fragBradBlatt() // Frag Brad (Doc 31)
     }
 
     private var auswahl: Binding<Bereich?> {
@@ -223,6 +226,7 @@ struct BereichInhalt: View {
         case .trades: TradesView()
         case .kennzahlen: KennzahlenView()
         case .fehlermuster: FehlermusterView()
+        case .ziele: ZieleView()
         case .kalender: KalenderView()
         case .tag: TagView() // Paket P7 (#65); dauerhafte Ablage folgt mit TradingStore v8
         case .steuer: SteuerView()

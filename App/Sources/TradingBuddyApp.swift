@@ -13,7 +13,10 @@ struct TradingBuddyApp: App {
         }
         .defaultSize(width: 1200, height: 780)
         #if os(macOS)
-        .commands { FensterBefehle() } // P12 Eigene Fenster
+        .commands {
+            FensterBefehle() // P12 Eigene Fenster
+            FragBradBefehle() // Frag Brad (Doc 31)
+        }
         #endif
         BereichFensterSzene(modell: modell) // P12 Eigene Fenster
         #if os(macOS)
