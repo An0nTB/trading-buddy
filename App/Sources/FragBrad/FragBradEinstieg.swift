@@ -11,11 +11,11 @@ struct FragBradAnfrage: Identifiable {
     var tag: Date?
 }
 
-/// Gemeinsamer Zustand aller Einstiege (Menü, Rechtsklick auf einen Trade). Eigenes Objekt statt eines Felds im
-/// AppModell, damit „Frag Henry“ ohne Eingriff in fremde Dateien auskommt; das Hauptfenster zeigt das Blatt.
+/// Zustand der Einstiege eines Fensters (Menü, Rechtsklick, Knöpfe). Je Fenster ein eigenes Objekt, damit das Blatt
+/// nur im Fenster aufgeht, in dem gefragt wurde (Gesamt-Gegencheck F1); kein Feld im AppModell, damit „Frag Henry“
+/// ohne Eingriff in fremde Dateien auskommt.
 @Observable @MainActor
 final class FragBradZustand {
-    static let shared = FragBradZustand()
     var anfrage: FragBradAnfrage?
 
     func frage(_ vorlage: FragBradVorlage = .monat, trade: Trade? = nil, tag: Date? = nil) {
@@ -24,30 +24,42 @@ final class FragBradZustand {
 }
 
 extension View {
-    /// Einhängezeile im Hauptfenster (AP11): zeigt das Blatt „Frag Henry“, sobald ein Einstieg fragt.
+    /// Einhängezeile an der Wurzel jedes Fensters (Hauptfenster: AP11, eigene Fenster: Fenster-Thread): gibt den
+    /// Einstiegen darunter ihren Zustand, dem Menü über den Fokus, und zeigt dort das Blatt „Frag Henry“.
     func fragBradBlatt() -> some View {
         modifier(FragBradBlattZeigen())
     }
 }
 
 struct FragBradBlattZeigen: ViewModifier {
-    @State private var zustand = FragBradZustand.shared
+    @State private var zustand = FragBradZustand()
 
     func body(content: Content) -> some View {
-        content.sheet(item: $zustand.anfrage) { anfrage in
-            FragBradBlatt(anfrage: anfrage)
-        }
+        content
+            .environment(zustand)
+            .focusedSceneValue(\.fragBrad, zustand)
+            .sheet(item: $zustand.anfrage) { anfrage in
+                FragBradBlatt(anfrage: anfrage)
+            }
     }
 }
 
+extension FocusedValues {
+    /// Zustand des vordersten Fensters, für den Menübefehl.
+    @Entry var fragBrad: FragBradZustand?
+}
+
 /// Eintrag fürs Kontextmenü einer Trade-Zeile (AP11 hängt ihn in TradesView ein).
+/// Fehlt das Blatt im Fenster (Einhängezeile noch nicht gesetzt), ist der Eintrag abgeschaltet statt wirkungslos.
 struct FragBradMenuePunkt: View {
     let trade: Trade
+    @Environment(FragBradZustand.self) private var zustand: FragBradZustand?
 
     var body: some View {
         Button("Frag Henry zu diesem Trade …", systemImage: "bubble.left.and.text.bubble.right") {
-            FragBradZustand.shared.frage(trade: trade)
+            zustand?.frage(trade: trade)
         }
+        .disabled(zustand == nil)
     }
 }
 
@@ -55,6 +67,7 @@ struct FragBradMenuePunkt: View {
 struct FragBradKnopf: View {
     let vorlage: FragBradVorlage
     var tag: Date?
+    @Environment(FragBradZustand.self) private var zustand: FragBradZustand?
 
     init(_ vorlage: FragBradVorlage, tag: Date? = nil) {
         self.vorlage = vorlage
@@ -63,19 +76,24 @@ struct FragBradKnopf: View {
 
     var body: some View {
         Button("Frag Henry", systemImage: "bubble.left.and.text.bubble.right") {
-            FragBradZustand.shared.frage(vorlage, tag: tag)
+            zustand?.frage(vorlage, tag: tag)
         }
         .help("Frage zu dieser Seite in Claude Desktop vorbereiten")
+        .disabled(zustand == nil)
     }
 }
 
 #if os(macOS)
 /// App-Menü: „Frag Henry …“ mit Befehl-Umschalt-B, direkt unter „Über Henry“.
+/// Wirkt im vordersten Fenster; ohne Fenster mit Blatt abgeschaltet.
 struct FragBradBefehle: Commands {
+    @FocusedValue(\.fragBrad) private var zustand
+
     var body: some Commands {
         CommandGroup(after: .appInfo) {
-            Button("Frag Henry …") { FragBradZustand.shared.frage() }
+            Button("Frag Henry …") { zustand?.frage() }
                 .keyboardShortcut("b", modifiers: [.command, .shift])
+                .disabled(zustand == nil)
         }
     }
 }
