@@ -519,11 +519,13 @@ final class AppModell {
     /// Speichert einen Transaktionsexport von Trade Republic oder Scalable (CSV). Die Datei nennt kein
     /// Konto, deshalb wählt der Nutzer es im Blatt; Doppelte erkennt die Speicherung über Konto und
     /// Vorgangskennung, ein anderes Konto ergäbe also doppelte Vorgänge.
+    /// `produktartVorgabe` gilt nur für Zeilen, deren Art der Importer nicht kennt (Scalable; TradingStore #96).
     func importiereCSV(daten: Data, dateiname: String, kontonummer: String, kontoname: String,
-                       waehrung: String, zeitzone: TimeZone) throws -> ImportErgebnis {
+                       waehrung: String, zeitzone: TimeZone, produktartVorgabe: Produktart? = nil) throws -> ImportErgebnis {
         guard let journal else { throw CocoaError(.fileNoSuchFile) }
         let ergebnis = try journal.importiereCSV(datei: daten, dateiname: dateiname, kontonummer: kontonummer,
-                                                 kontoname: kontoname, kontowaehrung: waehrung, zeitzone: zeitzone)
+                                                 kontoname: kontoname, kontowaehrung: waehrung, zeitzone: zeitzone,
+                                                 produktartVorgabe: produktartVorgabe)
         nachImport(ergebnis)
         return ergebnis
     }
@@ -531,12 +533,31 @@ final class AppModell {
     /// Speichert eine XTB-Kontohistorie (Excel). Kontonummer und Währung stehen meist im Kopf der Datei;
     /// die App gibt sie nur mit, wenn sie dort fehlen (bei Widerspruch bricht die Speicherung ab).
     func importiereXTB(daten: Data, dateiname: String, kontonummer: String?, kontoname: String?,
-                       waehrung: String?, zeitzone: TimeZone) throws -> ImportErgebnis {
+                       waehrung: String?, zeitzone: TimeZone, produktartVorgabe: Produktart? = nil) throws -> ImportErgebnis {
         guard let journal else { throw CocoaError(.fileNoSuchFile) }
         let ergebnis = try journal.importiereXTB(datei: daten, dateiname: dateiname, kontonummer: kontonummer,
-                                                 kontoname: kontoname, kontowaehrung: waehrung, zeitzone: zeitzone)
+                                                 kontoname: kontoname, kontowaehrung: waehrung, zeitzone: zeitzone,
+                                                 produktartVorgabe: produktartVorgabe)
         nachImport(ergebnis)
         return ergebnis
+    }
+
+    // MARK: Produktart nachtragen (TradingStore #96)
+
+    /// Wertpapiere des gewählten Kontos ohne Produktart (Scalable, XTB), nach Name.
+    func produktartLuecken() -> [ProduktartLuecke] {
+        guard let journal, let konto else { return [] }
+        return (try? journal.symboleOhneProduktart(konto: konto)) ?? []
+    }
+
+    /// Setzt die Art für alle Zeilen des Kontos zu diesem Symbol, lädt neu und schreibt den Export.
+    @discardableResult
+    func setzeProduktart(symbol: String, _ art: Produktart) throws -> Int {
+        guard let journal, let konto else { throw Regelfehler.keinKonto }
+        let anzahl = try journal.setzeProduktart(konto: konto, symbol: symbol, art)
+        laden()
+        exportiere()
+        return anzahl
     }
 
     /// Lädt neu und wechselt zum Konto des Imports, damit die neuen Trades sofort zu sehen sind.
