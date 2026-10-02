@@ -1,6 +1,9 @@
 import SwiftUI
 import TradingCore
 import UniformTypeIdentifiers
+#if os(iOS)
+import PhotosUI
+#endif
 #if os(macOS)
 import AppKit
 #else
@@ -12,17 +15,42 @@ import UIKit
 struct TagBilderKarte: View {
     let tagModell: TagModell
     @Environment(\.thema) private var thema
-    @State private var waehlen = false
-    @State private var zielAktiv = false
-    @State private var gross: GrossesBild?
-
-    private static let typen: [UTType] = [.png, .jpeg, .heic]
 
     var body: some View {
         Karte("Screenshots") {
+            BilderRaster(bilder: tagModell.bilder,
+                         hinzufuegen: { tagModell.fuegeBilderHinzu($0) },
+                         entfernen: { tagModell.entferne($0) },
+                         meldeFehler: { tagModell.fehler = $0 })
+            Text("Die App legt eine Kopie im eigenen Bilderordner ab. Gespeichert wird nur der Verweis; die Bilder gehen nicht in den Export für Claude.")
+                .font(Schrift.beschriftung)
+                .foregroundStyle(thema.textSchwach)
+        }
+    }
+}
+
+/// Raster mit Vorschauen und Ablagefeld, gemeinsam für Tag, Trade und verpassten Trade: Bilder hineinziehen,
+/// über das Feld eine Datei wählen, am iPhone auch aus den Fotos. Klick öffnet die Großansicht.
+struct BilderRaster: View {
+    let bilder: [Bildverweis]
+    let hinzufuegen: ([Bildquelle]) -> Void
+    let entfernen: (Bildverweis) -> Void
+    let meldeFehler: (String) -> Void
+    @Environment(\.thema) private var thema
+    @State private var waehlen = false
+    @State private var zielAktiv = false
+    @State private var gross: GrossesBild?
+    #if os(iOS)
+    @State private var fotos: [PhotosPickerItem] = []
+    #endif
+
+    static let typen: [UTType] = [.png, .jpeg, .heic]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Abstand.raster * 2) {
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 112, maximum: 160), spacing: Abstand.raster * 2)],
                       alignment: .leading, spacing: Abstand.raster * 2) {
-                ForEach(tagModell.bilder, id: \.datei) { bild in
+                ForEach(bilder, id: \.datei) { bild in
                     Button {
                         gross = GrossesBild(bild: bild)
                     } label: {
@@ -33,24 +61,36 @@ struct TagBilderKarte: View {
                     .buttonStyle(.plain)
                     .contextMenu {
                         Button("Bild entfernen", systemImage: "trash", role: .destructive) {
-                            tagModell.entferne(bild)
+                            entfernen(bild)
                         }
                     }
                 }
                 ablageFeld
             }
-            Text("Die App legt eine Kopie im eigenen Bilderordner ab. Gespeichert wird nur der Verweis; die Bilder gehen nicht in den Export für Claude.")
-                .font(Schrift.beschriftung)
-                .foregroundStyle(thema.textSchwach)
+            #if os(iOS)
+            PhotosPicker(selection: $fotos, matching: .images) {
+                Label("Aus Fotos wählen", systemImage: "photo.on.rectangle")
+            }
+            .buttonStyle(.borderless)
+            #endif
         }
-        .fileImporter(isPresented: $waehlen, allowedContentTypes: Self.typen, allowsMultipleSelection: true) { ergebnis in
+        #if os(iOS)
+        .onChange(of: fotos) {
+            let auswahl = fotos
+            guard !auswahl.isEmpty else { return }
+            fotos = []
+            Task { await uebernimmFotos(auswahl) }
+        }
+        #endif
+        .fileImporter(isPresented: $waehlen, allowedContentTypes: Self.typen,
+                      allowsMultipleSelection: true) { ergebnis in
             switch ergebnis {
-            case .success(let urls): tagModell.fuegeBilderHinzu(urls)
-            case .failure(let fehler): tagModell.fehler = fehler.localizedDescription
+            case .success(let urls): hinzufuegen(urls.map(Bildquelle.datei))
+            case .failure(let fehler): meldeFehler(fehler.localizedDescription)
             }
         }
         .sheet(item: $gross) { auswahl in
-            BildBlatt(bild: auswahl.bild) { tagModell.entferne(auswahl.bild) }
+            BildBlatt(bild: auswahl.bild) { entfernen(auswahl.bild) }
         }
     }
 
@@ -77,10 +117,35 @@ struct TagBilderKarte: View {
         .dropDestination(for: URL.self) { urls, _ in
             let dateien = urls.filter(\.isFileURL)
             guard !dateien.isEmpty else { return false }
-            tagModell.fuegeBilderHinzu(dateien)
+            hinzufuegen(dateien.map(Bildquelle.datei))
             return true
         } isTargeted: { zielAktiv = $0 }
     }
+
+    #if os(iOS)
+    /// Lädt die gewählten Fotos als Daten; das Format kommt aus dem Foto (HEIC, JPEG oder PNG).
+    private func uebernimmFotos(_ auswahl: [PhotosPickerItem]) async {
+        var quellen: [Bildquelle] = []
+        var ersterFehler: String?
+        for foto in auswahl {
+            let typ = foto.supportedContentTypes.first { typ in Self.typen.contains { typ.conforms(to: $0) } }
+            guard let endung = typ?.preferredFilenameExtension else {
+                ersterFehler = ersterFehler
+                    ?? String(localized: "Ein Foto hat kein unterstütztes Format. Möglich sind PNG, JPEG und HEIC.")
+                continue
+            }
+            do {
+                if let daten = try await foto.loadTransferable(type: Data.self) {
+                    quellen.append(.daten(daten, endung: endung, name: String(localized: "Foto")))
+                }
+            } catch {
+                ersterFehler = ersterFehler ?? error.localizedDescription
+            }
+        }
+        if !quellen.isEmpty { hinzufuegen(quellen) }
+        if let ersterFehler { meldeFehler(ersterFehler) }
+    }
+    #endif
 }
 
 /// Gewähltes Bild für die Großansicht; der Pfad ist eindeutig.
