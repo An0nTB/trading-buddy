@@ -98,6 +98,23 @@ private func nurKonto(_ journal: Journal) throws -> Konto {
     }
 }
 
+@Test func ausfuehrungOhneKennungStehtUnterIhremNamen() throws {
+    // Befund S2: Scalable ohne ISIN speichert eine leere Kennung; die Lücke steht dann unter dem Namen.
+    let journal = try Journal.imSpeicher()
+    try journal.importiereCSV(datei: kern("R2/scalable_2026.csv"), dateiname: "scalable.csv", kontonummer: "Depot")
+    let konto = try nurKonto(journal)
+    let ziel = try #require(journal.kontobewegungen(konto: konto).ausfuehrungen.first { !$0.name.isEmpty })
+    try journal.schreibe { db in
+        try db.execute(sql: "UPDATE ausfuehrung SET kennung = '' WHERE vorgangId = ?", arguments: [ziel.id])
+        try db.execute(sql: "UPDATE ausfuehrung SET kennung = '', name = '' WHERE vorgangId != ?",
+                       arguments: [ziel.id])
+    }
+    let luecken = try journal.symboleOhneProduktart(konto: konto)
+    #expect(luecken == [ProduktartLuecke(symbol: ziel.name, name: ziel.name, anzahl: 1)])
+    #expect(try journal.setzeProduktart(konto: konto, symbol: ziel.name, .fonds) == 1)
+    #expect(try journal.symboleOhneProduktart(konto: konto).isEmpty)
+}
+
 @Test func produktartNachpflegeTrifftAuchOffenePositionen() throws {
     let journal = try Journal.imSpeicher()
     // 05-14 hat geschlossene, 05-25 offene Positionen (wie in ProduktartSpeicherTests).

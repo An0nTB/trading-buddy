@@ -4,7 +4,7 @@ import TradingCore
 
 /// Wertpapier eines Kontos, für das noch Zeilen ohne Produktart gespeichert sind.
 public struct ProduktartLuecke: Sendable, Equatable {
-    /// Schlüssel für `setzeProduktart`: ISIN oder Symbol aus der Datei.
+    /// Schlüssel für `setzeProduktart`: ISIN oder Symbol aus der Datei, ohne Kennung der Name.
     public var symbol: String
     /// Anzeigename aus der Datei (bei Ausführungen der Wertpapiername), sonst das Symbol.
     public var name: String
@@ -20,14 +20,18 @@ public struct ProduktartLuecke: Sendable, Equatable {
 
 // Nachpflege der Produktart je Symbol (ohne Migration): für Scalable, XTB und andere Dateien ohne Art.
 extension Journal {
-    /// Wertpapiere des Kontos mit Zeilen ohne Produktart, nach Name sortiert.
+    /// Wertpapiere des Kontos mit Zeilen ohne Produktart, nach Name sortiert. Ausführungen ohne Kennung
+    /// (Scalable ohne ISIN) stehen unter ihrem Namen; ohne Kennung und Name lassen sie sich nicht zuordnen
+    /// und fehlen.
     public func symboleOhneProduktart(konto: Konto) throws -> [ProduktartLuecke] {
         guard let kontoId = konto.id else { throw SpeicherFehler.ungueltigerWert("Konto ohne ID") }
         let unbekannt = Produktart.unbekannt.rawValue
         return try lies { db in
             let zeilen = try Row.fetchAll(db, sql: """
-                SELECT kennung AS symbol, MAX(name) AS name, COUNT(*) AS anzahl FROM ausfuehrung
-                    WHERE kontoId = ? AND produktart = ? GROUP BY kennung
+                SELECT CASE WHEN kennung = '' THEN name ELSE kennung END AS symbol, MAX(name) AS name,
+                    COUNT(*) AS anzahl FROM ausfuehrung
+                    WHERE kontoId = ? AND produktart = ? AND (kennung != '' OR name != '')
+                    GROUP BY CASE WHEN kennung = '' THEN name ELSE kennung END
                 UNION ALL
                 SELECT symbol, symbol, COUNT(*) FROM geschlossenePosition
                     WHERE kontoId = ? AND produktart = ? GROUP BY symbol
