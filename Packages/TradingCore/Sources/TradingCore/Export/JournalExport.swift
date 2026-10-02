@@ -3,7 +3,8 @@ import Foundation
 /// Datei für den Claude-Connector (AP12): Die App schreibt sie in den Export-Ordner,
 /// der Connector liest sie und rechnet mit demselben Rechenkern.
 /// Enthält je Konto die abgeschlossenen Trades, die Zeitpunkte gelöschter Orders und die
-/// eigenen Journalangaben je Trade und die Ziele früherer Reviews, keine Rohzeilen und keine Kontonamen.
+/// eigenen Journalangaben je Trade, die Ziele früherer Reviews und die eigenen Handelsregeln, dazu Tagesnotizen
+/// und verpasste Trades, auf Wunsch Überschriften der Nachrichten; keine Rohzeilen, keine Kontonamen und keine Bilder.
 public struct JournalExport: Sendable, Equatable, Codable {
     public static let dateiname = "trading-buddy-export.json"
     /// Erhöhen, wenn ein älterer Connector den neuen Aufbau falsch lesen würde.
@@ -20,6 +21,13 @@ public struct JournalExport: Sendable, Equatable, Codable {
     /// dann gilt sachlich.
     public var ton: String?
     public static let tonBro = "bro"
+    /// Tagesnotizen (Plan und Rückblick) aller Tage, nach Tag sortiert; gelten für alle Konten.
+    /// Fehlt in Dateien älterer Apps und wenn es keine gibt.
+    public var tagesnotizen: [Notiz]?
+    /// Verpasste Trades mit Grund, nach Zeit sortiert; gelten für alle Konten. Fehlt wie `tagesnotizen`.
+    public var verpassteTrades: [Verpasst]?
+    /// Nachrichten der letzten Tage, neueste zuerst; nur wenn die Nachrichten in der App eingeschaltet sind.
+    public var nachrichten: [Meldung]?
 
     public struct Kontodaten: Sendable, Equatable, Codable {
         public var broker: String
@@ -32,10 +40,12 @@ public struct JournalExport: Sendable, Equatable, Codable {
         public var journal: [String: Journalangaben]
         /// Ziele aus früheren Reviews, nach Beginn sortiert. Fehlt in Dateien älterer Apps.
         public var ziele: [Reviewziel]
+        /// Eigene Handelsregeln des Kontos; `nil`, wenn keine gesetzt ist oder die Datei älter ist.
+        public var regeln: Handelsregeln?
 
         public init(broker: String, kontonummer: String, waehrung: String, trades: [Trade],
                     geloeschteOrders: [Date] = [], journal: [String: Journalangaben] = [:],
-                    ziele: [Reviewziel] = []) {
+                    ziele: [Reviewziel] = [], regeln: Handelsregeln? = nil) {
             self.broker = broker
             self.kontonummer = kontonummer
             self.waehrung = waehrung
@@ -43,10 +53,11 @@ public struct JournalExport: Sendable, Equatable, Codable {
             self.geloeschteOrders = geloeschteOrders
             self.journal = journal.filter { !$0.value.istLeer }
             self.ziele = ziele
+            self.regeln = regeln.flatMap { $0.leer ? nil : $0 }
         }
 
         private enum CodingKeys: String, CodingKey {
-            case broker, kontonummer, waehrung, trades, geloeschteOrders, journal, ziele
+            case broker, kontonummer, waehrung, trades, geloeschteOrders, journal, ziele, regeln
         }
 
         public init(from decoder: any Decoder) throws {
@@ -57,7 +68,9 @@ public struct JournalExport: Sendable, Equatable, Codable {
                       trades: try c.decode([Trade].self, forKey: .trades),
                       geloeschteOrders: try c.decode([Date].self, forKey: .geloeschteOrders),
                       journal: try c.decodeIfPresent([String: Journalangaben].self, forKey: .journal) ?? [:],
-                      ziele: try c.decodeIfPresent([Reviewziel].self, forKey: .ziele) ?? [])
+                      ziele: try c.decodeIfPresent([Reviewziel].self, forKey: .ziele) ?? [],
+                      // Ändert sich der Aufbau der Regeln später, fehlen nur sie, nicht das ganze Konto.
+                      regeln: try? c.decodeIfPresent(Handelsregeln.self, forKey: .regeln))
         }
 
         public init(broker: String, kontonummer: String, waehrung: String,
@@ -88,13 +101,19 @@ public struct JournalExport: Sendable, Equatable, Codable {
         return "\(konto.broker) …\(konto.kontonummer.suffix(Self.endziffern(konto.kontonummer, neben: andere)))"
     }
 
-    public init(konten: [Kontodaten], zeitzone: TimeZone, erstellt: Date = .now, ton: String? = nil) {
+    public init(konten: [Kontodaten], zeitzone: TimeZone, erstellt: Date = .now, ton: String? = nil,
+                tagesnotizen: [Notiz] = [], verpassteTrades: [Verpasst] = [], nachrichten: [Meldung] = []) {
         format = Self.aktuellesFormat
         self.erstellt = erstellt
         rechenkern = TradingCore.version
         self.zeitzone = zeitzone.identifier
         self.konten = konten
         self.ton = ton
+        let notizen = tagesnotizen.filter { !$0.istLeer }.sorted { $0.tag < $1.tag }
+        self.tagesnotizen = notizen.isEmpty ? nil : notizen
+        self.verpassteTrades = verpassteTrades.isEmpty ? nil : verpassteTrades.sorted { ($0.zeit, $0.id) < ($1.zeit, $1.id) }
+        let meldungen = nachrichten.sorted { ($0.zeit, $1.link) > ($1.zeit, $0.link) }.prefix(Self.nachrichtenHoechstens)
+        self.nachrichten = meldungen.isEmpty ? nil : Array(meldungen)
     }
 
     /// Zeitzone des Nutzers; UTC, falls der Name unbekannt ist.

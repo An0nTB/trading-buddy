@@ -1,6 +1,7 @@
 #if os(macOS)
 import Foundation
 import TradingCore
+import TradingNews
 import TradingStore
 
 /// Ordner, in den die App Daten für den Claude-Connector schreibt.
@@ -30,7 +31,8 @@ enum ExportOrdner {
     }
 
     /// Exportdatei für den Connector aus allen Konten des Journals, mit dem Stop aus dem Journal
-    /// wie in der App (`Trade.mitJournal`), den übrigen Journalangaben und den Review-Zielen. Ohne Kontonamen und Rohzeilen;
+    /// wie in der App (`Trade.mitJournal`), den übrigen Journalangaben, den Review-Zielen, den Handelsregeln,
+    /// den Tagesnotizen und den verpassten Trades. Ohne Kontonamen und Rohzeilen;
     /// von der Kontonummer nur die letzten vier Stellen, damit Claude die Konten unterscheiden kann
     /// (mehr nur, wenn zwei Konten desselben Brokers auf dieselben vier Stellen enden).
     static func export(_ journal: Journal, zeitzone: TimeZone) throws -> JournalExport {
@@ -44,11 +46,40 @@ enum ExportOrdner {
                 trades: try Self.trades(journal, konto).map { $0.mitJournal(eintraege[$0.id]) },
                 geloeschteOrders: try journal.geloeschteOrders(konto: konto).map(\.cancelledAt),
                 journal: eintraege.mapValues(\.angaben),
-                ziele: try journal.ziele(konto: konto))
+                ziele: try journal.ziele(konto: konto),
+                regeln: try journal.handelsregeln(konto: konto))
         }
-        // Tonfall aus den Einstellungen (AP11, Schlüssel „brad.ton“); ohne Wahl gilt in der App „bro“.
-        let ton = UserDefaults.standard.string(forKey: "brad.ton") ?? JournalExport.tonBro
-        return JournalExport(konten: konten, zeitzone: zeitzone, ton: ton)
+        // Tonfall aus den Einstellungen (AP11, `Ton`); ohne Wahl gilt in der App „bro“.
+        let ton = Ton.aktuell.rawValue
+        // Tagesnotizen und verpasste Trades gelten für alle Konten; Bilder bleiben auf dem Mac.
+        let notizen = try journal.tagesnotizen(von: Journaltag(jahr: 1970, monat: 1, tag: 1)!,
+                                               bis: Journaltag(jahr: 2999, monat: 12, tag: 31)!)
+        let verpasst = try journal.verpassteTrades(von: .distantPast, bis: .distantFuture)
+        return JournalExport(konten: konten, zeitzone: zeitzone, ton: ton,
+                             tagesnotizen: notizen.map(JournalExport.Notiz.init),
+                             verpassteTrades: verpasst.map(JournalExport.Verpasst.init),
+                             nachrichten: nachrichten(journal))
+    }
+
+    /// Meldungen der letzten Tage aus dem Zwischenspeicher der Nachrichtenseite, mit den passenden Begriffen der
+    /// Merkliste (gleiche Zuordnung wie die Seite). Nur wenn die Nachrichten eingeschaltet sind; ohne Zwischenspeicher
+    /// keine Meldungen. Der Nachrichtendienst schreibt den Export nach jedem Abruf neu.
+    private static func nachrichten(_ journal: Journal, jetzt: Date = .now) -> [JournalExport.Meldung] {
+        guard UserDefaults.standard.bool(forKey: Nachrichtendienst.schluesselAktiv) else { return [] }
+        let seit = jetzt.addingTimeInterval(-Double(JournalExport.nachrichtenTage) * 86_400)
+        let meldungen = Zwischenspeicher(datei: Nachrichtendienst.zwischenspeicherDatei).lies(jetzt: jetzt)
+            .filter { $0.zeit >= seit }
+        let eintraege = ((try? journal.merkliste()) ?? []).filter { $0.status == .aktiv }
+        let gruppen = Zuordnung.gruppiert(meldungen, nach: eintraege.map(Nachrichtendienst.begriff))
+        var begriffe: [String: [String]] = [:]
+        for eintrag in eintraege {
+            let name = eintrag.anzeigename.isEmpty ? eintrag.begriff : eintrag.anzeigename
+            for m in gruppen[Nachrichtendienst.begriff(eintrag)] ?? [] { begriffe[m.id, default: []].append(name) }
+        }
+        return meldungen.map { m in
+            JournalExport.Meldung(titel: m.titel, anriss: m.anriss, quelle: m.quelle, link: m.link.absoluteString,
+                                  zeit: m.zeit, symbole: m.symbole, merkliste: begriffe[m.id] ?? [])
+        }
     }
 
     /// Abgeschlossene Trades eines Kontos wie in der App: Positionen aus MetaTrader und XTB,

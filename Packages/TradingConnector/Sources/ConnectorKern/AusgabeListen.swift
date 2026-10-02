@@ -22,7 +22,12 @@ extension Ausgabe {
                     + Format.datum(letzter, zone, mitZeit: false)
             }
             zeile += ", \(konto.geloeschteOrders.count) gelöschte Orders"
-            t.append(zeile + (konto.ziele.isEmpty ? "." : ", \(konto.ziele.count) Ziele aus Reviews."))
+            if !konto.ziele.isEmpty { zeile += ", \(konto.ziele.count) Ziele aus Reviews" }
+            t.append(zeile + (konto.regeln == nil ? "." : ", Handelsregeln eingetragen."))
+        }
+        let notizen = export.tagesnotizen?.count ?? 0, verpasst = export.verpassteTrades?.count ?? 0
+        if notizen + verpasst > 0 {
+            t.append("Für alle Konten: Tagesnotizen an \(notizen) Tagen, \(verpasst) verpasste Trades (hole_notizen).")
         }
         return t.joined(separator: "\n")
     }
