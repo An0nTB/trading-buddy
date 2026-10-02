@@ -229,10 +229,16 @@ final class Nachrichtendienst {
         let abruf = self.abruf ?? neuerAbruf(jetzt: jetzt)
         let ergebnis = await abruf.aktualisiere(begriffe: begriffe, jetzt: jetzt)
         let budget = await abruf.budget
-        fehler = ergebnis.fehler
+        Self.speichere(budget, in: speicher, schluessel: Self.schluesselBudget)
+        // Während des Abrufs ausgeschaltet oder Quelle gewechselt (`abruf = nil`): Ergebnis verwerfen,
+        // sonst landen Meldungen abgeschalteter Quellen in Liste, Zwischenspeicher und Export.
+        guard aktiv, self.abruf === abruf else { return }
+        // Der Fehler der Merkliste gehört nicht zum Abruf und bleibt stehen, bis die Merkliste wieder schreibt.
+        var neueFehler = ergebnis.fehler
+        neueFehler["Merkliste"] = fehler["Merkliste"]
+        fehler = neueFehler
         marketauxRest = ergebnis.marketauxRest
         letzterAbruf = jetzt
-        Self.speichere(budget, in: speicher, schluessel: Self.schluesselBudget)
         let ablage = zwischenspeicher
         let neue = ergebnis.meldungen
         do {
