@@ -344,6 +344,44 @@ enum Schema {
             }
         }
 
+        migrator.registerMigration("v8 Tagesnotiz, verpasste Trades, Bilder") { db in
+            // Notiz je Kalendertag (Doc 18 F4) für alle Konten gemeinsam, wie das Playbook: Plan und
+            // Rückblick gelten dem Handelstag, nicht einem Konto. Tag als Text „JJJJ-MM-TT“.
+            try db.create(table: "tagesnotiz") { t in
+                t.primaryKey("tag", .text)
+                t.column("plan", .text).notNull()
+                t.column("planErstellt", .datetime)
+                t.column("rueckblick", .text).notNull()
+                t.column("verfassung", .integer)
+                t.column("erstellt", .datetime).notNull()
+                t.column("geaendert", .datetime).notNull()
+            }
+            try db.create(table: "verpassterTrade") { t in
+                t.primaryKey("id", .text)
+                t.column("zeit", .datetime).notNull().indexed()
+                t.column("symbol", .text).notNull()
+                t.column("seite", .text).notNull()
+                t.column("setup", .text)
+                t.column("grund", .text).notNull()
+                t.column("notiz", .text).notNull()
+                t.column("ergebnisR", .text)
+            }
+            // Verweise auf Bilder im Bilderordner der App; die Bilddaten liegen nie in der Datenbank.
+            // Eine Datei gehört zu genau einem Bezug: Trade (Konto und Ticket), Tag oder verpasster Trade.
+            // Bilder zu Trades verschwinden mit dem Konto, Bilder zu verpassten Trades mit dem Eintrag.
+            try db.create(table: "bild") { t in
+                t.primaryKey("datei", .text)
+                t.column("art", .text).notNull()
+                t.belongsTo("konto", onDelete: .cascade)
+                t.column("ticket", .text)
+                t.column("tag", .text).indexed()
+                t.belongsTo("verpassterTrade", onDelete: .cascade)
+                t.column("beschriftung", .text).notNull()
+                t.column("erstellt", .datetime).notNull()
+            }
+            try db.create(index: "bild_trade", on: "bild", columns: ["kontoId", "ticket"])
+        }
+
         return migrator
     }
 }
