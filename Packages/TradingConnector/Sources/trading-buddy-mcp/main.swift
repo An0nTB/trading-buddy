@@ -17,6 +17,9 @@ enum Katalog {
     static let nurLesen = Tool.Annotations(readOnlyHint: true, openWorldHint: false)
 
     static let werkzeuge = [
+        Tool(name: "henry_status",
+             description: "Prüft die Verbindung zu Henry: Version der Erweiterung, Export-Ordner, Zeitpunkt des letzten Exports, Konten und Trades, mit Hinweis, was zu tun ist, wenn Daten fehlen oder veraltet sind. Aufrufen bei „Henry-Status“, „Verbindung prüfen“ oder wenn ein anderes Werkzeug keine Daten findet.",
+             inputSchema: schema([:]), annotations: nurLesen),
         Tool(name: "hole_datenstand",
              description: "Welche Konten und welcher Zeitraum in Henry vorliegen. Zuerst aufrufen, wenn unklar ist, welche Daten es gibt.",
              inputSchema: schema([:]), annotations: nurLesen),
@@ -62,6 +65,8 @@ enum Katalog {
     ]
 
     static let vorlagen = [
+        Prompt(name: "status", title: "Henry-Status",
+               description: "Prüfen, ob Claude Henrys Daten bekommt", arguments: []),
         Prompt(name: "monatsauswertung", title: "Monatsauswertung",
                description: "Monat nach Henrys Rezept auswerten",
                arguments: [.init(name: "monat", description: "JJJJ-MM, leer für den letzten Monat mit Trades")]),
@@ -101,6 +106,7 @@ enum Ausfuehrung {
 
     static func werkzeug(_ name: String, _ argumente: [String: String]) -> CallTool.Result {
         let geladen = Exportdatei.lade(ordner: exportOrdner)
+        if name == "henry_status" { return antwort(Verbindungsstatus.text(geladen, ordner: exportOrdner)) }
         guard case let .geladen(export) = geladen else {
             return antwort(Exportdatei.meldung(geladen) ?? "Keine Daten", fehler: true)
         }
@@ -144,6 +150,7 @@ enum Ausfuehrung {
         let inhalt = switch name {
         case "wochenauswertung": Rezept.wochenvorlage(datum: argumente?["datum"])
         case "nachrichten": Rezept.nachrichtenvorlage(tage: argumente?["tage"])
+        case "status": "Prüfe mit henry_status, ob du Henrys Daten bekommst, und sag mir das Ergebnis in ein bis zwei Sätzen."
         default: Rezept.monatsvorlage(monat: argumente?["monat"].flatMap { $0.isEmpty ? nil : $0 })
         }
         return .init(description: nil, messages: [.user(.text(text: inhalt))])
@@ -156,7 +163,7 @@ enum Ausfuehrung {
 
 let server = Server(
     name: "trading-buddy",
-    version: "0.14.0",
+    version: Verbindungsstatus.connectorVersion,
     capabilities: .init(prompts: .init(listChanged: false), tools: .init(listChanged: false))
 )
 

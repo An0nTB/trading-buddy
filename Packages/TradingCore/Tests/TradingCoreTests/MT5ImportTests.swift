@@ -4,7 +4,7 @@ import Testing
 
 /// Synthetischer MetaTrader-5-Bericht nach dem Aufbau aus der MT5-Hilfe, kein echtes Konto.
 /// Sollwerte von Hand (02.10.2026). Server in UTC+3 (übliche Sommerzeit der MT-Server).
-private let mt5HTML = """
+let mt5HTML = """
 <html><head><title>12345678: Muster - Trade History Report</title></head><body>
 <table>
 <tr align="center"><th colspan="13"><div><b>Trade History Report</b></div></th></tr>
