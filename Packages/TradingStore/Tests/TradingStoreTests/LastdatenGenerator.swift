@@ -145,7 +145,8 @@ struct Lastdaten {
                   50_000, 0)
         }
         let kopf = "date;time;status;reference;description;assetType;type;isin;shares;price;amount;fee;tax;currency"
-        return ([kopf] + zeilen.sorted { $0.sortierung < $1.sortierung }.map { $0.zeile }).joined(separator: "\n"), geld)
+        let sortiert = zeilen.sorted { $0.sortierung < $1.sortierung }.map { $0.zeile }
+        return (([kopf] + sortiert).joined(separator: "\n"), geld)
     }
 
     // MARK: Interactive Brokers (Basis EUR, Aktien in USD und EUR)
