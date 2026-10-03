@@ -2,6 +2,9 @@ name: Release-Build
 
 # Baut Henry für Testerinnen und Tester (Doc 51): App als DMG und ZIP, Connector als .mcpb.
 # Start von Hand: Actions › Release-Build › Run workflow, oder `gh workflow run release.yml`.
+# Ein Tag `v<Version>` (etwa `git tag v0.9.0 && git push origin v0.9.0`) baut dieselbe Version und legt einen
+# Entwurf unter Releases an; veröffentlichen tut Tim von Hand. Erst danach sieht Henry die Version (Update-Hinweis,
+# App/Sources/Aktualisierung/), weil die GitHub-API Entwürfe nicht als neueste Version ausliefert.
 # Im Pull Request läuft er nur, wenn sich dieser Workflow oder scripts/app_verpacken.sh ändern;
 # er ist kein Pflicht-Check.
 #
@@ -20,6 +23,8 @@ on:
         description: "Versionsnummer der App (leer: aus project.yml)"
         required: false
         default: ""
+  push:
+    tags: ["v*"]
   pull_request:
     paths:
       - .github/workflows/release.yml
@@ -37,6 +42,8 @@ jobs:
     name: Release-Build (macOS)
     runs-on: xcode-27
     timeout-minutes: 55
+    outputs:
+      signierung: ${{ steps.signatur.outputs.art }}
     env:
       P12: ${{ secrets.MACOS_DEVID_P12_BASE64 }}
       P12_PASSWORT: ${{ secrets.MACOS_DEVID_P12_PASSWORT }}
@@ -85,9 +92,22 @@ jobs:
             echo "art=Developer ID, nicht notarisiert" >> "$GITHUB_OUTPUT"
           fi
 
+      # Bei einem Tag kommt die Version aus dem Tag, sonst aus dem Feld „version“ oder aus project.yml.
+      - name: Version bestimmen
+        env:
+          EINGABE: ${{ inputs.version }}
+        run: |
+          VERSION="$EINGABE"
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then VERSION="${GITHUB_REF_NAME#v}"; fi
+          if [ -n "$VERSION" ] && ! [[ "$VERSION" =~ ^[0-9]+(\.[0-9]+){1,2}$ ]]; then
+            echo "::error::Version „${VERSION}“ ist keine Nummer wie 0.9.0; Henry vergleicht nur Zahlen."
+            exit 1
+          fi
+          echo "HENRY_VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "Version: ${VERSION:-aus project.yml}"
+
       - name: App und Connector verpacken
         env:
-          HENRY_VERSION: ${{ inputs.version }}
           HENRY_BUILDNUMMER: ${{ github.run_number }}
         run: scripts/app_verpacken.sh
 
@@ -136,3 +156,35 @@ jobs:
       - name: Schlüsselbund löschen
         if: always() && steps.signatur.outputs.keychain != ''
         run: security delete-keychain "${{ steps.signatur.outputs.keychain }}"
+
+  # Nur bei einem Tag `v*`: Entwurf unter Releases mit denselben Dateien. Läuft auf Linux, braucht als einziger
+  # Job Schreibrecht.
+  entwurf:
+    name: Release-Entwurf
+    needs: verpacken
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: henry-verteilung-${{ github.run_number }}
+          path: verteilung
+      - name: Entwurf anlegen
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          {
+            echo "Henry $VERSION für Testerinnen und Tester."
+            echo ""
+            echo "- Henry-$VERSION.dmg: die App zum Hineinziehen in Programme"
+            echo "- Henry-$VERSION.zip: dieselbe App als ZIP"
+            echo "- Henry-Connector-*.mcpb: die Erweiterung für Claude Desktop"
+            echo "- SHA256SUMS.txt: Prüfsummen"
+            echo ""
+            echo "Signierung: ${{ needs.verpacken.outputs.signierung }}"
+          } > notizen.md
+          gh release create "$GITHUB_REF_NAME" verteilung/* --repo "$GITHUB_REPOSITORY" --draft --verify-tag --title "Henry $VERSION" --notes-file notizen.md
+          echo "Entwurf angelegt: Releases › Henry $VERSION. Veröffentlichen von Hand."
