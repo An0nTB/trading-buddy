@@ -219,6 +219,12 @@ struct ImportBlatt: View {
                         if let lesefehler {
                             Label(lesefehler, systemImage: "exclamationmark.triangle")
                                 .foregroundStyle(thema.verlust)
+                            if ProbeKarte.moeglich(vorschau.daten) {
+                                Text("Eine anonymisierte Probe hilft, den Importer für diese Datei zu erweitern.")
+                                    .font(Schrift.beschriftung)
+                                    .foregroundStyle(thema.textSchwach)
+                                ProbeKarte(daten: vorschau.daten)
+                            }
                         }
                     }
                 }
