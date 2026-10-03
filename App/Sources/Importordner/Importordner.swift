@@ -21,6 +21,10 @@ final class Importordner {
     static let schluesselErledigt = "importOrdnerErledigt2"
     /// Mitteilung nach stillem Import (Paket A4); Standard an, in den Einstellungen abschaltbar.
     static let schluesselMitteilung = "importOrdnerMitteilung"
+    /// Die Zeilen „Zuletzt“, damit sie einen Neustart überstehen (Gegencheck H20).
+    static let schluesselZuletzt = "importOrdnerZuletzt"
+    /// Wartende Dateien, zu denen schon eine Mitteilung ging (J21); je Signatur nur einmal.
+    static let schluesselGemeldet = "importOrdnerGemeldet"
     /// Größere Dateien sind kein Kontoauszug; die App liest sie nicht ein.
     nonisolated static let hoechstgroesse = 50 * 1024 * 1024
     /// So lange nach der letzten Änderung wartet die App, damit eine Datei fertig geschrieben ist.
@@ -35,9 +39,9 @@ final class Importordner {
         let grund: String
     }
 
-    /// Ein stiller Import in dieser Sitzung, für die Zeile „Zuletzt“ auf der Import-Seite.
-    struct Meldung: Identifiable, Equatable {
-        let id = UUID()
+    /// Ein stiller Import, für die Zeile „Zuletzt“ auf der Import-Seite.
+    struct Meldung: Identifiable, Equatable, Codable {
+        var id = UUID()
         let dateiname: String
         let text: String
         let zeit: Date
@@ -70,6 +74,9 @@ final class Importordner {
         aktiv = speicher.bool(forKey: Self.schluesselAktiv)
         mitteilung = speicher.object(forKey: Self.schluesselMitteilung) as? Bool ?? true
         speicher.removeObject(forKey: "importOrdnerErledigt")
+        if let daten = speicher.data(forKey: Self.schluesselZuletzt) {
+            zuletzt = (try? JSONDecoder().decode([Meldung].self, from: daten)) ?? []
+        }
     }
 
     /// Beim Start der App (AppModell, nur mit Nebenwirkungen): beobachtet, falls eingeschaltet.
@@ -315,7 +322,12 @@ final class Importordner {
             // Das Journal hat sich geändert: Rückfragen beim nächsten Lauf neu bewerten.
             rueckfragenStand = []
         }
-        if mitteilen, mitteilung, let inhalt = Self.mitteilungstext(gespeichert, offen: offen.count) {
+        // Neu wartende Dateien (J21): Die erste Datei eines neuen Kontos soll nicht nur auf der Import-Seite stehen.
+        let gemeldet = Set(speicher.stringArray(forKey: Self.schluesselGemeldet) ?? [])
+        let neuWartend = offen.filter { !gemeldet.contains($0.id) }.count
+        speicher.set(offen.map(\.id), forKey: Self.schluesselGemeldet)
+        if mitteilen, mitteilung,
+           let inhalt = Self.mitteilungstext(gespeichert, offen: offen.count, neuWartend: neuWartend) {
             Self.teileMit(titel: inhalt.titel, text: inhalt.text)
         }
         if unfertig { pruefeSpaeter() }
@@ -425,10 +437,14 @@ final class Importordner {
 
     // MARK: Mitteilung
 
-    /// Titel und Text der Mitteilung nach einem Lauf; `nil`, wenn nichts still gespeichert wurde.
-    /// Wartende Dateien nennt der Text nur mit, eine eigene Mitteilung bekommen sie nicht.
-    static func mitteilungstext(_ gespeichert: [Meldung], offen: Int) -> (titel: String, text: String)? {
-        guard let erste = gespeichert.first, let letzte = gespeichert.last else { return nil }
+    /// Titel und Text der Mitteilung nach einem Lauf; `nil`, wenn nichts still gespeichert wurde und keine Datei
+    /// neu wartet. Wartende Dateien nennt der Text mit; ohne Import gibt es eine Mitteilung nur für neu wartende.
+    static func mitteilungstext(_ gespeichert: [Meldung], offen: Int,
+                                neuWartend: Int = 0) -> (titel: String, text: String)? {
+        guard let erste = gespeichert.first, let letzte = gespeichert.last else {
+            guard neuWartend > 0 else { return nil }
+            return (String(localized: "Import-Ordner"), String(localized: "\(offen) Dateien warten auf dich"))
+        }
         var text = gespeichert.count == 1
             ? "\(erste.dateiname): \(erste.text)"
             : String(localized: "\(gespeichert.count) Dateien importiert, zuletzt \(letzte.dateiname)")
@@ -454,6 +470,7 @@ final class Importordner {
     private func melde(_ dateiname: String, _ text: String, jetzt: Date) {
         zuletzt.insert(Meldung(dateiname: dateiname, text: text, zeit: jetzt), at: 0)
         zuletzt = Array(zuletzt.prefix(5))
+        if let daten = try? JSONEncoder().encode(zuletzt) { speicher.set(daten, forKey: Self.schluesselZuletzt) }
     }
 
     // MARK: Erledigte Dateien
