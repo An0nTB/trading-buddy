@@ -108,6 +108,7 @@ enum Importordnerregel {
         case .binance: return try BinanceCSV.lies(text)
         case .coinbase: return try CoinbaseCSV.lies(text)
         case .bitpanda: return try BitpandaCSV.lies(text)
+        case .ibkr: return try IBKRCSV.lies(text, zeitzone: broker.zeitzone)
         }
     }
 
