@@ -2,11 +2,13 @@ import SwiftUI
 
 /// Design-Token: Farben nach Bedeutung, nie als Hex-Wert in den Ansichten (Doc 10, Abschnitt 3).
 /// Die Hex-Werte in dieser Datei sind die einzige Stelle im App-Code;
-/// `scripts/token_pruefen.py` vergleicht sie mit `Design/tokens.json`.
+/// `scripts/token_pruefen.py` vergleicht sie mit `Design/tokens.json`, `scripts/kontrast_pruefen.py` rechnet den Kontrast.
 struct Thema: Equatable {
     var akzent: Color
     var gewinn: Color
     var verlust: Color
+    /// Warnstufe (Ampel „gelb“, Hinweise): Bernstein, in allen Farbwelten gleich (Doc 55 J6).
+    var warnung: Color
     /// Schrift auf Akzentflächen (Knöpfe).
     var textAufAkzent: Color
     var grund: Color
@@ -31,7 +33,7 @@ struct Thema: Equatable {
     }
 }
 
-/// Die vier Farbwelten aus AP10, je in Hell und Dunkel. Kontrast geprüft mit `kontrast.py` (Doc 10).
+/// Die vier Farbwelten aus AP10, je in Hell und Dunkel. Kontrast geprüft mit `scripts/kontrast_pruefen.py` (Doc 10, Doc 55).
 enum Farbwelt: String, CaseIterable, Identifiable {
     case nordlicht, graphit, lavendel, terminal
 
@@ -49,12 +51,12 @@ enum Farbwelt: String, CaseIterable, Identifiable {
     /// `getoent`: Grund, Flächen und Linien in der Farbwelt getönt statt neutral (Schalter „Flächen tönen“).
     func thema(_ modus: ColorScheme, getoent: Bool = false) -> Thema {
         let dunkel = modus == .dark
-        // Akzent, Gewinn, Verlust je Farbwelt: (dunkel, hell), Werte aus Design/tokens.json
+        // Akzent, Gewinn, Verlust, Warnung je Farbwelt: (dunkel, hell), Werte aus Design/tokens.json
         let farben: [(UInt32, UInt32)] = switch self {
-        case .nordlicht: [(0x6fa8ff, 0x2560c4), (0x3dbf9a, 0x127255), (0xff7a59, 0xb83d16)]
-        case .graphit: [(0xe0a458, 0x8f5a0e), (0x5cc48a, 0x176f3d), (0xf07070, 0xb03434)]
-        case .lavendel: [(0xb39dff, 0x6c4fd1), (0x4fc3a1, 0x127257), (0xff8a80, 0xc62828)]
-        case .terminal: [(0x4dd0e1, 0x0b6b78), (0x4cd964, 0x1a7a2e), (0xff5a5a, 0xc62828)]
+        case .nordlicht: [(0x6fa8ff, 0x2560c4), (0x3dbf9a, 0x127255), (0xff7a59, 0xb83d16), (0xf0a030, 0x8a5300)]
+        case .graphit: [(0xe0a458, 0x8f5a0e), (0x5cc48a, 0x176f3d), (0xf07070, 0xb03434), (0xf0a030, 0x8a5300)]
+        case .lavendel: [(0xb39dff, 0x6c4fd1), (0x4fc3a1, 0x127257), (0xff8a80, 0xc62828), (0xf0a030, 0x8a5300)]
+        case .terminal: [(0x4dd0e1, 0x0b6b78), (0x4cd964, 0x16702a), (0xff5a5a, 0xc62828), (0xf0a030, 0x8a5300)]
         }
         func waehle(_ paar: (UInt32, UInt32)) -> Color { Color(hex: dunkel ? paar.0 : paar.1) }
         // Textfarben sind in allen Farbwelten gleich; Flächen neutral oder getönt (Flaechen).
@@ -63,6 +65,7 @@ enum Farbwelt: String, CaseIterable, Identifiable {
             akzent: waehle(farben[0]),
             gewinn: waehle(farben[1]),
             verlust: waehle(farben[2]),
+            warnung: waehle(farben[3]),
             textAufAkzent: waehle((0x121316, 0xffffff)),
             grund: waehle(flaechen.grund),
             flaeche: waehle(flaechen.flaeche),
@@ -78,8 +81,8 @@ enum Farbwelt: String, CaseIterable, Identifiable {
 /// Flächenfarben als (dunkel, hell): neutral für alle Welten (kein reines Schwarz, kein reines Weiß als Grund)
 /// oder je Farbwelt getönt (Entscheidung Tim 01.10.2026, Variante C „etwas stärker“).
 /// Tönung Hell: Akzent zu 12 / 4 / 14 / 26 % in Weiß. Dunkel: Akzent × 0,3 zu 30 / 30 / 30 / 34 % in die Neutralfläche.
-/// Kontrast gerechnet (WCAG): Text, schwacher Text und Akzent auf allen Flächen ≥ 4,5:1; Gewinn und Verlust ≥ 4,5:1
-/// auf Grund und Fläche, auf Fläche 2 (nur Chips, Kapseln, Knöpfe) mindestens 4,4:1.
+/// Kontrast gerechnet (WCAG, scripts/kontrast_pruefen.py): Text, schwacher Text, Akzent, Gewinn, Verlust und Warnung
+/// auf allen Flächen und auf Kapselgrund (Farbe 18 % über Fläche) ≥ 4,5:1, neutral und getönt (Doc 55 J22/J23).
 struct Flaechen {
     var grund: (UInt32, UInt32)
     var flaeche: (UInt32, UInt32)
