@@ -362,6 +362,16 @@
         }
       }
     },
+    "Die Datei liegt nicht mehr im Ordner oder lässt sich nicht öffnen. Lege sie erneut hinein oder wähle „Ignorieren“." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The file is no longer in the folder or cannot be opened. Put it in again or choose “Ignore”."
+          }
+        }
+      }
+    },
     "Die Datei nennt keine Kontonummer. Gib dieselbe Nummer wie bei früheren Berichten dieses Kontos an, sonst zählt die App Positionen doppelt." : {
       "localizations" : {
         "en" : {
@@ -668,6 +678,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "IBKR statement without account number: please enter it in the sheet."
+          }
+        }
+      }
+    },
+    "Import-Ordner" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import folder"
           }
         }
       }
