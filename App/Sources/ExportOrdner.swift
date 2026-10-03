@@ -38,9 +38,11 @@ enum ExportOrdner {
     /// fremder Währung und den Ausstiegsanalysen aus `ausstieg` (Konto nach `ausstiegskonto` → Trade-ID → Analyse,
     /// damit gleiche Tickets in zwei Konten nicht dieselbe Analyse bekommen). Ohne Kontonamen und Rohzeilen;
     /// von der Kontonummer nur die letzten vier Stellen, damit Claude die Konten unterscheiden kann
-    /// (mehr nur, wenn zwei Konten desselben Brokers auf dieselben vier Stellen enden).
+    /// (mehr nur, wenn zwei Konten desselben Brokers auf dieselben vier Stellen enden). `anzeigewaehrung` ist die
+    /// Anzeigewährung der Einstellungen, damit Claude die Summen der App nennen kann (Vierter Gegencheck H21).
     static func export(_ journal: Journal, zeitzone: TimeZone,
-                       ausstieg: [String: [String: Ausstiegsanalyse]] = [:]) throws -> JournalExport {
+                       ausstieg: [String: [String: Ausstiegsanalyse]] = [:],
+                       anzeigewaehrung: String? = nil) throws -> JournalExport {
         let alle = try journal.konten()
         let konten = try alle.map { konto in
             let eintraege = try journal.journaleintraege(konto: konto)
@@ -68,14 +70,17 @@ enum ExportOrdner {
                              tagesnotizen: notizen.map(JournalExport.Notiz.init),
                              verpassteTrades: verpasst.map(JournalExport.Verpasst.init),
                              nachrichten: nachrichten(journal), kursverlauf: kursverlauf(),
-                             referenzkurse: referenzkurse(konten))
+                             referenzkurse: referenzkurse(konten, anzeigewaehrung: anzeigewaehrung),
+                             anzeigewaehrung: anzeigewaehrung)
     }
 
     /// EZB-Referenzkurse aus dem Zwischenspeicher von TradingRates, nur für die Tage und Währungen der Trades in
     /// fremder Währung; der Connector rechnet damit wie die App in die Kontowährung um. Ohne Speicher keine Kurse.
-    private static func referenzkurse(_ konten: [JournalExport.Kontodaten]) -> [JournalExport.Tageskurse] {
+    private static func referenzkurse(_ konten: [JournalExport.Kontodaten],
+                                      anzeigewaehrung: String?) -> [JournalExport.Tageskurse] {
         guard let inhalt = Kursspeicher(datei: Kursspeicher.standardDatei()).lies() else { return [] }
-        return JournalExport.referenzkursauszug(Referenzkurse(kurse: inhalt.kurse), fuer: konten)
+        return JournalExport.referenzkursauszug(Referenzkurse(kurse: inhalt.kurse), fuer: konten,
+                                                anzeigewaehrung: anzeigewaehrung)
     }
 
     /// Tageskerzen aus dem Zwischenspeicher der Kurse (TradingQuotes, A1) unter dem Journal-Symbol, für
@@ -140,7 +145,8 @@ enum ExportOrdner {
         }
         defer { ordner.stopAccessingSecurityScopedResource() }
         do {
-            let daten = try export(journal, zeitzone: zeitzone, ausstieg: ausstieg)
+            let anzeige = UserDefaults.standard.string(forKey: AppModell.anzeigewaehrungSchluessel)
+            let daten = try export(journal, zeitzone: zeitzone, ausstieg: ausstieg, anzeigewaehrung: anzeige)
             try daten.json().write(to: ordner.appending(path: JournalExport.dateiname), options: .atomic)
             let jeKonto = Dictionary(daten.konten.map { (ausstiegskonto($0.broker, $0.kontonummer), $0.trades) },
                                      uniquingKeysWith: { erste, _ in erste })
