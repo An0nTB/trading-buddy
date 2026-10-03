@@ -174,10 +174,30 @@ Dividends,Data,USD,2025-05-15,AAPL(US0378331005) Cash Dividend USD 0.25 per Shar
         #expect(beobachtung.zuletzt.first?.dateiname == "kraken-b.csv")
         #expect(m.konten.count == 2)
 
+        // H20: Schon gespeicherte Dateien (scalable.csv, kraken-a.csv von Hand) stehen unter „Zuletzt“,
+        // statt wortlos zu verschwinden.
+        #expect(beobachtung.zuletzt.map(\.dateiname) == ["kraken-b.csv", "kraken-a.csv", "scalable.csv"])
+
         // Zweiter Lauf ändert nichts.
         await beobachtung.pruefe(jetzt: spaeter)
         #expect(m.importe.count == 3)
-        #expect(beobachtung.zuletzt.count == 1)
+        #expect(beobachtung.zuletzt.count == 3)
+    }
+
+    /// H19: Wer einen Ordner wählt, schaltet die Beobachtung ein; sonst passiert mit hineingelegten Dateien nichts.
+    @Test func ordnerWaehlenSchaltetBeobachtungEin() throws {
+        let ordner = FileManager.default.temporaryDirectory.appending(path: "importordner-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: ordner, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ordner) }
+        let speicher = try #require(UserDefaults(suiteName: "importordner-\(UUID().uuidString)"))
+        speicher.set(false, forKey: "importOrdnerMitteilung")
+        let beobachtung = Importordner(speicher: speicher)
+        #expect(!beobachtung.aktiv)
+        try beobachtung.waehle(ordner)
+        defer { beobachtung.setzeAktiv(false) }
+        #expect(beobachtung.aktiv)
+        #expect(speicher.bool(forKey: "importOrdnerAktiv"))
+        #expect(Importordner(speicher: speicher).aktiv)
     }
 
     /// A4: Mitteilung nur nach stillem Speichern; wartende Dateien stehen im Text, lösen allein aber keine aus.
