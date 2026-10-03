@@ -12,14 +12,22 @@ enum BerichtPDF {
     }
 
     static func daten(_ bericht: Zeitraumbericht, kontext: BerichtKontext, thema: Thema) -> Data? {
+        let seiten = BerichtSeite.allCases.map { seite in
+            AnyView(BerichtSeitenansicht(seite: seite, bericht: bericht, kontext: kontext))
+        }
+        return daten(seiten: seiten, titel: kontext.titel, thema: thema)
+    }
+
+    /// Zeichnet fertige A4-Seiten nacheinander in ein PDF.
+    static func daten(seiten: [AnyView], titel: String, thema: Thema) -> Data? {
         let daten = NSMutableData()
         guard let verbraucher = CGDataConsumer(data: daten as CFMutableData) else { return nil }
         var rahmen = CGRect(origin: .zero, size: BerichtMass.seite)
-        let info = [kCGPDFContextTitle as String: kontext.titel,
+        let info = [kCGPDFContextTitle as String: titel,
                     kCGPDFContextCreator as String: "Henry"]
         guard let pdf = CGContext(consumer: verbraucher, mediaBox: &rahmen, info as CFDictionary) else { return nil }
-        for seite in BerichtSeite.allCases {
-            let ansicht = BerichtSeitenansicht(seite: seite, bericht: bericht, kontext: kontext)
+        for seite in seiten {
+            let ansicht = seite
                 .environment(\.thema, thema)
                 .environment(\.colorScheme, .light)
             let renderer = ImageRenderer(content: ansicht)
@@ -35,11 +43,10 @@ enum BerichtPDF {
     }
 
     /// Schreibt das PDF in den temporären Ordner, für Teilen-Blatt und Vorschau.
-    static func temporaereDatei(_ bericht: Zeitraumbericht, kontext: BerichtKontext, thema: Thema) throws -> URL {
-        guard let daten = daten(bericht, kontext: kontext, thema: thema) else { throw BerichtFehler.pdf }
+    static func temporaereDatei(_ daten: Data, dateiname: String) throws -> URL {
         let ordner = FileManager.default.temporaryDirectory.appendingPathComponent("Bericht", isDirectory: true)
         try FileManager.default.createDirectory(at: ordner, withIntermediateDirectories: true)
-        let datei = ordner.appendingPathComponent(kontext.dateiname)
+        let datei = ordner.appendingPathComponent(dateiname)
         try daten.write(to: datei, options: .atomic)
         return datei
     }

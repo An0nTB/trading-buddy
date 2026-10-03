@@ -172,6 +172,36 @@
         }
       }
     },
+    "1. Januar bis 31. Dezember %@, Beträge in Euro, Verkaufsjahr nach deutscher Zeit. Ergebnis je Trade = Kursergebnis + Kommission + Swap." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 January to 31 December %@, amounts in euros, year of sale in German time. Result per trade = price result + commission + swap."
+          }
+        }
+      }
+    },
+    "%lld, davon %lld steuerfrei" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld, of which %2$lld tax-free"
+          }
+        }
+      }
+    },
+    "Ab dem genannten Tag wäre ein Verkauf nach der Haltefrist steuerfrei." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "From the date shown, a sale would be tax-free after the holding period."
+          }
+        }
+      }
+    },
     "Activity Statement (CSV)" : {
       "localizations" : {
         "en" : {
@@ -188,6 +218,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld trades without candles from the source (for example no volume in the period); stored prices stay."
+          }
+        }
+      }
+    },
+    "Aktienverluste sind nur mit Aktiengewinnen verrechenbar." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share losses can only be offset against share gains."
           }
         }
       }
@@ -228,6 +268,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Imported from the import folder"
+          }
+        }
+      }
+    },
+    "Bestand am Ende der Daten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holdings at the end of the data"
           }
         }
       }
@@ -292,6 +342,16 @@
         }
       }
     },
+    "Dazu %lld weitere auf der Steuer-Seite der App." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plus %lld more on the Tax page of the app."
+          }
+        }
+      }
+    },
     "Der Ordner „Bilder“ neben der Sicherung war nicht lesbar. Liegt die Sicherung nicht im gewählten Sicherungsordner, diesen Ordner zuerst wählen und die Sicherung erneut einspielen, dann kommen die Screenshots mit." : {
       "localizations" : {
         "en" : {
@@ -352,12 +412,32 @@
         }
       }
     },
+    "Diese Trades lauten auf eine fremde Währung, für deren Schlusstag kein EZB-Referenzkurs vorliegt. Nach dem nächsten Kursabruf in der App den Bericht neu erstellen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "These trades are in a foreign currency with no ECB reference rate for their closing day. Create the report again after the next rate download in the app."
+          }
+        }
+      }
+    },
     "Dieser Importer lief noch gegen keine echte Datei, nur gegen nachgebaute Beispiele. Prüfe nach dem Import Lots und Beträge gegen den Bericht im Terminal." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "This importer has not yet run against a real file, only against reconstructed examples. After importing, check lots and amounts against the report in the terminal."
+          }
+        }
+      }
+    },
+    "Download-Seite öffnen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open download page"
           }
         }
       }
@@ -402,6 +482,16 @@
         }
       }
     },
+    "Einmal am Tag fragt Henry bei GitHub nach, ob es eine neue Version gibt. Hinaus geht nur diese Anfrage, keine Daten aus dem Journal. Henry lädt und installiert nichts selbst." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Once a day Henry asks GitHub whether a new version is available. Only this request goes out, no data from the journal. Henry does not download or install anything by itself."
+          }
+        }
+      }
+    },
     "Einstellungen öffnen" : {
       "localizations" : {
         "en" : {
@@ -432,36 +522,6 @@
         }
       }
     },
-    "erledigt" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "done"
-          }
-        }
-      }
-    },
-    "Erste Schritte" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Getting started"
-          }
-        }
-      }
-    },
-    "Erste Schritte …" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Getting started …"
-          }
-        }
-      }
-    },
     "Feiertag entfernen" : {
       "localizations" : {
         "en" : {
@@ -472,32 +532,72 @@
         }
       }
     },
-    "Format nicht erkannt: kein MetaTrader-Auszug (MT4: HTML aus der Broker-Mail, nicht der Bericht aus dem Terminal; MT5: Handelsbericht), kein CSV-Export von Trade Republic, Scalable, Interactive Brokers, Kraken, Binance, Coinbase oder Bitpanda und keine XTB-Kontohistorie (Excel)." : {
+    "Henry %@ ist da" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Format not recognized: not a MetaTrader statement (MT4: HTML from the broker email, not the report from the terminal; MT5: trade report), not a CSV export from Trade Republic, Scalable, Interactive Brokers, Kraken, Binance, Coinbase or Bitpanda, and not an XTB account history (Excel)."
+            "value" : "Henry %@ is available"
           }
         }
       }
     },
-    "Gesichert werden die Datenbank und die Screenshots. Ist „Täglich sichern“ an, sichert die App beim Start und danach einmal am Tag, solange sie läuft. Schlüssel aus dem Schlüsselbund kommen nicht in die Sicherung." : {
+    "Henry %@ · Prüfung fehlgeschlagen: %@" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The database and the screenshots are backed up. If “Back up daily” is on, the app backs up at launch and then once a day while it is running. Keys from the keychain are not included in the backup."
+            "value" : "Henry %1$@ · check failed: %2$@"
           }
         }
       }
     },
-    "IBKR-Auszug ohne Kontonummer: bitte im Blatt angeben." : {
+    "Henry %@ · aktuell, geprüft %@" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "IBKR statement without account number: please enter it in the sheet."
+            "value" : "Henry %1$@ · up to date, checked %2$@"
+          }
+        }
+      }
+    },
+    "Henry %@ · neu: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Henry %1$@ · new: %2$@"
+          }
+        }
+      }
+    },
+    "Henry %@ · noch nicht geprüft" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Henry %@ · not checked yet"
+          }
+        }
+      }
+    },
+    "Henry %@ · wird geprüft …" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Henry %@ · checking …"
+          }
+        }
+      }
+    },
+    "Henry lädt und installiert nichts selbst. Die Seite zeigt, was neu ist, und die Datei zum Laden." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Henry does not download or install anything by itself. The page shows what is new and the file to download."
           }
         }
       }
@@ -532,6 +632,156 @@
         }
       }
     },
+    "Jetzt exportieren" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export now"
+          }
+        }
+      }
+    },
+    "Jetzt prüfen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check now"
+          }
+        }
+      }
+    },
+    "Lade beim Broker den Kontoauszug herunter und wähle ihn auf der Import-Seite. MetaTrader 4: den Tagesauszug als HTML aus der Mail deines Brokers. MetaTrader 5: den Handelsbericht. Andere Broker: CSV oder Excel." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Download the account statement from your broker and choose it on the Import page. MetaTrader 4: the daily statement as HTML from your broker's email. MetaTrader 5: the trade report. Other brokers: CSV or Excel."
+          }
+        }
+      }
+    },
+    "Nach Updates suchen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check for updates"
+          }
+        }
+      }
+    },
+    "Noch kein Export-Ordner: Claude sieht deine Zahlen erst, wenn einer gewählt ist." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No export folder yet: Claude only sees your numbers once one is chosen."
+          }
+        }
+      }
+    },
+    "Später" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Later"
+          }
+        }
+      }
+    },
+    "Version" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Version"
+          }
+        }
+      }
+    },
+    "erledigt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "done"
+          }
+        }
+      }
+    },
+    "Erste Schritte" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Getting started"
+          }
+        }
+      }
+    },
+    "Erste Schritte …" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Getting started …"
+          }
+        }
+      }
+    },
+    "Etwa von einer anderen Börse übertragen. Ohne Kaufdatum lassen sich Haltedauer und Gewinn nicht bestimmen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "For example transferred from another exchange. Without a purchase date, holding period and gain cannot be determined."
+          }
+        }
+      }
+    },
+    "Format nicht erkannt: kein MetaTrader-Auszug (MT4: HTML aus der Broker-Mail, nicht der Bericht aus dem Terminal; MT5: Handelsbericht), kein CSV-Export von Trade Republic, Scalable, Interactive Brokers, Kraken, Binance, Coinbase oder Bitpanda und keine XTB-Kontohistorie (Excel)." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Format not recognized: not a MetaTrader statement (MT4: HTML from the broker email, not the report from the terminal; MT5: trade report), not a CSV export from Trade Republic, Scalable, Interactive Brokers, Kraken, Binance, Coinbase or Bitpanda, and not an XTB account history (Excel)."
+          }
+        }
+      }
+    },
+    "Gesichert werden die Datenbank und die Screenshots. Ist „Täglich sichern“ an, sichert die App beim Start und danach einmal am Tag, solange sie läuft. Schlüssel aus dem Schlüsselbund kommen nicht in die Sicherung." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The database and the screenshots are backed up. If “Back up daily” is on, the app backs up at launch and then once a day while it is running. Keys from the keychain are not included in the backup."
+          }
+        }
+      }
+    },
+    "Grundlage sind alle Trades des Kontos, unabhängig vom Filter in der App." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Based on all trades of the account, regardless of the filter in the app."
+          }
+        }
+      }
+    },
+    "IBKR-Auszug ohne Kontonummer: bitte im Blatt angeben." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IBKR statement without account number: please enter it in the sheet."
+          }
+        }
+      }
+    },
     "In der Zwischenablage" : {
       "localizations" : {
         "en" : {
@@ -562,12 +812,32 @@
         }
       }
     },
-    "Jetzt exportieren" : {
+    "Kein Steuerbescheid. Ohne Steuersatz, Sparer-Pauschbetrag, Verlustvorträge und Teilfreistellung. Maßgeblich sind Steuerbescheinigung, Erklärung und Bescheid." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Export now"
+            "value" : "Not a tax assessment. Without tax rate, saver's allowance, loss carryforwards and partial exemption. The tax certificate, return and assessment are what count."
+          }
+        }
+      }
+    },
+    "Keine Lücken: alle Lose mit Euro-Wert und Kauf in den Daten." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No gaps: all lots have a euro value and a purchase in the data."
+          }
+        }
+      }
+    },
+    "Kein offener Bestand." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No open holdings."
           }
         }
       }
@@ -612,6 +882,26 @@
         }
       }
     },
+    "Krypto-Haltefrist" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Crypto holding period"
+          }
+        }
+      }
+    },
+    "Krypto gegen Krypto oder Gebühren in einem Coin; das Jahr ist unbekannt, sie können dieses Jahr betreffen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Crypto for crypto or fees paid in a coin; the year is unknown, they may concern this year."
+          }
+        }
+      }
+    },
     "Kursverlauf des Trades mit %lld Balken, Einstieg und Ausstieg markiert" : {
       "localizations" : {
         "en" : {
@@ -632,22 +922,22 @@
         }
       }
     },
-    "Lade beim Broker den Kontoauszug herunter und wähle ihn auf der Import-Seite. MetaTrader 4: den Tagesauszug als HTML aus der Mail deines Brokers. MetaTrader 5: den Handelsbericht. Andere Broker: CSV oder Excel." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Download the account statement from your broker and choose it on the Import page. MetaTrader 4: the daily statement as HTML from your broker's email. MetaTrader 5: the trade report. Other brokers: CSV or Excel."
-          }
-        }
-      }
-    },
     "Lesen: %@" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Reading: %@"
+          }
+        }
+      }
+    },
+    "Lose ohne Euro-Wert, nicht in den Summen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lots without euro value, not in the totals"
           }
         }
       }
@@ -682,12 +972,22 @@
         }
       }
     },
-    "Noch kein Export-Ordner: Claude sieht deine Zahlen erst, wenn einer gewählt ist." : {
+    "Ohne Euro-Kurs, in keiner Summe enthalten" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No export folder yet: Claude only sees your numbers once one is chosen."
+            "value" : "Without euro rate, not in any total"
+          }
+        }
+      }
+    },
+    "Nicht verbuchte Importzeilen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unbooked import rows"
           }
         }
       }
@@ -698,6 +998,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Not included without an ECB rate: %lld trades in foreign currency."
+          }
+        }
+      }
+    },
+    "Orientierung, keine Steuerberatung und kein Steuerbescheid." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guidance only, not tax advice and not a tax assessment."
+          }
+        }
+      }
+    },
+    "Orientierung, keine Steuerberatung" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guidance only, not tax advice"
+          }
+        }
+      }
+    },
+    "Private Veräußerungsgeschäfte; nach über einem Jahr Haltedauer steuerfrei, Aufteilung auf Seite 2." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Private sales; tax-free after more than one year of holding, breakdown on page 2."
           }
         }
       }
@@ -722,6 +1052,16 @@
         }
       }
     },
+    "Produktart unbekannt; in der App auf der Seite Trades zuordnen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Product type unknown; assign it on the Trades page in the app."
+          }
+        }
+      }
+    },
     "Sichern …" : {
       "localizations" : {
         "en" : {
@@ -742,6 +1082,46 @@
         }
       }
     },
+    "Steuerpflichtig (bis ein Jahr gehalten)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taxable (held up to one year)"
+          }
+        }
+      }
+    },
+    "Steuerfrei (über ein Jahr gehalten)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tax-free (held over one year)"
+          }
+        }
+      }
+    },
+    "Steuerpflichtiger Saldo unter der Freigrenze von %@ für private Veräußerungsgeschäfte. Die Grenze gilt für alle solchen Geschäfte zusammen, nicht je Konto." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taxable balance below the exemption limit of %@ for private sales. The limit applies to all such sales together, not per account."
+          }
+        }
+      }
+    },
+    "Steuerpflichtiger Saldo erreicht die Freigrenze von %@ für private Veräußerungsgeschäfte. Die Grenze gilt für alle solchen Geschäfte zusammen, nicht je Konto." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taxable balance reaches the exemption limit of %@ for private sales. The limit applies to all such sales together, not per account."
+          }
+        }
+      }
+    },
     "Teilen …" : {
       "localizations" : {
         "en" : {
@@ -752,12 +1132,72 @@
         }
       }
     },
+    "Termingeschäfte und CFDs laufen seit dem Jahressteuergesetz 2024 im allgemeinen Topf mit." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Since the Annual Tax Act 2024, futures and CFDs are part of the general pool."
+          }
+        }
+      }
+    },
     "Text kopieren" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Copy text"
+          }
+        }
+      }
+    },
+    "Verlusttöpfe" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loss pools"
+          }
+        }
+      }
+    },
+    "Verkäufe im Jahr" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sales in the year"
+          }
+        }
+      }
+    },
+    "Verkäufe nach FIFO je Coin über alle Ausführungen des Kontos, Haltefrist ein Jahr in deutscher Zeit, Beträge in Euro." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sales by FIFO per coin across all executions of the account, holding period one year in German time, amounts in euros."
+          }
+        }
+      }
+    },
+    "Verkaufte Lose" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lots sold"
+          }
+        }
+      }
+    },
+    "Verkäufe ohne Kauf in den Daten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sales without a purchase in the data"
           }
         }
       }
