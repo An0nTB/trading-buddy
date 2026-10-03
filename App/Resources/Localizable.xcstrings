@@ -322,6 +322,16 @@
         }
       }
     },
+    "Download-Seite öffnen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open download page"
+          }
+        }
+      }
+    },
     "Drei Schritte, dann rechnet Henry mit deinen Trades und Claude kann darauf antworten." : {
       "localizations" : {
         "en" : {
@@ -362,6 +372,16 @@
         }
       }
     },
+    "Einmal am Tag fragt Henry bei GitHub nach, ob es eine neue Version gibt. Hinaus geht nur diese Anfrage, keine Daten aus dem Journal. Henry lädt und installiert nichts selbst." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Once a day Henry asks GitHub whether a new version is available. Only this request goes out, no data from the journal. Henry does not download or install anything by itself."
+          }
+        }
+      }
+    },
     "Einstellungen öffnen" : {
       "localizations" : {
         "en" : {
@@ -388,6 +408,116 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Detected: MetaTrader 5 trade report (HTML)"
+          }
+        }
+      }
+    },
+    "Henry %@ ist da" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Henry %@ is available"
+          }
+        }
+      }
+    },
+    "Henry %@ · Prüfung fehlgeschlagen: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Henry %1$@ · check failed: %2$@"
+          }
+        }
+      }
+    },
+    "Henry %@ · aktuell, geprüft %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Henry %1$@ · up to date, checked %2$@"
+          }
+        }
+      }
+    },
+    "Henry %@ · neu: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Henry %1$@ · new: %2$@"
+          }
+        }
+      }
+    },
+    "Henry %@ · noch nicht geprüft" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Henry %@ · not checked yet"
+          }
+        }
+      }
+    },
+    "Henry %@ · wird geprüft …" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Henry %@ · checking …"
+          }
+        }
+      }
+    },
+    "Henry lädt und installiert nichts selbst. Die Seite zeigt, was neu ist, und die Datei zum Laden." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Henry does not download or install anything by itself. The page shows what is new and the file to download."
+          }
+        }
+      }
+    },
+    "Jetzt prüfen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check now"
+          }
+        }
+      }
+    },
+    "Nach Updates suchen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check for updates"
+          }
+        }
+      }
+    },
+    "Später" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Later"
+          }
+        }
+      }
+    },
+    "Version" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Version"
           }
         }
       }
