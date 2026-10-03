@@ -50,7 +50,7 @@ struct ImportVorschau: Identifiable {
 enum Importer {
     static let ungeprueft: Set<String> = [Journal.tradeRepublicImporter, Journal.scalableImporter, Journal.xtbImporter,
                                           Journal.krakenImporter, Journal.binanceImporter, Journal.coinbaseImporter,
-                                          Journal.bitpandaImporter]
+                                          Journal.bitpandaImporter, Journal.mt5Importer, Journal.ibkrImporter]
     /// Broker-Name der XTB-Konten, wie `Journal.importiereXTB` ihn speichert.
     static let xtbBroker = "XTB"
 
@@ -60,7 +60,7 @@ enum Importer {
 /// Broker und Kryptobörsen, deren CSV-Export die App liest. Namen wie in `Konto.broker` der Speicherung
 /// (`Journal.importiereCSV` erkennt dieselben Köpfe).
 enum CSVBroker {
-    case tradeRepublic, scalable, kraken, binance, coinbase, bitpanda
+    case tradeRepublic, scalable, kraken, binance, coinbase, bitpanda, ibkr
 
     var name: String {
         switch self {
@@ -70,13 +70,14 @@ enum CSVBroker {
         case .binance: "Binance"
         case .coinbase: "Coinbase"
         case .bitpanda: "Bitpanda"
+        case .ibkr: "Interactive Brokers"
         }
     }
 
     /// Kryptobörse: Paare gegen Geldwährung oder Stablecoin werden Trades, der Rest Hinweise (Doc 19).
     var istKrypto: Bool {
         switch self {
-        case .tradeRepublic, .scalable: false
+        case .tradeRepublic, .scalable, .ibkr: false
         case .kraken, .binance, .coinbase, .bitpanda: true
         }
     }
@@ -89,6 +90,7 @@ enum CSVBroker {
         case .binance: String(localized: "Spot-Trade-Export (CSV)")
         case .coinbase: String(localized: "Transaktionsbericht (CSV)")
         case .bitpanda: String(localized: "Transaktionsverlauf (CSV)")
+        case .ibkr: String(localized: "Activity Statement (CSV)")
         }
     }
 
@@ -97,6 +99,7 @@ enum CSVBroker {
     var zeitzone: TimeZone {
         switch self {
         case .scalable: TimeZone(identifier: "Europe/Berlin") ?? .current
+        case .ibkr: TimeZone(identifier: "America/New_York") ?? .gmt
         case .tradeRepublic, .kraken, .binance, .coinbase, .bitpanda: .gmt
         }
     }
@@ -104,6 +107,7 @@ enum CSVBroker {
     var zeitzoneText: LocalizedStringKey {
         switch self {
         case .scalable: "Deutsche Ortszeit laut Datei"
+        case .ibkr: "US-Ostküste (Annahme, in den IBKR-Einstellungen änderbar); die App zeigt deine Zeitzone"
         case .bitpanda: "Zeit mit Zeitzonen-Versatz laut Datei; die App zeigt deine Zeitzone"
         case .tradeRepublic, .kraken, .binance, .coinbase: "UTC laut Datei; die App zeigt deine Zeitzone"
         }
@@ -120,6 +124,8 @@ enum CSVBroker {
             "Gebühr in der Gegenwährung oder im Coin (zum Kurs umgerechnet); Gebühr in BNB wird nicht verbucht und steht als Hinweis"
         case .bitpanda:
             "Spread steckt im Preis; Gebühr in BEST oder Krypto wird nicht verbucht und steht als Hinweis"
+        case .ibkr:
+            "Kommission je Order aus dem Auszug; im Trade anteilig aus seinen Käufen; Devisentausch steht als Hinweis"
         }
     }
 
@@ -134,6 +140,7 @@ enum ErkannteDatei {
     case mt4(MT4Statement)
     case csv(CSVBroker, Kontobewegungen)
     case xtb(XTBAuszug)
+    case mt5(MT5Bericht)
 }
 
 /// Summen je Währung für die Import-Vorschau (Gegencheck A4): Kontowährung zuerst, Fremdwährungen alphabetisch,
@@ -199,6 +206,10 @@ enum Importlesung {
             if dateiname.lowercased().hasSuffix(".xlsx") {
                 return .fehler(String(localized: "Excel-Datei ohne Blatt „Closed Position History“: kein XTB-Kontoauszug aus xStation 5."))
             }
+            // MetaTrader 5 speichert meist UTF-16; vor dem UTF-8-Text und vor dem MT4-Rückfall (Doc 48).
+            if let text = MT5Bericht.text(daten), MT5Bericht.erkennt(text) {
+                return .erkannt(.mt5(try MT5Bericht.lies(text, serverZeitzone: serverzeit)))
+            }
             guard let text = String(data: daten, encoding: .utf8) else {
                 return .fehler(String(localized: "Die Datei ist weder Text (UTF-8) noch eine Excel-Datei."))
             }
@@ -207,6 +218,9 @@ enum Importlesung {
             }
             if ScalableCSV.erkennt(text) {
                 return .erkannt(.csv(.scalable, try ScalableCSV.lies(text, zeitzone: CSVBroker.scalable.zeitzone)))
+            }
+            if IBKRCSV.erkennt(text) {
+                return .erkannt(.csv(.ibkr, try IBKRCSV.lies(text, zeitzone: CSVBroker.ibkr.zeitzone)))
             }
             if KrakenCSV.erkennt(text) {
                 return .erkannt(.csv(.kraken, try KrakenCSV.lies(text)))
@@ -264,6 +278,38 @@ enum Importlesung {
         return text
     }
 
+    static func erkennung(_ bericht: MT5Bericht) -> String {
+        let zeiten = bericht.positionen.map(\.closeTime) + bericht.kasse.geldbewegungen.map(\.zeit)
+        var text = String(localized: "Erkannt: MetaTrader 5 Handelsbericht (HTML)")
+        if let broker = bericht.broker, !broker.isEmpty { text += " · " + broker }
+        if let konto = bericht.konto {
+            text += " · " + String(localized: "Konto \(maskiert(konto))")
+        }
+        if let von = zeiten.min(), let bis = zeiten.max() {
+            text += " · " + String(localized: "\(Format.datum(von)) bis \(Format.datum(bis))")
+        }
+        return text
+    }
+
+    /// Broker eines MT5-Kontos, wie die Speicherung ihn ablegt: „Company“ aus dem Bericht, sonst „MetaTrader 5“.
+    static func broker(_ bericht: MT5Bericht) -> String {
+        bericht.broker.flatMap { $0.isEmpty ? nil : $0 } ?? Journal.mt5BrokerVorgabe
+    }
+
+    /// Summenzeile unter „Positions“ gegen die gelesenen Positionen.
+    static func pruefungen(_ bericht: MT5Bericht) -> [Pruefung] {
+        guard let summe = bericht.positionenLautSumme else { return [] }
+        let p = bericht.positionen
+        return [
+            Pruefung(id: String(localized: "Kommission gesamt"), lautAuszug: summe.commission,
+                     berechnet: p.reduce(Decimal(0)) { $0 + $1.commission }),
+            Pruefung(id: String(localized: "Swap gesamt"), lautAuszug: summe.swap,
+                     berechnet: p.reduce(Decimal(0)) { $0 + $1.swap }),
+            Pruefung(id: String(localized: "Ergebnis gesamt (Gross P/L)"), lautAuszug: summe.profit,
+                     berechnet: p.reduce(Decimal(0)) { $0 + $1.profit }),
+        ]
+    }
+
     /// Summen des MT4-Auszugs gegen die gelesenen Zeilen; der Kontostand nur mit Vortagssaldo.
     static func pruefungen(_ auszug: MT4Statement) -> [Pruefung] {
         var liste = [
@@ -305,13 +351,15 @@ enum Importlesung {
         case .mt4(let auszug)?: String(localized: "\(auszug.closedPositions.count) Trades importieren")
         case .csv(_, let bewegungen)?: String(localized: "\(bewegungen.ausfuehrungen.count) Ausführungen importieren")
         case .xtb(let auszug)?: String(localized: "\(auszug.positionen.count) Trades importieren")
+        case .mt5(let bericht)?: String(localized: "\(bericht.positionen.count) Trades importieren")
         case nil: String(localized: "Importieren")
         }
     }
 
     /// Darf gespeichert werden? MT4 nur ohne Prüffehler, CSV nur mit Inhalt und gültigem Konto, XTB nur mit Inhalt,
-    /// Kontonummer (aus der Datei oder eingegeben) und stimmenden Summen.
-    static func importierbar(_ erkannt: ErkannteDatei?, kontoGueltig: Bool, xtbNummer: String) -> Bool {
+    /// Kontonummer (aus der Datei oder eingegeben) und stimmenden Summen; MT5 wie XTB mit `mt5Nummer`.
+    static func importierbar(_ erkannt: ErkannteDatei?, kontoGueltig: Bool, xtbNummer: String,
+                             mt5Nummer: String = "") -> Bool {
         switch erkannt {
         case .mt4(let auszug)?:
             auszug.pruefe().isEmpty
@@ -321,6 +369,9 @@ enum Importlesung {
         case .xtb(let auszug)?:
             (auszug.positionen.count + auszug.kasse.geldbewegungen.count) > 0
                 && !xtbNummer.isEmpty && pruefungen(auszug).allSatisfy(\.stimmt)
+        case .mt5(let bericht)?:
+            (bericht.positionen.count + bericht.kasse.geldbewegungen.count) > 0
+                && !mt5Nummer.isEmpty && pruefungen(bericht).allSatisfy(\.stimmt)
         case nil:
             false
         }

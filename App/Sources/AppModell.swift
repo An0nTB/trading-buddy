@@ -113,7 +113,17 @@ final class AppModell {
             if nebenwirkungen { Task { [weak self] in await Sicherungsdienst.laufe { self?.journal } } }
             #endif
         }
-        if nebenwirkungen { Task { await ladeEZBKurse() } }
+        if nebenwirkungen {
+            Task { await ladeEZBKurse() }
+            // Lange Laufzeit ohne Import oder Kontowechsel: stündlich prüfen, ob die Kurse veraltet sind (X6, Doc 49).
+            Task { [weak self] in
+                while !Task.isCancelled {
+                    try? await Task.sleep(for: .seconds(60 * 60))
+                    guard let self else { return }
+                    self.ladeEZBKurseFallsVeraltet()
+                }
+            }
+        }
     }
 
     /// `false` nur in Tests: kein Export, kein EZB-Abruf.
@@ -544,15 +554,16 @@ final class AppModell {
     }
 
     /// Verstöße gegen die eigenen Regeln, immer über alle Trades des Kontos (in Kontowährung, W3) und nicht über
-    /// den Filter: „Trades je Tag“ und „Tagesverlust“ zählen den ganzen Tag, nicht nur ein Instrument.
+    /// den Filter: „Trades je Tag“ und „Tagesverlust“ zählen den ganzen Tag, nicht nur ein Instrument. Trades ohne
+    /// EZB-Kurs zählen bei den Zählregeln mit, ihre Beträge nicht (G1, TradingCore 0.22.0).
     var verstoesse: [Regelverstoss] {
-        Regelpruefung.pruefe(angleich.trades, regeln: regeln, zeitzone: zeitzone, manuell: manuellVerletzt)
+        Regelpruefung.pruefe(angleich, regeln: regeln, zeitzone: zeitzone, manuell: manuellVerletzt)
     }
 
     /// Der letzte Handelstag im gewählten Zeitraum, Grundlage der Regel-Ampel.
     var letzterTagesstand: Regelpruefung.Tagesstand? {
         let kalender = self.kalender
-        let staende = Regelpruefung.tagesstaende(angleich.trades, regeln: regeln, zeitzone: zeitzone, manuell: manuellVerletzt)
+        let staende = Regelpruefung.tagesstaende(angleich, regeln: regeln, zeitzone: zeitzone, manuell: manuellVerletzt)
         return staende.last { stand in
             if case .monat(let monat) = zeitraum { return monatsanfang(stand.tag, kalender) == monat }
             return true
@@ -710,6 +721,17 @@ final class AppModell {
         let ergebnis = try journal.importiereXTB(datei: daten, dateiname: dateiname, kontonummer: kontonummer,
                                                  kontoname: kontoname, kontowaehrung: waehrung, zeitzone: zeitzone,
                                                  produktartVorgabe: produktartVorgabe)
+        nachImport(ergebnis)
+        return ergebnis
+    }
+
+    /// MetaTrader-5-Handelsbericht (Doc 48); Nummer und Währung nur, wenn der Bericht sie nicht nennt.
+    func importiereMT5(daten: Data, dateiname: String, kontonummer: String?, kontoname: String?,
+                       waehrung: String?, serverZeitzone: TimeZone) throws -> ImportErgebnis {
+        guard let journal else { throw CocoaError(.fileNoSuchFile) }
+        let ergebnis = try journal.importiereMT5(datei: daten, dateiname: dateiname, kontonummer: kontonummer,
+                                                 kontoname: kontoname, kontowaehrung: waehrung,
+                                                 serverZeitzone: serverZeitzone)
         nachImport(ergebnis)
         return ergebnis
     }
