@@ -13,8 +13,9 @@ struct SteuerAnlage {
     let krypto: KryptoHaltefrist.Jahr?
     let kontext: BerichtKontext
 
-    /// Trades und Lose ohne Euro-Wert, die in keiner Summe stehen.
-    var ohneKurs: Int { toepfe.reduce(0) { $0 + $1.ohneEuro } + (krypto?.ohneEuro ?? 0) }
+    /// Trades ohne Euro-Wert, die in keiner Topfsumme stehen. Nur die Töpfe: ein Krypto-Trade ohne Kurs steht dort
+    /// und als Los auf Seite 2 unter „Lücken“, zusammengezählt wäre er doppelt.
+    var ohneKurs: Int { toepfe.reduce(0) { $0 + $1.ohneEuro } }
 
     static var fusshinweis: String {
         String(localized: "Orientierung, keine Steuerberatung und kein Steuerbescheid.")
