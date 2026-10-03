@@ -97,7 +97,9 @@ struct AusstiegView: View {
 
     @ViewBuilder
     private var inhalt: some View {
-        if let ergebnis, ergebnis.auswertung.anzahl > 0 {
+        if modell.alleTrades.isEmpty {
+            KeineTrades()
+        } else if let ergebnis, ergebnis.auswertung.anzahl > 0 {
             AuswertungKarte(ergebnis: ergebnis, waehrung: modell.waehrung)
             TradeListeKarte(zeilen: Array(ergebnis.zeilen.prefix(Self.listengrenze)), gesamt: ergebnis.zeilen.count,
                             kontowaehrung: modell.waehrung)
