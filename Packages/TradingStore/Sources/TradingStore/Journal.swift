@@ -5,7 +5,7 @@ import TradingCore
 
 /// Fehler beim Speichern. Bei jedem dieser Fehler bleibt die Datenbank unverändert.
 public enum SpeicherFehler: Error, Equatable, Sendable {
-    /// Die Datei ist kein UTF-8-Text.
+    /// Die Datei ist kein Text (etwa Excel oder ZIP); gelesen wird UTF-8, UTF-16 und Windows-1252 (`Importtext`).
     case keinText
     /// Der Auszug passt nicht zu seinen eigenen Summen (`MT4Statement.pruefe()`).
     case auszugWidersprichtSeinenSummen([String])
@@ -95,7 +95,7 @@ public final class Journal: Sendable {
             return ImportErgebnis(status: .dateiBereitsImportiert, importlaufId: bekannt.id!)
         }
 
-        guard let html = String(data: datei, encoding: .utf8) else { throw SpeicherFehler.keinText }
+        guard let html = Importtext.lies(datei) else { throw SpeicherFehler.keinText }
         let auszug = try MT4Statement.parse(html: html, serverZeitzone: serverZeitzone)
         let abweichungen = auszug.pruefe()
         guard abweichungen.isEmpty else {
