@@ -93,6 +93,7 @@ struct Hauptfenster: View {
         }
         .fragBradBlatt() // Frag Henry (Doc 31): an der Wurzel, damit es auch in der Tab-Leiste am iPhone wirkt
         .hilfeBlaetter() // Hilfe › Erste Schritte, Problem melden (Nachtpaket AP11)
+        .aktualisierungsHinweis() // neue Version für Tester, höchstens einmal am Tag geprüft (Doc 51)
     }
 
     private var fehlerSichtbar: Binding<Bool> {
