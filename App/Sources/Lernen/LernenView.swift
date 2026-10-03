@@ -61,8 +61,9 @@ struct LernenView: View {
                     .frame(maxWidth: 360)
             }
             HStack(alignment: .top, spacing: Abstand.seitenrand) {
+                // Keine feste Breite: Im eigenen Fenster (Mindestbreite 560) teilen sich Liste und Kapitel den Platz (G15).
                 BausteinListe(stufe: stufe, auswahl: $auswahl)
-                    .frame(width: 280)
+                    .frame(minWidth: 200, idealWidth: 280, maxWidth: 300)
                 KapitelSeite(auswahl: auswahl, stufe: stufe) { stufe = .profi }
             }
         }
