@@ -70,6 +70,7 @@ struct PlaybookEinstellungen: View {
                     }
                     .buttonStyle(.borderless)
                     .help("Kriterium entfernen")
+                    .accessibilityLabel(Text("Kriterium entfernen")) // Doc 55 J15
                 }
             }
             Button("Kriterium hinzufügen") { entwurf.kriterien.append(Kriterium(text: "")) }

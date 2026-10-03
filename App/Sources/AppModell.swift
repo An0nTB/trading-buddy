@@ -115,10 +115,12 @@ final class AppModell {
         }
         if nebenwirkungen {
             Task { await ladeEZBKurse() }
-            // Lange Laufzeit ohne Import oder Kontowechsel: stündlich prüfen, ob die Kurse veraltet sind (X6, Doc 49).
+            // Lange Laufzeit ohne Import oder Kontowechsel: alle 5 Minuten prüfen (X6, Doc 49). Die Sperre in
+            // `ladeEZBKurseFallsVeraltet` lässt ohne Fehler höchstens einen Abruf je Stunde zu, nach einem Fehler
+            // (Erststart ohne Netz) einen je 5 Minuten (H8, Doc 55).
             Task { [weak self] in
                 while !Task.isCancelled {
-                    try? await Task.sleep(for: .seconds(60 * 60))
+                    try? await Task.sleep(for: .seconds(5 * 60))
                     guard let self else { return }
                     self.ladeEZBKurseFallsVeraltet()
                 }

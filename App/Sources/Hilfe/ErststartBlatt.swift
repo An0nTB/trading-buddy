@@ -23,14 +23,14 @@ struct ErststartBlatt: View {
             ErststartSchritt(nummer: 1, titel: "Konto anlegen", erledigt: kontoDa,
                              text: "Ein Konto entsteht mit dem ersten Import. Henry liest Broker und Kontonummer aus der Datei; Namen und Kontowährung legst du im Import-Blatt fest.")
             ErststartSchritt(nummer: 2, titel: "Datei importieren", erledigt: kontoDa,
-                             text: "Lade beim Broker den Kontoauszug herunter (MetaTrader: Bericht als HTML, sonst CSV oder Excel) und wähle ihn auf der Import-Seite.") {
+                             text: "Lade beim Broker den Kontoauszug herunter und wähle ihn auf der Import-Seite. MetaTrader 4: den Tagesauszug als HTML aus der Mail deines Brokers. MetaTrader 5: den Handelsbericht. Andere Broker: CSV oder Excel.") {
                 Button("Zur Import-Seite") {
                     modell.bereich = .importieren
                     dismiss()
                 }
             }
             ErststartSchritt(nummer: 3, titel: "Claude verbinden", erledigt: exportDa,
-                             text: "Wähle in den Einstellungen unter „Claude“ einen Export-Ordner. Installiere dann die Erweiterung „Henry“ in Claude Desktop und trage dort denselben Ordner ein.") {
+                             text: "Wähle in den Einstellungen unter „Claude“ einen Export-Ordner. Die Erweiterung „Henry“ ist die Datei „Henry-Connector“, die du mit der App bekommen hast: Doppelklick öffnet sie in Claude Desktop. Trag dort denselben Ordner ein.") {
                 SettingsLink { Text("Einstellungen öffnen") }
             }
 
@@ -48,6 +48,7 @@ struct ErststartBlatt: View {
         }
         .padding(Abstand.seitenrand)
         .frame(minWidth: 480, idealWidth: 540)
+        .onExitCommand { dismiss() } // Esc schließt wie „Fertig“ (Doc 55 J16)
     }
 }
 
