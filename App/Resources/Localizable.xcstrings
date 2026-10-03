@@ -292,6 +292,16 @@
         }
       }
     },
+    "Gesichert werden die Datenbank und die Screenshots. Ist „Täglich sichern“ an, sichert die App beim Start und danach einmal am Tag, solange sie läuft. Schlüssel aus dem Schlüsselbund kommen nicht in die Sicherung." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The database and the screenshots are backed up. If “Back up daily” is on, the app backs up at launch and then once a day while it is running. Keys from the keychain are not included in the backup."
+          }
+        }
+      }
+    },
     "IBKR-Auszug ohne Kontonummer: bitte im Blatt angeben." : {
       "localizations" : {
         "en" : {
@@ -6803,16 +6813,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "closed positions"
-          }
-        }
-      }
-    },
-    "Gesichert werden die Datenbank und die Screenshots. Die App sichert beim Start und danach einmal am Tag, solange sie läuft. Schlüssel aus dem Schlüsselbund kommen nicht in die Sicherung." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The database and the screenshots are backed up. The app backs up at launch and then once a day while it is running. Keys from the keychain are not included in the backup."
           }
         }
       }

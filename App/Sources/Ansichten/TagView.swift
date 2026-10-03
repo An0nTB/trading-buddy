@@ -85,6 +85,13 @@ struct TagSeite: View {
             tagModell.sichere()
             exportiereGeaendert()
         }
+        #if os(macOS)
+        // ⌘Q ruft onDisappear nicht auf; ohne das fehlen die letzten bis zu 2 s Text (Beta-Punkt 12).
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
+            tagModell.sichere()
+            exportiereGeaendert()
+        }
+        #endif
         .alert("Fehler", isPresented: fehlerSichtbar) {
             Button("OK") { tagModell.fehler = nil }
         } message: {

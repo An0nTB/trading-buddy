@@ -58,7 +58,7 @@ struct DatensicherungFelder: View {
                 }
                 .disabled(laeuft || modell.journal == nil || Sicherungsdienst.gemerkterOrdner() == nil)
             } footer: {
-                Text("Gesichert werden die Datenbank und die Screenshots. Die App sichert beim Start und danach einmal am Tag, solange sie läuft. Schlüssel aus dem Schlüsselbund kommen nicht in die Sicherung.")
+                Text("Gesichert werden die Datenbank und die Screenshots. Ist „Täglich sichern“ an, sichert die App beim Start und danach einmal am Tag, solange sie läuft. Schlüssel aus dem Schlüsselbund kommen nicht in die Sicherung.")
                     .font(Schrift.beschriftung)
                     .foregroundStyle(thema.textSchwach)
             }
