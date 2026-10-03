@@ -292,6 +292,16 @@
         }
       }
     },
+    "Bild vergrößern" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enlarge image"
+          }
+        }
+      }
+    },
     "Bitte vor dem Weitergeben ansehen, Freitext kann weitere Angaben enthalten." : {
       "localizations" : {
         "en" : {
