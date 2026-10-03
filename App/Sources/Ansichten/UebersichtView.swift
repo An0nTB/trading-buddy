@@ -85,7 +85,7 @@ struct MischwaehrungHinweis: View {
             let konto = modell.summenwaehrung
             let umgerechnet = String(localized:
                 "\(stand.umgerechnet) Trades in \(liste) zum EZB-Kurs des Schlusstags in \(konto) umgerechnet (Näherung)")
-            let fehlend = String(localized: "\(stand.ohneKurs) ohne Kurs nicht in den Summen")
+            let fehlend = String(localized: "\(stand.ohneKurs) ohne Kurs nicht in den Summen, weil der EZB-Kurs noch nicht geladen ist; Henry lädt ihn beim Start aus dem Internet")
             let text = stand.ohneKurs == 0 ? umgerechnet + "." : umgerechnet + "; " + fehlend + "."
             Label(text, systemImage: stand.ohneKurs == 0 ? "info.circle" : "exclamationmark.triangle")
                 .font(Schrift.beschriftung)

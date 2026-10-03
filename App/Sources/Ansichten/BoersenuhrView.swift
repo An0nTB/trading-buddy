@@ -276,6 +276,7 @@ struct BoersenVerwaltenBlatt: View {
                 }
         }
         #if os(macOS)
+        .onExitCommand { schliessen() } // Esc schließt (Doc 55 J16)
         .frame(minWidth: 700, minHeight: 560)
         #endif
     }
