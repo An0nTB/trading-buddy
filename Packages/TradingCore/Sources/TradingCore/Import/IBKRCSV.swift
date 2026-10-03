@@ -80,6 +80,20 @@ public enum IBKRCSV {
                 continue
             }
         }
+        // Zwei gleiche Orders (Symbol, Sekunde, Menge, Kurs) bzw. Buchungen dürfen nicht zu einer verschmelzen:
+        // Wiederholungen bekommen „#2“, „#3“ wie bei Binance; die erste behält ihre bisherige ID.
+        var vergeben: [String: Int] = [:]
+        for i in ergebnis.ausfuehrungen.indices {
+            let roh = ergebnis.ausfuehrungen[i].id
+            vergeben[roh, default: 0] += 1
+            if vergeben[roh]! > 1 { ergebnis.ausfuehrungen[i].id = "\(roh)#\(vergeben[roh]!)" }
+        }
+        vergeben = [:]
+        for i in ergebnis.geldbewegungen.indices {
+            let roh = ergebnis.geldbewegungen[i].id
+            vergeben[roh, default: 0] += 1
+            if vergeben[roh]! > 1 { ergebnis.geldbewegungen[i].id = "\(roh)#\(vergeben[roh]!)" }
+        }
         return ergebnis
     }
 

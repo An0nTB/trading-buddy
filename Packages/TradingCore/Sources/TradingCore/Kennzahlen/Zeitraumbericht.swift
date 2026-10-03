@@ -70,7 +70,8 @@ public struct Zeitraumbericht: Sendable {
             .filter { ids.contains($0.trade) }
         propFirmVerstoesse = regeln.propFirm.map { PropFirmPruefung.pruefe(alle, regeln: $0).verstoesse }?
             .filter { ids.contains($0.trade) } ?? []
-        disziplin = Disziplin(trades: imZeitraum, verstoesse: regelverstoesse, propFirm: propFirmVerstoesse)
+        disziplin = Disziplin(trades: imZeitraum + ohneKursImZeitraum, verstoesse: regelverstoesse,
+                              propFirm: propFirmVerstoesse, ohneBetrag: angleich.ohneKursIDs)
         muster = Array(MusterFinder.finde(imZeitraum, zeitzone: zeitzone).prefix(musterAnzahl))
         self.ziele = ziele.filter { $0.von < zeitraum.bis && $0.bis > zeitraum.von }.sorted { $0.von < $1.von }
         let jahr = Journaltag(zeitraum.bis.addingTimeInterval(-1), zeitzone: zeitzone).jahr
