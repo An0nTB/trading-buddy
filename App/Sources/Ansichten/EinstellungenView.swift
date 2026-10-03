@@ -231,7 +231,7 @@ struct ClaudeFelder: View {
                     Button("exportFolder.choose") { ordnerWaehlen = true }
                 }
             }
-            Text("Claude Desktop liest diesen Ordner über die Erweiterung „Henry“. Derselbe Ordner muss in den Einstellungen der Erweiterung stehen.")
+            Text("Claude Desktop liest diesen Ordner über die Erweiterung „Henry“. Sie ist die Datei „Henry-Connector“, die du mit der App bekommen hast: Doppelklick öffnet sie in Claude Desktop. Derselbe Ordner muss in den Einstellungen der Erweiterung stehen.")
                 .font(Schrift.beschriftung)
                 .foregroundStyle(thema.textSchwach)
             LabeledContent("Exportierte Felder") {

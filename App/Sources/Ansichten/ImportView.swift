@@ -248,10 +248,18 @@ struct ImportBlatt: View {
                 if ergebnis == nil {
                     Button("Abbrechen") { dismiss() }
                         .keyboardShortcut(.cancelAction)
+                    if erkannt != nil, !importierbar {
+                        // Doc 55 J5: sagen, warum der Knopf grau ist.
+                        Text(Self.gesperrtGrund)
+                            .font(Schrift.beschriftung)
+                            .foregroundStyle(thema.textSchwach)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
                     Button(knopfText) { speichere() }
                         .buttonStyle(.borderedProminent)
                         .keyboardShortcut(.defaultAction)
                         .disabled(!importierbar)
+                        .help(importierbar ? Text("") : Text(Self.gesperrtGrund))
                 } else {
                     Button("Schließen") { dismiss() }
                         .buttonStyle(.borderedProminent)
@@ -314,6 +322,7 @@ struct ImportBlatt: View {
                     ForEach(Serverzeit.allCases) { Text($0.name).tag($0) }
                 }
                 .labelsHidden()
+                .help(Self.serverzeitHilfe) // Doc 55 J13
             }
             GridRow {
                 Text("Kosten").foregroundStyle(thema.textSchwach)
@@ -357,7 +366,7 @@ struct ImportBlatt: View {
                 Text("\(ohneStop) Trades ohne Stop im Export")
                     .font(.headline)
                     .foregroundStyle(thema.text)
-                Text("Im Export steht nur der letzte Stop-Loss. Ohne Stop kein R; der Trade wird markiert. Stop nachtragen kommt mit dem Journal-Paket.")
+                Text("Im Export steht nur der letzte Stop-Loss. Ohne Stop kein R; der Trade wird markiert. Stop nachtragen: Trade anklicken, rechts beim Stop eintragen.")
                     .font(Schrift.beschriftung)
                     .foregroundStyle(thema.textSchwach)
             }
@@ -738,6 +747,7 @@ struct ImportBlatt: View {
                     ForEach(Serverzeit.allCases) { Text($0.name).tag($0) }
                 }
                 .labelsHidden()
+                .help(Self.serverzeitHilfe) // Doc 55 J13
             }
             GridRow {
                 Text("Kosten").foregroundStyle(thema.textSchwach)
@@ -874,6 +884,9 @@ struct ImportBlatt: View {
             }
         }
     }
+
+    private static let gesperrtGrund: LocalizedStringKey = "Importieren geht erst, wenn jede Prüfzeile „stimmt“ zeigt und das Konto feststeht. Wähl zuerst eine andere Serverzeit; hilft das nicht, Hilfe › Problem melden."
+    private static let serverzeitHilfe: LocalizedStringKey = "Die Zeitzone, in der dein MetaTrader die Zeiten zeigt. Unsicher: Vorgabe lassen. Wichtig: bei jedem Import dieselbe."
 
     /// Liest die Datei über `Importlesung` (testbar ohne Ansicht, Doc 44) und setzt die Kontovorgabe.
     private func lies() {
