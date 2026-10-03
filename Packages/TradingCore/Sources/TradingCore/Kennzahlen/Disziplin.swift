@@ -24,14 +24,17 @@ public struct Disziplin: Sendable, Equatable {
 
     /// - Parameter propFirm: Verstöße gegen Prop-Firm-Regeln (Doc 18 F10, Tim 02.10.2026 Antwort 12d);
     ///   ein Trade mit eigenem oder Prop-Firm-Verstoß zählt einmal als verletzt.
-    public init(trades: [Trade], verstoesse: [Regelverstoss], propFirm: [PropFirmPruefung.Verstoss] = []) {
+    /// - Parameter ohneBetrag: Trades ohne Umrechnungskurs (`Waehrungsangleich.ohneKursIDs`, Doc 52 H4):
+    ///   Sie zählen als regeltreu oder verletzt, ihr Ergebnis fließt nicht in Kapital und Netto.
+    public init(trades: [Trade], verstoesse: [Regelverstoss], propFirm: [PropFirmPruefung.Verstoss] = [],
+                ohneBetrag: Set<String> = []) {
         let betroffen = Set(verstoesse.map(\.trade)).union(propFirm.map(\.trade))
         let sortiert = trades.sorted { ($0.closeTime, $0.id) < ($1.closeTime, $1.id) }
         var kapital: Decimal = 0
         var wert = 0
         punkte = sortiert.map { t in
             let treu = !betroffen.contains(t.id)
-            kapital += t.netProfit
+            if !ohneBetrag.contains(t.id) { kapital += t.netProfit }
             wert += treu ? 1 : -1
             return Punkt(trade: t.id, zeit: t.closeTime, regeltreu: treu, kapital: kapital, wert: wert)
         }
@@ -40,8 +43,8 @@ public struct Disziplin: Sendable, Equatable {
         regeltreu = treue.count
         verletzt = brueche.count
         quote = sortiert.isEmpty ? nil : Decimal(treue.count) / Decimal(sortiert.count)
-        nettoRegeltreu = treue.map(\.netProfit).reduce(0, +)
-        nettoVerletzt = brueche.map(\.netProfit).reduce(0, +)
+        nettoRegeltreu = treue.filter { !ohneBetrag.contains($0.id) }.map(\.netProfit).reduce(0, +)
+        nettoVerletzt = brueche.filter { !ohneBetrag.contains($0.id) }.map(\.netProfit).reduce(0, +)
     }
 
     /// Grundgesamtheit für Schlüsse: unter 30 Trades nur beschreiben.

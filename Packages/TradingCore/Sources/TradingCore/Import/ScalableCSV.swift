@@ -42,6 +42,7 @@ public enum ScalableCSV {
         -> Kontobewegungen {
         let tabelle = CSVTabelle(text: text)
         let spalten = try tabelle.spalten(pflichtspalten)
+        let format = zahlformat(tabelle, spalten: spalten)
         var ergebnis = Kontobewegungen()
         for (n, z) in tabelle.zeilen.enumerated() {
             let zeile = n + 2
@@ -49,7 +50,11 @@ public enum ScalableCSV {
                 let i = spalten[name]!
                 return i < z.count ? z[i] : ""
             }
-            func zahl(_ name: String) throws -> Decimal { try CSVWerte.zahl(feld(name), .komma, zeile: zeile) }
+            func zahl(_ name: String) throws -> Decimal {
+                // Mit Punkt als Dezimalzeichen ist das Komma ein Tausendertrenner.
+                let text = format == .punkt ? feld(name).replacingOccurrences(of: ",", with: "") : feld(name)
+                return try CSVWerte.zahl(text, format, zeile: zeile)
+            }
             // Nur ausgeführte Vorgänge zählen; stornierte Orders bleiben als verworfen erhalten (Regel 5).
             guard feld("status").lowercased() == "executed" else {
                 ergebnis.verworfen.append(feld("reference"))
@@ -97,5 +102,28 @@ public enum ScalableCSV {
             }
         }
         return ergebnis
+    }
+
+    /// Dezimalzeichen der Datei (Doc 52, H2): Scalable schreibt mit deutscher Oberfläche „1.000,00“,
+    /// mit englischer vermutlich „1,000.00“ oder „12.34“ (R2: widersprüchlich belegt).
+    /// Entscheidet das letzte Trennzeichen in einem Feld mit beiden, sonst ein Trennzeichen, dem nicht
+    /// genau drei Ziffern folgen (dann kein Tausendertrenner). Ohne Hinweis bleibt es beim Komma.
+    static func zahlformat(_ tabelle: CSVTabelle, spalten: [String: Int]) -> CSVWerte.Zahlformat {
+        let indizes = ["shares", "price", "amount", "fee", "tax"].compactMap { spalten[$0] }
+        var komma = false, punkt = false
+        for z in tabelle.zeilen {
+            for i in indizes where i < z.count {
+                let wert = z[i].trimmingCharacters(in: .whitespaces)
+                if let k = wert.lastIndex(of: ","), let p = wert.lastIndex(of: ".") { return p > k ? .punkt : .komma }
+                for zeichen: Character in [",", "."] {
+                    guard let stelle = wert.lastIndex(of: zeichen) else { continue }
+                    let danach = wert[wert.index(after: stelle)...]
+                    if danach.count != 3 && danach.allSatisfy(\.isNumber) {
+                        if zeichen == "," { komma = true } else { punkt = true }
+                    }
+                }
+            }
+        }
+        return punkt && !komma ? .punkt : .komma
     }
 }
