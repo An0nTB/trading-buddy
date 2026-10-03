@@ -21,11 +21,9 @@ public struct CSVTabelle: Sendable {
     public init(text: String) {
         var rest = Substring(text)
         if rest.hasPrefix("\u{FEFF}") { rest = rest.dropFirst() }
-        let ersteZeile = rest.prefix { !$0.isNewline }
-        let trenner: Character = ersteZeile.filter { $0 == ";" }.count > ersteZeile.filter { $0 == "," }.count
-            ? ";" : ","
-        let alle = Self.zerlege(rest, trenner: trenner).filter { !($0.count == 1 && $0[0].isEmpty) }
-        kopf = alle.first ?? []
+        let alle = Self.zerlege(rest, trenner: Self.trenner(rest)).filter { !($0.count == 1 && $0[0].isEmpty) }
+        // Leerzeichen und ein übrig gebliebenes Byte-Order-Mark im Kopf stören den Spaltenvergleich nicht.
+        kopf = (alle.first ?? []).map { $0.trimmingCharacters(in: .whitespaces.union(CharacterSet(charactersIn: "\u{FEFF}"))) }
         zeilen = Array(alle.dropFirst())
     }
 
@@ -39,7 +37,18 @@ public struct CSVTabelle: Sendable {
         return index
     }
 
-    private static func zerlege(_ text: Substring, trenner: Character) -> [[String]] {
+    /// Trennzeichen nach der ersten Zeile: Semikolon oder Tabulator, wenn sie häufiger vorkommen als das Komma.
+    /// Tabulatoren schreibt Excel bei „Unicode-Text“.
+    static func trenner(_ text: Substring) -> Character {
+        let ersteZeile = text.prefix { !$0.isNewline }
+        let komma = ersteZeile.filter { $0 == "," }.count
+        let semikolon = ersteZeile.filter { $0 == ";" }.count
+        let tab = ersteZeile.filter { $0 == "\t" }.count
+        if tab > komma, tab > semikolon { return "\t" }
+        return semikolon > komma ? ";" : ","
+    }
+
+    static func zerlege(_ text: Substring, trenner: Character) -> [[String]] {
         var zeilen: [[String]] = []
         var zeile: [String] = []
         var feld = ""
