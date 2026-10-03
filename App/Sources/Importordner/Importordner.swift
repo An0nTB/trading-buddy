@@ -105,7 +105,8 @@ final class Importordner {
         defer { if zugriff { url.stopAccessingSecurityScopedResource() } }
         let daten = try url.bookmarkData(options: .withSecurityScope, includingResourceValuesForKeys: nil, relativeTo: nil)
         speicher.set(daten, forKey: Self.schluesselLesezeichen)
-        starte()
+        // Wer einen Ordner wählt, will ihn beobachtet haben (Beta-Punkt 6); sonst passiert still nichts.
+        if aktiv { starte() } else { setzeAktiv(true) }
     }
 
     /// Pfad des gewählten Ordners für die Einstellungen.
@@ -349,9 +350,11 @@ final class Importordner {
                 continue
             }
             // Schon gespeichert, etwa über „Prüfen“ im Blatt: erledigt, auch wenn das Konto mehrdeutig ist.
+            // Steht unter „Zuletzt“, damit eine hineingelegte Datei nicht wortlos verschwindet (H20).
             let hash = Journal.fingerabdruck(daten)
             if hashes.contains(hash) {
-                ergebnis.append(.erledigt(signatur: k.signatur, name: k.name, hash: hash, meldung: nil, gespeichert: false))
+                ergebnis.append(.erledigt(signatur: k.signatur, name: k.name, hash: hash,
+                                          meldung: String(localized: "schon importiert, nichts geändert"), gespeichert: false))
                 continue
             }
             let entscheidung = Importordnerregel.entscheide(daten: daten, dateiname: k.name, konten: konten,
