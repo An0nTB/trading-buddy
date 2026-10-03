@@ -452,6 +452,16 @@
         }
       }
     },
+    "In Claude Desktop die Vorlage „Henry-Status“ wählen oder „Henry-Status“ schreiben: Claude meldet, ob die Erweiterung diesen Export liest." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In Claude Desktop, pick the “Henry-Status” prompt or type “Henry-Status”: Claude reports whether the extension reads this export."
+          }
+        }
+      }
+    },
     "In der Zwischenablage" : {
       "localizations" : {
         "en" : {
@@ -478,6 +488,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Annual report %@"
+          }
+        }
+      }
+    },
+    "Jetzt exportieren" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export now"
           }
         }
       }
