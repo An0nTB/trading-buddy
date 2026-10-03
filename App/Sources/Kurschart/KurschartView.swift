@@ -84,7 +84,7 @@ struct KurschartView: View {
     @ViewBuilder
     private func hinweise(_ chart: Kurschart, verlauf: Kursverlauf) -> some View {
         VStack(alignment: .leading, spacing: Abstand.raster) {
-            Text("Dreieck: Einstieg, Kreis: Ausstieg, Raute: Tag mit Meldungen. Tageskerzen, nur beschreibend.")
+            Text("Dreieck: Einstieg, Kreis: Ausstieg, Kreuz: Ausstieg mit Verlust, Raute: Tag mit Meldungen. Tageskerzen, nur beschreibend.")
             if let naeherung = verlauf.naeherung { Text(verbatim: naeherung.uebersetzt) }
             if chart.ausserhalb > 0 {
                 Text("\(chart.ausserhalb) Ein- oder Ausstiege liegen weit außerhalb dieser Kurse (anderer Kurs des Brokers) und fehlen im Bild.")
