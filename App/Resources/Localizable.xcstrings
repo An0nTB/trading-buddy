@@ -432,6 +432,16 @@
         }
       }
     },
+    "Diese Seite zeigt das gewählte Konto." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This page shows the selected account."
+          }
+        }
+      }
+    },
     "Diese Trades lauten auf eine fremde Währung, für deren Schlusstag kein EZB-Referenzkurs vorliegt. Nach dem nächsten Kursabruf in der App den Bericht neu erstellen." : {
       "localizations" : {
         "en" : {
@@ -552,6 +562,56 @@
         }
       }
     },
+    "Feiertage und verkürzte Tage sind bis %@ gepflegt. Forex ohne Feiertage und Krypto ohne Wartungspausen sind Annahmen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holidays and shortened days are maintained up to %@. Forex without holidays and crypto without maintenance breaks are assumptions."
+          }
+        }
+      }
+    },
+    "Gelöschte Orders (nie ausgelöst)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancelled orders (never triggered)"
+          }
+        }
+      }
+    },
+    "Genau ein messbares Ziel je Review, so formuliert, dass das nächste Review es mit einer Zahl prüfen kann. Die Erweiterung „Henry“ in Claude liest die Ziele mit." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exactly one measurable goal per review, worded so the next review can check it with a number. The “Henry” extension in Claude reads the goals too."
+          }
+        }
+      }
+    },
+    "Genau ein messbares Ziel je Zeitraum, so formuliert, dass das nächste Review es mit einer Zahl prüfen kann." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exactly one measurable goal per period, worded so the next review can check it with a number."
+          }
+        }
+      }
+    },
+    "Größter Rückgang vom bisherigen Höchststand deiner Kurve." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Largest drop from the previous peak of your equity curve."
+          }
+        }
+      }
+    },
     "Henry %@ ist da" : {
       "localizations" : {
         "en" : {
@@ -632,6 +692,16 @@
         }
       }
     },
+    "Importiere einen Kontoauszug, dann erscheinen hier deine Trades." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import an account statement and your trades will appear here."
+          }
+        }
+      }
+    },
     "Importieren geht erst, wenn jede Prüfzeile „stimmt“ zeigt und das Konto feststeht. Wähl zuerst eine andere Serverzeit; hilft das nicht, Hilfe › Problem melden." : {
       "localizations" : {
         "en" : {
@@ -672,12 +742,42 @@
         }
       }
     },
+    "Kein Trade passt zu Suche oder Filter" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No trade matches the search or filter"
+          }
+        }
+      }
+    },
+    "Kontoauszug importieren" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import account statement"
+          }
+        }
+      }
+    },
     "Lade beim Broker den Kontoauszug herunter und wähle ihn auf der Import-Seite. MetaTrader 4: den Tagesauszug als HTML aus der Mail deines Brokers. MetaTrader 5: den Handelsbericht. Andere Broker: CSV oder Excel." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Download the account statement from your broker and choose it on the Import page. MetaTrader 4: the daily statement as HTML from your broker's email. MetaTrader 5: the trade report. Other brokers: CSV or Excel."
+          }
+        }
+      }
+    },
+    "Läuft die Frist ohne Abhaken ab, setzt Henry das Ziel beim nächsten Start auf „Verfehlt“ (Frist abgelaufen, nicht als erreicht abgehakt). „Erreicht“ und „Verfehlt“ fragen nach dem Ergebnis in einem Satz; Wiederöffnen bleibt im Menü möglich." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "If the deadline passes without a tick, Henry sets the goal to “Missed” at the next start (deadline passed, not ticked as reached). “Reached” and “Missed” ask for the result in one sentence; reopening stays possible in the menu."
           }
         }
       }
@@ -702,12 +802,32 @@
         }
       }
     },
+    "Profitfaktor: Summe der Gewinne geteilt durch Summe der Verluste, über 1 heißt unterm Strich im Plus. Darunter: durchschnittlicher Gewinn geteilt durch durchschnittlichen Verlust." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profit factor: sum of wins divided by sum of losses; above 1 means a net profit. Below: average win divided by average loss."
+          }
+        }
+      }
+    },
     "Später" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Later"
+          }
+        }
+      }
+    },
+    "Summe der Gewinne geteilt durch Summe der Verluste. Über 1 heißt: unterm Strich im Plus." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sum of wins divided by sum of losses. Above 1 means a net profit."
           }
         }
       }
@@ -1242,6 +1362,16 @@
         }
       }
     },
+    "Was ein Trade im Schnitt bringt, nach Kosten. R ist dein Risiko je Trade: Abstand vom Einstieg zum Stop mal Größe. +2 R heißt: doppelt so viel gewonnen wie riskiert." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What a trade earns on average, after costs. R is your risk per trade: distance from entry to stop times size. +2 R means twice as much won as risked."
+          }
+        }
+      }
+    },
     "Wie beim letzten Kontoimport dieses Kontos." : {
       "localizations" : {
         "en" : {
@@ -1332,6 +1462,16 @@
         }
       }
     },
+    "Wochen- oder Monatsreview. Die Erweiterung „Henry“ liest Ziele und Ergebnisse mit, ändern kann sie sie nicht." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weekly or monthly review. The “Henry” extension reads goals and results but cannot change them."
+          }
+        }
+      }
+    },
     "Wähle einen Kontoauszug: MetaTrader 4 (HTML-Auszug aus der Broker-Mail, nicht der Bericht aus dem Terminal), MetaTrader 5 (Handelsbericht), den Transaktionsexport von Trade Republic oder Scalable Capital (CSV), das Activity Statement von Interactive Brokers (CSV), den Trade- oder Transaktionsexport von Kraken, Binance, Coinbase oder Bitpanda (CSV) oder die Kontohistorie von XTB (Excel aus xStation 5)." : {
       "localizations" : {
         "en" : {
@@ -1378,6 +1518,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Go to Import"
+          }
+        }
+      }
+    },
+    "Ø Gewinn zu Ø Verlust %@ · %@ / %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avg win to avg loss %@ · %@ / %@"
           }
         }
       }
