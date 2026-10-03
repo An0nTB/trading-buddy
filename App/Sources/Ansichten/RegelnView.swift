@@ -114,7 +114,7 @@ struct RegelAmpelKarte: View {
     private func farbe(_ stufe: Ampelstufe) -> Color {
         switch stufe {
         case .gruen: thema.gewinn
-        case .gelb: .orange
+        case .gelb: thema.warnung
         case .rot: thema.verlust
         }
     }
