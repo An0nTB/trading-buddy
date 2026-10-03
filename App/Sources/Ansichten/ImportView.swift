@@ -42,7 +42,7 @@ struct ImportView: View {
             #endif
             if modell.importe.isEmpty {
                 ContentUnavailableView(ton.text("Noch kein Import", henry: "Ein Auszug, bitte."), systemImage: "square.and.arrow.down",
-                                       description: Text("Wähle einen Kontoauszug: MetaTrader 4 oder 5 (HTML, GBE und andere Broker), den Transaktionsexport von Trade Republic oder Scalable Capital (CSV), das Activity Statement von Interactive Brokers (CSV), den Trade- oder Transaktionsexport von Kraken, Binance, Coinbase oder Bitpanda (CSV) oder die Kontohistorie von XTB (Excel aus xStation 5)."))
+                                       description: Text("Wähle einen Kontoauszug: MetaTrader 4 (HTML-Auszug aus der Broker-Mail, nicht der Bericht aus dem Terminal), MetaTrader 5 (Handelsbericht), den Transaktionsexport von Trade Republic oder Scalable Capital (CSV), das Activity Statement von Interactive Brokers (CSV), den Trade- oder Transaktionsexport von Kraken, Binance, Coinbase oder Bitpanda (CSV) oder die Kontohistorie von XTB (Excel aus xStation 5)."))
             } else {
                 List(modell.importe) { eintrag in
                     ImportZeile(eintrag: eintrag)
@@ -179,6 +179,8 @@ struct ImportBlatt: View {
     @State private var xtbZeit = Serverzeit.mitteleuropa
     /// Kontonummer für einen XTB-Auszug ohne Kontokopf.
     @State private var xtbKontonummer = ""
+    /// Zeitzone einmal vom letzten Import dieses Kontos übernommen (Doc 52 H5); danach gilt die Wahl im Blatt.
+    @State private var zeitVorbelegt = false
     /// Kontonummer für einen MetaTrader-5-Bericht ohne Kontozeile.
     @State private var mt5Kontonummer = ""
     @State private var waehrung = "EUR"
@@ -880,13 +882,27 @@ struct ImportBlatt: View {
         switch Importlesung.lies(vorschau.daten, dateiname: vorschau.dateiname,
                                  serverzeit: serverzeit.zeitzone, xtbZeit: xtbZeit.zeitzone) {
         case .erkannt(let datei): erkannt = datei
-        case .fehler(let text): lesefehler = text
+        case .fehler(let text):
+            lesefehler = text
+            Fehlerprotokoll.merke(String(localized: "Lesen: \(text)")) // Hilfe › Problem melden
+        }
+        if !zeitVorbelegt, let datei = erkannt {
+            zeitVorbelegt = true
+            // Bekanntes Konto: Zeitzone wie beim letzten Import, sonst stimmen die Tickets nicht überein (Doc 52 H5).
+            // Die Änderung liest die Datei über onChange noch einmal mit dieser Zone.
+            if let zone = letzteZone(datei) {
+                if case .xtb = datei {
+                    if zone != xtbZeit { xtbZeit = zone }
+                } else if zone != serverzeit {
+                    serverzeit = zone
+                }
+            }
         }
         if case .csv(let broker, _)? = erkannt, kontowahl == nil {
             // Vorgabe: das erste Konto dieses Brokers, sonst ein neues namens „Depot“ (Börsen: „Spot“).
             // IBKR nennt die Kontonummer: dann das Konto mit dieser Nummer, sonst ein neues mit ihr als Name.
             let konten = modell.konten(broker: broker.name)
-            if broker == .ibkr, let text = String(data: vorschau.daten, encoding: .utf8) {
+            if broker == .ibkr, let text = Importtext.lies(vorschau.daten) {
                 let kopf = IBKRCSV.konto(text)
                 if let nummer = kopf.nummer {
                     kontowahl = konten.first { $0.kontonummer == nummer }.flatMap(\.id).map(Kontowahl.bestehend) ?? .neu
@@ -899,6 +915,26 @@ struct ImportBlatt: View {
             }
             if neuerKontoname.isEmpty { neuerKontoname = broker.kontoVorgabe }
         }
+    }
+
+    /// Zeitzone des jüngsten Imports, wenn die Datei ein bekanntes MetaTrader- oder XTB-Konto nennt.
+    private func letzteZone(_ datei: ErkannteDatei) -> Serverzeit? {
+        let konto: Konto?
+        switch datei {
+        case .mt4(let auszug):
+            konto = modell.bekanntesKonto(broker: auszug.broker, kontonummer: auszug.accountNumber)
+        case .mt5(let bericht):
+            konto = bericht.konto.flatMap { modell.bekanntesKonto(broker: Importlesung.broker(bericht), kontonummer: $0) }
+        case .xtb(let auszug):
+            konto = auszug.konto.flatMap { modell.bekanntesKonto(broker: Importer.xtbBroker, kontonummer: $0) }
+        case .csv:
+            konto = nil
+        }
+        guard let konto else { return nil }
+        let letzter = modell.importe.filter { $0.konto.id == konto.id }
+            .max { $0.lauf.importiertAm < $1.lauf.importiertAm }
+        guard let kennung = letzter?.lauf.serverZeitzone else { return nil }
+        return Serverzeit.allCases.first { $0.rawValue == kennung || $0.zeitzone.identifier == kennung }
     }
 
     private func speichere() {
@@ -942,6 +978,7 @@ struct ImportBlatt: View {
             speicherfehler = nil
         } catch {
             speicherfehler = Importlesung.fehlertext(error)
+            Fehlerprotokoll.merke(String(localized: "Speichern: \(Importlesung.fehlertext(error))"))
         }
     }
 

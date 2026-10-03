@@ -239,7 +239,7 @@ enum Importlesung {
             }
             return .erkannt(.mt4(try MT4Statement.parse(html: text, serverZeitzone: serverzeit)))
         } catch MT4ImportFehler.keinMT4Auszug {
-            return .fehler(String(localized: "Format nicht erkannt: kein MetaTrader-4-Auszug (HTML), kein CSV-Export von Trade Republic, Scalable, Kraken, Binance, Coinbase oder Bitpanda und keine XTB-Kontohistorie (Excel)."))
+            return .fehler(String(localized: "Format nicht erkannt: kein MetaTrader-Auszug (MT4: HTML aus der Broker-Mail, nicht der Bericht aus dem Terminal; MT5: Handelsbericht), kein CSV-Export von Trade Republic, Scalable, Interactive Brokers, Kraken, Binance, Coinbase oder Bitpanda und keine XTB-Kontohistorie (Excel)."))
         } catch {
             return .fehler(fehlertext(error))
         }
@@ -382,13 +382,17 @@ enum Importlesung {
         if let fehler = error as? SpeicherFehler {
             switch fehler {
             case .keinText:
-                return String(localized: "Die Datei ist kein Text (UTF-8).")
+                return String(localized: "Die Datei ist kein lesbarer Text.")
             case .auszugWidersprichtSeinenSummen(let liste):
                 return String(localized: "Der Auszug widerspricht seinen eigenen Summen: \(liste.joined(separator: ", "))")
             case .andereKontowaehrung(let gespeichert, let angegeben):
                 return String(localized: "Das Konto ist mit \(gespeichert) angelegt, nicht mit \(angegeben).")
             case .abweichenderDatensatz(let tickets):
-                return String(localized: "Vorgänge mit anderen Werten als beim früheren Import: \(tickets.joined(separator: ", "))")
+                // Höchstens fünf Tickets nennen; häufigste Ursache bei MetaTrader und XTB ist eine andere Serverzeit (Doc 52 H5).
+                let rest = tickets.count - 5
+                let liste = tickets.prefix(5).joined(separator: ", ")
+                let vorgaenge = rest > 0 ? String(localized: "\(liste) und \(rest) weitere") : liste
+                return String(localized: "Vorgänge mit anderen Werten als beim früheren Import: \(vorgaenge). Bei MetaTrader und XTB: Stimmt die Serverzeit mit dem letzten Import überein?")
             case .unbekannterWert(let wert):
                 return String(localized: "Unbekannter Wert in der Datenbank: \(wert)")
             case .ungueltigerWert(let wert):

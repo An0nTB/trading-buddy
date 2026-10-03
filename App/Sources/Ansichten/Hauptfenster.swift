@@ -92,6 +92,7 @@ struct Hauptfenster: View {
             Text(verbatim: modell.fehler ?? "")
         }
         .fragBradBlatt() // Frag Henry (Doc 31): an der Wurzel, damit es auch in der Tab-Leiste am iPhone wirkt
+        .hilfeBlaetter() // Hilfe › Erste Schritte, Problem melden (Nachtpaket AP11)
     }
 
     private var fehlerSichtbar: Binding<Bool> {
@@ -181,7 +182,7 @@ struct KontoZeile: View {
                         Text(verbatim: kontoName(konto)).tag(konto.id)
                     }
                 }
-                Text(verbatim: "\(modell.waehrung) · \(modell.alleTrades.count) Trades")
+                Text(verbatim: "\(modell.waehrung) · \(String(localized: "\(modell.alleTrades.count) Trades"))") // Plural über den Katalog (Doc 52 H13)
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
