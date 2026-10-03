@@ -9,12 +9,20 @@ import TradingCore
 /// im Namensraum `http://www.ecb.int/vocabulary/2002-08-01/eurofxref`, Einheit Fremdwährung je 1 Euro.
 /// Der Aufbau ist aus der EZB-Dokumentation nachgebaut; die Cloud-Sitzung konnte die Datei nicht abrufen (Doc 34).
 public enum EZBKursdatei {
-    public enum Fehler: Error, Sendable, Equatable {
+    public enum Fehler: LocalizedError, Sendable, Equatable {
         /// Keine Kurse gefunden, z. B. eine HTML-Fehlerseite statt XML.
         case keineKurse
         /// Die Datei bricht mitten im XML ab (z. B. Verbindung beim Laden der Verlaufsdatei getrennt).
         /// Ein Teil darf nicht als Erfolg in den Zwischenspeicher, sonst fehlen die alten Tage dauerhaft.
         case unvollstaendig
+
+        /// Text für die Steuer-Seite („Abruf: …“), ohne Typnamen.
+        public var errorDescription: String? {
+            switch self {
+            case .keineKurse: "Die EZB-Datei enthält keine Kurse."
+            case .unvollstaendig: "Die EZB-Datei kam unvollständig an."
+            }
+        }
     }
 
     /// Alle Tage mit ihren Kursen. Unlesbare Kurszeilen fallen weg; eine Datei ganz ohne Kurse
