@@ -272,6 +272,66 @@
         }
       }
     },
+    "Ausbruch" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Breakout"
+          }
+        }
+      }
+    },
+    "Beispiel: Nur Ausbrüche über dem Vortageshoch, höchstens drei Trades." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Example: Only breakouts above the previous day's high, three trades at most."
+          }
+        }
+      }
+    },
+    "Beispiel: Vierter Trade aus Langeweile, gegen die eigene Regel." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Example: Fourth trade out of boredom, against my own rule."
+          }
+        }
+      }
+    },
+    "Beispieldaten entfernen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove sample data"
+          }
+        }
+      }
+    },
+    "Beispieldaten: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sample data: %@"
+          }
+        }
+      }
+    },
+    "Beispielkonto" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sample account"
+          }
+        }
+      }
+    },
     "Bestand am Ende der Daten" : {
       "localizations" : {
         "en" : {
@@ -338,6 +398,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Connect Claude"
+          }
+        }
+      }
+    },
+    "Das Beispielkonto geht. Eigene Konten bleiben, wo sie sind." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The sample account leaves. Your own accounts stay where they are."
           }
         }
       }
@@ -562,6 +632,16 @@
         }
       }
     },
+    "Entfernt das Beispielkonto und seine Tagesnotiz; eigene Konten bleiben unverändert." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Removes the sample account and its daily note; your own accounts stay unchanged."
+          }
+        }
+      }
+    },
     "Enthalten: Versionen, System, Zahl der Konten und Importfehler dieser Sitzung. Nicht enthalten: Trades, Beträge, Namen, volle Konto- oder Ticketnummern. Hängt es an einer Datei, hilft zusätzlich die anonymisierte Probe aus dem Import-Blatt." : {
       "localizations" : {
         "en" : {
@@ -578,6 +658,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Detected: MetaTrader 5 trade report (HTML)"
+          }
+        }
+      }
+    },
+    "Erst einmal nur schauen? Ein Beispielkonto mit 60 erfundenen Trades. Später unten in der Seitenleiste mit einem Klick wieder fort." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Just looking for now? A sample account with 60 made-up trades. Gone again later with one click at the bottom of the sidebar."
           }
         }
       }
@@ -822,6 +912,16 @@
         }
       }
     },
+    "Mit Beispieldaten ansehen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Explore with sample data"
+          }
+        }
+      }
+    },
     "Nach Updates suchen" : {
       "localizations" : {
         "en" : {
@@ -842,12 +942,32 @@
         }
       }
     },
+    "Ohne eigene Datei: Ein Beispielkonto mit 60 erfundenen Trades zeigt, was die App kann. Entfernen geht mit einem Klick unten in der Seitenleiste." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No file of your own yet: a sample account with 60 made-up trades shows what the app can do. Remove it with one click at the bottom of the sidebar."
+          }
+        }
+      }
+    },
     "Profitfaktor: Summe der Gewinne geteilt durch Summe der Verluste, über 1 heißt unterm Strich im Plus. Darunter: durchschnittlicher Gewinn geteilt durch durchschnittlichen Verlust." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Profit factor: sum of wins divided by sum of losses; above 1 means a net profit. Below: average win divided by average loss."
+          }
+        }
+      }
+    },
+    "Rücksetzer" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pullback"
           }
         }
       }
