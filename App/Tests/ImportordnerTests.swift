@@ -163,6 +163,8 @@ Dividends,Data,USD,2025-05-15,AAPL(US0378331005) Cash Dividend USD 0.25 per Shar
         await beobachtung.pruefeTestweise(ordner, modell: m, jetzt: spaeter)
         #expect(beobachtung.rueckfragen.map(\.dateiname) == ["kraken-a.csv"])
         #expect(m.importe.count == 1)
+        // J21: Die wartende Datei gilt als gemeldet, damit die Mitteilung nur einmal kommt.
+        #expect(speicher.stringArray(forKey: Importordner.schluesselGemeldet) == beobachtung.rueckfragen.map(\.id))
 
         // Kraken-Konto einmal von Hand, dann kommt eine weitere Kraken-Datei.
         _ = try m.importiereCSV(daten: Data(T.kraken(kennung: "A").utf8), dateiname: "kraken-a.csv",
@@ -182,6 +184,11 @@ Dividends,Data,USD,2025-05-15,AAPL(US0378331005) Cash Dividend USD 0.25 per Shar
         await beobachtung.pruefe(jetzt: spaeter)
         #expect(m.importe.count == 3)
         #expect(beobachtung.zuletzt.count == 3)
+        // H20: „Zuletzt“ übersteht einen Neustart; nichts wartet mehr.
+        let nachNeustart = Importordner(speicher: speicher).zuletzt
+        #expect(nachNeustart.map(\.dateiname) == beobachtung.zuletzt.map(\.dateiname))
+        #expect(nachNeustart.map(\.id) == beobachtung.zuletzt.map(\.id))
+        #expect(speicher.stringArray(forKey: Importordner.schluesselGemeldet) == [])
     }
 
     /// H19: Wer einen Ordner wählt, schaltet die Beobachtung ein; sonst passiert mit hineingelegten Dateien nichts.
@@ -200,9 +207,12 @@ Dividends,Data,USD,2025-05-15,AAPL(US0378331005) Cash Dividend USD 0.25 per Shar
         #expect(Importordner(speicher: speicher).aktiv)
     }
 
-    /// A4: Mitteilung nur nach stillem Speichern; wartende Dateien stehen im Text, lösen allein aber keine aus.
+    /// A4: Mitteilung nach stillem Speichern, wartende Dateien stehen im Text; ohne Import nur bei neu wartenden (J21).
     @Test func mitteilungNennenDateiUndWartende() throws {
         #expect(Importordner.mitteilungstext([], offen: 2) == nil)
+        // J21: Ohne Import nur dann eine Mitteilung, wenn eine Datei neu wartet.
+        let wartend = try #require(Importordner.mitteilungstext([], offen: 2, neuWartend: 1)).text
+        #expect(wartend.contains("2"))
         let eine = Importordner.Meldung(dateiname: "kraken-b.csv", text: "1 neue Ausführungen", zeit: .now)
         let text = try #require(Importordner.mitteilungstext([eine], offen: 0)).text
         #expect(text == "kraken-b.csv: 1 neue Ausführungen")
