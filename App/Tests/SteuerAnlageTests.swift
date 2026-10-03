@@ -85,9 +85,10 @@ import TradingStore
         #expect(topf.ohneEuro == 1)
         #expect(topf.saldo == 0)
         let krypto = try #require(anlage.krypto)
-        #expect(krypto.ohneEuro >= 1)
+        #expect(krypto.ohneEuro == 1)
         #expect(!krypto.vollstaendig)
-        #expect(anlage.ohneKurs > 0)
+        // Ein Trade, einmal gezählt (#221): die Lose stehen nur auf Seite 2 unter „Lücken“.
+        #expect(anlage.ohneKurs == 1)
         #expect(try pdf(anlage).seiten == 2)
     }
 
