@@ -135,12 +135,16 @@ struct Statuskapsel: View {
 
     var body: some View {
         let farbe = Zielformat.farbe(status, thema)
-        Text(verbatim: Zielformat.titel(status))
-            .font(Schrift.beschriftung)
-            .padding(.horizontal, Abstand.raster * 2)
-            .padding(.vertical, Abstand.raster)
-            .background(farbe.opacity(0.18), in: Capsule())
-            .foregroundStyle(farbe)
+        // Text in thema.text, die Farbe nur im Grund und als Punkt (Doc 55 J22).
+        HStack(spacing: Abstand.raster) {
+            Circle().fill(farbe).frame(width: 6, height: 6)
+            Text(verbatim: Zielformat.titel(status))
+        }
+        .font(Schrift.beschriftung)
+        .padding(.horizontal, Abstand.raster * 2)
+        .padding(.vertical, Abstand.raster)
+        .background(farbe.opacity(0.18), in: Capsule())
+        .foregroundStyle(thema.text)
     }
 }
 
