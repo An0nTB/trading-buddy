@@ -587,9 +587,11 @@ final class AppModell {
     }
 
     /// Disziplin-Kurve der gefilterten Trades; die Verstöße stammen aus der Prüfung über alle Trades,
-    /// Prop-Firm-Verstöße zählen mit (TradingCore 0.16.0; ein Trade mit beiden Arten zählt einmal).
+    /// Prop-Firm-Verstöße zählen mit (TradingCore 0.16.0; ein Trade mit beiden Arten zählt einmal). Trades ohne
+    /// EZB-Kurs zählen bei Anzahl und Verstößen mit, ohne Betrag (Kern 0.24.0, Doc 52 H4); Disziplin sortiert selbst.
     var disziplin: Disziplin {
-        Disziplin(trades: kontoTrades, verstoesse: verstoesse, propFirm: propFirmErgebnis?.verstoesse ?? [])
+        Disziplin(trades: kontoTrades + gefiltert(angleich.ohneKurs), verstoesse: verstoesse,
+                  propFirm: propFirmErgebnis?.verstoesse ?? [], ohneBetrag: angleich.ohneKursIDs)
     }
 
     /// Stand der Challenge über alle Trades des Kontos; `nil` ohne Prop-Firm-Regeln.
