@@ -42,6 +42,9 @@ struct BerichtKontext {
     var brokerFuehrtSteuerAb: Bool?
     /// Letzter Tag mit EZB-Referenzkursen; `nil`, wenn keine geladen sind.
     var ezbBis: Journaltag?
+    /// Anzeigewährung der App, wenn sie von der Kontowährung abweicht. Der Bericht bleibt in Kontowährung
+    /// und sagt das dann ausdrücklich (Doc 52, H10).
+    var anzeigewaehrung: String?
 
     /// Broker und höchstens die letzten vier Stellen der Kontonummer.
     static func kontoText(broker: String, kontonummer: String) -> String {
@@ -140,7 +143,8 @@ extension AppModell {
         let kontext = BerichtKontext(art: art, zeitraum: zeitraum, erster: erster, letzter: letzter, titel: titel,
                                      konto: kontoText ?? String(localized: "Ohne Konto"), waehrung: waehrung,
                                      zeitzone: zeitzone, erstellt: jetzt, regelnHinterlegt: !regeln.leer,
-                                     brokerFuehrtSteuerAb: brokerFuehrtSteuerAb, ezbBis: ezb.letzterTag)
+                                     brokerFuehrtSteuerAb: brokerFuehrtSteuerAb, ezbBis: ezb.letzterTag,
+                                     anzeigewaehrung: summenwaehrung == waehrung.uppercased() ? nil : summenwaehrung)
         return (bericht, kontext)
     }
 
