@@ -23,31 +23,12 @@ struct BerichtSeitenansicht: View {
     let seite: BerichtSeite
     let bericht: Zeitraumbericht
     let kontext: BerichtKontext
-    @Environment(\.thema) private var thema
 
     var body: some View {
-        // Kopf und Fuß liegen über dem Inhalt und decken ihn ab: Läuft der Inhalt doch zu lang, wird er
-        // abgeschnitten, nie der Fuß mit dem Hinweis „Keine Kauf- oder Verkaufsempfehlung“.
-        inhalt
-            .padding(.top, BerichtMass.kopfReserve)
-            .padding(.bottom, BerichtMass.fussReserve)
-            .frame(width: BerichtMass.breite, height: BerichtMass.seite.height - 2 * BerichtMass.randOben,
-                   alignment: .topLeading)
-            .clipped()
-            .overlay(alignment: .top) {
-                BerichtKopf(kontext: kontext, seitentitel: seite.titel)
-                    .background(thema.flaeche)
-            }
-            .overlay(alignment: .bottom) {
-                BerichtFuss(kontext: kontext, nummer: seite.rawValue + 1, anzahl: BerichtSeite.allCases.count)
-                    .padding(.top, Abstand.raster * 2)
-                    .background(thema.flaeche)
-            }
-            .padding(.horizontal, BerichtMass.randSeitlich)
-            .padding(.vertical, BerichtMass.randOben)
-            .frame(width: BerichtMass.seite.width, height: BerichtMass.seite.height)
-            .background(thema.flaeche)
-            .clipped()
+        BerichtRahmen(kontext: kontext, seitentitel: seite.titel, nummer: seite.rawValue + 1,
+                      anzahl: BerichtSeite.allCases.count) {
+            inhalt
+        }
     }
 
     @ViewBuilder private var inhalt: some View {
@@ -56,6 +37,43 @@ struct BerichtSeitenansicht: View {
         case .verhalten: BerichtVerhalten(bericht: bericht, kontext: kontext)
         case .tagebuchUndSteuer: BerichtTagebuchUndSteuer(bericht: bericht, kontext: kontext)
         }
+    }
+}
+
+/// A4-Blatt mit Kopf, Inhalt und Fuß; gemeinsam für Zeitraumbericht und Steuer-Orientierung.
+struct BerichtRahmen<Inhalt: View>: View {
+    let kontext: BerichtKontext
+    let seitentitel: String
+    let nummer: Int
+    let anzahl: Int
+    /// Zusätzliche Zeile im Fuß, etwa „Orientierung, keine Steuerberatung“.
+    var fusshinweis: String?
+    @ViewBuilder var inhalt: () -> Inhalt
+    @Environment(\.thema) private var thema
+
+    var body: some View {
+        // Kopf und Fuß liegen über dem Inhalt und decken ihn ab: Läuft der Inhalt doch zu lang, wird er
+        // abgeschnitten, nie der Fuß mit dem Hinweis „Keine Kauf- oder Verkaufsempfehlung“.
+        inhalt()
+            .padding(.top, BerichtMass.kopfReserve)
+            .padding(.bottom, BerichtMass.fussReserve + (fusshinweis == nil ? 0 : Abstand.raster * 3))
+            .frame(width: BerichtMass.breite, height: BerichtMass.seite.height - 2 * BerichtMass.randOben,
+                   alignment: .topLeading)
+            .clipped()
+            .overlay(alignment: .top) {
+                BerichtKopf(kontext: kontext, seitentitel: seitentitel)
+                    .background(thema.flaeche)
+            }
+            .overlay(alignment: .bottom) {
+                BerichtFuss(kontext: kontext, nummer: nummer, anzahl: anzahl, hinweis: fusshinweis)
+                    .padding(.top, Abstand.raster * 2)
+                    .background(thema.flaeche)
+            }
+            .padding(.horizontal, BerichtMass.randSeitlich)
+            .padding(.vertical, BerichtMass.randOben)
+            .frame(width: BerichtMass.seite.width, height: BerichtMass.seite.height)
+            .background(thema.flaeche)
+            .clipped()
     }
 }
 
@@ -87,6 +105,7 @@ struct BerichtFuss: View {
     let kontext: BerichtKontext
     let nummer: Int
     let anzahl: Int
+    var hinweis: String?
     @Environment(\.thema) private var thema
 
     var body: some View {
@@ -98,6 +117,9 @@ struct BerichtFuss: View {
                 Text(verbatim: String(localized: "Erstellt am \(Format.datum(kontext.erstellt)) · Zeiten in \(kontext.zeitzone.identifier)"))
                 Spacer()
                 Text(verbatim: String(localized: "Seite \(nummer) von \(anzahl)"))
+            }
+            if let hinweis {
+                Text(verbatim: hinweis)
             }
             Text("Beschreibt vergangene Trades. Keine Kauf- oder Verkaufsempfehlung, keine Prognose.")
         }
