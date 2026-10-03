@@ -332,12 +332,12 @@
         }
       }
     },
-    "Dreieck Einstieg, Kreis Ausstieg, gestrichelt Stop (rot) und Ziel (grün)." : {
+    "Dreieck Einstieg; Ausstieg als Kreis bei Gewinn, als Kreuz bei Verlust; gestrichelt Stop (rot) und Ziel (grün)." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Triangle entry, circle exit, dashed stop (red) and target (green)."
+            "value" : "Triangle entry; exit as a circle on a gain, as a cross on a loss; dashed stop (red) and target (green)."
           }
         }
       }
