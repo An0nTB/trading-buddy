@@ -132,6 +132,7 @@ struct Seitenleiste: View {
                             Label(bereich.titel, systemImage: bereich.symbol)
                                 .listItemTint(thema.akzent)
                                 .tag(bereich)
+                                .badge(bereich == .importieren ? wartendeDateien : 0) // Doc 55 J21
                                 .inNeuemFenster(bereich) // P12 Eigene Fenster
                         }
                     }
@@ -163,6 +164,15 @@ struct Seitenleiste: View {
 
     private var auswahl: Binding<Bereich?> {
         Binding(get: { modell.bereich }, set: { if let bereich = $0 { modell.bereich = bereich } })
+    }
+
+    /// Dateien aus dem Import-Ordner, die auf eine Antwort warten (Import-Ordner-Thread, Doc 45).
+    private var wartendeDateien: Int {
+        #if os(macOS)
+        Importordner.geteilt.rueckfragen.count
+        #else
+        0
+        #endif
     }
 }
 

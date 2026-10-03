@@ -256,7 +256,7 @@ struct ZielFormular: View {
                 Section("Ziel") {
                     TextField("z. B. Höchstens 2 Revanche-Trades", text: $entwurf.text, axis: .vertical)
                         .lineLimit(2...4)
-                    Text("Genau ein messbares Ziel je Zeitraum (Rezept Punkt 7), so formuliert, dass das nächste Review es mit einer Zahl prüfen kann.")
+                    Text("Genau ein messbares Ziel je Zeitraum, so formuliert, dass das nächste Review es mit einer Zahl prüfen kann.")
                         .font(Schrift.beschriftung)
                         .foregroundStyle(thema.textSchwach)
                 }
