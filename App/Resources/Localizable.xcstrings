@@ -352,12 +352,32 @@
         }
       }
     },
+    "Dateiformat %lld kennt diese Version nicht." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This version does not know file format %lld."
+          }
+        }
+      }
+    },
     "Dazu %lld weitere auf der Steuer-Seite der App." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Plus %lld more on the Tax page of the app."
+          }
+        }
+      }
+    },
+    "Der Ordner mit den Terminen fehlt im Paket." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The folder with the events is missing from the package."
           }
         }
       }
@@ -492,6 +512,16 @@
         }
       }
     },
+    "Dreieck: Einstieg, Kreis: Ausstieg, Kreuz: Ausstieg mit Verlust, Raute: Tag mit Meldungen. Tageskerzen, nur beschreibend." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Triangle: entry, circle: exit, cross: exit with a loss, diamond: day with headlines. Daily candles, descriptive only."
+          }
+        }
+      }
+    },
     "Ein Konto entsteht mit dem ersten Import. Henry liest Broker und Kontonummer aus der Datei; Namen und Kontowährung legst du im Import-Blatt fest." : {
       "localizations" : {
         "en" : {
@@ -548,6 +578,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Detected: MetaTrader 5 trade report (HTML)"
+          }
+        }
+      }
+    },
+    "fallend" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "falling"
           }
         }
       }
@@ -822,12 +862,72 @@
         }
       }
     },
+    "steigend" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "rising"
+          }
+        }
+      }
+    },
     "Summe der Gewinne geteilt durch Summe der Verluste. Über 1 heißt: unterm Strich im Plus." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sum of wins divided by sum of losses. Above 1 means a net profit."
+          }
+        }
+      }
+    },
+    "Termin „%@“ liegt nicht im Jahr %lld seiner Datei." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Event “%1$@” is not in the year %2$lld of its file."
+          }
+        }
+      }
+    },
+    "Termin „%@“ steht doppelt in den Dateien." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Event “%@” appears twice in the files."
+          }
+        }
+      }
+    },
+    "Termin „%@“: Datum „%@“ ist nicht JJJJ-MM-TT." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Event “%1$@”: date “%2$@” is not YYYY-MM-DD."
+          }
+        }
+      }
+    },
+    "Termin „%@“: Uhrzeit „%@“ ist nicht HH:MM." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Event “%1$@”: time “%2$@” is not HH:MM."
+          }
+        }
+      }
+    },
+    "Termin „%@“: Zeitzone „%@“ ist unbekannt." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Event “%1$@”: time zone “%2$@” is unknown."
           }
         }
       }
@@ -5715,16 +5815,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Thursday"
-          }
-        }
-      }
-    },
-    "Dreieck: Einstieg, Kreis: Ausstieg, Raute: Tag mit Meldungen. Tageskerzen, nur beschreibend." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Triangle: entry, circle: exit, diamond: day with headlines. Daily candles, descriptive only."
           }
         }
       }
