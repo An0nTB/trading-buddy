@@ -76,6 +76,16 @@
         }
       }
     },
+    "%@ und %lld weitere" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ and %2$lld more"
+          }
+        }
+      }
+    },
     "%lld Angaben ersetzt" : {
       "localizations" : {
         "en" : {
@@ -252,6 +262,16 @@
         }
       }
     },
+    "Die Datei ist kein lesbarer Text." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The file is not readable text."
+          }
+        }
+      }
+    },
     "Die Datei ist weder lesbarer Text noch eine Excel-Datei." : {
       "localizations" : {
         "en" : {
@@ -378,6 +398,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Getting started …"
+          }
+        }
+      }
+    },
+    "Format nicht erkannt: kein MetaTrader-Auszug (MT4: HTML aus der Broker-Mail, nicht der Bericht aus dem Terminal; MT5: Handelsbericht), kein CSV-Export von Trade Republic, Scalable, Interactive Brokers, Kraken, Binance, Coinbase oder Bitpanda und keine XTB-Kontohistorie (Excel)." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Format not recognized: not a MetaTrader statement (MT4: HTML from the broker email, not the report from the terminal; MT5: trade report), not a CSV export from Trade Republic, Scalable, Interactive Brokers, Kraken, Binance, Coinbase or Bitpanda, and not an XTB account history (Excel)."
           }
         }
       }
@@ -592,6 +622,16 @@
         }
       }
     },
+    "Vorgänge mit anderen Werten als beim früheren Import: %@. Bei MetaTrader und XTB: Stimmt die Serverzeit mit dem letzten Import überein?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transactions with different values than in the earlier import: %@. For MetaTrader and XTB: does the server time match the last import?"
+          }
+        }
+      }
+    },
     "Wie beim letzten Kontoimport dieses Kontos." : {
       "localizations" : {
         "en" : {
@@ -678,6 +718,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Available again via Help › Getting started."
+          }
+        }
+      }
+    },
+    "Wähle einen Kontoauszug: MetaTrader 4 (HTML-Auszug aus der Broker-Mail, nicht der Bericht aus dem Terminal), MetaTrader 5 (Handelsbericht), den Transaktionsexport von Trade Republic oder Scalable Capital (CSV), das Activity Statement von Interactive Brokers (CSV), den Trade- oder Transaktionsexport von Kraken, Binance, Coinbase oder Bitpanda (CSV) oder die Kontohistorie von XTB (Excel aus xStation 5)." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose an account statement: MetaTrader 4 (HTML statement from the broker email, not the report from the terminal), MetaTrader 5 (trade report), the transaction export from Trade Republic or Scalable Capital (CSV), the Activity Statement from Interactive Brokers (CSV), the trade or transaction export from Kraken, Binance, Coinbase or Bitpanda (CSV), or the account history from XTB (Excel from xStation 5)."
           }
         }
       }
@@ -1852,6 +1902,24 @@
     },
     "%lld Trades" : {
       "localizations" : {
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Trade"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Trades"
+                }
+              }
+            }
+          }
+        },
         "en" : {
           "variations" : {
             "plural" : {
