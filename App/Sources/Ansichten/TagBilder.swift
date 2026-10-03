@@ -59,6 +59,7 @@ struct BilderRaster: View {
                             .clipShape(RoundedRectangle(cornerRadius: Abstand.radiusKnopf))
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel(Text("Bild vergrößern"))
                     .contextMenu {
                         Button("Bild entfernen", systemImage: "trash", role: .destructive) {
                             entfernen(bild)
@@ -173,6 +174,7 @@ struct BildVorschau: View {
                 Image(systemName: "photo")
                     .foregroundStyle(thema.textSchwach)
                     .help("Datei fehlt im Bilderordner")
+                    .accessibilityLabel(Text("Datei fehlt im Bilderordner"))
             } else {
                 ProgressView().controlSize(.small)
             }
