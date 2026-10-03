@@ -66,7 +66,7 @@ struct ImportordnerKarte: View {
                     }
                 }
                 if let letzte = ordner.zuletzt.first {
-                    Label(String(localized: "Zuletzt aus dem Import-Ordner: \(letzte.dateiname), \(letzte.text), \(letzte.zeit.formatted(date: .omitted, time: .shortened))"),
+                    Label(String(localized: "Zuletzt aus dem Import-Ordner: \(letzte.dateiname), \(letzte.text), \(Self.zeitpunkt(letzte.zeit))"),
                           systemImage: "tray.and.arrow.down")
                         .font(Schrift.beschriftung)
                         .foregroundStyle(thema.textSchwach)
@@ -80,8 +80,17 @@ struct ImportordnerKarte: View {
             }
             .alert("Datei nicht lesbar", isPresented: $lesefehler) {
                 Button("OK") { lesefehler = false }
+            } message: {
+                Text("Die Datei liegt nicht mehr im Ordner oder lässt sich nicht öffnen. Lege sie erneut hinein oder wähle „Ignorieren“.")
             }
         }
+    }
+
+    /// Heute nur die Uhrzeit, sonst mit Datum; „Zuletzt“ übersteht einen Neustart.
+    static func zeitpunkt(_ zeit: Date) -> String {
+        Calendar.current.isDateInToday(zeit)
+            ? zeit.formatted(date: .omitted, time: .shortened)
+            : zeit.formatted(date: .abbreviated, time: .shortened)
     }
 
     private func zeile(_ rueckfrage: Importordner.Rueckfrage, _ ordner: Importordner) -> some View {

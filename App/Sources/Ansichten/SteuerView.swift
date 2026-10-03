@@ -598,14 +598,19 @@ struct BrokerKarte: View {
 struct Farbkapsel: View {
     let text: String
     let farbe: Color
+    @Environment(\.thema) private var thema
 
     var body: some View {
-        Text(verbatim: text)
-            .font(Schrift.beschriftung)
-            .padding(.horizontal, Abstand.raster * 2)
-            .padding(.vertical, Abstand.raster)
-            .background(farbe.opacity(0.18), in: Capsule())
-            .foregroundStyle(farbe)
+        // Text in thema.text, die Farbe nur im Grund und als Punkt: Farbe auf dem eigenen 18-%-Ton lag bei 3,6 bis 4,5:1 (Doc 55 J22).
+        HStack(spacing: Abstand.raster) {
+            Circle().fill(farbe).frame(width: 6, height: 6)
+            Text(verbatim: text)
+        }
+        .font(Schrift.beschriftung)
+        .padding(.horizontal, Abstand.raster * 2)
+        .padding(.vertical, Abstand.raster)
+        .background(farbe.opacity(0.18), in: Capsule())
+        .foregroundStyle(thema.text)
     }
 }
 
