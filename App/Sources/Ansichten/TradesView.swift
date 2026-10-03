@@ -77,7 +77,7 @@ struct TradesView: View {
                 // Suchfeld in der Kopfzeile statt in der Symbolleiste: dort überdeckte es den Kopf des Inspektors.
                 TextField("Instrument, Setup oder Ticket", text: $suche)
                     .textFieldStyle(.roundedBorder)
-                    .frame(width: 200)
+                    .frame(minWidth: 120, idealWidth: 200, maxWidth: 240) // mit Inspektor schmaler statt die Schalter zu stauchen
                 #endif
                 Toggle("Nur mit Muster", isOn: $nurMitMuster)
                 Toggle("Stop fehlt (\(modell.ohneStop))", isOn: $nurOhneStop)
@@ -501,6 +501,10 @@ struct JournalEingabe: View {
         }
         .onSubmit { speichern() }
         .onDisappear { speichern() }
+        #if os(macOS)
+        // ⌘Q ruft onDisappear nicht auf; ein noch fokussiertes Feld ginge sonst verloren.
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in speichern() }
+        #endif
     }
 
     private var stopHinweis: LocalizedStringKey {
