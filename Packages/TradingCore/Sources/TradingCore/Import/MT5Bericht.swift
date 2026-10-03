@@ -31,18 +31,7 @@ extension MT5Bericht {
     static let dealspalten = ["time", "deal", "type", "profit"]
 
     /// Text eines Berichts: MetaTrader 5 speichert UTF-16 (Little Endian, mit BOM), ältere Builds auch UTF-8.
-    public static func text(_ daten: Data) -> String? {
-        let bytes = [UInt8](daten.prefix(2))
-        if bytes == [0xFF, 0xFE] { return String(data: daten.dropFirst(2), encoding: .utf16LittleEndian) }
-        if bytes == [0xFE, 0xFF] { return String(data: daten.dropFirst(2), encoding: .utf16BigEndian) }
-        // Ohne BOM: Ist mindestens jedes zweite Byte an ungerader Stelle null, ist es UTF-16 Little Endian.
-        let probe = [UInt8](daten.prefix(200))
-        let nullen = stride(from: 1, to: probe.count, by: 2).filter { probe[$0] == 0 }.count
-        if probe.count >= 20, nullen >= probe.count / 4 {
-            return String(data: daten, encoding: .utf16LittleEndian)
-        }
-        return String(data: daten, encoding: .utf8)
-    }
+    public static func text(_ daten: Data) -> String? { Importtext.lies(daten) }
 
     public static func erkennt(_ text: String) -> Bool {
         text.range(of: "Trade History Report", options: .caseInsensitive) != nil
