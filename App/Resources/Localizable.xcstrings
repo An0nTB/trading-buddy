@@ -342,6 +342,16 @@
         }
       }
     },
+    "Dreieck: Einstieg, Kreis: Ausstieg, Kreuz: Ausstieg mit Verlust, Raute: Tag mit Meldungen. Tageskerzen, nur beschreibend." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Triangle: entry, circle: exit, cross: exit with a loss, diamond: day with headlines. Daily candles, descriptive only."
+          }
+        }
+      }
+    },
     "Ein Konto entsteht mit dem ersten Import. Henry liest Broker und Kontonummer aus der Datei; Namen und Kontowährung legst du im Import-Blatt fest." : {
       "localizations" : {
         "en" : {
@@ -418,6 +428,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Getting started …"
+          }
+        }
+      }
+    },
+    "fallend" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "falling"
           }
         }
       }
@@ -628,6 +648,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Saving: %@"
+          }
+        }
+      }
+    },
+    "steigend" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "rising"
           }
         }
       }
@@ -4975,16 +5005,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Thursday"
-          }
-        }
-      }
-    },
-    "Dreieck: Einstieg, Kreis: Ausstieg, Raute: Tag mit Meldungen. Tageskerzen, nur beschreibend." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Triangle: entry, circle: exit, diamond: day with headlines. Daily candles, descriptive only."
           }
         }
       }
