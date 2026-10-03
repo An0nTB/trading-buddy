@@ -172,6 +172,16 @@
         }
       }
     },
+    "Alle Beträge in Kontowährung %@. Die App zeigt Summen derzeit in %@, die Zahlen dort weichen deshalb ab." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All amounts in account currency %1$@. The app currently shows totals in %2$@, so the figures there differ."
+          }
+        }
+      }
+    },
     "Anonymisierte Probe sichern" : {
       "localizations" : {
         "en" : {
@@ -198,6 +208,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Imported from the import folder"
+          }
+        }
+      }
+    },
+    "Beträge im Bericht in Kontowährung %@, nicht in %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Report amounts in account currency %1$@, not %2$@"
           }
         }
       }
