@@ -15,10 +15,14 @@ enum BerichtAusgabe {
         guard let daten = BerichtPDF.daten(ergebnis.bericht, kontext: ergebnis.kontext, thema: thema) else {
             throw BerichtFehler.pdf
         }
+        return try sichern(daten, dateiname: ergebnis.kontext.dateiname)
+    }
+
+    static func sichern(_ daten: Data, dateiname: String) throws -> Bool {
         let panel = NSSavePanel()
         panel.title = String(localized: "Bericht sichern")
         panel.allowedContentTypes = [.pdf]
-        panel.nameFieldStringValue = ergebnis.kontext.dateiname
+        panel.nameFieldStringValue = dateiname
         panel.canCreateDirectories = true
         guard panel.runModal() == .OK, let ziel = panel.url else { return false }
         try daten.write(to: ziel, options: .atomic)
@@ -27,7 +31,14 @@ enum BerichtAusgabe {
     #else
     /// Schreibt das PDF in den temporären Ordner für die Vorschau.
     static func datei(_ ergebnis: BerichtErgebnis, thema: Thema) throws -> BerichtDatei {
-        BerichtDatei(url: try BerichtPDF.temporaereDatei(ergebnis.bericht, kontext: ergebnis.kontext, thema: thema))
+        guard let daten = BerichtPDF.daten(ergebnis.bericht, kontext: ergebnis.kontext, thema: thema) else {
+            throw BerichtFehler.pdf
+        }
+        return try datei(daten, dateiname: ergebnis.kontext.dateiname)
+    }
+
+    static func datei(_ daten: Data, dateiname: String) throws -> BerichtDatei {
+        BerichtDatei(url: try BerichtPDF.temporaereDatei(daten, dateiname: dateiname))
     }
     #endif
 }
