@@ -210,8 +210,8 @@ enum Importlesung {
             if let text = MT5Bericht.text(daten), MT5Bericht.erkennt(text) {
                 return .erkannt(.mt5(try MT5Bericht.lies(text, serverZeitzone: serverzeit)))
             }
-            guard let text = String(data: daten, encoding: .utf8) else {
-                return .fehler(String(localized: "Die Datei ist weder Text (UTF-8) noch eine Excel-Datei."))
+            guard let text = Importtext.lies(daten) else {
+                return .fehler(String(localized: "Die Datei ist weder lesbarer Text noch eine Excel-Datei."))
             }
             if TradeRepublicCSV.erkennt(text) {
                 return .erkannt(.csv(.tradeRepublic, try TradeRepublicCSV.lies(text)))
