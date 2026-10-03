@@ -24,6 +24,10 @@ struct MonatsberichtMenue: View {
     var body: some View {
         let wochen = Array(modell.berichtWochen.prefix(Self.hoechstensWochen))
         Menu("Bericht als PDF", systemImage: "doc.richtext") {
+            // Der Bericht rechnet in Kontowährung; weicht die Anzeigewährung ab, steht das oben im Menü (Doc 52 H10).
+            if modell.summenwaehrung != modell.waehrung.uppercased() {
+                Text("Beträge im Bericht in Kontowährung \(modell.waehrung.uppercased()), nicht in \(modell.summenwaehrung)")
+            }
             Section("Monatsbericht") {
                 ForEach(modell.monate.prefix(Self.hoechstensMonate), id: \.self) { monat in
                     Button(Format.monat(monat)) {

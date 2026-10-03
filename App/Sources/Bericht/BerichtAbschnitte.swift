@@ -300,6 +300,9 @@ struct BerichtDatenhinweise: View {
 
     var body: some View {
         BerichtAbschnitt(titel: "Hinweise zu den Daten") {
+            if let anzeige = kontext.anzeigewaehrung {
+                BerichtHinweis(String(localized: "Alle Beträge in Kontowährung \(kontext.waehrung.uppercased()). Die App zeigt Summen derzeit in \(anzeige), die Zahlen dort weichen deshalb ab."))
+            }
             if let fremd = fremdwaehrungText {
                 BerichtHinweis(fremd)
             }
