@@ -83,6 +83,8 @@ struct FragBradBlatt: View {
         }
         .padding(Abstand.seitenrand)
         .onAppear(perform: waehleStartwert)
+        // Auch beim Wechsel auf „Wert analysieren“ im Blatt einen Wert vorwählen, sonst bleiben beide Knöpfe gesperrt.
+        .onChange(of: vorlage) { waehleStartwert() }
         #if os(macOS)
         .frame(width: 520)
         #endif
@@ -90,7 +92,7 @@ struct FragBradBlatt: View {
 
     /// Analyse ohne Wert aus Anfrage oder Filter: ersten eigenen Wert vorwählen; ohne jeden Wert eine andere Vorlage.
     private func waehleStartwert() {
-        guard vorlage == .analyse, vorgegebenesSymbol == nil else { return }
+        guard vorlage == .analyse, vorgegebenesSymbol == nil, gewaehltesSymbol == nil else { return }
         gewaehltesSymbol = waehlbareSymbole.first
         if gewaehltesSymbol == nil, let erste = vorlagen.first { vorlage = erste }
     }

@@ -138,7 +138,9 @@ final class AppModell {
     private func ladeEZBKurseFallsVeraltet() {
         guard nebenwirkungen else { return }
         let jetzt = Date()
-        if let versuch = ezbVersuch, jetzt.timeIntervalSince(versuch) < 60 * 60 { return }
+        // Nach einem Fehler (etwa Erststart ohne Netz) schon nach 5 Minuten neu versuchen, sonst stündlich.
+        let sperre: TimeInterval = ezb.fehler != nil ? 5 * 60 : 60 * 60
+        if let versuch = ezbVersuch, jetzt.timeIntervalSince(versuch) < sperre { return }
         let veraltet = ezb.abgerufen.map { jetzt.timeIntervalSince($0) > 24 * 60 * 60 } ?? true
         guard veraltet || ezb.fehler != nil else { return }
         Task { await ladeEZBKurse() }
@@ -203,6 +205,8 @@ final class AppModell {
             guard anzeigewaehrung != oldValue else { return }
             if nebenwirkungen { UserDefaults.standard.set(anzeigewaehrung, forKey: Self.anzeigewaehrungSchluessel) }
             gleicheWaehrungenAn()
+            // Der Export trägt die Anzeigewährung für Claude (AP12, Vierter Gegencheck H21).
+            exportiere()
         }
     }
     static let anzeigewaehrungSchluessel = "anzeige.waehrung"
@@ -506,6 +510,11 @@ final class AppModell {
         ezbLaedt = true
         ezbVersuch = Date()
         defer { ezbLaedt = false }
+        // Zwischenspeicher sofort nutzen: sonst fehlen Fremdwährungs-Trades bis zum Ende des Netzabrufs in den Summen.
+        if ezb.quelle == .keine {
+            ezb = EZBKurse().zwischenspeicher()
+            gleicheWaehrungenAn()
+        }
         ezb = await EZBKurse().laden()
         gleicheWaehrungenAn()
         // Der Export trägt die EZB-Kurse sofort (AP12, 02.10.2026 14:44 UTC), nicht erst nach dem nächsten Import.
