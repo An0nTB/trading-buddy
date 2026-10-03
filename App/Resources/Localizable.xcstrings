@@ -76,6 +76,16 @@
         }
       }
     },
+    "%lld Angaben ersetzt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld details replaced"
+          }
+        }
+      }
+    },
     "%lld Dateien importiert, zuletzt %@" : {
       "localizations" : {
         "de" : {
@@ -132,6 +142,16 @@
         }
       }
     },
+    "%lld Zeilen weggelassen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld lines omitted"
+          }
+        }
+      }
+    },
     "Activity Statement (CSV)" : {
       "localizations" : {
         "en" : {
@@ -152,12 +172,42 @@
         }
       }
     },
+    "Anonymisierte Probe sichern" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save anonymised sample"
+          }
+        }
+      }
+    },
+    "Anonymisierte Probe speichern …" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save anonymised sample …"
+          }
+        }
+      }
+    },
     "Aus dem Import-Ordner importiert" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Imported from the import folder"
+          }
+        }
+      }
+    },
+    "Bitte vor dem Weitergeben ansehen, Freitext kann weitere Angaben enthalten." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please review before passing it on; free text may contain further details."
           }
         }
       }
@@ -178,6 +228,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "The file has no totals row; nothing to compare."
+          }
+        }
+      }
+    },
+    "Die Datei ist weder lesbarer Text noch eine Excel-Datei." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The file is neither readable text nor an Excel file."
           }
         }
       }
@@ -208,6 +268,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Triangle entry, circle exit, dashed stop (red) and target (green)."
+          }
+        }
+      }
+    },
+    "Eine anonymisierte Probe hilft, den Importer für diese Datei zu erweitern." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An anonymised sample helps extend the importer for this file."
           }
         }
       }
@@ -308,6 +378,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Not included without an ECB rate: %lld trades in foreign currency."
+          }
+        }
+      }
+    },
+    "Sichern …" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save …"
+          }
+        }
+      }
+    },
+    "Teilen …" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share …"
           }
         }
       }
