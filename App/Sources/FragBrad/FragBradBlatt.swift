@@ -57,6 +57,17 @@ struct FragBradBlatt: View {
         VStack(alignment: .leading, spacing: Abstand.kachelAbstand) {
             Text("Frag Henry").font(Schrift.titel)
             Text(Self.erklaerung).font(.callout).foregroundStyle(.secondary)
+            #if os(macOS)
+            if ExportOrdner.gemerkterOrdner() == nil {
+                // Ohne Export-Ordner antwortet Claude ohne Zahlen (Doc 55 J8).
+                HStack(spacing: Abstand.kachelAbstand) {
+                    Label("Noch kein Export-Ordner: Claude sieht deine Zahlen erst, wenn einer gewählt ist.",
+                          systemImage: "exclamationmark.triangle")
+                        .font(.callout)
+                    SettingsLink { Text("Einstellungen öffnen") }
+                }
+            }
+            #endif
             Picker("Frage", selection: $vorlage) {
                 ForEach(vorlagen) { Text(verbatim: $0.titel.uebersetzt).tag($0) }
             }
@@ -135,7 +146,7 @@ struct FragBradBlatt: View {
             schliessen()
         } else {
             FragBradOeffner.kopiere(text)
-            meldung = String(localized: "Claude Desktop ist auf diesem Mac nicht installiert. Die Frage liegt in der Zwischenablage; du kannst sie in Claude im Browser einfügen.")
+            meldung = String(localized: "Claude Desktop ist auf diesem Mac nicht installiert. Die Frage liegt in der Zwischenablage. Installiere Claude Desktop, nur dort liest Claude dein Journal.")
         }
     }
 
