@@ -231,7 +231,7 @@ struct ClaudeFelder: View {
                     Button("exportFolder.choose") { ordnerWaehlen = true }
                 }
             }
-            Text("Claude Desktop liest diesen Ordner über die Erweiterung „Henry“. Derselbe Ordner muss in den Einstellungen der Erweiterung stehen.")
+            Text("Claude Desktop liest diesen Ordner über die Erweiterung „Henry“. Sie ist die Datei „Henry-Connector“, die du mit der App bekommen hast: Doppelklick öffnet sie in Claude Desktop. Derselbe Ordner muss in den Einstellungen der Erweiterung stehen.")
                 .font(Schrift.beschriftung)
                 .foregroundStyle(thema.textSchwach)
             LabeledContent("Exportierte Felder") {
@@ -242,6 +242,11 @@ struct ClaudeFelder: View {
                     .font(Schrift.beschriftung)
                     .foregroundStyle(thema.textSchwach)
             }
+            // Verbindungsprüfung (Beta-Punkte 17 und 18, AP12): neu schreiben und in Claude nachsehen.
+            Button("Jetzt exportieren") { modell.exportiere() }
+            Text("In Claude Desktop die Vorlage „Henry-Status“ wählen oder „Henry-Status“ schreiben: Claude meldet, ob die Erweiterung diesen Export liest.")
+                .font(Schrift.beschriftung)
+                .foregroundStyle(thema.textSchwach)
         }
         .formStyle(.grouped)
         .task { modell.exportiere() }
