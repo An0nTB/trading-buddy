@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "trading-buddy",
   "display_name": "Henry",
-  "version": "0.14.0",
+  "version": "0.15.0",
   "description": "Henry führt Buch über deine Trades. Kennzahlen, Fehlermuster und Wochen- oder Monatsauswertung aus deinem Journal. Nur lesend, die Daten bleiben auf deinem Mac.",
   "author": {
     "name": "Tim Bock"
@@ -19,6 +19,10 @@
     }
   },
   "tools": [
+    {
+      "name": "henry_status",
+      "description": "Prüft die Verbindung: Version, Export-Ordner, letzter Export, Konten und Trades, mit Hinweis, was zu tun ist."
+    },
     {
       "name": "hole_datenstand",
       "description": "Welche Konten und welcher Zeitraum vorliegen."
