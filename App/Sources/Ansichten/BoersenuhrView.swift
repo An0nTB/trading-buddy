@@ -215,8 +215,11 @@ private struct Tagesbalken: View {
                     ForEach(Array(sitzungenDerArt(art, von: anfang, bis: ende).enumerated()), id: \.offset) { eintrag in
                         let von = position(eintrag.element.beginn, anfang: anfang, ende: ende, breite: geo.size.width)
                         let bis = position(eintrag.element.ende, anfang: anfang, ende: ende, breite: geo.size.width)
+                        // Nebenzeiten getönt mit 1,5-pt-Rand im Akzent: der Ton allein lag auf Fläche 2 bei 1,3 bis 1,5:1 (Doc 55 J26).
                         RoundedRectangle(cornerRadius: Diagramm.balkenEndeRadius)
                             .fill(art == .kern ? thema.akzent : thema.akzentTint)
+                            .overlay(RoundedRectangle(cornerRadius: Diagramm.balkenEndeRadius)
+                                .strokeBorder(thema.akzent, lineWidth: art == .kern ? 0 : 1.5))
                             .frame(width: max(bis - von, 2))
                             .offset(x: von)
                     }
@@ -276,6 +279,7 @@ struct BoersenVerwaltenBlatt: View {
                 }
         }
         #if os(macOS)
+        .onExitCommand { schliessen() } // Esc schließt (Doc 55 J16)
         .frame(minWidth: 700, minHeight: 560)
         #endif
     }

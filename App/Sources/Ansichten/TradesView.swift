@@ -313,6 +313,8 @@ struct TradeInspektor: View {
                 Text(verbatim: untertitel)
                     .font(Schrift.beschriftung)
                     .foregroundStyle(thema.textSchwach)
+                FragBradMenuePunkt(trade: trade) // auch ohne Rechtsklick erreichbar (Doc 55 J19)
+                    .buttonStyle(.borderless)
             }
             Grid(alignment: .leading, horizontalSpacing: Abstand.kachelAbstand, verticalSpacing: Abstand.raster * 2) {
                 Group {
@@ -448,6 +450,7 @@ struct JournalEingabe: View {
                             .buttonStyle(.borderless)
                             .fixedSize()
                             .help("Setup aus dem Playbook wählen")
+                            .accessibilityLabel(Text("Setup aus dem Playbook wählen")) // Doc 55 J14
                         }
                     }
                 }
