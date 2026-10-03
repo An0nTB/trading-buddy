@@ -182,7 +182,7 @@ struct KontoZeile: View {
                         Text(verbatim: kontoName(konto)).tag(konto.id)
                     }
                 }
-                Text(verbatim: "\(modell.waehrung) · \(modell.alleTrades.count) Trades")
+                Text(verbatim: "\(modell.waehrung) · \(String(localized: "\(modell.alleTrades.count) Trades"))") // Plural über den Katalog (Doc 52 H13)
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
