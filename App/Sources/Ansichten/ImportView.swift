@@ -290,7 +290,7 @@ struct ImportBlatt: View {
 
         HStack(spacing: Abstand.kachelAbstand) {
             Kachel(titel: "Trades", wert: "\(auszug.closedPositions.count)")
-            Kachel(titel: "Pending gelöscht", wert: "\(auszug.cancelledOrders.count)")
+            Kachel(titel: "Gelöschte Orders (nie ausgelöst)", wert: "\(auszug.cancelledOrders.count)")
             Kachel(titel: "Ein-/Auszahlungen", wert: Format.betrag(auszug.summary.depositWithdrawal, anzeigeWaehrung))
             Kachel(titel: "Schon bekannt", wert: "\(dubletten)")
         }

@@ -23,8 +23,10 @@ struct KennzahlenView: View {
                     Filterleiste()
                     FragBradKnopf(.monat) // Frag Brad (Doc 31)
                 }
-                if modell.trades.isEmpty {
+                if modell.alleTrades.isEmpty {
                     KeineTrades()
+                } else if modell.trades.isEmpty {
+                    KeineTreffer { modell.zeitraum = .alle; modell.instrument = nil } // Doc 55 J9
                 } else {
                     HStack(spacing: Abstand.raster * 2) {
                         Kapsel(text: String(localized: "\(kennzahlen.anzahl) Trades"), betont: true)
@@ -41,15 +43,18 @@ struct KennzahlenView: View {
                                zusatz: String(localized: "\(kennzahlen.gewinner) Gewinner, \(kennzahlen.verlierer) Verlierer, \(kennzahlen.breakeven) null"))
                         Kachel(titel: "Profitfaktor",
                                wert: Format.zahl(kennzahlen.profitfaktor),
-                               zusatz: String(localized: "Payoff \(Format.zahl(kennzahlen.payoff)) · Ø \(Format.geld(kennzahlen.durchschnittGewinn ?? 0, waehrung)) / \(Format.geld(kennzahlen.durchschnittVerlust ?? 0, waehrung))"))
+                               zusatz: String(localized: "Ø Gewinn zu Ø Verlust \(Format.zahl(kennzahlen.payoff)) · \(Format.geld(kennzahlen.durchschnittGewinn ?? 0, waehrung)) / \(Format.geld(kennzahlen.durchschnittVerlust ?? 0, waehrung))"),
+                               hilfe: Kennzahlhilfe.profitfaktorUndVerhaeltnis)
                         Kachel(titel: "Erwartung je Trade",
                                wert: Format.geld(kennzahlen.erwartungswert ?? 0, waehrung),
                                zusatz: String(localized: "\(Format.r(kennzahlen.erwartungswertR)) · bei \(kennzahlen.anzahlMitR) Trades mit Stop"),
-                               farbe: thema.vorzeichen(kennzahlen.erwartungswert ?? 0))
+                               farbe: thema.vorzeichen(kennzahlen.erwartungswert ?? 0),
+                               hilfe: Kennzahlhilfe.erwartung)
                         Kachel(titel: "Max. Drawdown",
                                wert: Format.geld(-verlauf.maxDrawdown, waehrung),
                                zusatz: drawdownZusatz(verlauf),
-                               farbe: verlauf.maxDrawdown > 0 ? thema.verlust : nil)
+                               farbe: verlauf.maxDrawdown > 0 ? thema.verlust : nil,
+                               hilfe: Kennzahlhilfe.drawdown)
                         Kachel(titel: "Längste Verlustserie",
                                wert: "\(verlauf.laengsteVerlustserie)",
                                zusatz: String(localized: "Gewinnserie \(verlauf.laengsteGewinnserie)"))

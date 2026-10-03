@@ -16,8 +16,10 @@ struct FehlermusterView: View {
                     Filterleiste()
                     FragBradKnopf(.groesstesLeck) // Frag Brad (Doc 31)
                 }
-                if modell.trades.isEmpty {
+                if modell.alleTrades.isEmpty {
                     KeineTrades()
+                } else if modell.trades.isEmpty {
+                    KeineTreffer { modell.zeitraum = .alle; modell.instrument = nil } // Doc 55 J9
                 } else if befunde.isEmpty {
                     Text(verbatim: ton.text("Keine Regel hat im gewählten Zeitraum angeschlagen.", henry: "Keine Regel angeschlagen. So soll es sein."))
                         .font(Schrift.fliesstext)
