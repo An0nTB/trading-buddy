@@ -197,7 +197,8 @@ struct Pflichthinweis: View {
     }
 }
 
-/// Kleine Kapsel mit Zähler oder Filterwert; `betont` färbt sie im Akzent (Hell-Variante B, 01.10.2026).
+/// Kleine Kapsel mit Zähler oder Filterwert; `betont` färbt den Grund im Akzent (Hell-Variante B, 01.10.2026).
+/// Der Text bleibt in `thema.text`: Akzent auf dem eigenen 18-%-Ton lag im Hellmodus bei 3,6 bis 4,5:1 (Doc 55 J22).
 struct Kapsel: View {
     let text: String
     var betont = false
@@ -209,7 +210,7 @@ struct Kapsel: View {
             .padding(.horizontal, Abstand.raster * 2)
             .padding(.vertical, Abstand.raster)
             .background(betont ? thema.akzentTint : thema.flaeche2, in: Capsule())
-            .foregroundStyle(betont ? thema.akzent : thema.text)
+            .foregroundStyle(thema.text)
     }
 }
 
