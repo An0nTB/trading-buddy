@@ -4,7 +4,7 @@ import Testing
 
 /// Synthetischer IBKR-Kontoauszug (Activity Statement, CSV) nach dem Aufbau aus der IBKR-Hilfe, kein echtes Konto.
 /// Sollwerte von Hand (02.10.2026).
-private let ibkrCSV = """
+let ibkrCSV = """
 \u{FEFF}Statement,Header,Field Name,Field Value
 Statement,Data,BrokerName,Interactive Brokers Ireland Limited
 Statement,Data,Title,Activity Statement
