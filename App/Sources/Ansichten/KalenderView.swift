@@ -331,13 +331,16 @@ private struct TerminTradesKarte: View {
 
     /// Zelle der Mac-Tabelle; Klick wählt den Trade in der Trade-Tabelle.
     private func zelle(_ text: String, _ trade: Trade, farbe: Color? = nil) -> some View {
-        Text(verbatim: text)
-            .font(Schrift.tabelle)
-            .monospacedDigit()
-            .lineLimit(1)
-            .foregroundStyle(farbe ?? thema.text)
-            .contentShape(Rectangle())
-            .onTapGesture { zeige(trade) }
+        Button { zeige(trade) } label: {
+            Text(verbatim: text)
+                .font(Schrift.tabelle)
+                .monospacedDigit()
+                .lineLimit(1)
+                .foregroundStyle(farbe ?? thema.text)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityHint(Text("In Trades zeigen"))
     }
 
     private func zeige(_ trade: Trade) {

@@ -309,6 +309,12 @@ struct MeldungZeile: View {
     @Environment(\.openURL) private var openURL
 
     var body: some View {
+        Button { openURL(meldung.link) } label: { inhalt }
+            .buttonStyle(.plain)
+            .accessibilityHint(Text("Im Browser öffnen"))
+    }
+
+    private var inhalt: some View {
         HStack(alignment: .top, spacing: Abstand.raster * 2) {
             RoundedRectangle(cornerRadius: 1)
                 .fill(neu ? thema.akzent : thema.linie)
@@ -328,7 +334,6 @@ struct MeldungZeile: View {
             }
         }
         .contentShape(Rectangle())
-        .onTapGesture { openURL(meldung.link) }
     }
 
     private var fusszeile: some View {
