@@ -61,9 +61,11 @@ extension Journal {
         let teil = ziel.deletingLastPathComponent()
             .appendingPathComponent(".\(ziel.lastPathComponent).\(UUID().uuidString).teil")
         defer { try? fm.removeItem(at: teil) }
-        let kopie = try DatabaseQueue(path: teil.path)
-        try db.backup(to: kopie)
-        try kopie.close()
+        try Self.gemeldet {
+            let kopie = try DatabaseQueue(path: teil.path)
+            try db.backup(to: kopie)
+            try kopie.close()
+        }
         let pruefung = Self.pruefeSicherung(teil)
         guard pruefung.zustand == .aktuell else {
             throw SpeicherFehler.ungueltigerWert("Sicherung fehlerhaft: \(pruefung.hinweis)")
@@ -130,11 +132,13 @@ extension Journal {
         }
         var konfiguration = Configuration()
         konfiguration.readonly = true
-        let quelle = try DatabaseQueue(path: datei.path, configuration: konfiguration)
-        try quelle.backup(to: db)
-        try quelle.close()
-        try Schema.migrator.migrate(db)
-        return try db.read { try Self.pruefe($0) }
+        try Self.gemeldet {
+            let quelle = try DatabaseQueue(path: datei.path, configuration: konfiguration)
+            try quelle.backup(to: db)
+            try quelle.close()
+            try Schema.migrator.migrate(db)
+        }
+        return try lies { try Self.pruefe($0) }
     }
 
     static func pruefe(_ db: Database) throws -> Sicherungspruefung {
