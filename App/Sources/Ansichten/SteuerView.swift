@@ -550,7 +550,7 @@ struct BrokerKarte: View {
             Text(verbatim: erklaerung)
                 .font(Schrift.beschriftung)
                 .foregroundStyle(thema.textSchwach)
-            Text("Diese Seite zeigt ein Konto. Eine Summe über alle Konten folgt, wenn die App mehrere Konten gleichzeitig lädt.")
+            Text("Diese Seite zeigt das gewählte Konto.")
                 .font(Schrift.beschriftung)
                 .foregroundStyle(thema.textSchwach)
             HStack {

@@ -255,7 +255,7 @@ private struct BoersenHinweise: View {
         VStack(alignment: .leading, spacing: Abstand.raster) {
             Text("Balken: Handelszeiten heute in deiner Ortszeit, Strich: jetzt. Nur der fortlaufende Handel, ohne Auktionen und ohne vor- und nachbörslichen Handel.")
             if let bis = uhr.boersen.compactMap(\.datenGueltigBis).min() {
-                Text("Feiertage und verkürzte Tage sind bis \(Boersenformat.tag(bis)) gepflegt. Forex ohne Feiertage und Krypto ohne Wartungspausen sind Annahmen (Stand-Doc 15).")
+                Text("Feiertage und verkürzte Tage sind bis \(Boersenformat.tag(bis)) gepflegt. Forex ohne Feiertage und Krypto ohne Wartungspausen sind Annahmen.")
             }
         }
         .font(Schrift.beschriftung)

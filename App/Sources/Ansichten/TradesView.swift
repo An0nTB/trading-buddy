@@ -104,8 +104,22 @@ struct TradesView: View {
                 .padding(.horizontal, Abstand.seitenrand)
             }
             if liste.isEmpty {
-                KeineTrades()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                Group {
+                    if modell.alleTrades.isEmpty {
+                        KeineTrades()
+                    } else {
+                        KeineTreffer {
+                            suche = ""
+                            nurMitMuster = false
+                            nurOhneStop = false
+                            modell.nurUeberTermin = false
+                            modell.musterFilter = nil
+                            modell.zeitraum = .alle
+                            modell.instrument = nil
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 #if os(iOS)
                 if breite == .compact {

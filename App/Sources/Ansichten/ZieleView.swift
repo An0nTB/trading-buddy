@@ -52,7 +52,7 @@ struct ZieleView: View {
         let stand = zuBeurteilen > 0
             ? String(localized: "\(offen) offen, \(zuBeurteilen) zu beurteilen")
             : String(localized: "\(offen) offen")
-        return stand + " · " + String(localized: "Rezept Punkt 6 und 7: ein Ziel je Review")
+        return stand + " · " + String(localized: "ein Ziel je Review")
     }
 
     @ViewBuilder
@@ -193,7 +193,7 @@ private struct OffeneZieleKarte: View {
                     }
                 }
             }
-            Text("Läuft die Frist ohne Abhaken ab, setzt der Speicher das Ziel beim nächsten Start auf „Verfehlt“ (Frist abgelaufen, nicht als erreicht abgehakt). „Erreicht“ und „Verfehlt“ fragen nach dem Ergebnis in einem Satz; Wiederöffnen bleibt im Menü möglich.")
+            Text("Läuft die Frist ohne Abhaken ab, setzt Henry das Ziel beim nächsten Start auf „Verfehlt“ (Frist abgelaufen, nicht als erreicht abgehakt). „Erreicht“ und „Verfehlt“ fragen nach dem Ergebnis in einem Satz; Wiederöffnen bleibt im Menü möglich.")
                 .font(Schrift.beschriftung)
                 .foregroundStyle(thema.textSchwach)
         }
@@ -344,7 +344,7 @@ private struct NeuesZielKarte: View {
                     .font(Schrift.beschriftung)
                     .foregroundStyle(thema.verlust)
             }
-            Text("Genau ein messbares Ziel je Review (Rezept Punkt 7), so formuliert, dass das nächste Review es mit einer Zahl prüfen kann. Export und Claude-Connector lesen die Ziele mit.")
+            Text("Genau ein messbares Ziel je Review, so formuliert, dass das nächste Review es mit einer Zahl prüfen kann. Die Erweiterung „Henry“ in Claude liest die Ziele mit.")
                 .font(Schrift.beschriftung)
                 .foregroundStyle(thema.textSchwach)
         }
@@ -415,7 +415,7 @@ private struct ReviewSchritteKarte: View {
             schritt(1, "Fälliges Ziel beurteilen, Ergebnis in einem Satz.")
             schritt(2, "Kennzahlen und Fehlermuster des Zeitraums ansehen.")
             schritt(3, "Genau ein neues Ziel für den nächsten Zeitraum anlegen.")
-            Text("Wochen- oder Monatsreview, Rezept Punkt 6 und 7. Der Claude-Connector liest Ziele und Ergebnisse mit, ändern kann er sie nicht.")
+            Text("Wochen- oder Monatsreview. Die Erweiterung „Henry“ liest Ziele und Ergebnisse mit, ändern kann sie sie nicht.")
                 .font(Schrift.beschriftung)
                 .foregroundStyle(thema.textSchwach)
         }
