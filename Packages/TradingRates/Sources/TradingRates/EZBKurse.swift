@@ -94,11 +94,11 @@ public struct EZBKurse: Sendable {
             do {
                 try speicher.schreibe(inhalt)
             } catch {
-                return Self.stand(inhalt, quelle: .netz, fehler: "Zwischenspeicher nicht geschrieben: \(error)")
+                return Self.stand(inhalt, quelle: .netz, fehler: "Zwischenspeicher nicht geschrieben: \(error.localizedDescription)")
             }
             return Self.stand(inhalt, quelle: .netz, fehler: nil)
         } catch {
-            return Self.stand(alt, quelle: .zwischenspeicher, fehler: "EZB-Kurse nicht geladen: \(error)")
+            return Self.stand(alt, quelle: .zwischenspeicher, fehler: "EZB-Kurse nicht geladen: \(error.localizedDescription)")
         }
     }
 
@@ -133,9 +133,16 @@ public struct EZBKurse: Sendable {
                      abgerufen: inhalt.abgerufen, fehler: fehler)
     }
 
-    public enum AbrufFehler: Error, Sendable, Equatable {
+    public enum AbrufFehler: LocalizedError, Sendable, Equatable {
         case keineHTTPAntwort
         case status(Int)
+
+        public var errorDescription: String? {
+            switch self {
+            case .keineHTTPAntwort: "Keine Antwort vom EZB-Server."
+            case .status(let code): "Der EZB-Server antwortet mit Status \(code)."
+            }
+        }
     }
 
     /// Abruf über `URLSession`. Die App braucht in der Sandbox ausgehende Verbindungen
