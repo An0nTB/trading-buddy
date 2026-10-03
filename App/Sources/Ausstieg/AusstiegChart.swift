@@ -31,8 +31,8 @@ struct Chartbalken: Identifiable, Equatable {
 }
 
 /// Kursverlauf eines Trades aus den gespeicherten Minutenkerzen (F8, Paket A3): Spanne je Balken, Schlusskurs als
-/// Linie, Einstieg als Dreieck, Ausstieg als Kreis, Stop und Ziel gestrichelt. Nur Rückblick, keine Aussage über
-/// künftige Kurse.
+/// Linie, Einstieg als Dreieck, Ausstieg als Kreis (Gewinn) oder Kreuz (Verlust), damit es nicht nur an der
+/// Farbe hängt, Stop und Ziel gestrichelt. Nur Rückblick, keine Aussage über künftige Kurse.
 struct AusstiegChart: View {
     let trade: Trade
     let balken: [Chartbalken]
@@ -47,7 +47,7 @@ struct AusstiegChart: View {
         VStack(alignment: .leading, spacing: Abstand.raster) {
             diagramm
                 .frame(height: 180)
-            Text("Dreieck Einstieg, Kreis Ausstieg, gestrichelt Stop (rot) und Ziel (grün).")
+            Text("Dreieck Einstieg; Ausstieg als Kreis bei Gewinn, als Kreuz bei Verlust; gestrichelt Stop (rot) und Ziel (grün).")
                 .font(Schrift.beschriftung)
                 .foregroundStyle(thema.textSchwach)
         }
@@ -64,7 +64,7 @@ struct AusstiegChart: View {
             ForEach(balken) { b in
                 RuleMark(x: .value("Zeit", b.mitte), yStart: .value("Tief", b.tief), yEnd: .value("Hoch", b.hoch))
                     .lineStyle(StrokeStyle(lineWidth: 1))
-                    .foregroundStyle(thema.textSchwach.opacity(0.5))
+                    .foregroundStyle(thema.textSchwach)
             }
             ForEach(balken) { b in
                 LineMark(x: .value("Zeit", b.mitte), y: .value("Schluss", b.schluss))
@@ -86,7 +86,7 @@ struct AusstiegChart: View {
                 .symbolSize(70)
                 .foregroundStyle(thema.akzent)
             PointMark(x: .value("Zeit", trade.closeTime), y: .value("Preis", Format.double(trade.closePrice)))
-                .symbol(.circle)
+                .symbol(trade.netProfit >= 0 ? BasicChartSymbolShape.circle : BasicChartSymbolShape.cross)
                 .symbolSize(70)
                 .foregroundStyle(ausstiegsfarbe)
         }
