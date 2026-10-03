@@ -56,7 +56,8 @@ import TradingRates
         let jetzt = Date()
         try m.legeZielAn(Reviewziel(text: "Testziel", von: jetzt.addingTimeInterval(-86_400),
                                     bis: jetzt.addingTimeInterval(6 * 86_400)))
-        var eintrag = try #require(m.journaleintrag(try #require(m.trades.first)))
+        let ersterTrade = try #require(m.trades.first)
+        var eintrag = try #require(m.journaleintrag(ersterTrade))
         eintrag.regeltreue = false
         m.speichereJournal(eintrag)
         // Punkt 8: zwei USD-Trades auf dem Euro-Konto, Summe in Euro (2 × 43,90 USD / 1,25).
