@@ -180,6 +180,7 @@ struct Seitenleiste: View {
 /// Konto-Zeile unten in der Seitenleiste: Konto wählen, Währung und Anzahl Trades.
 struct KontoZeile: View {
     @Environment(AppModell.self) private var modell
+    @AppStorage(Ton.schluessel) private var ton = Ton.henry
 
     var body: some View {
         VStack(alignment: .leading, spacing: Abstand.raster / 2) {
@@ -196,6 +197,20 @@ struct KontoZeile: View {
                 Text(verbatim: "\(modell.waehrung) · \(String(localized: "\(modell.alleTrades.count) Trades"))") // Plural über den Katalog (Doc 52 H13)
                     .font(.caption2)
                     .foregroundStyle(.secondary)
+                if modell.beispielkonto != nil {
+                    // Beispieldaten für Tester: mit einem Klick fort, echte Konten bleiben (Hauptthread 03.10.2026).
+                    Button("Beispieldaten entfernen", systemImage: "trash") {
+                        do {
+                            try modell.entferneBeispieldaten()
+                        } catch {
+                            modell.fehler = String(localized: "Beispieldaten: \(error.localizedDescription)")
+                        }
+                    }
+                    .buttonStyle(.borderless)
+                    .font(.caption)
+                    .help(ton.text("Entfernt das Beispielkonto und seine Tagesnotiz; eigene Konten bleiben unverändert.",
+                                   henry: "Das Beispielkonto geht. Eigene Konten bleiben, wo sie sind."))
+                }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
