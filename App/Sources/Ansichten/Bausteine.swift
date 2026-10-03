@@ -79,10 +79,10 @@ struct Kachel: View {
 
 /// Erklärungen der Kennzahlen (Doc 55 J12, einfache Sprache).
 enum Kennzahlhilfe {
-    static let profitfaktor: LocalizedStringKey = "Summe der Gewinne geteilt durch Summe der Verluste. Über 1 heißt: unterm Strich im Plus."
-    static let profitfaktorUndVerhaeltnis: LocalizedStringKey = "Profitfaktor: Summe der Gewinne geteilt durch Summe der Verluste, über 1 heißt unterm Strich im Plus. Darunter: durchschnittlicher Gewinn geteilt durch durchschnittlichen Verlust."
-    static let drawdown: LocalizedStringKey = "Größter Rückgang vom bisherigen Höchststand deiner Kurve."
-    static let erwartung: LocalizedStringKey = "Was ein Trade im Schnitt bringt, nach Kosten. R ist dein Risiko je Trade: Abstand vom Einstieg zum Stop mal Größe. +2 R heißt: doppelt so viel gewonnen wie riskiert."
+    static var profitfaktor: LocalizedStringKey { "Summe der Gewinne geteilt durch Summe der Verluste. Über 1 heißt: unterm Strich im Plus." }
+    static var profitfaktorUndVerhaeltnis: LocalizedStringKey { "Profitfaktor: Summe der Gewinne geteilt durch Summe der Verluste, über 1 heißt unterm Strich im Plus. Darunter: durchschnittlicher Gewinn geteilt durch durchschnittlichen Verlust." }
+    static var drawdown: LocalizedStringKey { "Größter Rückgang vom bisherigen Höchststand deiner Kurve." }
+    static var erwartung: LocalizedStringKey { "Was ein Trade im Schnitt bringt, nach Kosten. R ist dein Risiko je Trade: Abstand vom Einstieg zum Stop mal Größe. +2 R heißt: doppelt so viel gewonnen wie riskiert." }
 }
 
 /// Karte mit Überschrift, rechts wahlweise ein Knopf „Alle“.
