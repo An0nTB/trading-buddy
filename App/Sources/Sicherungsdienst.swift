@@ -182,9 +182,12 @@ enum Sicherungsdienst {
             Bilderordner.schuetzeBestand()
             let ergebnis = String(localized: "Wiederhergestellt aus \(datei.lastPathComponent), \(bilder) Bilder zurückgeholt. Der vorherige Stand liegt in \(vorher.path).")
             // Fehlt der Ordner nur, weil es nie Bilder gab: kein Hinweis. Außerhalb des gemerkten Ordners ist er
-            // in der Sandbox sicher gesperrt.
-            let imOrdner = ordner.map { datei.standardizedFileURL.path.hasPrefix($0.standardizedFileURL.path + "/") } ?? false
-            guard !lesbar, !imOrdner else { return ergebnis }
+            // in der Sandbox sicher gesperrt. „Vor Wiederherstellung“ liegt im Container und hat nie einen
+            // Bilder-Spiegel, die Bilder sind dort ohnehin noch da (vierter Gegencheck H18).
+            let pfad = datei.standardizedFileURL.path
+            let imOrdner = ordner.map { pfad.hasPrefix($0.standardizedFileURL.path + "/") } ?? false
+            let imContainer = (try? vorWiederherstellungOrdner()).map { pfad.hasPrefix($0.standardizedFileURL.path + "/") } ?? false
+            guard !lesbar, !imOrdner, !imContainer else { return ergebnis }
             return ergebnis + " " + String(localized: "Der Ordner „Bilder“ neben der Sicherung war nicht lesbar. Liegt die Sicherung nicht im gewählten Sicherungsordner, diesen Ordner zuerst wählen und die Sicherung erneut einspielen, dann kommen die Screenshots mit.")
         }.value
     }
