@@ -262,6 +262,26 @@
         }
       }
     },
+    "Dateiformat %lld kennt diese Version nicht." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This version does not know file format %lld."
+          }
+        }
+      }
+    },
+    "Der Ordner mit den Terminen fehlt im Paket." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The folder with the events is missing from the package."
+          }
+        }
+      }
+    },
     "Der Ordner „Bilder“ neben der Sicherung war nicht lesbar. Liegt die Sicherung nicht im gewählten Sicherungsordner, diesen Ordner zuerst wählen und die Sicherung erneut einspielen, dann kommen die Screenshots mit." : {
       "localizations" : {
         "en" : {
@@ -668,6 +688,56 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Share …"
+          }
+        }
+      }
+    },
+    "Termin „%@“ liegt nicht im Jahr %lld seiner Datei." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Event “%1$@” is not in the year %2$lld of its file."
+          }
+        }
+      }
+    },
+    "Termin „%@“ steht doppelt in den Dateien." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Event “%@” appears twice in the files."
+          }
+        }
+      }
+    },
+    "Termin „%@“: Datum „%@“ ist nicht JJJJ-MM-TT." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Event “%1$@”: date “%2$@” is not YYYY-MM-DD."
+          }
+        }
+      }
+    },
+    "Termin „%@“: Uhrzeit „%@“ ist nicht HH:MM." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Event “%1$@”: time “%2$@” is not HH:MM."
+          }
+        }
+      }
+    },
+    "Termin „%@“: Zeitzone „%@“ ist unbekannt." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Event “%1$@”: time zone “%2$@” is unknown."
           }
         }
       }

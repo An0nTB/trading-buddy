@@ -22,11 +22,32 @@ final class Termindienst {
         do {
             kalender = try Terminkalender.mitgeliefert()
         } catch {
-            fehler = String(describing: error)
+            fehler = Termindienst.text(error)
         }
     }
 
     var termine: [Termin] { kalender?.termine ?? [] }
+
+    /// Klartext zu einem Lesefehler der Jahresdateien, ohne interne Fallnamen.
+    nonisolated static func text(_ fehler: Error) -> String {
+        guard let fehler = fehler as? TerminkalenderFehler else { return fehler.localizedDescription }
+        switch fehler {
+        case .mitgelieferteDatenFehlen:
+            return String(localized: "Der Ordner mit den Terminen fehlt im Paket.")
+        case .unbekanntesFormat(let format):
+            return String(localized: "Dateiformat \(format) kennt diese Version nicht.")
+        case .ungueltigesDatum(let id, let text):
+            return String(localized: "Termin „\(id)“: Datum „\(text)“ ist nicht JJJJ-MM-TT.")
+        case .ungueltigeUhrzeit(let id, let text):
+            return String(localized: "Termin „\(id)“: Uhrzeit „\(text)“ ist nicht HH:MM.")
+        case .unbekannteZeitzone(let id, let text):
+            return String(localized: "Termin „\(id)“: Zeitzone „\(text)“ ist unbekannt.")
+        case .falschesJahr(let id, let jahr):
+            return String(localized: "Termin „\(id)“ liegt nicht im Jahr \(jahr) seiner Datei.")
+        case .doppelteID(let id):
+            return String(localized: "Termin „\(id)“ steht doppelt in den Dateien.")
+        }
+    }
 
     /// Jüngster Pflegestand der Jahresdateien („2026-10-02“), `nil` ohne Daten.
     var stand: String? { kalender?.dateien.map(\.stand).max() }
