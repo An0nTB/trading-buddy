@@ -152,6 +152,16 @@
         }
       }
     },
+    "%lld ohne Kurs nicht in den Summen, weil der EZB-Kurs noch nicht geladen ist; Henry lädt ihn beim Start aus dem Internet" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld without a rate not in the totals because the ECB rate is not loaded yet; Henry loads it from the internet at launch"
+          }
+        }
+      }
+    },
     "%lld Zeilen weggelassen" : {
       "localizations" : {
         "en" : {
@@ -242,6 +252,26 @@
         }
       }
     },
+    "Claude Desktop ist auf diesem Mac nicht installiert. Die Frage liegt in der Zwischenablage. Installiere Claude Desktop, nur dort liest Claude dein Journal." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Claude Desktop is not installed on this Mac. The question is on the clipboard. Install Claude Desktop; only there can Claude read your journal."
+          }
+        }
+      }
+    },
+    "Claude Desktop liest diesen Ordner über die Erweiterung „Henry“. Sie ist die Datei „Henry-Connector“, die du mit der App bekommen hast: Doppelklick öffnet sie in Claude Desktop. Derselbe Ordner muss in den Einstellungen der Erweiterung stehen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Claude Desktop reads this folder through the “Henry” extension. It is the “Henry-Connector” file you received with the app: double-click opens it in Claude Desktop. The same folder must be set in the extension's settings."
+          }
+        }
+      }
+    },
     "Claude verbinden" : {
       "localizations" : {
         "en" : {
@@ -308,6 +338,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "The file does not state an account number. Enter the same number as for earlier reports of this account, otherwise the app counts positions twice."
+          }
+        }
+      }
+    },
+    "Die Zeitzone, in der dein MetaTrader die Zeiten zeigt. Unsicher: Vorgabe lassen. Wichtig: bei jedem Import dieselbe." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The time zone in which your MetaTrader shows times. Unsure: keep the default. Important: use the same one for every import."
           }
         }
       }
@@ -422,6 +462,16 @@
         }
       }
     },
+    "Feiertag entfernen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove holiday"
+          }
+        }
+      }
+    },
     "Format nicht erkannt: kein MetaTrader-Auszug (MT4: HTML aus der Broker-Mail, nicht der Bericht aus dem Terminal; MT5: Handelsbericht), kein CSV-Export von Trade Republic, Scalable, Interactive Brokers, Kraken, Binance, Coinbase oder Bitpanda und keine XTB-Kontohistorie (Excel)." : {
       "localizations" : {
         "en" : {
@@ -448,6 +498,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "IBKR statement without account number: please enter it in the sheet."
+          }
+        }
+      }
+    },
+    "Im Export steht nur der letzte Stop-Loss. Ohne Stop kein R; der Trade wird markiert. Stop nachtragen: Trade anklicken, rechts beim Stop eintragen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The export only contains the last stop loss. No stop means no R; the trade is flagged. To add a stop: click the trade and enter it on the right under Stop."
+          }
+        }
+      }
+    },
+    "Importieren geht erst, wenn jede Prüfzeile „stimmt“ zeigt und das Konto feststeht. Wähl zuerst eine andere Serverzeit; hilft das nicht, Hilfe › Problem melden." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import is possible once every check row shows “matches” and the account is set. First try a different server time; if that doesn't help, use Help › Report a problem."
           }
         }
       }
@@ -562,6 +632,16 @@
         }
       }
     },
+    "Lade beim Broker den Kontoauszug herunter und wähle ihn auf der Import-Seite. MetaTrader 4: den Tagesauszug als HTML aus der Mail deines Brokers. MetaTrader 5: den Handelsbericht. Andere Broker: CSV oder Excel." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Download the account statement from your broker and choose it on the Import page. MetaTrader 4: the daily statement as HTML from your broker's email. MetaTrader 5: the trade report. Other brokers: CSV or Excel."
+          }
+        }
+      }
+    },
     "Lesen: %@" : {
       "localizations" : {
         "en" : {
@@ -598,6 +678,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Don’t show again"
+          }
+        }
+      }
+    },
+    "Noch kein Export-Ordner: Claude sieht deine Zahlen erst, wenn einer gewählt ist." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No export folder yet: Claude only sees your numbers once one is chosen."
           }
         }
       }
@@ -788,6 +878,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Choose an account statement: MetaTrader 4 or 5 (HTML, GBE and other brokers), the transaction export from Trade Republic or Scalable Capital (CSV), the activity statement from Interactive Brokers (CSV), the trade or transaction export from Kraken, Binance, Coinbase or Bitpanda (CSV) or the account history from XTB (Excel from xStation 5)."
+          }
+        }
+      }
+    },
+    "Wähle in den Einstellungen unter „Claude“ einen Export-Ordner. Die Erweiterung „Henry“ ist die Datei „Henry-Connector“, die du mit der App bekommen hast: Doppelklick öffnet sie in Claude Desktop. Trag dort denselben Ordner ein." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose an export folder in Settings under “Claude”. The “Henry” extension is the “Henry-Connector” file you received with the app: double-click opens it in Claude Desktop. Enter the same folder there."
           }
         }
       }

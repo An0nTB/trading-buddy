@@ -156,9 +156,11 @@ private struct BoersenEintrag: View {
                 Button { verwaltung.verschiebe(boerse.id, um: -1) } label: { Image(systemName: "chevron.up") }
                     .disabled(verwaltung.angezeigt.first == boerse.id)
                     .help("Nach oben")
+                    .accessibilityLabel(Text("Nach oben")) // Doc 55 J15
                 Button { verwaltung.verschiebe(boerse.id, um: 1) } label: { Image(systemName: "chevron.down") }
                     .disabled(verwaltung.angezeigt.last == boerse.id)
                     .help("Nach unten")
+                    .accessibilityLabel(Text("Nach unten"))
                 Button("Ausblenden") { verwaltung.blendeAus(boerse.id) }
                     .disabled(verwaltung.angezeigt.count == 1)
             } else {
@@ -428,6 +430,7 @@ private struct SitzungsEditor: View {
                 }
                 .buttonStyle(.borderless)
                 .help("Sitzung entfernen")
+                .accessibilityLabel(Text("Sitzung entfernen"))
             }
             HStack(spacing: Abstand.kachelAbstand) {
                 DatePicker("Beginn", selection: $zeile.beginn, displayedComponents: .hourAndMinute)
@@ -488,6 +491,7 @@ private struct ZeitzonenFeld: View {
             .menuStyle(.button)
             .buttonStyle(.borderless)
             .help("Häufige Zeitzonen")
+            .accessibilityLabel(Text("Häufige Zeitzonen"))
         }
         if TimeZone(identifier: zeitzone) == nil {
             Text("Unbekannte Zeitzone.")
@@ -532,6 +536,8 @@ private struct KalenderFormular: View {
                                 Image(systemName: "minus.circle")
                             }
                             .buttonStyle(.borderless)
+                            .help("Feiertag entfernen")
+                            .accessibilityLabel(Text("Feiertag entfernen"))
                         }
                     }
                     Button("Feiertag hinzufügen", systemImage: "plus") { tage.append(Feiertagszeile()) }
