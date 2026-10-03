@@ -4,10 +4,11 @@ import TradingCore
 @testable import TradingStore
 
 // Lasttest (Beta mit Testern): drei Jahre Historie, 10 000 Ausführungen bzw. 5 000 Trades auf drei Konten.
-// Die Grenze ist großzügig für den langsamsten CI-Runner (Debug-Build, parallele Tests); die gemessenen
-// Zeiten stehen im Testprotokoll unter „Lasttest“ und in Doc 11.
+// Die Grenze fängt nur Ausreißer um ein Vielfaches (fehlender Index, quadratische Laufzeit), nicht die
+// Streuung geteilter CI-Runner: 10 s riss am 03.10.2026 auf Linux mit 14,5 s beim Schreiben einzelner
+// Einträge (Doc 11, Entscheidung 50). Die gemessenen Zeiten stehen im Testprotokoll unter „Lasttest“.
 
-private let grenze: Duration = .seconds(10)
+private let grenze: Duration = .seconds(30)
 
 @discardableResult
 private func miss<T>(_ schritt: String, _ arbeit: () throws -> T) throws -> T {
