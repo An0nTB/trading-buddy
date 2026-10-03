@@ -169,6 +169,19 @@ jobs:
         run: swift build -c release
       - name: Manifest prüfen
         run: python3 -m json.tool ../../Connector/manifest.json > /dev/null
+      - name: Universal bauen wie scripts/connector_bauen.sh
+        run: |
+          swift build -c release --arch arm64 --arch x86_64
+          BIN="$(swift build -c release --arch arm64 --arch x86_64 --show-bin-path)/trading-buddy-mcp"
+          echo "$BIN"
+          lipo -archs "$BIN"
+          lipo "$BIN" -verify_arch arm64 x86_64
+          (
+            echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"ci","version":"1"}}}'
+            sleep 2
+          ) | perl -e 'alarm 10; exec @ARGV' "$BIN" > universal.txt || true
+          cat universal.txt
+          grep -q '"serverInfo"' universal.txt
       - name: Server wertet die GBE-Testdateien aus
         run: |
           BIN="$(swift build -c release --show-bin-path)"

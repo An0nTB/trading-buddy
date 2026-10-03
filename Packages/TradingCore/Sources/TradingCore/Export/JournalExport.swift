@@ -42,6 +42,9 @@ public struct JournalExport: Sendable, Equatable, Codable {
     /// EZB-Referenzkurse der Tage, an denen Trades in fremder Währung schlossen, nach Tag; nur Währungen dieser Trades.
     /// Fehlt ohne Fremdwährung oder ohne geladene Kurse; dann rechnet der Connector je Währung getrennt.
     public var referenzkurse: [Tageskurse]?
+    /// Anzeigewährung der App (Einstellungen, gilt für alle Konten), wenn der Nutzer eine gewählt hat; Übersicht
+    /// und Kennzahlen der App summieren dann in ihr. Fehlt ohne Wahl und in älteren Dateien (Vierter Gegencheck H21).
+    public var anzeigewaehrung: String?
 
     public struct Kontodaten: Sendable, Equatable, Codable {
         public var broker: String
@@ -130,7 +133,7 @@ public struct JournalExport: Sendable, Equatable, Codable {
 
     public init(konten: [Kontodaten], zeitzone: TimeZone, erstellt: Date = .now, ton: String? = nil,
                 tagesnotizen: [Notiz] = [], verpassteTrades: [Verpasst] = [], nachrichten: [Meldung] = [],
-                kursverlauf: [Kursreihe] = [], referenzkurse: [Tageskurse] = []) {
+                kursverlauf: [Kursreihe] = [], referenzkurse: [Tageskurse] = [], anzeigewaehrung: String? = nil) {
         format = Self.aktuellesFormat
         self.erstellt = erstellt
         rechenkern = TradingCore.version
@@ -146,6 +149,8 @@ public struct JournalExport: Sendable, Equatable, Codable {
             .prefix(Self.kursreihenHoechstens)
         self.kursverlauf = reihen.isEmpty ? nil : Array(reihen)
         self.referenzkurse = referenzkurse.isEmpty ? nil : referenzkurse.sorted { $0.tag < $1.tag }
+        let anzeige = anzeigewaehrung?.trimmingCharacters(in: .whitespaces).uppercased() ?? ""
+        self.anzeigewaehrung = anzeige.isEmpty ? nil : anzeige
     }
 
     /// Zeitzone des Nutzers; UTC, falls der Name unbekannt ist.

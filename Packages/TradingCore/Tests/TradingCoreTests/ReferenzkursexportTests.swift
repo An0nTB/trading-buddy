@@ -71,3 +71,24 @@ private func maikurse() -> Referenzkurse {
     #expect(text.contains(#""format":3"#) && text.contains("neue Form"))
     #expect(throws: ExportFehler.neueresFormat(3)) { try JournalExport.lese(Data(text.utf8)) }
 }
+
+@Test func anzeigewaehrungMitKursenImExport() throws {
+    // Befund H21 (Doc 52): Euro-Konto nur mit Euro-Trades, Anzeige in USD braucht den USD-Kurs der Schlusstage.
+    let konten = [JournalExport.Kontodaten(broker: "A", kontonummer: "1111", waehrung: "EUR",
+                                           trades: [trade("e", "2025-05-20T12:00:00", waehrung: nil)])]
+    #expect(JournalExport.referenzkursauszug(maikurse(), fuer: konten).isEmpty)
+    let auszug = JournalExport.referenzkursauszug(maikurse(), fuer: konten, anzeigewaehrung: "usd")
+    #expect(auszug.count == 10 && auszug.allSatisfy { $0.kurse == ["USD": 2] })
+    // Anzeige in der Währung der Trades braucht keinen Kurs.
+    #expect(JournalExport.referenzkursauszug(maikurse(), fuer: konten, anzeigewaehrung: "EUR").isEmpty)
+
+    let export = JournalExport(konten: konten, zeitzone: utc, erstellt: zeit("2025-06-01T00:00:00"),
+                               referenzkurse: auszug, anzeigewaehrung: " usd ")
+    #expect(export.anzeigewaehrung == "USD")
+    #expect(try JournalExport.lese(try export.json()) == export)
+    // Ohne Wahl fehlt das Feld; ältere Connectoren übergehen es, das Format bleibt.
+    let ohne = JournalExport(konten: konten, zeitzone: utc, anzeigewaehrung: "")
+    let ohneText = String(decoding: try ohne.json(), as: UTF8.self)
+    #expect(ohne.anzeigewaehrung == nil && !ohneText.contains("anzeigewaehrung"))
+    #expect(export.format == 2)
+}

@@ -33,6 +33,8 @@ public enum Rezept {
         - Gibt es den Abschnitt „Ausstieg“, in Punkt 3 einen Satz dazu (MAE der Gewinner, Anteil der MFE,
           Verlierer mit 1 R Plus), nur beschreibend: keine Stop- oder Zielmarke vorschlagen.
         - Gibt es den Abschnitt „Tage“, in Punkt 1 den besten und den schlechtesten Tag nennen.
+        - Nennt der Kopf eine Anzeigewährung der App, in Punkt 1 das Netto zuerst in ihr nennen (so zeigt es die
+          App), dann in Kontowährung; alle übrigen Beträge in Kontowährung.
         - Den Abschnitt „Steuer-Orientierung“ nur nennen, wenn danach gefragt wird: Summen je Topf, keine
           Steuerberechnung, keine Steuerberatung; maßgeblich sind Steuerbescheinigung und Steuerberatung.
         - Nur Zahlen aus den Henry-Werkzeugen verwenden; fehlt etwas, das sagen statt schätzen.

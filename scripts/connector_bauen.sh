@@ -8,8 +8,15 @@ IDENTITAET=$(security find-identity -v -p codesigning | grep "Apple Development"
 if [ -z "$IDENTITAET" ]; then echo "Kein Apple-Development-Zertifikat gefunden. Die App einmal in Xcode starten."; exit 1; fi
 
 PAKET=Packages/TradingConnector
-swift build -c release --package-path "$PAKET"
-BIN="$(swift build -c release --package-path "$PAKET" --show-bin-path)/trading-buddy-mcp"
+# Universal (Apple Silicon und Intel), damit die Erweiterung auch auf dem Mac eines Testers startet (H22, Doc 52).
+ARCH=(--arch arm64 --arch x86_64)
+swift build -c release "${ARCH[@]}" --package-path "$PAKET"
+BIN="$(swift build -c release "${ARCH[@]}" --package-path "$PAKET" --show-bin-path)/trading-buddy-mcp"
+ARCHS=$(lipo -archs "$BIN")
+case "$ARCHS" in
+  *arm64*x86_64*|*x86_64*arm64*) echo "Architekturen: $ARCHS" ;;
+  *) echo "Server ist nicht universal ($ARCHS)."; exit 1 ;;
+esac
 
 ZIEL=build/mcpb
 rm -rf "$ZIEL" build/TradingBuddy.mcpb
