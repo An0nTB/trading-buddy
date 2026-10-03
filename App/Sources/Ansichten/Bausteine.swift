@@ -43,6 +43,8 @@ struct Kachel: View {
     let wert: String
     var zusatz: String?
     var farbe: Color?
+    /// Erklärung der Kennzahl als Tooltip und für VoiceOver (Doc 55 J12).
+    var hilfe: LocalizedStringKey?
     @Environment(\.thema) private var thema
 
     var body: some View {
@@ -69,7 +71,18 @@ struct Kachel: View {
         .padding(Abstand.kachelInnen)
         .background(thema.flaeche, in: RoundedRectangle(cornerRadius: Abstand.radiusKachel))
         .overlay(RoundedRectangle(cornerRadius: Abstand.radiusKachel).strokeBorder(thema.kachelRand, lineWidth: 1))
+        .help(hilfe ?? "")
+        .accessibilityElement(children: .combine)
+        .accessibilityHint(hilfe.map { Text($0) } ?? Text(verbatim: ""))
     }
+}
+
+/// Erklärungen der Kennzahlen (Doc 55 J12, einfache Sprache).
+enum Kennzahlhilfe {
+    static var profitfaktor: LocalizedStringKey { "Summe der Gewinne geteilt durch Summe der Verluste. Über 1 heißt: unterm Strich im Plus." }
+    static var profitfaktorUndVerhaeltnis: LocalizedStringKey { "Profitfaktor: Summe der Gewinne geteilt durch Summe der Verluste, über 1 heißt unterm Strich im Plus. Darunter: durchschnittlicher Gewinn geteilt durch durchschnittlichen Verlust." }
+    static var drawdown: LocalizedStringKey { "Größter Rückgang vom bisherigen Höchststand deiner Kurve." }
+    static var erwartung: LocalizedStringKey { "Was ein Trade im Schnitt bringt, nach Kosten. R ist dein Risiko je Trade: Abstand vom Einstieg zum Stop mal Größe. +2 R heißt: doppelt so viel gewonnen wie riskiert." }
 }
 
 /// Karte mit Überschrift, rechts wahlweise ein Knopf „Alle“.
@@ -128,13 +141,34 @@ struct StichprobenHinweis: View {
     }
 }
 
+/// Trades vorhanden, aber Suche oder Filter lassen keinen übrig (Doc 55 J9).
+struct KeineTreffer: View {
+    let aufheben: () -> Void
+
+    var body: some View {
+        ContentUnavailableView {
+            Label("Kein Trade passt zu Suche oder Filter", systemImage: "line.3.horizontal.decrease.circle")
+        } actions: {
+            Button("Filter aufheben", action: aufheben)
+        }
+    }
+}
+
 /// Leerer Zustand, solange nichts importiert ist.
 struct KeineTrades: View {
     @AppStorage(Ton.schluessel) private var ton = Ton.henry
+    @Environment(AppModell.self) private var modell
     var body: some View {
-        ContentUnavailableView(ton.text("Noch keine Trades", henry: "Noch keine Einträge. Geduld ist auch eine Position."), systemImage: "tray",
-                               description: Text(verbatim: ton.text("Importiere einen Kontoauszug unter „Import“.",
-                                                                    henry: "Ein Kontoauszug unter „Import“ genügt für den Anfang.")))
+        // Beschreibung sachlich und ein Knopf zum Import (Doc 55 J10).
+        ContentUnavailableView {
+            Label(ton.text("Noch keine Trades", henry: "Noch keine Einträge. Geduld ist auch eine Position."), systemImage: "tray")
+        } description: {
+            Text("Importiere einen Kontoauszug, dann erscheinen hier deine Trades.")
+        } actions: {
+            #if os(macOS)
+            Button("Kontoauszug importieren") { modell.bereich = .importieren }
+            #endif
+        }
     }
 }
 

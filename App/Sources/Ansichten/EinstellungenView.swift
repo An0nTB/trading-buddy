@@ -8,7 +8,10 @@ struct EinstellungenView: View {
         #if os(macOS)
         TabView {
             Tab("Allgemein", systemImage: "gearshape") {
-                Form { AllgemeinFelder() }
+                Form {
+                    AllgemeinFelder()
+                    Section { AktualisierungFelder() } // Update-Hinweis für Tester (Doc 51)
+                }
                     .formStyle(.grouped)
             }
             Tab("Erscheinungsbild", systemImage: "paintpalette") {
@@ -201,9 +204,6 @@ struct KontenView: View {
                                 .foregroundStyle(thema.textSchwach)
                         }
                         Spacer()
-                        Text("Kostenprofil folgt")
-                            .font(Schrift.beschriftung)
-                            .foregroundStyle(thema.textSchwach)
                     }
                     .listRowBackground(thema.flaeche)
                 }

@@ -40,11 +40,13 @@ struct UebersichtView: View {
                                zusatz: String(localized: "\(kennzahlen.gewinner) von \(kennzahlen.anzahl)"))
                         Kachel(titel: "Profitfaktor",
                                wert: Format.zahl(kennzahlen.profitfaktor),
-                               zusatz: String(localized: "\(Format.r(kennzahlen.erwartungswertR)) je Trade"))
+                               zusatz: String(localized: "\(Format.r(kennzahlen.erwartungswertR)) je Trade"),
+                               hilfe: Kennzahlhilfe.profitfaktor)
                         Kachel(titel: "Max. Drawdown",
                                wert: Format.geld(-verlauf.maxDrawdown, waehrung),
                                zusatz: String(localized: "Verlustserie \(verlauf.laengsteVerlustserie)"),
-                               farbe: verlauf.maxDrawdown > 0 ? thema.verlust : nil)
+                               farbe: verlauf.maxDrawdown > 0 ? thema.verlust : nil,
+                               hilfe: Kennzahlhilfe.drawdown)
                     }
                     KurseKarte()
                     NaechsteTermineKarte()
