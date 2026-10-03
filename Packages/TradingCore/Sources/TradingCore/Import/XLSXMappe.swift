@@ -22,12 +22,17 @@ public struct XLSXMappe: Sendable {
     public var blaetter: [Blatt]
 
     public init(daten: Data) throws {
+        // Über eine Datei statt `Archive(data:)`: Dessen Speicherdatei stürzt in ZIPFoundation 0.9.x ab, wenn
+        // ein beschädigtes Archiv hinter das Datenende springt (Test `kaputteXTBMappeStuerztNichtAb`, 03.10.2026).
+        let datei = FileManager.default.temporaryDirectory.appendingPathComponent("henry-\(UUID().uuidString).xlsx")
+        do { try daten.write(to: datei) } catch { throw XLSXFehler.keineXLSX }
+        defer { try? FileManager.default.removeItem(at: datei) }
         let archiv: Archive
-        do { archiv = try Archive(data: daten, accessMode: .read) } catch { throw XLSXFehler.keineXLSX }
+        do { archiv = try Archive(url: datei, accessMode: .read) } catch { throw XLSXFehler.keineXLSX }
         func teil(_ pfad: String) throws -> Data? {
             guard let eintrag = archiv[pfad] else { return nil }
             var inhalt = Data()
-            _ = try archiv.extract(eintrag) { inhalt.append($0) }
+            do { _ = try archiv.extract(eintrag) { inhalt.append($0) } } catch { throw XLSXFehler.fehlenderTeil(pfad) }
             return inhalt
         }
         guard let mappe = try teil("xl/workbook.xml") else { throw XLSXFehler.fehlenderTeil("xl/workbook.xml") }
