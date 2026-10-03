@@ -168,7 +168,11 @@ jobs:
       - name: Bauen (Release)
         run: swift build -c release
       - name: Manifest prüfen
-        run: python3 -m json.tool ../../Connector/manifest.json > /dev/null
+        run: |
+          python3 -m json.tool ../../Connector/manifest.json > /dev/null
+          VERSION=$(python3 -c 'import json; print(json.load(open("../../Connector/manifest.json"))["version"])')
+          grep -q "connectorVersion = \"$VERSION\"" Sources/ConnectorKern/Verbindungsstatus.swift \
+            || { echo "manifest.json $VERSION passt nicht zu Verbindungsstatus.connectorVersion"; exit 1; }
       - name: Universal bauen wie scripts/connector_bauen.sh
         run: |
           swift build -c release --arch arm64 --arch x86_64
@@ -202,12 +206,14 @@ jobs:
             echo '{"jsonrpc":"2.0","id":10,"method":"tools/call","params":{"name":"hole_nachrichten","arguments":{"tage":3}}}'
             echo '{"jsonrpc":"2.0","id":12,"method":"tools/call","params":{"name":"hole_kursanalyse","arguments":{"symbol":"DE40.c","monate":12}}}'
             echo '{"jsonrpc":"2.0","id":11,"method":"tools/call","params":{"name":"hole_auswertung","arguments":{"monat":"2025-05","waehrung":"chf"}}}'
+            echo '{"jsonrpc":"2.0","id":13,"method":"tools/call","params":{"name":"henry_status","arguments":{}}}'
             sleep 3
           ) | TB_EXPORT_DIR="$ORDNER" perl -e 'alarm 20; exec @ARGV' "$BIN/trading-buddy-mcp" > antwort.txt || true
           cat antwort.txt
           echo "Umfang je Antwort (Zeichen, grob 3 bis 4 je Token):"
           awk '{ print length($0) "  " substr($0, 1, 30) }' antwort.txt
           grep -q hole_aufschluesselung antwort.txt
+          grep -q "VERBINDUNG STEHT" antwort.txt
           grep -q "Gespeichert insgesamt (alle Zeiträume): 104 Trades" antwort.txt
           grep -q wochenauswertung antwort.txt
           grep -q "104 Trades" antwort.txt
