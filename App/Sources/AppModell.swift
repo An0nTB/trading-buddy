@@ -205,6 +205,8 @@ final class AppModell {
             guard anzeigewaehrung != oldValue else { return }
             if nebenwirkungen { UserDefaults.standard.set(anzeigewaehrung, forKey: Self.anzeigewaehrungSchluessel) }
             gleicheWaehrungenAn()
+            // Der Export trägt die Anzeigewährung für Claude (AP12, Vierter Gegencheck H21).
+            exportiere()
         }
     }
     static let anzeigewaehrungSchluessel = "anzeige.waehrung"
