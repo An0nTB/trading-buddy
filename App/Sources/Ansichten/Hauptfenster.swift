@@ -92,6 +92,7 @@ struct Hauptfenster: View {
             Text(verbatim: modell.fehler ?? "")
         }
         .fragBradBlatt() // Frag Henry (Doc 31): an der Wurzel, damit es auch in der Tab-Leiste am iPhone wirkt
+        .hilfeBlaetter() // Hilfe › Erste Schritte, Problem melden (Nachtpaket AP11)
     }
 
     private var fehlerSichtbar: Binding<Bool> {

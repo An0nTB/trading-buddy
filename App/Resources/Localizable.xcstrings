@@ -212,6 +212,26 @@
         }
       }
     },
+    "Claude verbinden" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connect Claude"
+          }
+        }
+      }
+    },
+    "Datei importieren" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import a file"
+          }
+        }
+      }
+    },
     "Der Ordner „Bilder“ neben der Sicherung war nicht lesbar. Liegt die Sicherung nicht im gewählten Sicherungsordner, diesen Ordner zuerst wählen und die Sicherung erneut einspielen, dann kommen die Screenshots mit." : {
       "localizations" : {
         "en" : {
@@ -262,12 +282,32 @@
         }
       }
     },
+    "Drei Schritte, dann rechnet Henry mit deinen Trades und Claude kann darauf antworten." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Three steps, then Henry works with your trades and Claude can answer questions about them."
+          }
+        }
+      }
+    },
     "Dreieck Einstieg, Kreis Ausstieg, gestrichelt Stop (rot) und Ziel (grün)." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Triangle entry, circle exit, dashed stop (red) and target (green)."
+          }
+        }
+      }
+    },
+    "Ein Konto entsteht mit dem ersten Import. Henry liest Broker und Kontonummer aus der Datei; Namen und Kontowährung legst du im Import-Blatt fest." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An account is created with the first import. Henry reads the broker and account number from the file; you set the name and account currency in the import sheet."
           }
         }
       }
@@ -282,6 +322,26 @@
         }
       }
     },
+    "Einstellungen öffnen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Settings"
+          }
+        }
+      }
+    },
+    "Enthalten: Versionen, System, Zahl der Konten und Importfehler dieser Sitzung. Nicht enthalten: Trades, Beträge, Namen, volle Konto- oder Ticketnummern. Hängt es an einer Datei, hilft zusätzlich die anonymisierte Probe aus dem Import-Blatt." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Included: versions, system, number of accounts and import errors from this session. Not included: trades, amounts, names, full account or ticket numbers. If the problem is with a file, the anonymised sample from the import sheet also helps."
+          }
+        }
+      }
+    },
     "Erkannt: MetaTrader 5 Handelsbericht (HTML)" : {
       "localizations" : {
         "en" : {
@@ -292,12 +352,52 @@
         }
       }
     },
+    "erledigt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "done"
+          }
+        }
+      }
+    },
+    "Erste Schritte" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Getting started"
+          }
+        }
+      }
+    },
+    "Erste Schritte …" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Getting started …"
+          }
+        }
+      }
+    },
     "IBKR-Auszug ohne Kontonummer: bitte im Blatt angeben." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "IBKR statement without account number: please enter it in the sheet."
+          }
+        }
+      }
+    },
+    "In der Zwischenablage" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copied to clipboard"
           }
         }
       }
@@ -342,12 +442,52 @@
         }
       }
     },
+    "Konto anlegen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create an account"
+          }
+        }
+      }
+    },
+    "Kopiere diesen Text und schick ihn mit einer kurzen Beschreibung an Tim: was du getan hast, was passiert ist und was du erwartet hast. Den Weg dafür nennt dir Tim." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy this text and send it to Tim with a short description: what you did, what happened and what you expected. Tim will tell you how to send it."
+          }
+        }
+      }
+    },
     "Kursverlauf des Trades mit %lld Balken, Einstieg und Ausstieg markiert" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Price history of the trade with %lld bars, entry and exit marked"
+          }
+        }
+      }
+    },
+    "Lade beim Broker den Kontoauszug herunter (MetaTrader: Bericht als HTML, sonst CSV oder Excel) und wähle ihn auf der Import-Seite." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Download the account statement from your broker (MetaTrader: report as HTML, otherwise CSV or Excel) and choose it on the Import page."
+          }
+        }
+      }
+    },
+    "Lesen: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reading: %@"
           }
         }
       }
@@ -372,12 +512,42 @@
         }
       }
     },
+    "Nicht mehr zeigen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Don’t show again"
+          }
+        }
+      }
+    },
     "Ohne EZB-Kurs nicht enthalten: %lld Trades in Fremdwährung." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Not included without an ECB rate: %lld trades in foreign currency."
+          }
+        }
+      }
+    },
+    "Problem melden" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Report a problem"
+          }
+        }
+      }
+    },
+    "Problem melden …" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Report a problem …"
           }
         }
       }
@@ -392,12 +562,32 @@
         }
       }
     },
+    "Speichern: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saving: %@"
+          }
+        }
+      }
+    },
     "Teilen …" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Share …"
+          }
+        }
+      }
+    },
+    "Text kopieren" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy text"
           }
         }
       }
@@ -482,12 +672,42 @@
         }
       }
     },
+    "Wieder aufrufbar über Hilfe › Erste Schritte." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Available again via Help › Getting started."
+          }
+        }
+      }
+    },
     "Wähle einen Kontoauszug: MetaTrader 4 oder 5 (HTML, GBE und andere Broker), den Transaktionsexport von Trade Republic oder Scalable Capital (CSV), das Activity Statement von Interactive Brokers (CSV), den Trade- oder Transaktionsexport von Kraken, Binance, Coinbase oder Bitpanda (CSV) oder die Kontohistorie von XTB (Excel aus xStation 5)." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Choose an account statement: MetaTrader 4 or 5 (HTML, GBE and other brokers), the transaction export from Trade Republic or Scalable Capital (CSV), the activity statement from Interactive Brokers (CSV), the trade or transaction export from Kraken, Binance, Coinbase or Bitpanda (CSV) or the account history from XTB (Excel from xStation 5)."
+          }
+        }
+      }
+    },
+    "Wähle in den Einstellungen unter „Claude“ einen Export-Ordner. Installiere dann die Erweiterung „Henry“ in Claude Desktop und trage dort denselben Ordner ein." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose an export folder in Settings under “Claude”. Then install the “Henry” extension in Claude Desktop and enter the same folder there."
+          }
+        }
+      }
+    },
+    "Zur Import-Seite" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Go to Import"
           }
         }
       }
