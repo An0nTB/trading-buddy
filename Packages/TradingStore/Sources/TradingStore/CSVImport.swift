@@ -200,7 +200,7 @@ extension Journal {
         if let bekannt = try lies({ try Importlauf.filter(Column("dateiHash") == hash).fetchOne($0) }) {
             return ImportErgebnis(status: .dateiBereitsImportiert, importlaufId: bekannt.id!)
         }
-        guard let text = String(data: datei, encoding: .utf8) else { throw SpeicherFehler.keinText }
+        guard let text = Importtext.lies(datei) else { throw SpeicherFehler.keinText }
 
         let broker: String, importer: String, quellzeit: TimeZone, bewegungen: Kontobewegungen
         var nummer = kontonummer, waehrung = kontowaehrung
