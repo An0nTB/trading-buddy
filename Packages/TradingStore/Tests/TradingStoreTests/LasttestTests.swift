@@ -59,14 +59,12 @@ private func ordner() throws -> URL {
     #expect(m.geschlosseneNeu == positionen && m.csv.geldbewegungenNeu == daten.mt5Geld)
 
     // Dieselben Dateien noch einmal: erkannt am Fingerabdruck.
-    try miss("Zweitimport gleiche Dateien") {
-        #expect(try journal.importiereCSV(datei: daten.scalable, dateiname: "s.csv", kontonummer: "Depot").status
-            == .dateiBereitsImportiert)
-        #expect(try journal.importiereCSV(datei: daten.ibkr, dateiname: "i.csv", kontonummer: "IBKR").status
-            == .dateiBereitsImportiert)
-        #expect(try journal.importiereMT5(datei: daten.mt5, dateiname: "m.html", serverZeitzone: server).status
-            == .dateiBereitsImportiert)
+    let zweitimport = try miss("Zweitimport gleiche Dateien") {
+        [try journal.importiereCSV(datei: daten.scalable, dateiname: "s.csv", kontonummer: "Depot").status,
+         try journal.importiereCSV(datei: daten.ibkr, dateiname: "i.csv", kontonummer: "IBKR").status,
+         try journal.importiereMT5(datei: daten.mt5, dateiname: "m.html", serverZeitzone: server).status]
     }
+    #expect(zweitimport == [.dateiBereitsImportiert, .dateiBereitsImportiert, .dateiBereitsImportiert])
 
     // Nächster Export mit einem neuen Vorgang: jede alte Zeile wird gegen den Bestand verglichen.
     let weiter = Lastdaten.erzeuge(zusatz: true)
@@ -121,13 +119,14 @@ private func ordner() throws -> URL {
                                                                      erstellt: daten.handelstage[n]))
         }
     }
-    try miss("Laden Tagesnotizen, Journal, Merkliste") {
-        let erster = Journaltag(daten.handelstage[0], zeitzone: Lastdaten.utc)
-        let letzter = Journaltag(daten.handelstage[daten.handelstage.count - 1], zeitzone: Lastdaten.utc)
-        #expect(try journal.tagesnotizen(von: erster, bis: letzter).count == daten.handelstage.count)
-        #expect(try journal.journaleintraege(konto: mt5Konto).count == tickets.count)
-        #expect(try journal.merkliste().count == 300)
+    let erster = Journaltag(daten.handelstage[0], zeitzone: Lastdaten.utc)
+    let letzter = Journaltag(daten.handelstage[daten.handelstage.count - 1], zeitzone: Lastdaten.utc)
+    let geladen = try miss("Laden Tagesnotizen, Journal, Merkliste") {
+        [try journal.tagesnotizen(von: erster, bis: letzter).count,
+         try journal.journaleintraege(konto: mt5Konto).count,
+         try journal.merkliste().count]
     }
+    #expect(geladen == [daten.handelstage.count, tickets.count, 300])
 
     // Datensicherung und Wiederherstellen in ein leeres Journal.
     let sicherung = try miss("Datensicherung") {
