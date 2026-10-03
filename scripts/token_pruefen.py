@@ -2,7 +2,7 @@
 """Prüft die Design-Token der App gegen Design/tokens.json (Doc 10, Abschnitt 9).
 
 1. Jede Farbwelt in App/Sources/Design/Farbwelt.swift trägt genau die Werte aus tokens.json
-   (Akzent, Gewinn, Verlust, je dunkel und hell), ebenso die Neutralfarben und die getönten Flächen.
+   (Akzent, Gewinn, Verlust, Warnung, je dunkel und hell), ebenso die Neutralfarben und die getönten Flächen.
 2. In den Ansichten (App/Sources/Ansichten, App/Sources/*.swift) steht kein Hex-Farbwert.
 
 Aufruf im Repository-Ordner: python3 scripts/token_pruefen.py
@@ -34,7 +34,7 @@ def pruefe_farbwelten(tokens: dict, quelle: str) -> list[str]:
             fehler.append(f"Farbwelt {name}: keine Zeile `case .{name}: [...]` in Farbwelt.swift")
             continue
         paare = re.findall(r"\(0x([0-9a-fA-F]{6}),\s*0x([0-9a-fA-F]{6})\)", treffer.group(1))
-        soll = [(hex_json(welt["dunkel"][k]), hex_json(welt["hell"][k])) for k in ("akzent", "gewinn", "verlust")]
+        soll = [(hex_json(welt["dunkel"][k]), hex_json(welt["hell"][k])) for k in ("akzent", "gewinn", "verlust", "warnung")]
         ist = [(d.lower(), h.lower()) for d, h in paare]
         if ist != soll:
             fehler.append(f"Farbwelt {name}: Swift {ist} ≠ tokens.json {soll}")
