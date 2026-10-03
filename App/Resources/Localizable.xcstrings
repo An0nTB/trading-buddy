@@ -162,6 +162,36 @@
         }
       }
     },
+    "1. Januar bis 31. Dezember %@, Beträge in Euro, Verkaufsjahr nach deutscher Zeit. Ergebnis je Trade = Kursergebnis + Kommission + Swap." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 January to 31 December %@, amounts in euros, year of sale in German time. Result per trade = price result + commission + swap."
+          }
+        }
+      }
+    },
+    "%lld, davon %lld steuerfrei" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld, of which %2$lld tax-free"
+          }
+        }
+      }
+    },
+    "Ab dem genannten Tag wäre ein Verkauf nach der Haltefrist steuerfrei." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "From the date shown, a sale would be tax-free after the holding period."
+          }
+        }
+      }
+    },
     "Activity Statement (CSV)" : {
       "localizations" : {
         "en" : {
@@ -178,6 +208,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld trades without candles from the source (for example no volume in the period); stored prices stay."
+          }
+        }
+      }
+    },
+    "Aktienverluste sind nur mit Aktiengewinnen verrechenbar." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share losses can only be offset against share gains."
           }
         }
       }
@@ -222,6 +262,16 @@
         }
       }
     },
+    "Bestand am Ende der Daten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holdings at the end of the data"
+          }
+        }
+      }
+    },
     "Beträge im Bericht in Kontowährung %@, nicht in %@" : {
       "localizations" : {
         "en" : {
@@ -258,6 +308,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Import a file"
+          }
+        }
+      }
+    },
+    "Dazu %lld weitere auf der Steuer-Seite der App." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plus %lld more on the Tax page of the app."
           }
         }
       }
@@ -308,6 +368,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "The file does not state an account number. Enter the same number as for earlier reports of this account, otherwise the app counts positions twice."
+          }
+        }
+      }
+    },
+    "Diese Trades lauten auf eine fremde Währung, für deren Schlusstag kein EZB-Referenzkurs vorliegt. Nach dem nächsten Kursabruf in der App den Bericht neu erstellen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "These trades are in a foreign currency with no ECB reference rate for their closing day. Create the report again after the next rate download in the app."
           }
         }
       }
@@ -552,6 +622,16 @@
         }
       }
     },
+    "Etwa von einer anderen Börse übertragen. Ohne Kaufdatum lassen sich Haltedauer und Gewinn nicht bestimmen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "For example transferred from another exchange. Without a purchase date, holding period and gain cannot be determined."
+          }
+        }
+      }
+    },
     "Format nicht erkannt: kein MetaTrader-Auszug (MT4: HTML aus der Broker-Mail, nicht der Bericht aus dem Terminal; MT5: Handelsbericht), kein CSV-Export von Trade Republic, Scalable, Interactive Brokers, Kraken, Binance, Coinbase oder Bitpanda und keine XTB-Kontohistorie (Excel)." : {
       "localizations" : {
         "en" : {
@@ -568,6 +648,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "The database and the screenshots are backed up. If “Back up daily” is on, the app backs up at launch and then once a day while it is running. Keys from the keychain are not included in the backup."
+          }
+        }
+      }
+    },
+    "Grundlage sind alle Trades des Kontos, unabhängig vom Filter in der App." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Based on all trades of the account, regardless of the filter in the app."
           }
         }
       }
@@ -612,6 +702,36 @@
         }
       }
     },
+    "Kein Steuerbescheid. Ohne Steuersatz, Sparer-Pauschbetrag, Verlustvorträge und Teilfreistellung. Maßgeblich sind Steuerbescheinigung, Erklärung und Bescheid." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not a tax assessment. Without tax rate, saver's allowance, loss carryforwards and partial exemption. The tax certificate, return and assessment are what count."
+          }
+        }
+      }
+    },
+    "Keine Lücken: alle Lose mit Euro-Wert und Kauf in den Daten." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No gaps: all lots have a euro value and a purchase in the data."
+          }
+        }
+      }
+    },
+    "Kein offener Bestand." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No open holdings."
+          }
+        }
+      }
+    },
     "Kommission je Order aus dem Auszug; im Trade anteilig aus seinen Käufen; Devisentausch steht als Hinweis" : {
       "localizations" : {
         "en" : {
@@ -652,6 +772,26 @@
         }
       }
     },
+    "Krypto-Haltefrist" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Crypto holding period"
+          }
+        }
+      }
+    },
+    "Krypto gegen Krypto oder Gebühren in einem Coin; das Jahr ist unbekannt, sie können dieses Jahr betreffen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Crypto for crypto or fees paid in a coin; the year is unknown, they may concern this year."
+          }
+        }
+      }
+    },
     "Kursverlauf des Trades mit %lld Balken, Einstieg und Ausstieg markiert" : {
       "localizations" : {
         "en" : {
@@ -678,6 +818,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Reading: %@"
+          }
+        }
+      }
+    },
+    "Lose ohne Euro-Wert, nicht in den Summen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lots without euro value, not in the totals"
           }
         }
       }
@@ -712,12 +862,62 @@
         }
       }
     },
+    "Ohne Euro-Kurs, in keiner Summe enthalten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Without euro rate, not in any total"
+          }
+        }
+      }
+    },
+    "Nicht verbuchte Importzeilen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unbooked import rows"
+          }
+        }
+      }
+    },
     "Ohne EZB-Kurs nicht enthalten: %lld Trades in Fremdwährung." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Not included without an ECB rate: %lld trades in foreign currency."
+          }
+        }
+      }
+    },
+    "Orientierung, keine Steuerberatung und kein Steuerbescheid." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guidance only, not tax advice and not a tax assessment."
+          }
+        }
+      }
+    },
+    "Orientierung, keine Steuerberatung" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guidance only, not tax advice"
+          }
+        }
+      }
+    },
+    "Private Veräußerungsgeschäfte; nach über einem Jahr Haltedauer steuerfrei, Aufteilung auf Seite 2." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Private sales; tax-free after more than one year of holding, breakdown on page 2."
           }
         }
       }
@@ -742,6 +942,16 @@
         }
       }
     },
+    "Produktart unbekannt; in der App auf der Seite Trades zuordnen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Product type unknown; assign it on the Trades page in the app."
+          }
+        }
+      }
+    },
     "Sichern …" : {
       "localizations" : {
         "en" : {
@@ -762,6 +972,46 @@
         }
       }
     },
+    "Steuerpflichtig (bis ein Jahr gehalten)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taxable (held up to one year)"
+          }
+        }
+      }
+    },
+    "Steuerfrei (über ein Jahr gehalten)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tax-free (held over one year)"
+          }
+        }
+      }
+    },
+    "Steuerpflichtiger Saldo unter der Freigrenze von %@ für private Veräußerungsgeschäfte. Die Grenze gilt für alle solchen Geschäfte zusammen, nicht je Konto." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taxable balance below the exemption limit of %@ for private sales. The limit applies to all such sales together, not per account."
+          }
+        }
+      }
+    },
+    "Steuerpflichtiger Saldo erreicht die Freigrenze von %@ für private Veräußerungsgeschäfte. Die Grenze gilt für alle solchen Geschäfte zusammen, nicht je Konto." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taxable balance reaches the exemption limit of %@ for private sales. The limit applies to all such sales together, not per account."
+          }
+        }
+      }
+    },
     "Teilen …" : {
       "localizations" : {
         "en" : {
@@ -772,12 +1022,72 @@
         }
       }
     },
+    "Termingeschäfte und CFDs laufen seit dem Jahressteuergesetz 2024 im allgemeinen Topf mit." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Since the Annual Tax Act 2024, futures and CFDs are part of the general pool."
+          }
+        }
+      }
+    },
     "Text kopieren" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Copy text"
+          }
+        }
+      }
+    },
+    "Verlusttöpfe" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loss pools"
+          }
+        }
+      }
+    },
+    "Verkäufe im Jahr" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sales in the year"
+          }
+        }
+      }
+    },
+    "Verkäufe nach FIFO je Coin über alle Ausführungen des Kontos, Haltefrist ein Jahr in deutscher Zeit, Beträge in Euro." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sales by FIFO per coin across all executions of the account, holding period one year in German time, amounts in euros."
+          }
+        }
+      }
+    },
+    "Verkaufte Lose" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lots sold"
+          }
+        }
+      }
+    },
+    "Verkäufe ohne Kauf in den Daten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sales without a purchase in the data"
           }
         }
       }

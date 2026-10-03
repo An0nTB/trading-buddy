@@ -4,8 +4,9 @@ import TradingCore
 import PDFKit
 #endif
 
-/// Menü „Bericht als PDF“ mit den Monaten, Kalenderwochen und Jahren, in denen Trades geschlossen wurden
-/// (neueste zuerst). Mac: Sichern-Dialog. iPhone und iPad: Vorschau mit Teilen-Knopf. Einhängen übernimmt AP11
+/// Menü „Bericht als PDF“ mit den Monaten, Kalenderwochen und Jahren (Bericht und Steuer-Orientierung),
+/// in denen Trades geschlossen wurden (neueste zuerst). Mac: Sichern-Dialog. iPhone und iPad: Vorschau mit
+/// Teilen-Knopf. Einhängen übernimmt AP11
 /// (Menü „Ablage“ und Werkzeugleiste, Patch in uebergabe/Monatsbericht_PDF_einhaengen.patch).
 struct MonatsberichtMenue: View {
     /// Mehr Monate machen das Menü unübersichtlich; ältere Berichte sind selten.
@@ -49,6 +50,13 @@ struct MonatsberichtMenue: View {
                     }
                 }
             }
+            Section("Steuer-Orientierung") {
+                ForEach(modell.steuerjahre, id: \.self) { jahr in
+                    Button(String(jahr)) {
+                        if let anlage = modell.steuerAnlage(jahr) { erstelle(anlage) }
+                    }
+                }
+            }
             Divider()
             Button("Zeitraum …") {
                 #if os(macOS)
@@ -79,6 +87,20 @@ struct MonatsberichtMenue: View {
             return String(localized: "\(erster) bis \(letzter)")
         }
         return String(localized: "KW \(kw.woche): \(erster) bis \(letzter)")
+    }
+
+    private func erstelle(_ anlage: SteuerAnlage) {
+        let thema = BerichtPDF.druckthema(farbwelt)
+        do {
+            guard let daten = anlage.daten(thema: thema) else { throw BerichtFehler.pdf }
+            #if os(macOS)
+            _ = try BerichtAusgabe.sichern(daten, dateiname: anlage.kontext.dateiname)
+            #else
+            datei = try BerichtAusgabe.datei(daten, dateiname: anlage.kontext.dateiname)
+            #endif
+        } catch {
+            modell.fehler = error.localizedDescription
+        }
     }
 
     private func erstelle(_ ergebnis: BerichtErgebnis) {

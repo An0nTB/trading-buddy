@@ -16,6 +16,8 @@ enum BerichtArt: Equatable {
     case woche(jahr: Int, nummer: Int)
     /// Frei gewählte Tage.
     case zeitraum
+    /// Steuer-Orientierung für ein Kalenderjahr in deutscher Zeit (eigenes PDF, `SteuerAnlage`).
+    case steuer(Int)
 
     var istJahr: Bool {
         if case .jahr = self { true } else { false }
@@ -76,6 +78,8 @@ struct BerichtKontext {
         case .zeitraum:
             String(format: "Henry Bericht %04d-%02d-%02d bis %04d-%02d-%02d.pdf",
                    erster.jahr, erster.monat, erster.tag, letzter.jahr, letzter.monat, letzter.tag)
+        case let .steuer(jahr):
+            String(format: "Henry Steuer-Orientierung %04d.pdf", jahr)
         }
     }
 
@@ -83,7 +87,7 @@ struct BerichtKontext {
     var vergleichsname: String {
         switch art {
         case .monat: String(localized: "Vormonat")
-        case .jahr: String(localized: "Vorjahr")
+        case .jahr, .steuer: String(localized: "Vorjahr")
         case .woche: String(localized: "Vorwoche")
         case .zeitraum: String(localized: "Vorzeitraum")
         }
@@ -93,7 +97,7 @@ struct BerichtKontext {
     var inDerSpanne: String {
         switch art {
         case .monat: String(localized: "in diesem Monat")
-        case .jahr: String(localized: "in diesem Jahr")
+        case .jahr, .steuer: String(localized: "in diesem Jahr")
         case .woche: String(localized: "in dieser Woche")
         case .zeitraum: String(localized: "in diesem Zeitraum")
         }
@@ -139,13 +143,19 @@ extension AppModell {
                                       kontowaehrung: waehrung, regeln: regeln, manuell: manuellVerletzt,
                                       ziele: ziele, notizen: notizen, verpasst: verpasst,
                                       geloeschteOrders: alleGeloeschten.map(\.cancelledAt), kurse: ezb.kurse)
+        return (bericht, berichtKontext(zeitraum, art: art, titel: titel, zeitzone: zeitzone, jetzt: jetzt))
+    }
+
+    /// Kopfangaben für `zeitraum`; Tage und Fuß in `zeitzone`.
+    func berichtKontext(_ zeitraum: Zeitspanne, art: BerichtArt, titel: String, zeitzone: TimeZone,
+                        jetzt: Date) -> BerichtKontext {
         let kontoText = konto.map { BerichtKontext.kontoText(broker: $0.broker, kontonummer: $0.kontonummer) }
-        let kontext = BerichtKontext(art: art, zeitraum: zeitraum, erster: erster, letzter: letzter, titel: titel,
-                                     konto: kontoText ?? String(localized: "Ohne Konto"), waehrung: waehrung,
-                                     zeitzone: zeitzone, erstellt: jetzt, regelnHinterlegt: !regeln.leer,
-                                     brokerFuehrtSteuerAb: brokerFuehrtSteuerAb, ezbBis: ezb.letzterTag,
-                                     anzeigewaehrung: summenwaehrung == waehrung.uppercased() ? nil : summenwaehrung)
-        return (bericht, kontext)
+        return BerichtKontext(art: art, zeitraum: zeitraum, erster: Journaltag(zeitraum.von, zeitzone: zeitzone),
+                              letzter: Journaltag(zeitraum.bis.addingTimeInterval(-1), zeitzone: zeitzone), titel: titel,
+                              konto: kontoText ?? String(localized: "Ohne Konto"), waehrung: waehrung,
+                              zeitzone: zeitzone, erstellt: jetzt, regelnHinterlegt: !regeln.leer,
+                              brokerFuehrtSteuerAb: brokerFuehrtSteuerAb, ezbBis: ezb.letzterTag,
+                              anzeigewaehrung: summenwaehrung == waehrung.uppercased() ? nil : summenwaehrung)
     }
 
     /// Kalenderjahre mit mindestens einem geschlossenen Trade des Kontos, neuestes zuerst.
