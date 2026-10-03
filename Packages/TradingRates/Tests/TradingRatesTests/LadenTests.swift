@@ -164,3 +164,14 @@ import TradingCore
     #expect(speicher.lies() == nil)
     #expect(EZBKurse.welcheDatei(letzterTag: speicher.lies()?.letzterTag, abgerufen: nil, jetzt: jetzt) == .verlauf)
 }
+
+@Test func fehlertextOhneTypnamen() async throws {
+    // Die Steuer-Seite zeigt den Text als „Abruf: …“ (Gegencheck H23): lesbarer Satz statt „Error Domain=…“.
+    let speicher = neuerSpeicher()
+    let status: EZBKurse.Abruf = { _ in throw EZBKurse.AbrufFehler.status(503) }
+    let stand = await EZBKurse(speicher: speicher, abruf: status, jetzt: { zeit("2026-10-01 17:00") }).laden()
+    #expect(stand.fehler == "EZB-Kurse nicht geladen: Der EZB-Server antwortet mit Status 503.")
+    let html: EZBKurse.Abruf = { _ in Data("<html>Wartung</html>".utf8) }
+    let leer = await EZBKurse(speicher: speicher, abruf: html, jetzt: { zeit("2026-10-01 17:00") }).laden()
+    #expect(leer.fehler == "EZB-Kurse nicht geladen: Die EZB-Datei enthält keine Kurse.")
+}
