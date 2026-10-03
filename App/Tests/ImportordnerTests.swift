@@ -121,6 +121,16 @@ Dividends,Data,USD,2025-05-15,AAPL(US0378331005) Cash Dividend USD 0.25 per Shar
         }
     }
 
+    /// In Excel neu gespeicherte CSV (Windows-1252): erkannt wie das UTF-8-Original, nicht „Format nicht erkannt“.
+    @Test func csvInWindows1252WirdErkannt() throws {
+        let j = try journal(kraken: 0)
+        let depot = try #require(try j.konten().first { $0.broker == "Scalable Capital" })
+        let text = T.scalable.replacingOccurrences(of: "Testwert AG", with: "Testwert Müller AG")
+        let daten = try #require(text.data(using: .windowsCP1252))
+        #expect(String(data: daten, encoding: .utf8) == nil)
+        #expect(entscheide(daten, "scalable-excel.csv", try j.konten(), journal: j) == .csv(.scalable, depot))
+    }
+
     @Test func unbekanntesFormatFragtNach() {
         if case .rueckfrage = entscheide("Hallo Welt", "notiz.txt", []) {} else { Issue.record("Text still") }
         if case .rueckfrage = entscheide("kein Excel", "liste.xlsx", []) {} else { Issue.record("xlsx still") }

@@ -39,7 +39,8 @@ enum Importordnerregel {
         if dateiname.lowercased().hasSuffix(".xlsx") {
             return .rueckfrage(String(localized: "Excel-Datei, aber keine XTB-Kontohistorie."))
         }
-        guard let text = String(data: daten, encoding: .utf8) else {
+        // UTF-8, UTF-16 oder Windows-1252 (in Excel neu gespeicherte CSV); `nil` nur bei Binärdaten.
+        guard let text = Importtext.lies(daten) else {
             return .rueckfrage(String(localized: "Format nicht erkannt: weder Text noch Excel."))
         }
         if let broker = csvBroker(text) {
