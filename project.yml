@@ -42,6 +42,9 @@ targets:
       # (Dritter Gegencheck G10, Doc 41).
       - path: App/Resources
         buildPhase: resources
+      # Versionsstand des Connectors aus demselben Commit, für Hilfe › „Problem melden“ (Nachtpaket AP11).
+      - path: Connector/manifest.json
+        buildPhase: resources
     dependencies:
       - package: TradingCore
       - package: TradingStore

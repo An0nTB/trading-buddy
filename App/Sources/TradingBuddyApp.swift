@@ -26,6 +26,7 @@ struct TradingBuddyApp: App {
             FensterBefehle() // P12 Eigene Fenster
             FragBradBefehle() // Frag Brad (Doc 31)
             AnalyseBefehle() // Menü „Analyse“ (Doc 38, Paket A5)
+            HilfeBefehle() // Menü „Hilfe“: Erste Schritte, Problem melden (Nachtpaket AP11)
             // F11 Monatsbericht als PDF: Menü „Ablage“, unter „Sichern“
             CommandGroup(after: .saveItem) {
                 MonatsberichtMenue()

@@ -880,7 +880,9 @@ struct ImportBlatt: View {
         switch Importlesung.lies(vorschau.daten, dateiname: vorschau.dateiname,
                                  serverzeit: serverzeit.zeitzone, xtbZeit: xtbZeit.zeitzone) {
         case .erkannt(let datei): erkannt = datei
-        case .fehler(let text): lesefehler = text
+        case .fehler(let text):
+            lesefehler = text
+            Fehlerprotokoll.merke(String(localized: "Lesen: \(text)")) // Hilfe › Problem melden
         }
         if case .csv(let broker, _)? = erkannt, kontowahl == nil {
             // Vorgabe: das erste Konto dieses Brokers, sonst ein neues namens „Depot“ (Börsen: „Spot“).
@@ -942,6 +944,7 @@ struct ImportBlatt: View {
             speicherfehler = nil
         } catch {
             speicherfehler = Importlesung.fehlertext(error)
+            Fehlerprotokoll.merke(String(localized: "Speichern: \(Importlesung.fehlertext(error))"))
         }
     }
 
