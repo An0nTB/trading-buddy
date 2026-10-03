@@ -242,6 +242,11 @@ struct ClaudeFelder: View {
                     .font(Schrift.beschriftung)
                     .foregroundStyle(thema.textSchwach)
             }
+            // Verbindungsprüfung (Beta-Punkte 17 und 18, AP12): neu schreiben und in Claude nachsehen.
+            Button("Jetzt exportieren") { modell.exportiere() }
+            Text("In Claude Desktop die Vorlage „Henry-Status“ wählen oder „Henry-Status“ schreiben: Claude meldet, ob die Erweiterung diesen Export liest.")
+                .font(Schrift.beschriftung)
+                .foregroundStyle(thema.textSchwach)
         }
         .formStyle(.grouped)
         .task { modell.exportiere() }
