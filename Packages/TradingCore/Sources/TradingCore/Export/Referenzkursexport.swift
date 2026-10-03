@@ -34,8 +34,11 @@ extension JournalExport {
     /// Währungen, die umgerechnet werden (in die Kontowährung oder für die Steuer in Euro), und nur die Tage, die
     /// die Suche ab dem Schlusstag braucht (`Referenzkurse.hoechstensTageZurueck`), in UTC mit einem Tag Puffer je
     /// Seite, damit jede Zeitzone des Nutzers abgedeckt ist. Trades in Euro brauchen keinen Kurs; ein CHF-Konto mit
-    /// CHF-Trades braucht den CHF-Kurs für die Euro-Summen der Steuer (Befund G4, Doc 49).
-    public static func referenzkursauszug(_ kurse: Referenzkurse, fuer konten: [Kontodaten]) -> [Tageskurse] {
+    /// CHF-Trades braucht den CHF-Kurs für die Euro-Summen der Steuer (Befund G4, Doc 49). Mit `anzeigewaehrung`
+    /// auch die Kurse für die Summen der App in dieser Währung (Vierter Gegencheck H21).
+    public static func referenzkursauszug(_ kurse: Referenzkurse, fuer konten: [Kontodaten],
+                                          anzeigewaehrung: String? = nil) -> [Tageskurse] {
+        let anzeige = anzeigewaehrung.map { kurscode($0.uppercased()) }
         let utc = TimeZone(secondsFromGMT: 0)!
         var kalender = Calendar(identifier: .gregorian)
         kalender.timeZone = utc
@@ -46,9 +49,11 @@ extension JournalExport {
             for t in konto.trades {
                 let waehrung = t.waehrung(kontowaehrung: kontowaehrung)
                 let angleich = waehrung != kontowaehrung
-                guard angleich || kurscode(waehrung) != "EUR" else { continue }
+                let zurAnzeige = anzeige.map { $0 != kurscode(waehrung) } ?? false
+                guard angleich || zurAnzeige || kurscode(waehrung) != "EUR" else { continue }
                 codes.insert(kurscode(waehrung))
                 if angleich { codes.insert(kurscode(kontowaehrung)) }
+                if zurAnzeige, let anzeige { codes.insert(anzeige) }
                 for zurueck in -1...(Referenzkurse.hoechstensTageZurueck + 1) {
                     guard let zeit = kalender.date(byAdding: .day, value: -zurueck, to: t.closeTime) else { continue }
                     tage.insert(Journaltag(zeit, zeitzone: utc))
