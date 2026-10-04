@@ -84,6 +84,38 @@ import TradingStore
         #expect(!Diagnose.appVersion.contains("?"))
     }
     #endif
+
+    /// Codex-Review 04.10.2026: Ins Fehlerprotokoll kommt nur die Fehlerart, nie Spalten, Tickets oder Feldinhalte.
+    @Test func fehlerartOhneInhalte() {
+        let kopf = Importlesung.kategorie(CSVImportFehler.unbekanntesFormat(kopf: ["appt-spalte", "DE0012345678"]))
+        #expect(kopf == "CSVImportFehler.unbekanntesFormat")
+        let zeit = Importlesung.kategorie(CSVImportFehler.ungueltigeZeit(zeile: 7, text: "appt-feld"))
+        #expect(zeit == "CSVImportFehler.ungueltigeZeit")
+        let datensatz = Importlesung.kategorie(SpeicherFehler.abweichenderDatensatz(tickets: ["APPT-1"]))
+        #expect(datensatz == "SpeicherFehler.abweichenderDatensatz")
+        #expect(Importlesung.kategorie(SpeicherFehler.keinText) == "SpeicherFehler.keinText")
+        let cocoa = Importlesung.kategorie(CocoaError(.fileReadNoSuchFile, userInfo: [NSFilePathErrorKey: "/Users/appt/x.csv"]))
+        #expect(!cocoa.contains("appt"))
+    }
+
+    /// Lesefehler einer unbekannten Datei: Meldung für den Nutzer, Fehlerart ohne Dateiinhalt.
+    @Test func lesefehlerHatKategorie() {
+        let daten = Data("appt-geheim;appt-spalte\n1;2\n".utf8)
+        guard case .fehler(_, let kategorie) = Importlesung.lies(daten, dateiname: "appt-name.csv",
+                                                               serverzeit: T.utc, xtbZeit: T.utc) else {
+            Issue.record("Unbekannte Datei erkannt")
+            return
+        }
+        #expect(!kategorie.contains("appt"))
+    }
+
+    /// Rückfragen des Import-Ordners erscheinen nur als Zahl.
+    @Test func rueckfragenNurAlsZahl() {
+        var a = angaben(fehler: [])
+        a.rueckfragen = 3
+        let text = Diagnose.text(a)
+        #expect(text.contains("offene Rückfragen: 3"))
+    }
 }
 
 /// Disziplin mit Betragsregeln (#202, #205, Kern 0.24.0, Doc 54): Ein Trade ohne EZB-Kurs zählt bei Anzahl-Regeln

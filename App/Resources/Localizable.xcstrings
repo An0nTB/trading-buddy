@@ -1332,16 +1332,6 @@
         }
       }
     },
-    "Lesen: %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Reading: %@"
-          }
-        }
-      }
-    },
     "Lose ohne Euro-Wert, nicht in den Summen" : {
       "localizations" : {
         "en" : {
@@ -1478,16 +1468,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Save …"
-          }
-        }
-      }
-    },
-    "Speichern: %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Saving: %@"
           }
         }
       }

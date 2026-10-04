@@ -181,10 +181,11 @@ struct Waehrungssummen {
 /// Logik der Import-Vorschau ohne Ansicht (Paket A1 e, Doc 44): Format erkennen, Erkennungszeile, Summenprüfungen,
 /// Knopftext und Importierbarkeit. `ImportBlatt` ruft sie auf; die App-Tests prüfen sie ohne SwiftUI.
 enum Importlesung {
-    /// Ergebnis des Lesens: erkannte Datei oder Meldung für den Nutzer.
+    /// Ergebnis des Lesens: erkannte Datei oder Meldung für den Nutzer. `kategorie` ist die Fehlerart ohne Inhalte der
+    /// Datei (keine Namen, Spalten oder Werte), für Hilfe › Problem melden.
     enum Ergebnis {
         case erkannt(ErkannteDatei)
-        case fehler(String)
+        case fehler(String, kategorie: String)
     }
 
     /// Summe laut Datei gegen die Summe der gelesenen Zeilen.
@@ -204,14 +205,15 @@ enum Importlesung {
                 return .erkannt(.xtb(try XTBAuszug.lies(daten, zeitzone: xtbZeit)))
             }
             if dateiname.lowercased().hasSuffix(".xlsx") {
-                return .fehler(String(localized: "Excel-Datei ohne Blatt „Closed Position History“: kein XTB-Kontoauszug aus xStation 5."))
+                return .fehler(String(localized: "Excel-Datei ohne Blatt „Closed Position History“: kein XTB-Kontoauszug aus xStation 5."),
+                               kategorie: "Excel ohne XTB-Blatt")
             }
             // MetaTrader 5 speichert meist UTF-16; vor dem UTF-8-Text und vor dem MT4-Rückfall (Doc 48).
             if let text = MT5Bericht.text(daten), MT5Bericht.erkennt(text) {
                 return .erkannt(.mt5(try MT5Bericht.lies(text, serverZeitzone: serverzeit)))
             }
             guard let text = Importtext.lies(daten) else {
-                return .fehler(String(localized: "Die Datei ist weder lesbarer Text noch eine Excel-Datei."))
+                return .fehler(String(localized: "Die Datei ist weder lesbarer Text noch eine Excel-Datei."), kategorie: "kein Text")
             }
             if TradeRepublicCSV.erkennt(text) {
                 return .erkannt(.csv(.tradeRepublic, try TradeRepublicCSV.lies(text)))
@@ -229,7 +231,8 @@ enum Importlesung {
                 return .erkannt(.csv(.binance, try BinanceCSV.lies(text)))
             }
             if BinanceCSV.istTransaktionsverlauf(text) {
-                return .fehler(String(localized: "Binance-Transaktionsverlauf (Assets → Transaction History): Den liest die App nicht. Exportiere unter Orders → Spot Order → Trade History."))
+                return .fehler(String(localized: "Binance-Transaktionsverlauf (Assets → Transaction History): Den liest die App nicht. Exportiere unter Orders → Spot Order → Trade History."),
+                               kategorie: "Binance-Transaktionsverlauf")
             }
             if CoinbaseCSV.erkennt(text) {
                 return .erkannt(.csv(.coinbase, try CoinbaseCSV.lies(text)))
@@ -239,10 +242,26 @@ enum Importlesung {
             }
             return .erkannt(.mt4(try MT4Statement.parse(html: text, serverZeitzone: serverzeit)))
         } catch MT4ImportFehler.keinMT4Auszug {
-            return .fehler(String(localized: "Format nicht erkannt: kein MetaTrader-Auszug (MT4: HTML aus der Broker-Mail, nicht der Bericht aus dem Terminal; MT5: Handelsbericht), kein CSV-Export von Trade Republic, Scalable, Interactive Brokers, Kraken, Binance, Coinbase oder Bitpanda und keine XTB-Kontohistorie (Excel)."))
+            return .fehler(String(localized: "Format nicht erkannt: kein MetaTrader-Auszug (MT4: HTML aus der Broker-Mail, nicht der Bericht aus dem Terminal; MT5: Handelsbericht), kein CSV-Export von Trade Republic, Scalable, Interactive Brokers, Kraken, Binance, Coinbase oder Bitpanda und keine XTB-Kontohistorie (Excel)."),
+                           kategorie: "Format nicht erkannt")
         } catch {
-            return .fehler(fehlertext(error))
+            return .fehler(fehlertext(error), kategorie: kategorie(error))
         }
+    }
+
+    /// Fehlerart ohne Inhalte: Typ und Fall, etwa „SpeicherFehler.abweichenderDatensatz“, ohne Tickets, Spalten,
+    /// Dateinamen oder Werte (Codex-Review 04.10.2026, Problem melden). Für Hilfe › Problem melden.
+    static func kategorie(_ error: any Error) -> String {
+        let typ = String(describing: type(of: error))
+        let spiegel = Mirror(reflecting: error)
+        if spiegel.displayStyle == .enum {
+            // Fall mit Werten: der Name steht als Label; Fall ohne Werte: der Name ist die Beschreibung,
+            // außer der Typ beschreibt sich selbst (dann könnte dort Text stehen).
+            if let fall = spiegel.children.first?.label { return "\(typ).\(fall)" }
+            if !(error is CustomStringConvertible) { return "\(typ).\(String(describing: error))" }
+        }
+        let ns = error as NSError
+        return "\(typ) (\(ns.domain) \(ns.code))"
     }
 
     /// Kontonummer bis auf die letzten vier Stellen verdeckt.

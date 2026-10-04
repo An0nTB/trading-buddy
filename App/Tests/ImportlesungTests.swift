@@ -40,7 +40,7 @@ import TradingStore
         if case .fehler = lies("Hallo Welt", "notiz.txt") {} else { Issue.record("Text erkannt") }
         if case .fehler = lies("kein Excel", "liste.xlsx") {} else { Issue.record("xlsx erkannt") }
         let binaer = Importlesung.lies(Data([0xFF, 0xFE, 0x00, 0xD8]), dateiname: "a.csv", serverzeit: .gmt, xtbZeit: .gmt)
-        if case .fehler(let text) = binaer { #expect(!text.isEmpty) } else { Issue.record("Binärdatei erkannt") }
+        if case .fehler(let text, _) = binaer { #expect(!text.isEmpty) } else { Issue.record("Binärdatei erkannt") }
     }
 
     /// CSV nur mit Inhalt und gültigem Konto; ohne Datei nie.
