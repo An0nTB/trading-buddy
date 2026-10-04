@@ -8,9 +8,9 @@ name: Release-Build
 # Im Pull Request läuft er nur, wenn sich dieser Workflow oder scripts/app_verpacken.sh ändern;
 # er ist kein Pflicht-Check.
 #
-# Signierung und Notarisierung laufen nur, wenn die Secrets gesetzt sind (Settings › Secrets and
-# variables › Actions). Ohne sie baut der Lauf ad-hoc signiert und sagt das im Log und in der
-# Zusammenfassung.
+# Signierung und Notarisierung laufen nur bei Start von Hand oder per Tag und nur, wenn die Secrets
+# gesetzt sind (Settings › Secrets and variables › Actions). Ohne sie und in jedem Pull Request baut
+# der Lauf ad-hoc signiert und sagt das im Log und in der Zusammenfassung.
 #   MACOS_DEVID_P12_BASE64     Zertifikat „Developer ID Application“ samt Schlüssel, .p12 in Base64
 #   MACOS_DEVID_P12_PASSWORT   Passwort der .p12
 #   NOTAR_API_SCHLUESSEL_BASE64  App-Store-Connect-API-Schlüssel (.p8) in Base64
@@ -44,12 +44,6 @@ jobs:
     timeout-minutes: 55
     outputs:
       signierung: ${{ steps.signatur.outputs.art }}
-    env:
-      P12: ${{ secrets.MACOS_DEVID_P12_BASE64 }}
-      P12_PASSWORT: ${{ secrets.MACOS_DEVID_P12_PASSWORT }}
-      NOTAR_SCHLUESSEL: ${{ secrets.NOTAR_API_SCHLUESSEL_BASE64 }}
-      NOTAR_ID: ${{ secrets.NOTAR_API_SCHLUESSEL_ID }}
-      NOTAR_AUSSTELLER: ${{ secrets.NOTAR_API_AUSSTELLER_ID }}
     steps:
       - uses: actions/checkout@v4
       - name: Xcode-Version
@@ -58,9 +52,22 @@ jobs:
         run: brew install xcodegen
 
       # Eigener, temporärer Schlüsselbund; er wird am Ende gelöscht.
+      # Die Secrets bekommt nur dieser Schritt und nur bei Start von Hand oder per Tag; ein Pull Request
+      # baut immer ad-hoc, damit Code aus einem Branch nie an Zertifikat oder Notar-Schlüssel kommt.
       - name: Signierung vorbereiten
         id: signatur
+        env:
+          P12: ${{ github.event_name != 'pull_request' && secrets.MACOS_DEVID_P12_BASE64 || '' }}
+          P12_PASSWORT: ${{ github.event_name != 'pull_request' && secrets.MACOS_DEVID_P12_PASSWORT || '' }}
+          NOTAR_SCHLUESSEL: ${{ github.event_name != 'pull_request' && secrets.NOTAR_API_SCHLUESSEL_BASE64 || '' }}
+          NOTAR_ID: ${{ github.event_name != 'pull_request' && secrets.NOTAR_API_SCHLUESSEL_ID || '' }}
+          NOTAR_AUSSTELLER: ${{ github.event_name != 'pull_request' && secrets.NOTAR_API_AUSSTELLER_ID || '' }}
         run: |
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            echo "Pull Request: Signier-Secrets bleiben außen vor, der Lauf baut ad-hoc."
+            echo "art=ad-hoc (Pull Request)" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           if [ -z "$P12" ] || [ -z "$P12_PASSWORT" ]; then
             echo "::warning::Keine Developer-ID-Secrets gesetzt: Die App wird ad-hoc signiert und nicht notarisiert. Tester müssen sie einmal in den Systemeinstellungen freigeben (Doc 51)."
             echo "art=ad-hoc" >> "$GITHUB_OUTPUT"
