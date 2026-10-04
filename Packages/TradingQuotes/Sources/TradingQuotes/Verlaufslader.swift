@@ -37,6 +37,17 @@ public struct Verlaufsstand: Sendable, Equatable, Codable {
         }
     }
 
+    /// Ohne Verläufe aus einer anderen Quelle oder einem anderen Quellsymbol als die Zuordnung jetzt (Codex M1):
+    /// nach dem Wechsel von BTC/EUR auf BTC/USD gelten die alten Kerzen nicht mehr, auch nicht bis zum nächsten Tag.
+    public func bereinigt(fuer zuordnungen: [Kurszuordnung]) -> Verlaufsstand {
+        var stand = self
+        for z in zuordnungen where verlaeufe[z.journalSymbol].map({ !$0.passt(zu: z) }) ?? false {
+            stand.verlaeufe[z.journalSymbol] = nil
+            stand.fehler[z.journalSymbol] = nil
+        }
+        return stand
+    }
+
     /// Arbeitet einen Abruf für `symbole` ein. War der Stand abgelaufen (siehe `zuErneuern`), ersetzt `neu` ihn
     /// ganz; sonst gelten nur diese Symbole neu, `geladen` bleibt und `letzterVersuch` wird `jetzt`.
     public func ergaenzt(um neu: Verlaufsstand, symbole: [String], jetzt: Date) -> Verlaufsstand {
@@ -48,6 +59,13 @@ public struct Verlaufsstand: Sendable, Equatable, Codable {
         }
         stand.letzterVersuch = jetzt
         return stand
+    }
+}
+
+extension Kursverlauf {
+    /// Stammt aus derselben Quelle und demselben Quellsymbol wie die Zuordnung.
+    public func passt(zu zuordnung: Kurszuordnung) -> Bool {
+        quelle == zuordnung.quelle && quellSymbol == zuordnung.quellSymbol
     }
 }
 
@@ -99,7 +117,7 @@ public struct Verlaufslader: Sendable {
                 } else {
                     stand.fehler[z.journalSymbol] = "Keine Kerzen geliefert"
                 }
-                if let alt = bisher.verlaeufe[z.journalSymbol] { stand.verlaeufe[z.journalSymbol] = alt }
+                if let alt = bisher.verlaeufe[z.journalSymbol], alt.passt(zu: z) { stand.verlaeufe[z.journalSymbol] = alt }
             }
         }
         return stand
