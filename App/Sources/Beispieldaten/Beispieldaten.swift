@@ -169,8 +169,9 @@ extension AppModell {
     /// Das Beispielkonto, falls angelegt.
     var beispielkonto: Konto? { konten.first(where: Beispieldaten.istBeispiel) }
 
-    /// Legt das Beispielkonto an: Import, Regel „höchstens drei Trades je Tag“, Stops und Setups im Journal
-    /// für zwei von drei Trades, eine Tagesnotiz. Nichts geschieht, wenn es schon existiert.
+    /// Legt das Beispielkonto an und wählt es: Import, Regel „höchstens drei Trades je Tag“, Stops und Setups im
+    /// Journal für zwei von drei Trades, eine Tagesnotiz. Regeln und Journal hängen am Beispielkonto, echte Konten
+    /// bleiben unverändert. Nichts geschieht, wenn es schon existiert.
     func legeBeispieldatenAn(heute: Date = Date()) throws {
         guard beispielkonto == nil else { return }
         let plan = Beispieldaten.plan(heute: heute)
@@ -189,7 +190,10 @@ extension AppModell {
             NSDecimalRound(&gerundet, &stop, 2, .plain)
             speichereJournal(Journaleintrag(kontoId: id, ticket: trade.id, setup: setups[n % 2], stopEinstieg: gerundet))
         }
-        try journal.speichereTagesnotiz(Beispieldaten.notiz(plan))
+        // Tagesnotizen gelten für alle Konten: eine eigene Notiz an dem Tag bleibt, die Beispielnotiz entfällt dann.
+        if try journal.tagesnotiz(plan.notizTag) == nil {
+            try journal.speichereTagesnotiz(Beispieldaten.notiz(plan))
+        }
         exportiere()
     }
 

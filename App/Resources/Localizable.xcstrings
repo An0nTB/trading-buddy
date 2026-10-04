@@ -1732,6 +1732,26 @@
         }
       }
     },
+    "Zum Vorführen: Ein Beispielkonto mit 60 erfundenen Trades kommt dazu und wird gewählt. Deine Konten bleiben unberührt; Entfernen geht mit einem Klick unten in der Seitenleiste." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "For demos: a sample account with 60 made-up trades is added and selected. Your accounts stay untouched; remove it with one click at the bottom of the sidebar."
+          }
+        }
+      }
+    },
+    "Zum Vorzeigen ein Beispielkonto mit 60 erfundenen Trades. Die eigenen Konten bleiben, wo sie sind. Später unten in der Seitenleiste mit einem Klick wieder fort." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "For showing around, a sample account with 60 made-up trades. One's own accounts stay where they are. Later gone again with one click at the bottom of the sidebar."
+          }
+        }
+      }
+    },
     "Zur Import-Seite" : {
       "localizations" : {
         "en" : {
