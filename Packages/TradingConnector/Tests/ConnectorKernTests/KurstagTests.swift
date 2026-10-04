@@ -67,3 +67,19 @@ private func trade(_ id: String, _ schluss: String, netto: Decimal, waehrung: St
     #expect(nurEur.ohneKurs.isEmpty)
     #expect(nurEur.regelabschnitt(nurEur.auswertung().trades).contains("Kein Verstoß im Zeitraum (2 Trades geprüft)."))
 }
+
+@Test func usdtImUsdKontoOhneKurseZaehltEinmal() throws {
+    // Codex nach #232: USD-Konto, je ein USD- und ein USDT-Trade am selben Tag, keine Kurse, höchstens 1 Trade je Tag.
+    let trades = [trade("d", "2025-05-06T08:00:00", netto: 3), trade("t", "2025-05-06T09:00:00", netto: 2, waehrung: "USDT")]
+    let datei = JournalExport(konten: [.init(broker: "Kraken", kontonummer: "4242", waehrung: "USD", trades: trades,
+                                             regeln: Handelsregeln(maxTradesJeTag: 1))],
+                              zeitzone: newYork, erstellt: zeit("2026-10-01T20:00:00"))
+    let anfrage = try Anfrage.lies(["monat": "2025-05"], export: datei)
+    #expect(anfrage.ohneKurs.isEmpty && anfrage.andereWaehrungen.isEmpty && anfrage.umgerechnet == ["USDT": 1])
+    #expect(anfrage.auswertung().kennzahlen.netto == 5 && anfrage.bericht().auswertung.kennzahlen.netto == 5)
+    let regeln = anfrage.regelabschnitt(anfrage.auswertung().trades).joined(separator: "\n")
+    #expect(regeln.contains("Trades mit mindestens einem Verstoß: 1 von 2") && !regeln.contains("Mitgezählt"))
+    let text = Ausgabe.auswertung(anfrage)
+    #expect(text.contains("Wie USD gezählt (gleichgesetzt wie in der App, ohne Umrechnung): USDT 1 Trades. "))
+    #expect(!text.contains("Umgerechnet in USD") && !text.contains("Nicht in diesen Summen"))
+}
