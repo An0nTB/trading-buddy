@@ -895,9 +895,9 @@ struct ImportBlatt: View {
         switch Importlesung.lies(vorschau.daten, dateiname: vorschau.dateiname,
                                  serverzeit: serverzeit.zeitzone, xtbZeit: xtbZeit.zeitzone) {
         case .erkannt(let datei): erkannt = datei
-        case .fehler(let text):
+        case .fehler(let text, let kategorie):
             lesefehler = text
-            Fehlerprotokoll.merke(String(localized: "Lesen: \(text)")) // Hilfe › Problem melden
+            Fehlerprotokoll.merke("Lesen: \(kategorie)") // Hilfe › Problem melden, nur die Fehlerart
         }
         if !zeitVorbelegt, let datei = erkannt {
             zeitVorbelegt = true
@@ -991,7 +991,7 @@ struct ImportBlatt: View {
             speicherfehler = nil
         } catch {
             speicherfehler = Importlesung.fehlertext(error)
-            Fehlerprotokoll.merke(String(localized: "Speichern: \(Importlesung.fehlertext(error))"))
+            Fehlerprotokoll.merke("Speichern: \(Importlesung.kategorie(error))") // nur die Fehlerart
         }
     }
 
