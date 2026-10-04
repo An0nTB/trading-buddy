@@ -712,6 +712,16 @@
         }
       }
     },
+    "Sicherung unvollständig: %@ gesichert, aber %lld Bilddateien ließen sich nicht kopieren." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup incomplete: %@ saved, but %lld image files could not be copied."
+          }
+        }
+      }
+    },
     "Sicherung unvollständig: %@ gesichert, aber %lld Bilder fehlen darin." : {
       "localizations" : {
         "en" : {
@@ -728,6 +738,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Backup incomplete: %@ saved, but the images could not be checked."
+          }
+        }
+      }
+    },
+    "Unvollständig: %lld Bilder fehlen im Bilderordner." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incomplete: %lld images are missing from the image folder."
+          }
+        }
+      }
+    },
+    "Unvollständig: Die Bilder ließen sich nicht prüfen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incomplete: the images could not be checked."
+          }
+        }
+      }
+    },
+    "Unvollständig: %lld Bilddateien ließen sich nicht zurückholen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incomplete: %lld image files could not be brought back."
           }
         }
       }
