@@ -3,7 +3,7 @@ import Testing
 import TradingCore
 @testable import ConnectorKern
 
-/// Connector 0.15.0: Werkzeug `henry_status` (Beta-Punkte 17 und 18).
+/// Connector 0.15.0 (seit 0.15.1 Version hier und in manifest.json): Werkzeug `henry_status` (Beta-Punkte 17 und 18).
 
 private let berlin = TimeZone(identifier: "Europe/Berlin")!
 private func zeit(_ iso: String) -> Date { ISO8601DateFormatter().date(from: iso + "Z")! }
