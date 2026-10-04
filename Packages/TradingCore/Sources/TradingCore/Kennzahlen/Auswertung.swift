@@ -21,7 +21,12 @@ public struct Auswertung: Sendable {
     public init(trades alle: [Trade], geloeschteOrders: [Date] = [], zeitraum: Zeitspanne,
                 zeitzone: TimeZone, schwellen: Fehlermuster.Schwellen = Fehlermuster.Schwellen()) {
         let vor = zeitraum.vorzeitraum(zeitzone: zeitzone)
-        let imZeitraum = alle.filter { zeitraum.enthaelt($0.closeTime) }
+        var kalender = Calendar(identifier: .gregorian)
+        kalender.timeZone = zeitzone
+        // Buchungen nur mit Datum (00:00 UTC) zählen mit ihrem Buchungstag, sonst landen sie westlich von UTC
+        // im Vormonat (Codex 04.10.2026, M3); Trades mit Uhrzeit mit ihrer Schlusszeit.
+        func schluss(_ t: Trade) -> Date { t.nurDatum ? t.schlusstag(kalender) : t.closeTime }
+        let imZeitraum = alle.filter { zeitraum.enthaelt(schluss($0)) }
             .sorted { ($0.closeTime, $0.id) < ($1.closeTime, $1.id) }
         let geloescht = geloeschteOrders.filter { zeitraum.enthaelt($0) }.count
 
@@ -30,7 +35,7 @@ public struct Auswertung: Sendable {
         trades = imZeitraum
         self.geloeschteOrders = geloescht
         kennzahlen = Kennzahlen(trades: imZeitraum)
-        kennzahlenVorzeitraum = Kennzahlen(trades: alle.filter { vor.enthaelt($0.closeTime) })
+        kennzahlenVorzeitraum = Kennzahlen(trades: alle.filter { vor.enthaelt(schluss($0)) })
         kapitalverlauf = Kapitalverlauf(trades: imZeitraum)
         befunde = Fehlermuster.pruefe(imZeitraum, geloeschteOrders: geloescht, zeitzone: zeitzone,
                                       schwellen: schwellen)
