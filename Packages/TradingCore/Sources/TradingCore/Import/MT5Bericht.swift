@@ -164,7 +164,16 @@ extension MT5Bericht {
     /// Deals: Handel steckt schon in den Positionen; nur Kassenzeilen werden Geldbewegungen.
     static func deal(_ zeile: [String], kopf: [String], nr: Int, zeitzone: TimeZone,
                      in bericht: inout MT5Bericht) throws {
-        guard zeile.count == kopf.count else { return }  // Summenzeile am Ende
+        if zeile.count != kopf.count {
+            // Summenzeile am Ende: kürzer als der Kopf, vorne leer, sonst nur Zahlen. Jede andere Zeile mit
+            // abweichender Spaltenzahl ist beschädigt und darf nicht still verschwinden (Codex 04.10.2026, H4).
+            let gefuellt = zeile.filter { !$0.isEmpty }
+            let istSumme = zeile.count < kopf.count && zeile.first?.isEmpty == true && !gefuellt.isEmpty
+                && gefuellt.allSatisfy { (try? MT4Werte.zahl($0)) != nil }
+            if istSumme { return }
+            throw MT4ImportFehler.unbekannteZeile(abschnitt: "Deals", ticket: zeile.count > 1 ? zeile[1] : "",
+                                                  zellen: zeile)
+        }
         func feld(_ name: String) -> String { kopf.firstIndex(of: name).map { zeile[$0] } ?? "" }
         let typ = feld("type").lowercased()
         if typ == "buy" || typ == "sell" { return }
