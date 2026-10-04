@@ -52,7 +52,9 @@ public enum PropFirmPruefung {
         public var handelstage: Int
         /// Bester Tag ÷ Bezug; `nil` ohne Gewinntag oder ohne positiven Bezug.
         public var konsistenzAnteil: Decimal?
-        /// Alle Ziele erreicht und kein Verstoß; `nil` ohne Gewinnziel.
+        /// Alle Bedingungen gleichzeitig am letzten Stand erfüllt (Saldo über dem Gewinnziel, Mindesttage, Konsistenz)
+        /// und kein Verstoß; `nil` ohne Gewinnziel. Ein früher erreichtes, wieder verlorenes Ziel zählt nicht
+        /// (Codex 04.10.2026, M2); wann es zuerst erreicht war, steht getrennt in `gewinnzielErreicht`.
         public var bestanden: Bool?
         /// Nur Tage mit geschlossenem Trade, nach Tag. Der letzte Eintrag ist der letzte Tag mit Schluss,
         /// nicht zwingend heute: Für den Tagesverlust-Balken prüft die App, ob `tag` heute ist.
@@ -137,7 +139,8 @@ public enum PropFirmPruefung {
         if r.gewinnziel != nil {
             let tageOK = r.mindestHandelstage.map { tage >= $0 } ?? true
             let konsistenzOK = r.konsistenzMaxAnteil.map { m in anteil.map { $0 <= m } ?? true } ?? true
-            bestanden = verstoesse.isEmpty && zielErreicht != nil && tageOK && konsistenzOK
+            let zielJetzt = r.gewinnziel.map { saldo >= r.startkapital + $0 } ?? false
+            bestanden = verstoesse.isEmpty && zielJetzt && tageOK && konsistenzOK
         }
         return Ergebnis(verstoesse: verstoesse, saldo: saldo, gesamtverlustGrenze: grenze(),
                         gewinnzielErreicht: zielErreicht, handelstage: tage, konsistenzAnteil: anteil,
