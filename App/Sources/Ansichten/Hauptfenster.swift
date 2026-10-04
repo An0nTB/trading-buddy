@@ -76,15 +76,12 @@ struct Hauptfenster: View {
 
     var body: some View {
         Group {
-            #if os(iOS)
-            if breite == .compact {
-                TabLeiste()
+            if let startfehler = modell.startfehler, modell.journal == nil {
+                // Journal-Datei beschädigt oder aus neuerer Version (AP9 #225): Ausweg statt leerer Seiten
+                StartfehlerView(fehler: startfehler)
             } else {
-                Seitenleiste()
+                seiten
             }
-            #else
-            Seitenleiste()
-            #endif
         }
         .alert("Fehler", isPresented: fehlerSichtbar) {
             Button("OK") { modell.fehler = nil }
@@ -94,6 +91,19 @@ struct Hauptfenster: View {
         .fragBradBlatt() // Frag Henry (Doc 31): an der Wurzel, damit es auch in der Tab-Leiste am iPhone wirkt
         .hilfeBlaetter() // Hilfe › Erste Schritte, Problem melden (Nachtpaket AP11)
         .aktualisierungsHinweis() // neue Version für Tester, höchstens einmal am Tag geprüft (Doc 51)
+        .startmeldung(modell) // nach dem Ausweg: wo die alte Datei liegt
+    }
+
+    @ViewBuilder private var seiten: some View {
+        #if os(iOS)
+        if breite == .compact {
+            TabLeiste()
+        } else {
+            Seitenleiste()
+        }
+        #else
+        Seitenleiste()
+        #endif
     }
 
     private var fehlerSichtbar: Binding<Bool> {
