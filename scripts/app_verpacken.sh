@@ -109,8 +109,15 @@ fi
 
 # 5. Connector wie scripts/connector_bauen.sh, aber mit derselben Signierung wie die App.
 PAKET=Packages/TradingConnector
-swift build -c release --package-path "$PAKET"
-SERVER="$(swift build -c release --package-path "$PAKET" --show-bin-path)/trading-buddy-mcp"
+# Universal (Apple Silicon und Intel) wie connector_bauen.sh, damit die Erweiterung auf jedem Tester-Mac startet.
+ARCH=(--arch arm64 --arch x86_64)
+swift build -c release "${ARCH[@]}" --package-path "$PAKET"
+SERVER="$(swift build -c release "${ARCH[@]}" --package-path "$PAKET" --show-bin-path)/trading-buddy-mcp"
+ARCHS=$(lipo -archs "$SERVER")
+case "$ARCHS" in
+    *arm64*x86_64*|*x86_64*arm64*) echo "Connector-Architekturen: $ARCHS" ;;
+    *) echo "Connector ist nicht universal ($ARCHS)."; exit 1 ;;
+esac
 CVERSION=$(plutil -extract version raw -o - Connector/manifest.json)
 MCPB="$ZIEL/mcpb"
 mkdir -p "$MCPB/server"
