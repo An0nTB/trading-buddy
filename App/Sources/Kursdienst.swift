@@ -77,13 +77,25 @@ final class Kursdienst {
         eigene.removeAll { $0.journalSymbol == zuordnung.journalSymbol }
         eigene.append(zuordnung)
         speichere()
+        verwirfVerlauf(zuordnung.journalSymbol)
         neustart()
     }
 
     func entferneZuordnung(symbol: String) {
         eigene.removeAll { $0.journalSymbol == symbol }
         speichere()
+        verwirfVerlauf(symbol)
         neustart()
+    }
+
+    /// Nach geänderter Zuordnung gelten Kerzen und Fehler der alten Quelle nicht mehr (Codex M1).
+    private func verwirfVerlauf(_ symbol: String) {
+        let neu = zuordnung(fuer: symbol).zuordnung
+        let passt = neu.flatMap { z in verlaeufe.verlaeufe[symbol].map { $0.passt(zu: z) } } ?? false
+        guard !passt, verlaeufe.verlaeufe[symbol] != nil || verlaeufe.fehler[symbol] != nil else { return }
+        verlaeufe.verlaeufe[symbol] = nil
+        verlaeufe.fehler[symbol] = nil
+        try? verlaufsspeicher.schreibe(verlaeufe)
     }
 
     /// Beobachtet diese Symbole; startet nur neu, wenn sich die Liste ändert.
@@ -121,15 +133,26 @@ final class Kursdienst {
     /// einmal in 20 Stunden; sonst gilt der Zwischenspeicher. Netz nur bei eingeschalteten Kursen, wie beim Beobachter.
     func ladeVerlaeufe(fuer journalSymbole: [String], jetzt: Date = Date()) async {
         if verlaeufe.geladen == nil, let gespeichert = verlaufsspeicher.lies() { verlaeufe = gespeichert }
-        guard aktiv, !verlaufLaeuft else { return }
         let zuordnungen = Array(Set(journalSymbole)).sorted().compactMap { zuordnung(fuer: $0).zuordnung }
+        let bereinigt = verlaeufe.bereinigt(fuer: zuordnungen)
+        if bereinigt != verlaeufe {
+            verlaeufe = bereinigt
+            try? verlaufsspeicher.schreibe(verlaeufe)
+        }
+        guard aktiv, !verlaufLaeuft else { return }
         let offen = Set(verlaeufe.zuErneuern(zuordnungen.map(\.journalSymbol), jetzt: jetzt))
         guard !offen.isEmpty else { return }
         verlaufLaeuft = true
         defer { verlaufLaeuft = false }
         let teil = zuordnungen.filter { offen.contains($0.journalSymbol) }
-        let neu = await Verlaufslader(quellen: verlaufsquellen).lade(teil, bisher: verlaeufe, jetzt: jetzt)
-        verlaeufe = verlaeufe.ergaenzt(um: neu, symbole: teil.map(\.journalSymbol), jetzt: jetzt)
+        var neu = await Verlaufslader(quellen: verlaufsquellen).lade(teil, bisher: verlaeufe, jetzt: jetzt)
+        // Während des Abrufs geänderte Zuordnung: die Antwort gehört zur alten Quelle und fällt weg (Codex M1).
+        let gueltig = teil.filter { zuordnung(fuer: $0.journalSymbol).zuordnung == $0 }
+        for z in teil where !gueltig.contains(z) {
+            neu.verlaeufe[z.journalSymbol] = nil
+            neu.fehler[z.journalSymbol] = nil
+        }
+        verlaeufe = verlaeufe.ergaenzt(um: neu, symbole: gueltig.map(\.journalSymbol), jetzt: jetzt)
         try? verlaufsspeicher.schreibe(verlaeufe)
     }
 
