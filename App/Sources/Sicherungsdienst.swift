@@ -15,6 +15,9 @@ enum Sicherungsdienst {
     static let schluesselLetzte = "datensicherung.letzte"
     /// Ergebnis des letzten Laufs als Text, auch des automatischen; die Einstellungen zeigen es.
     static let schluesselStand = "datensicherung.stand"
+    /// Stand des letzten Laufs, wenn die Bilder darin unvollständig sind, sonst leer. Die Einstellungen heben den
+    /// Stand als Warnung hervor, solange er gleich diesem Text ist (Codex-Vollreview: unvollständige Bildsicherung).
+    static let schluesselWarnung = "datensicherung.warnung"
     static let standardBehalten = 14
     static let behaltenBereich = 1...60
     /// Abstand zwischen zwei automatischen Sicherungen.
@@ -73,37 +76,72 @@ enum Sicherungsdienst {
     /// Die Arbeit läuft abseits des Hauptthreads; wirft nicht, der Stand steht als Text in den Einstellungen.
     @discardableResult @MainActor
     static func sichere(_ journal: Journal?, jetzt: Date = .now) async -> String {
-        let stand: String
+        let lauf: Sicherungslauf
         if let journal {
             let behalte = behalten
-            let ergebnis = await Task.detached(priority: .utility) {
+            lauf = await Task.detached(priority: .utility) {
                 schreibeSicherung(journal, jetzt: jetzt, behalte: behalte)
             }.value
-            if ergebnis.erfolgreich { UserDefaults.standard.set(jetzt.timeIntervalSince1970, forKey: schluesselLetzte) }
-            stand = ergebnis.text
+            // Auch bei fehlenden Bildern gilt der Lauf als erfolgt: Die Datenbank ist gesichert, und ein stündlicher
+            // Neuversuch würde mit jeder Sicherung eine ältere, vielleicht vollständige aus der Aufbewahrung drängen.
+            if lauf.erfolgreich { UserDefaults.standard.set(jetzt.timeIntervalSince1970, forKey: schluesselLetzte) }
         } else {
-            stand = String(localized: "Sicherung: Journal nicht geöffnet")
+            lauf = Sicherungslauf(erfolgreich: false, text: String(localized: "Sicherung: Journal nicht geöffnet"))
         }
-        UserDefaults.standard.set(stand, forKey: schluesselStand)
-        return stand
+        UserDefaults.standard.set(lauf.text, forKey: schluesselStand)
+        UserDefaults.standard.set(lauf.unvollstaendig ? lauf.text : "", forKey: schluesselWarnung)
+        return lauf.text
     }
 
-    private static func schreibeSicherung(_ journal: Journal, jetzt: Date,
-                                          behalte: Int) -> (erfolgreich: Bool, text: String) {
+    /// Ergebnis eines Sicherungslaufs. `unvollstaendig`: Datenbank gesichert, aber nicht alle Bilder im Spiegel.
+    struct Sicherungslauf: Equatable {
+        var erfolgreich: Bool
+        var unvollstaendig = false
+        var text: String
+    }
+
+    private static func schreibeSicherung(_ journal: Journal, jetzt: Date, behalte: Int) -> Sicherungslauf {
         guard let ordner = gemerkterOrdner() else {
-            return (false, String(localized: "Sicherung: noch kein Ordner gewählt oder Ordner nicht erreichbar"))
+            return Sicherungslauf(erfolgreich: false,
+                                  text: String(localized: "Sicherung: noch kein Ordner gewählt oder Ordner nicht erreichbar"))
         }
         guard ordner.startAccessingSecurityScopedResource() else {
-            return (false, String(localized: "Sicherung: kein Zugriff auf \(ordner.path)"))
+            return Sicherungslauf(erfolgreich: false, text: String(localized: "Sicherung: kein Zugriff auf \(ordner.path)"))
         }
         defer { ordner.stopAccessingSecurityScopedResource() }
         do {
             let ziel = try journal.sichereInOrdner(ordner, jetzt: jetzt, behalte: behalte)
-            let bilder = spiegleBilder(nach: ordner.appending(path: bilderUnterordner, directoryHint: .isDirectory))
-            return (true, String(localized: "Sicherung: \(ziel.lastPathComponent), \(bilder) neue Bilder"))
+            let spiegel = ordner.appending(path: bilderUnterordner, directoryHint: .isDirectory)
+            let kopiert = spiegleBilder(nach: spiegel)
+            return bewerte(sicherung: ziel.lastPathComponent, kopiert: kopiert,
+                           verweise: try? journal.bilddateien(), spiegel: spiegel)
         } catch {
-            return (false, String(localized: "Sicherung: Fehler \(error.localizedDescription)"))
+            return Sicherungslauf(erfolgreich: false, text: String(localized: "Sicherung: Fehler \(error.localizedDescription)"))
         }
+    }
+
+    /// Bewertet den Bilder-Spiegel nach einer gesicherten Datenbank: Jede Bilddatei, auf die die Datenbank zeigt,
+    /// muss im Spiegel liegen. Fehlt sie dort, weil sie schon im Bilderordner fehlte oder das Kopieren scheiterte,
+    /// meldet der Stand die Anzahl statt „gesichert“. `verweise == nil`: Die Verweise ließen sich nicht lesen.
+    static func bewerte(sicherung name: String, kopiert: Kopierergebnis, verweise: Set<String>?,
+                        spiegel: URL) -> Sicherungslauf {
+        guard let verweise else {
+            return Sicherungslauf(erfolgreich: true, unvollstaendig: true,
+                                  text: String(localized: "Sicherung unvollständig: \(name) gesichert, die Bilder ließen sich nicht prüfen."))
+        }
+        let fehlend = fehlendImSpiegel(verweise, spiegel: spiegel)
+        guard fehlend == 0 else {
+            return Sicherungslauf(erfolgreich: true, unvollstaendig: true,
+                                  text: String(localized: "Sicherung unvollständig: \(name) gesichert, aber \(fehlend) Bilder fehlen darin."))
+        }
+        return Sicherungslauf(erfolgreich: true, text: String(localized: "Sicherung: \(name), \(kopiert.neu) neue Bilder"))
+    }
+
+    /// Zahl der Bildverweise, deren Datei im Spiegel fehlt. Ungültige Pfade nimmt der Store nicht an, sie zählen nicht.
+    static func fehlendImSpiegel(_ verweise: Set<String>, spiegel: URL) -> Int {
+        verweise.filter { datei in
+            Bildverweis.istGueltig(datei) && !FileManager.default.fileExists(atPath: spiegel.appending(path: datei).path)
+        }.count
     }
 
     /// Sichert, sobald fällig, und schaut danach stündlich nach; läuft, solange die App läuft.
@@ -115,19 +153,29 @@ enum Sicherungsdienst {
         }
     }
 
+    /// Neu kopierte Dateien und Dateien, deren Kopie scheiterte.
+    struct Kopierergebnis: Equatable {
+        var neu = 0
+        var fehlgeschlagen = 0
+    }
+
     /// Kopiert Screenshots, die im Ziel fehlen; löscht dort nichts, ältere Sicherungen zeigen darauf.
-    /// Gibt die Zahl neuer Dateien zurück.
     @discardableResult
-    static func spiegleBilder(nach ziel: URL) -> Int {
-        guard let quelle = try? Bilderordner.ordner() else { return 0 }
-        return kopiereFehlende(von: quelle, nach: ziel)
+    static func spiegleBilder(nach ziel: URL) -> Kopierergebnis {
+        guard let quelle = try? Bilderordner.ordner() else { return Kopierergebnis() }
+        return kopiere(von: quelle, nach: ziel)
     }
 
     /// Kopiert Dateien aus den Monatsordnern von `quelle`, die in `ziel` fehlen, und nur gültige Bildpfade.
+    /// Gibt die Zahl neuer Dateien zurück.
     static func kopiereFehlende(von quelle: URL, nach ziel: URL) -> Int {
+        kopiere(von: quelle, nach: ziel).neu
+    }
+
+    static func kopiere(von quelle: URL, nach ziel: URL) -> Kopierergebnis {
         let dateisystem = FileManager.default
         let monate = (try? dateisystem.contentsOfDirectory(at: quelle, includingPropertiesForKeys: nil)) ?? []
-        var neu = 0
+        var ergebnis = Kopierergebnis()
         for monat in monate {
             let dateien = (try? dateisystem.contentsOfDirectory(at: monat, includingPropertiesForKeys: nil)) ?? []
             for datei in dateien {
@@ -139,13 +187,13 @@ enum Sicherungsdienst {
                     try dateisystem.createDirectory(at: nach.deletingLastPathComponent(),
                                                     withIntermediateDirectories: true)
                     try dateisystem.copyItem(at: datei, to: nach)
-                    neu += 1
+                    ergebnis.neu += 1
                 } catch {
-                    continue
+                    ergebnis.fehlgeschlagen += 1
                 }
             }
         }
-        return neu
+        return ergebnis
     }
 
     // MARK: Wiederherstellen
