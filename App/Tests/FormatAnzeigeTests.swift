@@ -34,6 +34,23 @@ import TradingCore
         #expect(Format.dauer(nil) == "–")
     }
 
+    /// Mengen unter 1 (Krypto) zeigen ihre Stellen bis zur achten; Forex-Lots bleiben bei ein bis zwei.
+    /// Verglichen werden nur die Ziffern, weil das Trennzeichen von der Region abhängt.
+    @Test func lotsZeigtKleineMengenUndLaesstForexLotsUnveraendert() {
+        func ziffern(_ text: String) -> String { text.filter(\.isNumber) }
+        #expect(ziffern(Format.lots(T.d("0.0001"))) == "00001")
+        #expect(ziffern(Format.lots(T.d("0.00012345"))) == "000012345")
+        #expect(ziffern(Format.lots(T.d("0.5"))) == "05")
+        #expect(ziffern(Format.lots(T.d("-0.0025"))) == "00025")
+        // Forex-Lots wie bisher: eine Nachkommastelle mindestens, zwei höchstens.
+        #expect(ziffern(Format.lots(T.d("0.1"))) == "01")
+        #expect(ziffern(Format.lots(T.d("0.25"))) == "025")
+        #expect(ziffern(Format.lots(T.d("1"))) == "10")
+        #expect(ziffern(Format.lots(T.d("2.5"))) == "25")
+        #expect(ziffern(Format.lots(T.d("100"))) == "1000")
+        #expect(ziffern(Format.lots(T.d("1.23456789"))) == "123")
+    }
+
     @Test func rVielfacheMitVorzeichenUndEinheit() {
         #expect(Format.r(T.d("1.5")).hasPrefix("+"))
         #expect(Format.r(T.d("1.5")).hasSuffix(" R"))
