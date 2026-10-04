@@ -310,9 +310,12 @@ private struct NeuesZielKarte: View {
     @Environment(\.thema) private var thema
     @State private var entwurf = ZielEntwurf()
     @State private var fehler: String?
+    /// Konto, bei dem der Entwurf begonnen wurde; dort wird das Ziel angelegt (Codex-Review M5).
+    @State private var kontoId: Int64?
 
     var body: some View {
         Karte("Neues Ziel") {
+            ZielKontoZeile(kontoId: entwurf.leer ? nil : kontoId)
             TextField("z. B. Höchstens 2 Revanche-Trades", text: $entwurf.text, axis: .vertical)
                 .lineLimit(2...4)
                 .textFieldStyle(.roundedBorder)
@@ -348,11 +351,12 @@ private struct NeuesZielKarte: View {
                 .font(Schrift.beschriftung)
                 .foregroundStyle(thema.textSchwach)
         }
+        .onChange(of: entwurf.leer) { _, leer in kontoId = leer ? nil : (kontoId ?? modell.konto?.id) }
     }
 
     private func anlegen() {
         do {
-            try modell.legeZielAn(entwurf.ziel)
+            try modell.legeZielAn(entwurf.ziel, konto: entwurf.leer ? nil : kontoId)
             entwurf = ZielEntwurf()
             fehler = nil
         } catch {

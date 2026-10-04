@@ -249,11 +249,14 @@ struct ZielFormular: View {
     @Environment(\.dismiss) private var schliessen
     @State private var entwurf = ZielEntwurf()
     @State private var fehler: String?
+    /// Konto beim Öffnen; dort wird das Ziel angelegt, auch nach einem Kontowechsel (Codex-Review M5).
+    @State private var kontoId: Int64?
 
     var body: some View {
         NavigationStack {
             Form {
                 Section("Ziel") {
+                    ZielKontoZeile(kontoId: kontoId)
                     TextField("z. B. Höchstens 2 Revanche-Trades", text: $entwurf.text, axis: .vertical)
                         .lineLimit(2...4)
                     Text("Genau ein messbares Ziel je Zeitraum, so formuliert, dass das nächste Review es mit einer Zahl prüfen kann.")
@@ -299,11 +302,12 @@ struct ZielFormular: View {
         #if os(macOS)
         .frame(minWidth: 520, minHeight: 460)
         #endif
+        .onAppear { if kontoId == nil { kontoId = modell.konto?.id } }
     }
 
     private func anlegen() {
         do {
-            try modell.legeZielAn(entwurf.ziel)
+            try modell.legeZielAn(entwurf.ziel, konto: kontoId)
             schliessen()
         } catch {
             fehler = Zielfehler.text(error)
@@ -428,6 +432,25 @@ enum Zielformat {
 }
 
 /// Fehler rund um Ziele in Klartext; `SpeicherFehler` bringt keine eigene Beschreibung mit.
+/// Konto, zu dem ein Zielentwurf gehört, mit Hinweis, wenn inzwischen ein anderes Konto gewählt ist
+/// (Codex-Review 04.10.2026, M5).
+struct ZielKontoZeile: View {
+    let kontoId: Int64?
+    @Environment(AppModell.self) private var modell
+    @Environment(\.thema) private var thema
+
+    var body: some View {
+        if let kontoId, let konto = modell.konten.first(where: { $0.id == kontoId }) {
+            LabeledContent("Konto") { Text(verbatim: konto.kontoname) }
+            if kontoId != modell.konto?.id {
+                Text("Der Entwurf gehört zu „\(konto.kontoname)“, nicht zum gerade gewählten Konto; angelegt wird er dort.")
+                    .font(Schrift.beschriftung)
+                    .foregroundStyle(thema.warnung)
+            }
+        }
+    }
+}
+
 enum Zielfehler: Error {
     case keinKonto
 
