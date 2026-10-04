@@ -21,8 +21,8 @@ struct ErststartBlatt: View {
                 .font(Schrift.fliesstext)
                 .foregroundStyle(thema.textSchwach)
 
-            if !kontoDa {
-                beispieldaten
+            if modell.beispielkonto == nil {
+                beispieldaten(kontoDa: kontoDa)
             }
 
             ErststartSchritt(nummer: 1, titel: "Konto anlegen", erledigt: kontoDa,
@@ -59,10 +59,19 @@ struct ErststartBlatt: View {
 
 extension ErststartBlatt {
     /// Beispieldaten für Tester (Hauptthread 03.10.2026): erst ansehen, später mit einem Klick entfernen.
-    private var beispieldaten: some View {
+    /// Auch neben echten Konten (Vorführung, Hauptthread 04.10.2026): das Beispielkonto kommt dazu und wird gewählt,
+    /// die echten Konten bleiben, wie sie sind.
+    private func beispieldaten(kontoDa: Bool) -> some View {
         HStack(alignment: .center, spacing: Abstand.kachelAbstand) {
-            Text(ton.text("Ohne eigene Datei: Ein Beispielkonto mit 60 erfundenen Trades zeigt, was die App kann. Entfernen geht mit einem Klick unten in der Seitenleiste.",
-                          henry: "Erst einmal nur schauen? Ein Beispielkonto mit 60 erfundenen Trades. Später unten in der Seitenleiste mit einem Klick wieder fort."))
+            Group {
+                if kontoDa {
+                    Text(ton.text("Zum Vorführen: Ein Beispielkonto mit 60 erfundenen Trades kommt dazu und wird gewählt. Deine Konten bleiben unberührt; Entfernen geht mit einem Klick unten in der Seitenleiste.",
+                                  henry: "Zum Vorzeigen ein Beispielkonto mit 60 erfundenen Trades. Die eigenen Konten bleiben, wo sie sind. Später unten in der Seitenleiste mit einem Klick wieder fort."))
+                } else {
+                    Text(ton.text("Ohne eigene Datei: Ein Beispielkonto mit 60 erfundenen Trades zeigt, was die App kann. Entfernen geht mit einem Klick unten in der Seitenleiste.",
+                                  henry: "Erst einmal nur schauen? Ein Beispielkonto mit 60 erfundenen Trades. Später unten in der Seitenleiste mit einem Klick wieder fort."))
+                }
+            }
                 .font(Schrift.beschriftung)
                 .foregroundStyle(thema.textSchwach)
                 .fixedSize(horizontal: false, vertical: true)

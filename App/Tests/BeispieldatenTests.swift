@@ -66,4 +66,39 @@ import TradingStore
         try m.entferneBeispieldaten()
         #expect(try journal.tagesnotizen(von: T.tag(2026, 1, 1), bis: T.tag(2026, 12, 31)).map(\.plan) == ["Eigener Plan"])
     }
+
+    /// Vorführung neben echten Konten (Hauptthread 04.10.2026): Regeln, Journal und Trades des echten Kontos bleiben
+    /// beim Anlegen, Wechseln und Entfernen gleich; eine eigene Notiz am Tag der Beispielnotiz wird nicht überschrieben.
+    @Test func echtesKontoBleibtBeimVorfuehren() throws {
+        let journal = try Journal.imSpeicher()
+        let m = AppModell(journal: journal, nebenwirkungen: false)
+        _ = try m.importiereCSV(daten: Data(T.scalable.utf8), dateiname: "appt-scalable.csv", kontonummer: "DE0012345678",
+                                kontoname: "Depot", waehrung: "EUR", zeitzone: T.berlin)
+        let echt = try #require(m.konto?.id)
+        let eigeneRegeln = Handelsregeln(maxTradesJeTag: 7)
+        try m.speichereRegeln(eigeneRegeln)
+        let trade = try #require(m.alleTrades.first)
+        m.speichereJournal(Journaleintrag(kontoId: echt, ticket: trade.id, setup: "Eigenes Setup"))
+        let echteTrades = m.alleTrades.map(\.id)
+        let notizTag = Beispieldaten.plan(heute: Self.heute).notizTag
+        try journal.speichereTagesnotiz(Tagesnotiz(tag: notizTag, plan: "Eigener Plan", erstellt: Self.heute))
+
+        try m.legeBeispieldatenAn(heute: Self.heute)
+        #expect(m.konto?.id == m.beispielkonto?.id)
+        #expect(m.regeln.maxTradesJeTag == Beispieldaten.maxTradesJeTag)
+        #expect(m.journaleintraege[trade.id] == nil)
+        #expect(try journal.tagesnotiz(notizTag)?.plan == "Eigener Plan")
+
+        m.waehleKonto(echt)
+        #expect(m.regeln == eigeneRegeln)
+        #expect(m.alleTrades.map(\.id) == echteTrades)
+        #expect(m.journaleintraege.count == 1)
+        #expect(m.journaleintraege[trade.id]?.setup == "Eigenes Setup")
+
+        try m.entferneBeispieldaten()
+        #expect(m.konto?.id == echt)
+        #expect(m.regeln == eigeneRegeln)
+        #expect(m.journaleintraege[trade.id]?.setup == "Eigenes Setup")
+        #expect(try journal.tagesnotiz(notizTag)?.plan == "Eigener Plan")
+    }
 }
