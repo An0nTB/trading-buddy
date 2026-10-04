@@ -54,4 +54,31 @@ import TradingStore
         #expect(try journal.journaleintraege(konto: a)[ticket]?.grund == "Notiz A2")
         #expect(m.fehler == nil)
     }
+
+    /// Codex-Fix-Prüfung zu B2: Notiz in A geleert, B hat zum gleichen Ticket keine Notiz. Der Editor von A muss
+    /// trotzdem speichern, sonst bleibt die Notiz in A stehen.
+    @Test func geleerteNotizDesAltenKontosWirdGeloescht() throws {
+        let journal = try Journal.imSpeicher()
+        let m = AppModell(journal: journal, nebenwirkungen: false)
+        _ = try m.importiereCSV(daten: Data(T.scalable.utf8), dateiname: "appt-scalable.csv", kontonummer: "DE0012345678",
+                                kontoname: "Depot A", waehrung: "EUR", zeitzone: T.berlin)
+        let zweite = T.scalable.replacingOccurrences(of: "2.000,00", with: "3.000,00")
+        _ = try m.importiereCSV(daten: Data(zweite.utf8), dateiname: "appt-scalable-b.csv",
+                                kontonummer: "DE0087654321", kontoname: "Depot B", waehrung: "EUR", zeitzone: T.berlin)
+        let a = try #require(m.konten.first { $0.kontoname == "Depot A" })
+        let b = try #require(m.konten.first { $0.kontoname == "Depot B" })
+        let kontoA = try #require(a.id)
+        m.waehleKonto(kontoA)
+        let ticket = try #require(m.alleTrades.first?.id)
+        m.speichereJournal(Journaleintrag(kontoId: kontoA, ticket: ticket, grund: "Notiz A"))
+
+        m.waehleKonto(b.id)
+        let geleert = Journaleintrag(kontoId: kontoA, ticket: ticket)
+        #expect(m.journalGeaendert(geleert))
+        m.speichereJournal(geleert)
+        #expect(try journal.journaleintraege(konto: a)[ticket] == nil)
+        // Beim gewählten Konto bleibt der Vergleich: leer gegen nichts heißt nichts zu tun.
+        let kontoB = try #require(b.id)
+        #expect(!m.journalGeaendert(Journaleintrag(kontoId: kontoB, ticket: ticket)))
+    }
 }
