@@ -49,6 +49,7 @@ struct AusstiegKarte: View {
     /// Währung des Trades (W1): Beträge nie mit dem Zeichen der Kontowährung, wenn der Trade anders lautet.
     let waehrung: String
     @Environment(\.thema) private var thema
+    @Environment(AppModell.self) private var modell
     @State private var dienst = Ausstiegsdienst.geteilt
     @State private var analyse: Ausstiegsanalyse?
     @State private var kerzen: [Zeitkerze] = []
@@ -56,7 +57,9 @@ struct AusstiegKarte: View {
 
     var body: some View {
         Karte("Ausstieg") {
-            if trade.nurDatum {
+            if modell.konto.map(Beispieldaten.istBeispiel) ?? false {
+                hinweis("Beispiel-Trades haben erfundene Preise; eine Ausstiegsanalyse gegen echte Kurse ergibt hier keinen Sinn.")
+            } else if trade.nurDatum {
                 hinweis("Der Auszug nennt keine Uhrzeit; ohne Uhrzeit gibt es keine Ausstiegsanalyse.")
             } else if let analyse {
                 if !kerzen.isEmpty {
