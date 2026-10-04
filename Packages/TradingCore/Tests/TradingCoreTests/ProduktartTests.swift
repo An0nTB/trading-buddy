@@ -47,7 +47,7 @@ private func produktDatei(_ pfad: String) throws -> String {
 }
 
 @Test func metaTraderIstCFD() throws {
-    let a = try MT4Statement.parse(html: produktDatei("MT4/gbe-2025-05-14-daily.html"),
+    let a = try MT4Statement.parse(html: produktDatei("MT4/beispiel-2026-05-13-daily.html"),
                                    serverZeitzone: TimeZone(secondsFromGMT: 3 * 3600)!)
     #expect(!a.closedPositions.isEmpty)
     let geschlossen = a.closedPositions.filter { $0.produktart == .cfd }

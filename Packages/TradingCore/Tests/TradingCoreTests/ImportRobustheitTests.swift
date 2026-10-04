@@ -137,7 +137,7 @@ func gleicheBewegungenInJederKodierung(_ fall: RobustheitsFall) throws {
 
 @Test func mt4InUtf16() throws {
     let url = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
-        .appendingPathComponent("Fixtures/MT4/gbe-2025-05-31-monthly.html")
+        .appendingPathComponent("Fixtures/MT4/beispiel-2026-05-31-monthly.html")
     let html = try String(contentsOf: url, encoding: .utf8)
     let soll = try MT4Statement.parse(html: html, serverZeitzone: TimeZone(secondsFromGMT: 3 * 3600)!)
     for daten in [utf16(html, kleinesEnde: true, mark: true), Data(html.utf8)] {

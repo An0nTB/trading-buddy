@@ -63,7 +63,7 @@ private func fuelle(_ journal: Journal, _ konto: Konto, ticket: String) throws {
 
 @Test func kontoLoeschenEntferntNurDiesesKonto() throws {
     let journal = try Journal.imSpeicher()
-    let mt4 = try fixture("MT4/gbe-2025-05-14-daily.html")
+    let mt4 = try fixture("MT4/beispiel-2026-05-13-daily.html")
     try journal.importiereMT4(datei: mt4, dateiname: "a.html", serverZeitzone: utc)
     try journal.importiereCSV(datei: fixture("R2/trade_republic_2026_komma.csv"), dateiname: "tr.csv",
                               kontonummer: "Depot")
