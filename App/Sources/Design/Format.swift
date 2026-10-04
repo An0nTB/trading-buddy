@@ -32,8 +32,11 @@ enum Format {
         wert.formatted(.number.precision(.fractionLength(0...5)))
     }
 
+    /// Mengen: Forex-Lots mit ein bis zwei Nachkommastellen (0,1 · 2,5 · 100,0). Mengen unter 1
+    /// (Krypto, Bruchteile) mit allen Stellen bis zur achten, damit 0,0001 nicht als 0,0 erscheint.
     static func lots(_ wert: Decimal) -> String {
-        wert.formatted(.number.precision(.fractionLength(1...2)))
+        let stellen: ClosedRange<Int> = abs(wert) < 1 ? 1...8 : 1...2
+        return wert.formatted(.number.precision(.fractionLength(stellen)))
     }
 
     static func dauer(_ sekunden: TimeInterval?) -> String {
