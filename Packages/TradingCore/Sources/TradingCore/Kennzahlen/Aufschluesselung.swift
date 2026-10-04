@@ -69,7 +69,8 @@ extension Kennzahlen {
             return trades.map(\.side.rawValue)
         case .wochentag:
             // Calendar zählt Sonntag als 1; umgerechnet auf ISO mit Montag = 1.
-            return trades.map { String((kalender.component(.weekday, from: $0.openTime) + 5) % 7 + 1) }
+            // Eröffnungstag statt Rohzeit: Buchungen nur mit Datum fielen westlich von UTC auf den Vortag (M3).
+            return trades.map { String((kalender.component(.weekday, from: $0.eroeffnungstag(kalender)) + 5) % 7 + 1) }
         case .stunde:
             return trades.map { $0.nurDatum ? Gruppe.ohneUhrzeit : String(kalender.component(.hour, from: $0.openTime)) }
         case .haltedauer:
