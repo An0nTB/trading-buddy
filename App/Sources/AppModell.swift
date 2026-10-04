@@ -467,6 +467,14 @@ final class AppModell {
         return Journaleintrag(kontoId: kontoId, ticket: trade.id)
     }
 
+    /// Ob der Notiz-Editor speichern muss. Der Vergleich mit `journaleintraege` gilt nur fürs gewählte Konto; gehört
+    /// der Eintrag nach einem Kontowechsel zu einem anderen Konto, wird immer gespeichert, sonst bliebe dort eine
+    /// geleerte Notiz stehen (Codex-Fix-Prüfung zu B2, 04.10.2026).
+    func journalGeaendert(_ eintrag: Journaleintrag) -> Bool {
+        guard eintrag.kontoId == konto?.id else { return true }
+        return !eintrag.gleicheAngaben(wie: journaleintraege[eintrag.ticket])
+    }
+
     /// Speichert den Eintrag; ein Eintrag ohne Angaben wird gelöscht. Trades und Kennzahlen ziehen sofort mit.
     /// Geschrieben wird immer beim Konto des Eintrags: Nach einem Kontowechsel speichert der Notiz-Editor beim
     /// Verlassen noch den Eintrag des alten Kontos, und eine gleiche Ticketnummer im neuen Konto bleibt unberührt
