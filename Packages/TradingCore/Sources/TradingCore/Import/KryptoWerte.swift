@@ -45,7 +45,9 @@ enum KryptoWerte {
         var versatz = 0
         if rest.first == "+" || rest.first == "-" {
             let hm = rest.dropFirst().split(separator: ":").compactMap { Int($0) }
-            guard hm.count == 2 else { throw CSVImportFehler.ungueltigeZeit(zeile: zeile, text: text) }
+            // Grenzen vor dem Rechnen: riesige Zahlen aus kaputten Dateien liefen sonst über (Absturz).
+            guard hm.count == 2, (0...18).contains(hm[0]), (0...59).contains(hm[1])
+            else { throw CSVImportFehler.ungueltigeZeit(zeile: zeile, text: text) }
             versatz = (hm[0] * 3600 + hm[1] * 60) * (rest.first == "-" ? -1 : 1)
         } else if !(rest.isEmpty || rest == "Z") {
             throw CSVImportFehler.ungueltigeZeit(zeile: zeile, text: text)
