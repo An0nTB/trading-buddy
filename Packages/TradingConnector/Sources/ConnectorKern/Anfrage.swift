@@ -12,6 +12,9 @@ public struct Anfrage: Sendable {
     public var kontowaehrung: String = ""
     /// Trades des Kontos in anderen Währungen, je Währung; sie stehen nicht in den Summen dieser Antwort.
     public var andereWaehrungen: [String: [Trade]] = [:]
+    /// Trades in fremder Währung ohne EZB-Kurs, wenn diese Anfrage in Kontowährung rechnet (wie
+    /// `Waehrungsangleich.ohneKurs` der App); sonst leer. Sie zählen bei den Regeln nach Anzahl mit, ohne Betrag.
+    public var ohneKurs: [Trade] = []
     /// Mit EZB-Referenzkursen in die Kontowährung umgerechnete Trades, Anzahl je Ursprungswährung.
     public var umgerechnet: [String: Int] = [:]
     /// Alle Trades des Kontos vor Währungswahl und Umrechnung, für `Zeitraumbericht` (Steuer, Umrechnung wie die App).
@@ -98,9 +101,12 @@ public struct Anfrage: Sendable {
             zeitraum = Zeitspanne.monat(mit: letzter, zeitzone: zone)
             vorgabe = "Kein Zeitraum angegeben, daher der letzte Monat mit Trades."
         }
+        // In Kontowährung ohne Wahl sind die übrigen Trades genau die ohne Kurs, mit oder ohne Kurse in der Datei.
+        let ohneKurs = wunsch.isEmpty && waehrung == kontowaehrung ? andere.values.flatMap { $0 } : []
         return Anfrage(export: export, konto: konto, zeitraum: zeitraum, vorgabe: vorgabe,
-                       kontowaehrung: kontowaehrung, andereWaehrungen: andere, umgerechnet: umgerechnet,
-                       alleTrades: alleTrades, angleichskurse: angleichskurse, tickets: tickets)
+                       kontowaehrung: kontowaehrung, andereWaehrungen: andere, ohneKurs: ohneKurs,
+                       umgerechnet: umgerechnet, alleTrades: alleTrades, angleichskurse: angleichskurse,
+                       tickets: tickets)
     }
 
     /// Gewählte Währung und die Trades der übrigen Währungen des Kontos.

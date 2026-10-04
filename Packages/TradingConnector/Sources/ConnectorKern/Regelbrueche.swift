@@ -13,8 +13,9 @@ extension Anfrage {
     /// „Stopp nach Verlusten“) und Journal-Verstöße zählen alle Trades des Kontos in jeder Währung wie in der App;
     /// Betragsgrenzen nur die Trades dieser Antwort, denn Beträge verschiedener Währungen gehören nicht in eine Summe.
     /// Dieselbe Prüfung wie in der App über `ohneBetrag` (Rechenkern 0.22.0, Dritter Gegencheck G1 und G2).
-    func verstoesse(_ trades: [Trade]) -> [Regelverstoss] {
-        let ids = Set(trades.map(\.id))
+    /// - Parameter ohneKurs: Trades ohne EZB-Kurs im selben Zeitraum; ihre Verstöße zählen mit wie in App und PDF.
+    func verstoesse(_ trades: [Trade], ohneKurs: [Trade] = []) -> [Regelverstoss] {
+        let ids = Set((trades + ohneKurs).map(\.id))
         let andere = andereWaehrungen.values.flatMap { $0 }
         return Regelpruefung.pruefe(konto.trades + andere, regeln: konto.regeln ?? Handelsregeln(),
                                     zeitzone: zeitzone, manuell: manuellVerletzt, ohneBetrag: Set(andere.map(\.id)))
@@ -22,9 +23,13 @@ extension Anfrage {
     }
 
     /// Abschnitt „Eigene Handelsregeln“; leer, wenn weder Regeln noch Journal-Verstöße vorliegen.
+    /// Trades ohne EZB-Kurs (`ohneKurs`) im Zeitraum zählen wie in App und PDF bei Anzahl und Verstößen mit
+    /// (Tim 02.10.2026), ihre Beträge nicht.
     /// - Parameter propFirm: Zeile zur Prop-Firm-Prüfung aus `propFirmzeile`; ohne sie nur der Hinweis auf die App.
     func regelabschnitt(_ trades: [Trade], propFirm: String? = nil) -> [String] {
-        let verstoesse = verstoesse(trades)
+        let ohneKurs = self.ohneKurs.filter { zeitraum.enthaelt($0.closeTime) }
+        let verstoesse = verstoesse(trades, ohneKurs: ohneKurs)
+        let geprueft = trades.count + ohneKurs.count
         guard konto.regeln != nil || !verstoesse.isEmpty else { return [] }
         var t = ["\n## Eigene Handelsregeln (eingetragen in der App, geprüft nach dem Import)"]
         t.append("Regeln: " + (konto.regeln.map(Self.regeltext) ?? "keine Grenzen eingetragen") + ".")
@@ -39,16 +44,22 @@ extension Anfrage {
             return [art.bezeichnung, "\(ids.count)", "\(tage.count) (\(tagtext))", Format.zahl(netto)]
         }
         if zeilen.isEmpty {
-            t.append("Kein Verstoß im Zeitraum (\(trades.count) Trades geprüft).")
+            t.append("Kein Verstoß im Zeitraum (\(geprueft) Trades geprüft).")
         } else {
             t.append(Format.tabelle(["Regel", "Trades", "Tage", "Netto dieser Trades"], zeilen))
             let betroffen = Set(verstoesse.map(\.trade))
             let mit = Kennzahlen(trades: trades.filter { betroffen.contains($0.id) })
             let ohne = Kennzahlen(trades: trades.filter { !betroffen.contains($0.id) })
-            t.append("Trades mit mindestens einem Verstoß: \(mit.anzahl) von \(trades.count), netto \(Format.zahl(mit.netto)), "
-                + "Erwartungswert \(Format.r(mit.erwartungswertR)). Ohne Verstoß: \(ohne.anzahl) Trades, netto "
+            t.append("Trades mit mindestens einem Verstoß: \(betroffen.count) von \(geprueft), netto \(Format.zahl(mit.netto)), "
+                + "Erwartungswert \(Format.r(mit.erwartungswertR)). Ohne Verstoß: \(geprueft - betroffen.count) Trades, netto "
                 + "\(Format.zahl(ohne.netto)), Erwartungswert \(Format.r(ohne.erwartungswertR)). "
                 + "Ein Trade kann mehrere Regeln zugleich verletzen.")
+        }
+        if !ohneKurs.isEmpty {
+            let mitVerstoss = Set(verstoesse.map(\.trade)).intersection(ohneKurs.map(\.id)).count
+            t.append("Mitgezählt wie in der App: \(ohneKurs.count) Trades in anderer Währung ohne EZB-Kurs am "
+                + "Schlusstag, davon \(mitVerstoss) mit Verstoß. Sie zählen bei Anzahl und Verstößen, ihre Beträge "
+                + "fehlen in Netto, Erwartungswert und Tagesverlust.")
         }
         if let propFirm {
             t.append(propFirm)
