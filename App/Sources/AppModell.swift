@@ -77,11 +77,15 @@ final class AppModell {
     /// `ladeEZBKurse()` liest den Zwischenspeicher und fragt die EZB nur, wenn der Kurs von heute fehlt.
     var ezb: EZBKurse.Stand = .leer
 
-    /// Öffnet das Journal unter `Application Support`; ohne Datenbank bleibt `journal` leer und `fehler` gesetzt.
+    /// Öffnet das Journal unter `Application Support`; ohne Datenbank bleibt `journal` leer. Ist die Datei
+    /// beschädigt oder aus einer neueren Version, steht der Fehler in `startfehler` und das Hauptfenster bietet
+    /// den Weg aus der Datei an (AP9 #225); sonst steht er in `fehler`.
     convenience init() {
-        let geoeffnet = Result { try Journal(pfad: Self.datenbankpfad()) }
+        let pfad = Result { try Self.datenbankpfad() }
+        let geoeffnet = pfad.flatMap { p in Result { try Journal(pfad: p) } }
         self.init(journal: try? geoeffnet.get())
-        if case .failure(let error) = geoeffnet { fehler = error.localizedDescription }
+        journalpfad = try? pfad.get()
+        if case .failure(let error) = geoeffnet { meldeStartfehler(error) }
     }
 
     /// Mit Journal von außen. `nebenwirkungen: false` für Tests (App/Tests): kein Export in den Ordner des
@@ -101,18 +105,7 @@ final class AppModell {
             nachrichten = Nachrichtendienst(speicher: speicher, schluesselbund: schluessel)
         }
         if nebenwirkungen { anzeigewaehrung = UserDefaults.standard.string(forKey: Self.anzeigewaehrungSchluessel) }
-        if let journal {
-            self.journal = journal
-            nachrichten.verbinde(journal)
-            schliesseAbgelaufeneZiele()
-            laden()
-            exportiere()
-            #if os(macOS)
-            if nebenwirkungen { Importordner.geteilt.verbinde(self) } // Import-Ordner beobachten (Doc 45)
-            // Tägliche Datensicherung (Tagesseite-Thread, Doc 46): beim Start, dann stündlich prüfen.
-            if nebenwirkungen { Task { [weak self] in await Sicherungsdienst.laufe { self?.journal } } }
-            #endif
-        }
+        if let journal { uebernimm(journal) }
         if nebenwirkungen {
             Task { await ladeEZBKurse() }
             // Lange Laufzeit ohne Import oder Kontowechsel: alle 5 Minuten prüfen (X6, Doc 49). Die Sperre in
@@ -130,6 +123,86 @@ final class AppModell {
 
     /// `false` nur in Tests: kein Export, kein EZB-Abruf.
     private let nebenwirkungen: Bool
+
+    /// Hängt ein geöffnetes Journal an: beim Start oder nach dem Weg aus einer beschädigten Datei.
+    private func uebernimm(_ journal: Journal) {
+        self.journal = journal
+        nachrichten.verbinde(journal)
+        schliesseAbgelaufeneZiele()
+        laden()
+        exportiere()
+        #if os(macOS)
+        if nebenwirkungen { Importordner.geteilt.verbinde(self) } // Import-Ordner beobachten (Doc 45)
+        // Tägliche Datensicherung (Tagesseite-Thread, Doc 46): beim Start, dann stündlich prüfen.
+        if nebenwirkungen { Task { [weak self] in await Sicherungsdienst.laufe { self?.journal } } }
+        #endif
+    }
+
+    // MARK: Start mit beschädigter Journal-Datei (AP9 #225)
+
+    /// Pfad der Journal-Datei; `nil` in Tests mit Journal von außen.
+    private(set) var journalpfad: String?
+    /// Fehler der Journal-Datei beim Start, für den das Hauptfenster einen Ausweg anbietet.
+    private(set) var startfehler: JournalFehler?
+    /// Meldung nach dem Ausweg, mit dem Ort der beiseitegelegten Datei.
+    var startmeldung: (text: String, beiseite: URL?)?
+
+    /// Nur für App-Tests: Start wie `init()`, aber mit eigenem Pfad und ohne Nebenwirkungen.
+    convenience init(testpfad pfad: String) {
+        let geoeffnet = Result { try Journal(pfad: pfad) }
+        self.init(journal: try? geoeffnet.get(), nebenwirkungen: false)
+        journalpfad = pfad
+        if case .failure(let error) = geoeffnet { meldeStartfehler(error) }
+    }
+
+    private func meldeStartfehler(_ error: Error) {
+        if let datei = error as? JournalFehler, Startwiederherstellung.bietetAusweg(datei) {
+            startfehler = datei
+        } else {
+            fehler = error.localizedDescription
+        }
+    }
+
+    /// Spielt die Sicherung in ein neues Journal ein; die alte Datei wird beiseitegelegt, nicht gelöscht.
+    func startAusSicherung(_ angebot: Startwiederherstellung.Angebot, ordner: URL?) throws {
+        guard let journalpfad, journal == nil else { return }
+        let ergebnis = try Startwiederherstellung.ausSicherung(pfad: journalpfad, angebot: angebot, ordner: ordner)
+        var text = String(localized: "Sicherung „\(angebot.datei.lastPathComponent)“ zurückgespielt.")
+        #if os(macOS)
+        if nebenwirkungen { text += " " + Self.holeBilder(neben: angebot.datei, ordner: ordner) }
+        #endif
+        startfehler = nil
+        uebernimm(ergebnis.journal)
+        startmeldung = (Self.mitAblage(text, ergebnis.beiseite), ergebnis.beiseite)
+    }
+
+    /// Beginnt mit einem leeren Journal; die alte Datei wird beiseitegelegt, nicht gelöscht.
+    func startNeu() throws {
+        guard let journalpfad, journal == nil else { return }
+        let ergebnis = try Startwiederherstellung.neuBeginnen(pfad: journalpfad)
+        startfehler = nil
+        uebernimm(ergebnis.journal)
+        startmeldung = (Self.mitAblage(String(localized: "Neues, leeres Journal angelegt."), ergebnis.beiseite),
+                        ergebnis.beiseite)
+    }
+
+    private static func mitAblage(_ text: String, _ beiseite: URL?) -> String {
+        guard let beiseite else { return text }
+        return text + " " + String(localized: "Die alte Datei liegt unter \(beiseite.path).")
+    }
+
+    #if os(macOS)
+    /// Fehlende Screenshots aus dem Bilder-Spiegel neben der Sicherung zurückholen (wie Sicherungsdienst).
+    private static func holeBilder(neben datei: URL, ordner: URL?) -> String {
+        let zugriff = ordner?.startAccessingSecurityScopedResource() ?? false
+        defer { if zugriff { ordner?.stopAccessingSecurityScopedResource() } }
+        let spiegel = datei.deletingLastPathComponent()
+            .appending(path: Sicherungsdienst.bilderUnterordner, directoryHint: .isDirectory)
+        let bilder = (try? Bilderordner.ordner()).map { Sicherungsdienst.kopiereFehlende(von: spiegel, nach: $0) } ?? 0
+        Bilderordner.schuetzeBestand()
+        return String(localized: "\(bilder) Bilder zurückgeholt.")
+    }
+    #endif
     /// Wie oft `exportiere()` angestoßen wurde, auch ohne Nebenwirkungen; Tests prüfen damit, dass Änderungen
     /// den Export für den Connector auslösen (G28, Doc 49).
     private(set) var exportAnstoesse = 0
@@ -811,7 +884,7 @@ final class AppModell {
     }
 
     /// `Application Support/Trading Buddy/journal.sqlite`, in der Sandbox im Container der App.
-    private static func datenbankpfad() throws -> String {
+    static func datenbankpfad() throws -> String {
         let ordner = try FileManager.default
             .url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
             .appendingPathComponent("Trading Buddy", isDirectory: true)
