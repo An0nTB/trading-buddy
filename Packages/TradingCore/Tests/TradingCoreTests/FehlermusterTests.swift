@@ -66,10 +66,10 @@ private func d(_ text: String) -> Decimal { Decimal(string: text)! }
     #expect(Fehlermuster.median([]) == nil)
 }
 
-/// Echter Monat (GBE, Mai 2025, Tage in UTC). Sollwerte unabhängig mit Python gerechnet (01.10.2026).
-@Test func fehlermusterGBEMai2025() throws {
+/// Erfundener Beispielauszug (Mai 2026, Tage in UTC). Sollwerte unabhängig mit Python gerechnet (04.10.2026).
+@Test func fehlermusterBeispielMai2026() throws {
     let url = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
-        .appendingPathComponent("Fixtures/MT4/gbe-2025-05-31-monthly.html")
+        .appendingPathComponent("Fixtures/MT4/beispiel-2026-05-31-monthly.html")
     let auszug = try MT4Statement.parse(html: String(contentsOf: url, encoding: .utf8),
                                         serverZeitzone: TimeZone(secondsFromGMT: 3 * 3600)!)
     let trades = auszug.closedPositions.map { Trade($0) }
@@ -77,14 +77,14 @@ private func d(_ text: String) -> Decimal { Decimal(string: text)! }
     #expect(befunde.map(\.muster) == [.revancheTrade, .ueberhandeln, .gewinneZuFrueh, .verliererLaufenLassen,
                                       .verbilligen, .schwankendeGroesse, .groesseNachGewinnserie])
     let jeMuster = Dictionary(uniqueKeysWithValues: befunde.map { ($0.muster, $0) })
-    #expect(jeMuster[.revancheTrade]?.trades.count == 13)
-    #expect(jeMuster[.revancheTrade]?.netto == d("-2.06"))
-    #expect(jeMuster[.ueberhandeln]?.trades.count == 65)
-    #expect(jeMuster[.ueberhandeln]?.stichprobe == 12)
-    #expect(jeMuster[.gewinneZuFrueh]?.trades.count == 4)
-    #expect(jeMuster[.gewinneZuFrueh]?.stichprobe == 31)
-    #expect(jeMuster[.verliererLaufenLassen]?.wert?.gerundet(4) == d("1.5528"))
-    #expect(jeMuster[.verbilligen]?.trades.count == 3)
-    #expect(jeMuster[.schwankendeGroesse]?.wert?.gerundet(4) == d("3.4380"))
-    #expect(jeMuster[.groesseNachGewinnserie]?.trades.count == 1)
+    #expect(jeMuster[.revancheTrade]?.trades.count == 6)
+    #expect(jeMuster[.revancheTrade]?.netto == d("-1.87"))
+    #expect(jeMuster[.ueberhandeln]?.trades.count == 33)
+    #expect(jeMuster[.ueberhandeln]?.stichprobe == 20)
+    #expect(jeMuster[.gewinneZuFrueh]?.trades.count == 7)
+    #expect(jeMuster[.gewinneZuFrueh]?.stichprobe == 50)
+    #expect(jeMuster[.verliererLaufenLassen]?.wert?.gerundet(4) == d("2.1129"))
+    #expect(jeMuster[.verbilligen]?.trades.count == 6)
+    #expect(jeMuster[.schwankendeGroesse]?.wert?.gerundet(4) == d("1.0164"))
+    #expect(jeMuster[.groesseNachGewinnserie]?.trades.count == 21)
 }

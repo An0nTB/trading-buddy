@@ -1,7 +1,8 @@
 import Foundation
 
 /// Ein Kontoauszug, den ein MetaTrader-4-Broker per Mail verschickt
-/// (Daily Confirmation oder Monthly Statement). Format belegt an GBE brokers, Mai/Juni 2025.
+/// (Daily Confirmation oder Monthly Statement). Testdaten: erfundene Beispielauszüge
+/// in Tests/TradingCoreTests/Fixtures/MT4.
 public struct MT4Statement: Sendable, Equatable {
     public enum Kind: String, Sendable, Equatable {
         case daily

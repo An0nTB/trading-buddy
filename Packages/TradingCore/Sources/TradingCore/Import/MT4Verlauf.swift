@@ -3,7 +3,7 @@ import Foundation
 /// Kursverlauf aus dem MetaTrader-Verlaufszentrum (Doc 39, F7): die Kurse des eigenen Brokers,
 /// passend zu den Trades im Auszug. Gelesen werden zwei Formen:
 /// - MetaTrader 4, „Extras → Verlaufszentrum → Exportieren“: ohne Kopf, Komma,
-///   `2025.05.05,11:51,191.281,191.300,191.250,191.270,45`
+///   `2026.05.06,10:41,197.851,197.873,197.836,197.840,41`
 /// - MetaTrader 5, „Symbole → Balken → Exportieren“: Kopf `<DATE>	<TIME>	<OPEN>…`, Tabulator,
 ///   Zeit mit Sekunden.
 /// Format nach Doku und Beispielen, noch nicht an einer echten Datei geprüft (Doc 39).
