@@ -130,11 +130,24 @@ struct Seitenleiste: View {
                     }
                     Section("Daten") {
                         ForEach(Bereich.daten) { bereich in
-                            Label(bereich.titel, systemImage: bereich.symbol)
-                                .listItemTint(thema.akzent)
-                                .tag(bereich)
-                                .badge(bereich == .importieren ? wartendeDateien : 0) // Doc 55 J21
-                                .inNeuemFenster(bereich) // P12 Eigene Fenster
+                            // Ohne .badge: Mit dem Modifier ließen sich „Import“ und „Konten und Kosten“ am Mac nicht
+                            // mehr anklicken (Tim 04.10.2026). Die Zahl wartender Dateien (Doc 55 J21) steht im Label.
+                            Label {
+                                HStack {
+                                    Text(bereich.titel)
+                                    Spacer(minLength: 0)
+                                    if bereich == .importieren, wartendeDateien > 0 {
+                                        Text(verbatim: "\(wartendeDateien)")
+                                            .monospacedDigit()
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                            } icon: {
+                                Image(systemName: bereich.symbol)
+                            }
+                            .listItemTint(thema.akzent)
+                            .tag(bereich)
+                            .inNeuemFenster(bereich) // P12 Eigene Fenster
                         }
                     }
                     Section("Wissen") {
