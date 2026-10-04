@@ -282,6 +282,16 @@
         }
       }
     },
+    "Beispiel-Trades haben erfundene Preise; eine Ausstiegsanalyse gegen echte Kurse ergibt hier keinen Sinn." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sample trades have made-up prices; an exit analysis against real prices makes no sense here."
+          }
+        }
+      }
+    },
     "Beispiel: Nur Ausbrüche über dem Vortageshoch, höchstens drei Trades." : {
       "localizations" : {
         "en" : {
@@ -298,6 +308,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Example: Fourth trade out of boredom, against my own rule."
+          }
+        }
+      }
+    },
+    "Beispieldaten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sample data"
           }
         }
       }
@@ -468,6 +488,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "The “Bilder” folder next to the backup could not be read. If the backup is not in the chosen backup folder, choose that folder first and restore the backup again; the screenshots will then come along."
+          }
+        }
+      }
+    },
+    "Die Beispiel-Trades haben erfundene Preise. Ein Vergleich mit echten Kursen ergibt hier keinen Sinn." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The sample trades have made-up prices. Comparing them with real prices makes no sense here."
           }
         }
       }

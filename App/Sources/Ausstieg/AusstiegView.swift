@@ -51,9 +51,10 @@ struct AusstiegView: View {
                 Kopfzeile("Ausstieg", untertitel: untertitel) {
                     if ruftAb { ProgressView().controlSize(.small) }
                     Button("Kurse abrufen") { Task { await rufeAb(trades) } }
-                        .disabled(ruftAb || !modell.kurse.aktiv)
+                        .disabled(ruftAb || !modell.kurse.aktiv || istBeispiel)
                     #if os(macOS)
                     Button("Kurse importieren …") { dateiWaehlen = true }
+                        .disabled(istBeispiel)
                     #endif
                 }
                 AbrufHinweis(abruf: abruf, zuLang: zuLang, kurseAn: modell.kurse.aktiv)
@@ -95,9 +96,15 @@ struct AusstiegView: View {
         return String(localized: "\(ergebnis.auswertung.anzahl) von \(ergebnis.mitUhrzeit) Trades mit Kursen")
     }
 
+    /// Beispielkonto: erfundene Preise gegen echte Kurse ergäben unsinnige Werte (Doc 57, Vorführung 04.10.2026).
+    private var istBeispiel: Bool { modell.konto.map(Beispieldaten.istBeispiel) ?? false }
+
     @ViewBuilder
     private var inhalt: some View {
-        if modell.alleTrades.isEmpty {
+        if istBeispiel {
+            Platzhalter(titel: "Beispieldaten", symbol: "info.circle",
+                        text: "Die Beispiel-Trades haben erfundene Preise. Ein Vergleich mit echten Kursen ergibt hier keinen Sinn.")
+        } else if modell.alleTrades.isEmpty {
             KeineTrades()
         } else if let ergebnis, ergebnis.auswertung.anzahl > 0 {
             AuswertungKarte(ergebnis: ergebnis, waehrung: modell.waehrung)
