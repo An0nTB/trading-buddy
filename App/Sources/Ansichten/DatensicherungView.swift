@@ -17,6 +17,7 @@ struct DatensicherungFelder: View {
     @State private var waehlerOffen = false
     @State private var waehlerArt = Waehler.ordner
     @AppStorage(Sicherungsdienst.schluesselStand) private var stand = ""
+    @AppStorage(Sicherungsdienst.schluesselWarnung) private var warnung = ""
     @State private var auswahl: Auswahl?
     @State private var laeuft = false
 
@@ -71,10 +72,21 @@ struct DatensicherungFelder: View {
                     .foregroundStyle(thema.textSchwach)
             }
             if !stand.isEmpty {
-                Text(verbatim: stand)
+                if !warnung.isEmpty, stand == warnung {
+                    Label {
+                        Text(verbatim: stand)
+                    } icon: {
+                        Image(systemName: "exclamationmark.triangle")
+                    }
                     .font(Schrift.beschriftung)
-                    .foregroundStyle(thema.textSchwach)
+                    .foregroundStyle(thema.warnung)
                     .textSelection(.enabled)
+                } else {
+                    Text(verbatim: stand)
+                        .font(Schrift.beschriftung)
+                        .foregroundStyle(thema.textSchwach)
+                        .textSelection(.enabled)
+                }
             }
         }
         .formStyle(.grouped)
