@@ -472,6 +472,16 @@
         }
       }
     },
+    "Der Entwurf gehört zu „%@“, nicht zum gerade gewählten Konto; angelegt wird er dort." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This draft belongs to “%@”, not to the account selected now; it will be created there."
+          }
+        }
+      }
+    },
     "Der Ordner mit den Terminen fehlt im Paket." : {
       "localizations" : {
         "en" : {
