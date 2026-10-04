@@ -178,11 +178,11 @@ private func nurKonto(_ journal: Journal) throws -> Konto {
     let url = URL(fileURLWithPath: #filePath)
         .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
         .deletingLastPathComponent()
-        .appendingPathComponent("TradingCore/Tests/TradingCoreTests/Fixtures/MT4/gbe-2025-06-04-daily.html")
-    try journal.importiereMT4(datei: Data(contentsOf: url), dateiname: "gbe.html",
+        .appendingPathComponent("TradingCore/Tests/TradingCoreTests/Fixtures/MT4/beispiel-2026-06-03-daily.html")
+    try journal.importiereMT4(datei: Data(contentsOf: url), dateiname: "beispiel.html",
                               serverZeitzone: TimeZone(secondsFromGMT: 0)!)
     let konten = try journal.konten()
-    #expect(konten.map(\.broker) == ["XTB", "GBE brokers Ltd."])
+    #expect(konten.map(\.broker) == ["XTB", "Beispiel Broker Ltd."])
     #expect(try journal.geschlossenePositionen(konto: konten[0]).count == 2)
     #expect(try journal.geschlossenePositionen(konto: konten[1]).count == 1)
 }

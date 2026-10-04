@@ -188,26 +188,26 @@ jobs:
           ) | perl -e 'alarm 10; exec @ARGV' "$BIN" > universal.txt || true
           cat universal.txt
           grep -q '"serverInfo"' universal.txt
-      - name: Server wertet die GBE-Testdateien aus
+      - name: Server wertet die Beispiel-Testdateien aus
         run: |
           BIN="$(swift build -c release --show-bin-path)"
           ORDNER="$RUNNER_TEMP/export"
           mkdir -p "$ORDNER"
-          "$BIN/tb-export" --ziel "$ORDNER" --trades-je-tag 3 --beispielkurse de40.c ../TradingCore/Tests/TradingCoreTests/Fixtures/MT4/*.html
+          "$BIN/tb-export" --ziel "$ORDNER" --trades-je-tag 3 --beispielkurse ger40.cash ../TradingCore/Tests/TradingCoreTests/Fixtures/MT4/*.html
           (
             echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"ci","version":"1"}}}'
             echo '{"jsonrpc":"2.0","method":"notifications/initialized"}'
             echo '{"jsonrpc":"2.0","id":2,"method":"tools/list"}'
             echo '{"jsonrpc":"2.0","id":3,"method":"prompts/list"}'
             echo '{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"hole_datenstand","arguments":{}}}'
-            echo '{"jsonrpc":"2.0","id":5,"method":"tools/call","params":{"name":"hole_auswertung","arguments":{"monat":"2025-05"}}}'
-            echo '{"jsonrpc":"2.0","id":6,"method":"prompts/get","params":{"name":"monatsauswertung","arguments":{"monat":"2025-05"}}}'
-            echo '{"jsonrpc":"2.0","id":7,"method":"tools/call","params":{"name":"hole_trades","arguments":{"monat":"2025-05","anzahl":1e100}}}'
+            echo '{"jsonrpc":"2.0","id":5,"method":"tools/call","params":{"name":"hole_auswertung","arguments":{"monat":"2026-05"}}}'
+            echo '{"jsonrpc":"2.0","id":6,"method":"prompts/get","params":{"name":"monatsauswertung","arguments":{"monat":"2026-05"}}}'
+            echo '{"jsonrpc":"2.0","id":7,"method":"tools/call","params":{"name":"hole_trades","arguments":{"monat":"2026-05","anzahl":1e100}}}'
             echo '{"jsonrpc":"2.0","id":8,"method":"tools/list"}'
-            echo '{"jsonrpc":"2.0","id":9,"method":"tools/call","params":{"name":"hole_notizen","arguments":{"monat":"2025-05"}}}'
+            echo '{"jsonrpc":"2.0","id":9,"method":"tools/call","params":{"name":"hole_notizen","arguments":{"monat":"2026-05"}}}'
             echo '{"jsonrpc":"2.0","id":10,"method":"tools/call","params":{"name":"hole_nachrichten","arguments":{"tage":3}}}'
-            echo '{"jsonrpc":"2.0","id":12,"method":"tools/call","params":{"name":"hole_kursanalyse","arguments":{"symbol":"DE40.c","monate":12}}}'
-            echo '{"jsonrpc":"2.0","id":11,"method":"tools/call","params":{"name":"hole_auswertung","arguments":{"monat":"2025-05","waehrung":"chf"}}}'
+            echo '{"jsonrpc":"2.0","id":12,"method":"tools/call","params":{"name":"hole_kursanalyse","arguments":{"symbol":"GER40.cash","monate":12}}}'
+            echo '{"jsonrpc":"2.0","id":11,"method":"tools/call","params":{"name":"hole_auswertung","arguments":{"monat":"2026-05","waehrung":"chf"}}}'
             echo '{"jsonrpc":"2.0","id":13,"method":"tools/call","params":{"name":"henry_status","arguments":{}}}'
             sleep 3
           ) | TB_EXPORT_DIR="$ORDNER" perl -e 'alarm 20; exec @ARGV' "$BIN/trading-buddy-mcp" > antwort.txt || true
@@ -216,20 +216,20 @@ jobs:
           awk '{ print length($0) "  " substr($0, 1, 30) }' antwort.txt
           grep -q hole_aufschluesselung antwort.txt
           grep -q "VERBINDUNG STEHT" antwort.txt
-          grep -q "Gespeichert insgesamt (alle Zeiträume): 104 Trades" antwort.txt
+          grep -q "Gespeichert insgesamt (alle Zeiträume): 127 Trades" antwort.txt
           grep -q wochenauswertung antwort.txt
-          grep -q "104 Trades" antwort.txt
-          grep -q "83 (54" antwort.txt
-          grep -q "hole_auswertung mit monat=2025-05" antwort.txt
+          grep -q "127 Trades" antwort.txt
+          grep -q "110 (79" antwort.txt
+          grep -q "hole_auswertung mit monat=2026-05" antwort.txt
           grep -q "Henry · Trades" antwort.txt
           grep -q '"id":8' antwort.txt
           grep -q "Henry · Notizen" antwort.txt
           grep -q "## Eigene Handelsregeln" antwort.txt
           grep -q "Handelsregeln eingetragen" antwort.txt
           grep -q "In der App sind die Nachrichten aus" antwort.txt
-          grep -q "Henry · Kursanalyse de40.c (12 Monate)" antwort.txt
+          grep -q "Henry · Kursanalyse ger40.cash (12 Monate)" antwort.txt
           grep -q "Eigene Trades in diesem Wert (geschlossen seit" antwort.txt
-          grep -q "Kursverläufe (Tageskerzen) für 1 Werte: de40.c" antwort.txt
+          grep -q "Kursverläufe (Tageskerzen) für 1 Werte: ger40.cash" antwort.txt
           grep -q "kommt in diesem Konto nicht vor. Vorhanden: EUR" antwort.txt
       - name: Server meldet fehlenden Export-Ordner
         run: |

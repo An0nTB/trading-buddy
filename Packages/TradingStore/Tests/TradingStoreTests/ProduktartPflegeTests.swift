@@ -4,7 +4,7 @@ import Testing
 import TradingCore
 @testable import TradingStore
 
-/// Testdateien aus den TradingCore-Tests (pseudonymisiert oder synthetisch, nur gelesen).
+/// Testdateien aus den TradingCore-Tests (erfunden oder synthetisch, nur gelesen).
 private func kern(_ pfad: String) throws -> Data {
     let url = URL(fileURLWithPath: #filePath)
         .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
@@ -117,8 +117,8 @@ private func nurKonto(_ journal: Journal) throws -> Konto {
 
 @Test func produktartNachpflegeTrifftAuchOffenePositionen() throws {
     let journal = try Journal.imSpeicher()
-    // 05-14 hat geschlossene, 05-25 offene Positionen (wie in ProduktartSpeicherTests).
-    for name in ["gbe-2025-05-14-daily", "gbe-2025-05-25-daily"] {
+    // 05-13 hat geschlossene, 05-24 offene Positionen (wie in ProduktartSpeicherTests).
+    for name in ["beispiel-2026-05-13-daily", "beispiel-2026-05-24-daily"] {
         try journal.importiereMT4(datei: kern("MT4/\(name).html"), dateiname: "\(name).html",
                                   serverZeitzone: TimeZone(secondsFromGMT: 0)!)
     }
