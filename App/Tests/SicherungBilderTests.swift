@@ -48,6 +48,37 @@ import Testing
         #expect(lauf.unvollstaendig)
     }
 
+    @Test func kopierfehlerOhneFehlendenVerweisMachtDieSicherungUnvollstaendig() throws {
+        let spiegel = try ordner()
+        defer { try? FileManager.default.removeItem(at: spiegel) }
+        let lauf = Sicherungsdienst.bewerte(sicherung: "s.sqlite", kopiert: .init(neu: 0, fehlgeschlagen: 3),
+                                            verweise: [], spiegel: spiegel)
+        #expect(lauf.unvollstaendig)
+        #expect(lauf.text.contains("3"))
+    }
+
+    @Test func fehlendeQuelleIstKeinFehler() throws {
+        let basis = try ordner()
+        defer { try? FileManager.default.removeItem(at: basis) }
+        let ergebnis = Sicherungsdienst.kopiere(von: basis.appending(path: "gibtsnicht"), nach: basis.appending(path: "ziel"))
+        #expect(ergebnis == .init())
+    }
+
+    /// Ein unvollständiger Lauf zählt nicht als „Letzte Sicherung“, hält aber den Tagesabstand.
+    @Test func unvollstaendigerVersuchHaeltDenTagesabstand() {
+        let name = "appt-bildsicherung-\(UUID().uuidString)"
+        defer { UserDefaults.standard.removePersistentDomain(forName: name) }
+        let ablage = UserDefaults(suiteName: name)!
+        let jetzt = AppTestdaten.zeit(2026, 10, 4, 16, 0)
+        ablage.set(true, forKey: Sicherungsdienst.schluesselAktiv)
+        ablage.set(Data([1]), forKey: Sicherungsdienst.schluesselOrdner)
+        ablage.set(jetzt.addingTimeInterval(-3600).timeIntervalSince1970, forKey: Sicherungsdienst.schluesselVersuch)
+        #expect(!Sicherungsdienst.istFaellig(jetzt: jetzt, ablage: ablage))
+        ablage.set(jetzt.addingTimeInterval(-Sicherungsdienst.abstand).timeIntervalSince1970,
+                   forKey: Sicherungsdienst.schluesselVersuch)
+        #expect(Sicherungsdienst.istFaellig(jetzt: jetzt, ablage: ablage))
+    }
+
     @Test func gescheiterteKopieWirdGezaehlt() throws {
         let basis = try ordner()
         defer { try? FileManager.default.removeItem(at: basis) }

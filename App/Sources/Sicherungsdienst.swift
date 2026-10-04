@@ -13,6 +13,9 @@ enum Sicherungsdienst {
     static let schluesselBehalten = "datensicherung.behalten"
     /// Zeitpunkt der letzten Sicherung als Sekunden seit 1970; 0 = noch keine.
     static let schluesselLetzte = "datensicherung.letzte"
+    /// Zeitpunkt des letzten Laufs, der die Datenbank gesichert hat, auch wenn Bilder fehlten; 0 = keiner. Hält den
+    /// Tagesabstand, ohne dass eine unvollständige Sicherung als „Letzte Sicherung“ gilt (Codex-Vollreview H3).
+    static let schluesselVersuch = "datensicherung.versuch"
     /// Ergebnis des letzten Laufs als Text, auch des automatischen; die Einstellungen zeigen es.
     static let schluesselStand = "datensicherung.stand"
     /// Stand des letzten Laufs, wenn die Bilder darin unvollständig sind, sonst leer. Die Einstellungen heben den
@@ -60,11 +63,12 @@ enum Sicherungsdienst {
         return sekunden > 0 ? Date(timeIntervalSince1970: sekunden) : nil
     }
 
-    /// Fällig, wenn eingeschaltet, ein Ordner gemerkt ist und die letzte Sicherung einen Tag zurückliegt.
+    /// Fällig, wenn eingeschaltet, ein Ordner gemerkt ist und die letzte Sicherung oder der letzte unvollständige
+    /// Lauf einen Tag zurückliegt.
     /// `ablage` nur für Tests (App/Tests) austauschbar, damit ein Testlauf am Mac die Einstellungen des Nutzers nicht anfasst.
     static func istFaellig(jetzt: Date = .now, ablage: UserDefaults = .standard) -> Bool {
         guard ablage.bool(forKey: schluesselAktiv), ablage.data(forKey: schluesselOrdner) != nil else { return false }
-        let sekunden = ablage.double(forKey: schluesselLetzte)
+        let sekunden = max(ablage.double(forKey: schluesselLetzte), ablage.double(forKey: schluesselVersuch))
         guard sekunden > 0 else { return true }
         return jetzt.timeIntervalSince(Date(timeIntervalSince1970: sekunden)) >= abstand
     }
@@ -82,9 +86,13 @@ enum Sicherungsdienst {
             lauf = await Task.detached(priority: .utility) {
                 schreibeSicherung(journal, jetzt: jetzt, behalte: behalte)
             }.value
-            // Auch bei fehlenden Bildern gilt der Lauf als erfolgt: Die Datenbank ist gesichert, und ein stündlicher
-            // Neuversuch würde mit jeder Sicherung eine ältere, vielleicht vollständige aus der Aufbewahrung drängen.
-            if lauf.erfolgreich { UserDefaults.standard.set(jetzt.timeIntervalSince1970, forKey: schluesselLetzte) }
+            // „Letzte Sicherung“ nur, wenn auch alle Bilder drin sind. Ein Lauf mit fehlenden Bildern merkt sich nur
+            // den Versuch: Ein stündlicher Neuversuch würde mit jeder Sicherung eine ältere, vielleicht vollständige
+            // aus der Aufbewahrung drängen; der nächste Versuch kommt deshalb erst nach einem Tag.
+            if lauf.erfolgreich {
+                UserDefaults.standard.set(jetzt.timeIntervalSince1970,
+                                          forKey: lauf.unvollstaendig ? schluesselVersuch : schluesselLetzte)
+            }
         } else {
             lauf = Sicherungslauf(erfolgreich: false, text: String(localized: "Sicherung: Journal nicht geöffnet"))
         }
@@ -122,7 +130,8 @@ enum Sicherungsdienst {
 
     /// Bewertet den Bilder-Spiegel nach einer gesicherten Datenbank: Jede Bilddatei, auf die die Datenbank zeigt,
     /// muss im Spiegel liegen. Fehlt sie dort, weil sie schon im Bilderordner fehlte oder das Kopieren scheiterte,
-    /// meldet der Stand die Anzahl statt „gesichert“. `verweise == nil`: Die Verweise ließen sich nicht lesen.
+    /// meldet der Stand die Anzahl statt „gesichert“; ebenso jeden anderen Lese- oder Kopierfehler.
+    /// `verweise == nil`: Die Verweise ließen sich nicht lesen.
     static func bewerte(sicherung name: String, kopiert: Kopierergebnis, verweise: Set<String>?,
                         spiegel: URL) -> Sicherungslauf {
         guard let verweise else {
@@ -133,6 +142,10 @@ enum Sicherungsdienst {
         guard fehlend == 0 else {
             return Sicherungslauf(erfolgreich: true, unvollstaendig: true,
                                   text: String(localized: "Sicherung unvollständig: \(name) gesichert, aber \(fehlend) Bilder fehlen darin."))
+        }
+        guard kopiert.fehlgeschlagen == 0 else {
+            return Sicherungslauf(erfolgreich: true, unvollstaendig: true,
+                                  text: String(localized: "Sicherung unvollständig: \(name) gesichert, aber \(kopiert.fehlgeschlagen) Bilddateien ließen sich nicht kopieren."))
         }
         return Sicherungslauf(erfolgreich: true, text: String(localized: "Sicherung: \(name), \(kopiert.neu) neue Bilder"))
     }
@@ -153,7 +166,7 @@ enum Sicherungsdienst {
         }
     }
 
-    /// Neu kopierte Dateien und Dateien, deren Kopie scheiterte.
+    /// Neu kopierte Dateien und Fehler: gescheiterte Kopien und Ordner, die sich nicht lesen ließen.
     struct Kopierergebnis: Equatable {
         var neu = 0
         var fehlgeschlagen = 0
@@ -174,10 +187,20 @@ enum Sicherungsdienst {
 
     static func kopiere(von quelle: URL, nach ziel: URL) -> Kopierergebnis {
         let dateisystem = FileManager.default
-        let monate = (try? dateisystem.contentsOfDirectory(at: quelle, includingPropertiesForKeys: nil)) ?? []
         var ergebnis = Kopierergebnis()
+        // Fehlt die Quelle ganz, gab es nie Bilder: kein Fehler.
+        guard dateisystem.fileExists(atPath: quelle.path) else { return ergebnis }
+        guard let monate = try? dateisystem.contentsOfDirectory(at: quelle, includingPropertiesForKeys: nil) else {
+            ergebnis.fehlgeschlagen += 1
+            return ergebnis
+        }
         for monat in monate {
-            let dateien = (try? dateisystem.contentsOfDirectory(at: monat, includingPropertiesForKeys: nil)) ?? []
+            var istOrdner: ObjCBool = false
+            guard dateisystem.fileExists(atPath: monat.path, isDirectory: &istOrdner), istOrdner.boolValue else { continue }
+            guard let dateien = try? dateisystem.contentsOfDirectory(at: monat, includingPropertiesForKeys: nil) else {
+                ergebnis.fehlgeschlagen += 1
+                continue
+            }
             for datei in dateien {
                 let relativ = "\(monat.lastPathComponent)/\(datei.lastPathComponent)"
                 guard Bildverweis.istGueltig(relativ) else { continue }
@@ -226,17 +249,34 @@ enum Sicherungsdienst {
             let spiegel = datei.deletingLastPathComponent()
                 .appending(path: bilderUnterordner, directoryHint: .isDirectory)
             let lesbar = (try? FileManager.default.contentsOfDirectory(at: spiegel, includingPropertiesForKeys: nil)) != nil
-            let bilder = (try? Bilderordner.ordner()).map { kopiereFehlende(von: spiegel, nach: $0) } ?? 0
+            let lokal = try? Bilderordner.ordner()
+            let kopiert = lokal.map { kopiere(von: spiegel, nach: $0) } ?? Kopierergebnis()
             Bilderordner.schuetzeBestand()
-            let ergebnis = String(localized: "Wiederhergestellt aus \(datei.lastPathComponent), \(bilder) Bilder zurückgeholt. Der vorherige Stand liegt in \(vorher.path).")
+            var ergebnis = String(localized: "Wiederhergestellt aus \(datei.lastPathComponent), \(kopiert.neu) Bilder zurückgeholt. Der vorherige Stand liegt in \(vorher.path).")
+            // Unvollständig, wenn die zurückgespielte Datenbank auf Bilder zeigt, die danach im Bilderordner fehlen,
+            // oder Lese- und Kopierfehler auftraten (Codex-Vollreview H3). Die Einstellungen heben das hervor.
+            let fehlend = lokal.flatMap { bilder in
+                (try? journal.bilddateien()).map { fehlendImSpiegel($0, spiegel: bilder) }
+            }
+            if let fehlend, fehlend > 0 {
+                ergebnis += " " + String(localized: "Unvollständig: \(fehlend) Bilder fehlen im Bilderordner.")
+            } else if fehlend == nil {
+                ergebnis += " " + String(localized: "Unvollständig: Die Bilder ließen sich nicht prüfen.")
+            } else if kopiert.fehlgeschlagen > 0 {
+                ergebnis += " " + String(localized: "Unvollständig: \(kopiert.fehlgeschlagen) Bilddateien ließen sich nicht zurückholen.")
+            }
+            let unvollstaendig = (fehlend ?? 1) > 0 || kopiert.fehlgeschlagen > 0
             // Fehlt der Ordner nur, weil es nie Bilder gab: kein Hinweis. Außerhalb des gemerkten Ordners ist er
             // in der Sandbox sicher gesperrt. „Vor Wiederherstellung“ liegt im Container und hat nie einen
             // Bilder-Spiegel, die Bilder sind dort ohnehin noch da (vierter Gegencheck H18).
             let pfad = datei.standardizedFileURL.path
             let imOrdner = ordner.map { pfad.hasPrefix($0.standardizedFileURL.path + "/") } ?? false
             let imContainer = (try? vorWiederherstellungOrdner()).map { pfad.hasPrefix($0.standardizedFileURL.path + "/") } ?? false
-            guard !lesbar, !imOrdner, !imContainer else { return ergebnis }
-            return ergebnis + " " + String(localized: "Der Ordner „Bilder“ neben der Sicherung war nicht lesbar. Liegt die Sicherung nicht im gewählten Sicherungsordner, diesen Ordner zuerst wählen und die Sicherung erneut einspielen, dann kommen die Screenshots mit.")
+            if !lesbar, !imOrdner, !imContainer {
+                ergebnis += " " + String(localized: "Der Ordner „Bilder“ neben der Sicherung war nicht lesbar. Liegt die Sicherung nicht im gewählten Sicherungsordner, diesen Ordner zuerst wählen und die Sicherung erneut einspielen, dann kommen die Screenshots mit.")
+            }
+            UserDefaults.standard.set(unvollstaendig ? ergebnis : "", forKey: schluesselWarnung)
+            return ergebnis
         }.value
     }
 
