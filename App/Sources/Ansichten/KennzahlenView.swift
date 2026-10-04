@@ -11,9 +11,12 @@ struct KennzahlenView: View {
         let kennzahlen = modell.kennzahlen
         let verlauf = modell.kapitalverlauf
         let waehrung = modell.summenwaehrung
-        let muster = modell.musterJeTrade
-        let mitRegelbruch = modell.angeglicheneTrades.filter { muster[$0.id] != nil }
-        let ohneRegelbruch = modell.angeglicheneTrades.filter { muster[$0.id] == nil }
+        // Regelverstöße wie in Disziplin und Monatsbericht, nicht Fehlermuster (Codex-Review B1). Gezählt über alle
+        // gefilterten Trades, auch ohne EZB-Kurs; die Beträge nur, wo es einen Kurs gibt.
+        let verletzt = modell.verletzteTrades
+        let anzahlRegelbruch = modell.trades.filter { verletzt.contains($0.id) }.count
+        let mitRegelbruch = modell.angeglicheneTrades.filter { verletzt.contains($0.id) }
+        let ohneRegelbruch = modell.angeglicheneTrades.filter { !verletzt.contains($0.id) }
         ScrollView {
             VStack(alignment: .leading, spacing: Abstand.kachelAbstand) {
                 Kopfzeile("Kennzahlen") {
@@ -60,7 +63,7 @@ struct KennzahlenView: View {
                                zusatz: String(localized: "Gewinnserie \(verlauf.laengsteGewinnserie)"))
                         Kachel(titel: "Ohne Regelbrüche",
                                wert: Format.geld(netto(ohneRegelbruch), waehrung),
-                               zusatz: String(localized: "\(mitRegelbruch.count) Trades mit Regelbruch: \(Format.geld(netto(mitRegelbruch), waehrung))"),
+                               zusatz: String(localized: "\(anzahlRegelbruch) Trades mit Regelbruch: \(Format.geld(netto(mitRegelbruch), waehrung))"),
                                farbe: thema.vorzeichen(netto(ohneRegelbruch)))
                         Kachel(titel: "Stop fehlt",
                                wert: "\(modell.ohneStop)",
