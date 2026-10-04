@@ -712,6 +712,26 @@
         }
       }
     },
+    "Sicherung unvollständig: %@ gesichert, aber %lld Bilder fehlen darin." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup incomplete: %@ saved, but %lld images are missing from it."
+          }
+        }
+      }
+    },
+    "Sicherung unvollständig: %@ gesichert, die Bilder ließen sich nicht prüfen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup incomplete: %@ saved, but the images could not be checked."
+          }
+        }
+      }
+    },
     "fallend" : {
       "localizations" : {
         "en" : {
