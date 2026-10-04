@@ -3,7 +3,7 @@ import Testing
 import TradingCore
 @testable import TradingStore
 
-/// Die pseudonymisierten GBE-Auszüge aus den TradingCore-Tests (nicht kopiert, nur gelesen).
+/// Die erfundenen Beispielauszüge aus den TradingCore-Tests (nicht kopiert, nur gelesen).
 private func datei(_ name: String) throws -> Data {
     let url = URL(fileURLWithPath: #filePath)
         .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
@@ -13,9 +13,9 @@ private func datei(_ name: String) throws -> Data {
 }
 
 private let alleDateien = [
-    "gbe-2025-05-14-daily", "gbe-2025-05-18-daily", "gbe-2025-05-22-daily", "gbe-2025-05-25-daily",
-    "gbe-2025-05-31-monthly", "gbe-2025-06-02-daily", "gbe-2025-06-04-daily", "gbe-2025-06-05-daily",
-    "gbe-2025-06-06-daily", "gbe-2025-06-07-daily",
+    "beispiel-2026-05-13-daily", "beispiel-2026-05-17-daily", "beispiel-2026-05-21-daily", "beispiel-2026-05-24-daily",
+    "beispiel-2026-05-31-monthly", "beispiel-2026-06-01-daily", "beispiel-2026-06-03-daily", "beispiel-2026-06-04-daily",
+    "beispiel-2026-06-05-daily", "beispiel-2026-06-06-daily",
 ]
 
 private let utc = TimeZone(secondsFromGMT: 0)!
@@ -49,7 +49,7 @@ private let alleMigrationen = ["v1 Konten, Importe, MT4-Auszüge", "v2 Journal j
     let pfad = ordner.appendingPathComponent("journal.sqlite").path
 
     let erstes = try Journal(pfad: pfad)
-    try importiere(erstes, "gbe-2025-06-04-daily")
+    try importiere(erstes, "beispiel-2026-06-03-daily")
     #expect(try erstes.angewandteMigrationen() == alleMigrationen)
 
     // Zweites Öffnen derselben Datei: keine Migration läuft doppelt, Daten bleiben.
@@ -60,25 +60,25 @@ private let alleMigrationen = ["v1 Konten, Importe, MT4-Auszüge", "v2 Journal j
 
 @Test func gleicheDateiZweimalErgibtKeineDubletten() throws {
     let journal = try Journal.imSpeicher()
-    let erster = try importiere(journal, "gbe-2025-05-31-monthly")
+    let erster = try importiere(journal, "beispiel-2026-05-31-monthly")
     #expect(erster.status == .gespeichert)
-    #expect(erster.geschlosseneNeu == 83)
-    #expect(erster.geloeschteNeu == 57)
+    #expect(erster.geschlosseneNeu == 110)
+    #expect(erster.geloeschteNeu == 68)
 
-    let zweiter = try importiere(journal, "gbe-2025-05-31-monthly")
+    let zweiter = try importiere(journal, "beispiel-2026-05-31-monthly")
     #expect(zweiter.status == .dateiBereitsImportiert)
     #expect(zweiter.importlaufId == erster.importlaufId)
 
     let konto = try nurKonto(journal)
     #expect(try journal.importe(konto: konto).count == 1)
-    #expect(try journal.geschlossenePositionen(konto: konto).count == 83)
-    #expect(try journal.geloeschteOrders(konto: konto).count == 57)
-    #expect(netto(try journal.geschlossenePositionen(konto: konto)) == d("7.14"))
+    #expect(try journal.geschlossenePositionen(konto: konto).count == 110)
+    #expect(try journal.geloeschteOrders(konto: konto).count == 68)
+    #expect(netto(try journal.geschlossenePositionen(konto: konto)) == d("46.33"))
 }
 
-/// Sollwerte unabhängig vom Swift-Code mit Python aus den zehn Dateien gezählt (01.10.2026):
-/// 109 geschlossene Zeilen, davon 104 verschiedene Tickets; 83 gelöschte Orders, davon 79 verschiedene;
-/// Netto über alle Tickets 14.29 (Mai 7.14, Juni 7.15); keine abweichenden Doppelten.
+/// Sollwerte unabhängig vom Swift-Code mit Python aus den zehn Dateien gezählt (04.10.2026):
+/// 132 geschlossene Zeilen, davon 127 verschiedene Tickets; 92 gelöschte Orders, davon 88 verschiedene;
+/// Netto über alle Tickets 63.87 (Mai 46.33, Juni 17.54); keine abweichenden Doppelten.
 @Test func tagesUndMonatsauszuegeUeberschneidenSichOhneDubletten() throws {
     let journal = try Journal.imSpeicher()
     var bekannt = 0
@@ -87,11 +87,11 @@ private let alleMigrationen = ["v1 Konten, Importe, MT4-Auszüge", "v2 Journal j
     }
     let konto = try nurKonto(journal)
     let geschlossen = try journal.geschlossenePositionen(konto: konto)
-    #expect(geschlossen.count == 104)
-    #expect(Set(geschlossen.map(\.ticket)).count == 104)
+    #expect(geschlossen.count == 127)
+    #expect(Set(geschlossen.map(\.ticket)).count == 127)
     #expect(bekannt == 5)
-    #expect(try journal.geloeschteOrders(konto: konto).count == 79)
-    #expect(netto(geschlossen) == d("14.29"))
+    #expect(try journal.geloeschteOrders(konto: konto).count == 88)
+    #expect(netto(geschlossen) == d("63.87"))
     #expect(try journal.importe(konto: konto).count == 10)
 
     // Reihenfolge egal: Monatsauszug zuletzt ergibt denselben Bestand.
@@ -106,21 +106,21 @@ private let alleMigrationen = ["v1 Konten, Importe, MT4-Auszüge", "v2 Journal j
     let konto = try nurKonto(journal)
     let iso = ISO8601DateFormatter()
     let juni = try journal.geschlossenePositionen(konto: konto,
-                                                  von: iso.date(from: "2025-06-01T00:00:00Z"),
-                                                  bis: iso.date(from: "2025-07-01T00:00:00Z"))
-    #expect(juni.count == 21)
-    #expect(netto(juni) == d("7.15"))
+                                                  von: iso.date(from: "2026-06-01T00:00:00Z"),
+                                                  bis: iso.date(from: "2026-07-01T00:00:00Z"))
+    #expect(juni.count == 17)
+    #expect(netto(juni) == d("17.54"))
 }
 
 @Test func werteKommenUnveraendertZurueck() throws {
     let journal = try Journal.imSpeicher()
     let zeitzone = TimeZone(secondsFromGMT: 3 * 3600)!
-    try importiere(journal, "gbe-2025-05-14-daily", zeitzone: zeitzone)
-    let original = try MT4Statement.parse(html: String(decoding: datei("gbe-2025-05-14-daily"), as: UTF8.self),
+    try importiere(journal, "beispiel-2026-05-13-daily", zeitzone: zeitzone)
+    let original = try MT4Statement.parse(html: String(decoding: datei("beispiel-2026-05-13-daily"), as: UTF8.self),
                                           serverZeitzone: zeitzone)
     let konto = try nurKonto(journal)
-    #expect(konto.broker == "GBE brokers Ltd.")
-    #expect(konto.kontonummer == "100001")
+    #expect(konto.broker == "Beispiel Broker Ltd.")
+    #expect(konto.kontonummer == "12345678")
     #expect(konto.waehrung == "EUR")
 
     // Decimal und Zeiten überstehen den Weg durch SQLite exakt.
@@ -136,14 +136,14 @@ private let alleMigrationen = ["v1 Konten, Importe, MT4-Auszüge", "v2 Journal j
     #expect(TimeZone(identifier: lauf.serverZeitzone)?.secondsFromGMT() == 3 * 3600)
     #expect(lauf.art == "daily")
     #expect(lauf.importerVersion == TradingCore.version)
-    #expect(lauf.dateiHash == Journal.fingerabdruck(try datei("gbe-2025-05-14-daily")))
-    #expect(lauf.datei == (try datei("gbe-2025-05-14-daily")))
+    #expect(lauf.dateiHash == Journal.fingerabdruck(try datei("beispiel-2026-05-13-daily")))
+    #expect(lauf.datei == (try datei("beispiel-2026-05-13-daily")))
     #expect(try journal.kontostand(importlauf: lauf) == original.summary)
 }
 
 @Test func offenePositionenSindMomentaufnahmeJeAuszug() throws {
     let journal = try Journal.imSpeicher()
-    for name in ["gbe-2025-05-18-daily", "gbe-2025-05-22-daily", "gbe-2025-05-25-daily"] {
+    for name in ["beispiel-2026-05-17-daily", "beispiel-2026-05-21-daily", "beispiel-2026-05-24-daily"] {
         try importiere(journal, name)
     }
     let konto = try nurKonto(journal)
@@ -154,28 +154,28 @@ private let alleMigrationen = ["v1 Konten, Importe, MT4-Auszüge", "v2 Journal j
     let floating = try laeufe.map { lauf in
         try journal.offenePositionen(importlauf: lauf).reduce(Decimal(0)) { $0 + $1.netProfit }
     }
-    #expect(floating == [d("-4.89"), d("0.06"), d("1.01")])
-    #expect(try journal.kontostand(importlauf: laeufe[2])?.floatingPL == d("1.01"))
+    #expect(floating == [d("-5.62"), d("0.01"), d("1.06")])
+    #expect(try journal.kontostand(importlauf: laeufe[2])?.floatingPL == d("1.06"))
     #expect(try laeufe.map { try journal.offenePositionen(importlauf: $0).map(\.ticket) }
-            == [["90000127"], ["90000130"], ["90000130"]])
-    #expect(try journal.geschlossenePositionen(konto: konto).map(\.ticket) == ["90000128"])
+            == [["51774074"], ["51775217"], ["51775217"]])
+    #expect(try journal.geschlossenePositionen(konto: konto).map(\.ticket) == ["51774918"])
 }
 
 @Test func offenePositionenDesLetztenAuszugs() throws {
     let journal = try Journal.imSpeicher()
     // Absichtlich nicht in Datumsfolge importiert: Maßgeblich ist der Stichtag, nicht die Reihenfolge.
-    for name in ["gbe-2025-05-25-daily", "gbe-2025-05-18-daily", "gbe-2025-05-22-daily"] {
+    for name in ["beispiel-2026-05-24-daily", "beispiel-2026-05-17-daily", "beispiel-2026-05-21-daily"] {
         try importiere(journal, name)
     }
     let konto = try nurKonto(journal)
     let letzter = try #require(try journal.offenePositionenLetzterAuszug(konto: konto))
     let laeufe = try journal.importe(konto: konto)
     #expect(letzter.importlauf == laeufe.last)
-    #expect(letzter.importlauf.dateiname == "gbe-2025-05-25-daily.html")
-    // Sollwert wie in offenePositionenSindMomentaufnahmeJeAuszug: am 25.05. offen 90000130, Floating 1.01.
-    #expect(letzter.positionen.map(\.ticket) == ["90000130"])
+    #expect(letzter.importlauf.dateiname == "beispiel-2026-05-24-daily.html")
+    // Sollwert wie in offenePositionenSindMomentaufnahmeJeAuszug: am 24.05. offen 51775217, Floating 1.06.
+    #expect(letzter.positionen.map(\.ticket) == ["51775217"])
     let floating: Decimal = letzter.positionen.reduce(0) { $0 + $1.netProfit }
-    #expect(floating == d("1.01"))
+    #expect(floating == d("1.06"))
 
     // Konto ohne MT4-Auszug: keine Angabe statt einer leeren Liste.
     let ohne = try journal.schreibe {
@@ -186,17 +186,17 @@ private let alleMigrationen = ["v1 Konten, Importe, MT4-Auszüge", "v2 Journal j
 
 @Test func abweichenderDoppelterBrichtAbUndAendertNichts() throws {
     let journal = try Journal.imSpeicher()
-    try importiere(journal, "gbe-2025-05-31-monthly")
+    try importiere(journal, "beispiel-2026-05-31-monthly")
 
     // Derselbe Tagesauszug mit einer geänderten Zeile: gleiches Ticket, anderer Schlusskurs.
     // Kursergebnis bleibt, damit die Summenprüfung des Auszugs nicht schon vorher anschlägt.
-    let original = String(decoding: try datei("gbe-2025-05-14-daily"), as: UTF8.self)
-    let geaendert = original.replacingOccurrences(of: "<td>0.59880</td>", with: "<td>0.59881</td>")
+    let original = String(decoding: try datei("beispiel-2026-05-13-daily"), as: UTF8.self)
+    let geaendert = original.replacingOccurrences(of: "<td>0.65845</td>", with: "<td>0.65846</td>")
     #expect(geaendert != original)
 
     let konto = try nurKonto(journal)
     let vorher = try journal.geschlossenePositionen(konto: konto)
-    #expect(throws: SpeicherFehler.abweichenderDatensatz(tickets: ["90000099"])) {
+    #expect(throws: SpeicherFehler.abweichenderDatensatz(tickets: ["51756927"])) {
         try journal.importiereMT4(datei: Data(geaendert.utf8), dateiname: "geaendert.html", serverZeitzone: utc)
     }
     // Transaktion zurückgerollt: kein neuer Import, keine neuen Positionen.
@@ -206,27 +206,27 @@ private let alleMigrationen = ["v1 Konten, Importe, MT4-Auszüge", "v2 Journal j
 
 @Test func andereZeitzoneFuerDasselbeKontoFaelltAuf() throws {
     let journal = try Journal.imSpeicher()
-    try importiere(journal, "gbe-2025-05-31-monthly", zeitzone: TimeZone(secondsFromGMT: 3 * 3600)!)
+    try importiere(journal, "beispiel-2026-05-31-monthly", zeitzone: TimeZone(secondsFromGMT: 3 * 3600)!)
     // Der Tagesauszug enthält Tickets aus dem Monatsauszug; mit anderer Zeitzone
     // ergeben sie andere UTC-Zeiten und gelten deshalb als abweichend.
     #expect(throws: SpeicherFehler.self) {
-        try importiere(journal, "gbe-2025-05-14-daily", zeitzone: utc)
+        try importiere(journal, "beispiel-2026-05-13-daily", zeitzone: utc)
     }
 }
 
 @Test func andereKontowaehrungWirdAbgelehnt() throws {
     let journal = try Journal.imSpeicher()
-    try importiere(journal, "gbe-2025-05-14-daily", waehrung: "EUR")
+    try importiere(journal, "beispiel-2026-05-13-daily", waehrung: "EUR")
     #expect(throws: SpeicherFehler.andereKontowaehrung(gespeichert: "EUR", angegeben: "USD")) {
-        try importiere(journal, "gbe-2025-06-02-daily", waehrung: "USD")
+        try importiere(journal, "beispiel-2026-06-01-daily", waehrung: "USD")
     }
     #expect(try journal.importe(konto: nurKonto(journal)).count == 1)
 }
 
 @Test func auszugMitFalscherSummeWirdNichtGespeichert() throws {
     let journal = try Journal.imSpeicher()
-    let text = String(decoding: try datei("gbe-2025-05-14-daily"), as: UTF8.self)
-        .replacingOccurrences(of: "<td>-5.13</td>", with: "<td>-5.14</td>")
+    let text = String(decoding: try datei("beispiel-2026-05-13-daily"), as: UTF8.self)
+        .replacingOccurrences(of: "<td>-5.39</td>", with: "<td>-5.40</td>")
     #expect(throws: SpeicherFehler.self) {
         try journal.importiereMT4(datei: Data(text.utf8), dateiname: "falsch.html", serverZeitzone: utc)
     }

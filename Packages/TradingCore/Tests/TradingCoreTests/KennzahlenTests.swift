@@ -78,7 +78,7 @@ let handTrades: [Trade] = [
 }
 
 @Test func stornoquote() {
-    #expect(Kennzahlen.stornoquote(ausgefuehrt: 83, geloescht: 57)?.gerundet(4) == d("0.4071"))
+    #expect(Kennzahlen.stornoquote(ausgefuehrt: 110, geloescht: 68)?.gerundet(4) == d("0.3820"))
     #expect(Kennzahlen.stornoquote(ausgefuehrt: 0, geloescht: 0) == nil)
 }
 
@@ -102,30 +102,30 @@ private func netto(_ gruppen: [Gruppe]) -> [String: Decimal] {
     #expect(a(handTrades, .wochentag, westen).last?.schluessel == "7")
 }
 
-/// Echter Monat (GBE, Mai 2025). Sollwerte unabhängig mit Python gerechnet (01.10.2026).
-@Test func kennzahlenGBEMai2025() throws {
+/// Erfundener Beispielauszug (Mai 2026). Sollwerte unabhängig mit Python gerechnet (04.10.2026).
+@Test func kennzahlenBeispielMai2026() throws {
     let url = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
-        .appendingPathComponent("Fixtures/MT4/gbe-2025-05-31-monthly.html")
+        .appendingPathComponent("Fixtures/MT4/beispiel-2026-05-31-monthly.html")
     let auszug = try MT4Statement.parse(html: String(contentsOf: url, encoding: .utf8),
                                         serverZeitzone: TimeZone(secondsFromGMT: 3 * 3600)!)
     let trades = auszug.closedPositions.map { Trade($0) }
     let k = Kennzahlen(trades: trades)
-    #expect(k.anzahl == 83 && k.gewinner == 54 && k.verlierer == 29)
-    #expect(k.netto == d("7.14") && k.brutto == d("12.73") && k.kosten == d("-5.59"))
-    #expect(k.kostenquote?.gerundet(4) == d("0.0423"))
-    #expect(k.trefferquote?.gerundet(4) == d("0.6506"))
-    #expect(k.payoff?.gerundet(4) == d("0.5685"))
-    #expect(k.profitfaktor?.gerundet(4) == d("1.0587"))
-    #expect(k.erwartungswert?.gerundet(4) == d("0.0860"))
-    #expect(k.anzahlMitR == 83)
-    #expect(k.erwartungswertR?.gerundet(4) == d("-0.0398"))
+    #expect(k.anzahl == 110 && k.gewinner == 79 && k.verlierer == 31)
+    #expect(k.netto == d("46.33") && k.brutto == d("55.83") && k.kosten == d("-9.50"))
+    #expect(k.kostenquote?.gerundet(4) == d("0.0397"))
+    #expect(k.trefferquote?.gerundet(4) == d("0.7182"))
+    #expect(k.payoff?.gerundet(4) == d("0.4898"))
+    #expect(k.profitfaktor?.gerundet(4) == d("1.2483"))
+    #expect(k.erwartungswert?.gerundet(4) == d("0.4212"))
+    #expect(k.anzahlMitR == 110)
+    #expect(k.erwartungswertR?.gerundet(4) == d("0.0186"))
     #expect(k.genugDaten)
 
     let v = Kapitalverlauf(trades: trades, startkapital: auszug.summary.balance - auszug.closedTradePL)
-    #expect(v.punkte.last == d("568.63"))
-    #expect(v.maxDrawdown == d("37.20"))
-    #expect(v.maxDrawdownProzent?.gerundet(4) == d("0.0653"))
-    #expect(v.laengsteGewinnserie == 8 && v.laengsteVerlustserie == 4)
+    #expect(v.punkte.last == d("1233.73"))
+    #expect(v.maxDrawdown == d("40.57"))
+    #expect(v.maxDrawdownProzent?.gerundet(4) == d("0.0339"))
+    #expect(v.laengsteGewinnserie == 8 && v.laengsteVerlustserie == 3)
     #expect(Kennzahlen.aufschluesseln(trades, nach: .symbol, zeitzone: .init(secondsFromGMT: 0)!)
-        .first { $0.schluessel == "de40.c" }?.kennzahlen.anzahl == 30)
+        .first { $0.schluessel == "ger40.cash" }?.kennzahlen.anzahl == 20)
 }

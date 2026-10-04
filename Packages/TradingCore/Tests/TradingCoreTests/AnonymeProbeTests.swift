@@ -82,7 +82,7 @@ private let berlin = TimeZone(identifier: "Europe/Berlin")!
 }
 
 @Test func metaTraderNameUndKonto() throws {
-    let html = try fixture("MT4/gbe-2025-05-31-monthly.html")
+    let html = try fixture("MT4/beispiel-2026-05-31-monthly.html")
     let zone = TimeZone(secondsFromGMT: 3 * 3600)!
     let soll = try MT4Statement.parse(html: html, serverZeitzone: zone)
     let probe = AnonymeProbe.erstelle(html).text
