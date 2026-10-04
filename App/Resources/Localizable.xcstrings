@@ -96,6 +96,16 @@
         }
       }
     },
+    "%lld Bilder zurückgeholt." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld images recovered."
+          }
+        }
+      }
+    },
     "%lld Dateien importiert, zuletzt %@" : {
       "localizations" : {
         "de" : {
@@ -148,6 +158,16 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "%lld Konten, %lld geschlossene Positionen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld accounts, %lld closed positions"
           }
         }
       }
@@ -282,6 +302,16 @@
         }
       }
     },
+    "Beide Wege benennen die alte Datei nur um; gelöscht wird nichts." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Both options only rename the old file; nothing is deleted."
+          }
+        }
+      }
+    },
     "Beispiel-Trades haben erfundene Preise; eine Ausstiegsanalyse gegen echte Kurse ergibt hier keinen Sinn." : {
       "localizations" : {
         "en" : {
@@ -392,6 +422,16 @@
         }
       }
     },
+    "Bitte die neuere App-Version verwenden. Die Datei ist in Ordnung; diese Version kennt nur ihren Aufbau noch nicht." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please use the newer app version. The file is fine; this version just doesn't know its structure yet."
+          }
+        }
+      }
+    },
     "Bitte vor dem Weitergeben ansehen, Freitext kann weitere Angaben enthalten." : {
       "localizations" : {
         "en" : {
@@ -442,6 +482,16 @@
         }
       }
     },
+    "Das Journal lässt sich nicht öffnen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The journal can't be opened"
+          }
+        }
+      }
+    },
     "Datei importieren" : {
       "localizations" : {
         "en" : {
@@ -488,6 +538,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "The “Bilder” folder next to the backup could not be read. If the backup is not in the chosen backup folder, choose that folder first and restore the backup again; the screenshots will then come along."
+          }
+        }
+      }
+    },
+    "Die alte Datei bleibt umbenannt liegen. Trades, Journal und Regeln beginnen leer." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The old file stays in place under a new name. Trades, journal and rules start empty."
+          }
+        }
+      }
+    },
+    "Die alte Datei ist gültig und bleibt umbenannt liegen. Mit der neueren App-Version lässt sie sich später wieder öffnen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The old file is valid and stays in place under a new name. The newer app version can open it again later."
+          }
+        }
+      }
+    },
+    "Die alte Datei liegt unter %@." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The old file is at %@."
           }
         }
       }
@@ -862,6 +942,16 @@
         }
       }
     },
+    "Im Finder zeigen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show in Finder"
+          }
+        }
+      }
+    },
     "Importiere einen Kontoauszug, dann erscheinen hier deine Trades." : {
       "localizations" : {
         "en" : {
@@ -912,12 +1002,32 @@
         }
       }
     },
+    "Journal wieder bereit" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Journal Ready Again"
+          }
+        }
+      }
+    },
     "Kein Trade passt zu Suche oder Filter" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "No trade matches the search or filter"
+          }
+        }
+      }
+    },
+    "Keine brauchbare Sicherung im Sicherungsordner gefunden." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No usable backup found in the backup folder."
           }
         }
       }
@@ -942,6 +1052,36 @@
         }
       }
     },
+    "Letzte Sicherung zurückspielen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restore Latest Backup"
+          }
+        }
+      }
+    },
+    "Letzte Sicherung: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Latest backup: %@"
+          }
+        }
+      }
+    },
+    "Letzter Trade darin: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Latest trade in it: %@"
+          }
+        }
+      }
+    },
     "Läuft die Frist ohne Abhaken ab, setzt Henry das Ziel beim nächsten Start auf „Verfehlt“ (Frist abgelaufen, nicht als erreicht abgehakt). „Erreicht“ und „Verfehlt“ fragen nach dem Ergebnis in einem Satz; Wiederöffnen bleibt im Menü möglich." : {
       "localizations" : {
         "en" : {
@@ -962,12 +1102,42 @@
         }
       }
     },
+    "Mit einem leeren Journal beginnen?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start with an empty journal?"
+          }
+        }
+      }
+    },
     "Nach Updates suchen" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Check for updates"
+          }
+        }
+      }
+    },
+    "Neu beginnen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start Over"
+          }
+        }
+      }
+    },
+    "Neues, leeres Journal angelegt." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New, empty journal created."
           }
         }
       }
@@ -1008,6 +1178,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pullback"
+          }
+        }
+      }
+    },
+    "Sicherung wird gesucht …" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Looking for a backup …"
+          }
+        }
+      }
+    },
+    "Sicherung „%@“ zurückgespielt." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup “%@” restored."
           }
         }
       }
