@@ -42,18 +42,20 @@ public struct Anfrage: Sendable {
         var (waehrung, andere) = try waehleWaehrung(argumente["waehrung"], konto)
         var umgerechnet: [String: Int] = [:]
         let wunsch = argumente["waehrung"]?.trimmingCharacters(in: .whitespaces) ?? ""
-        if wunsch.isEmpty, let kurse = export.angleichskurse, konto.trades.contains(where: {
+        // Ohne Kurse in der Datei gleicht sie trotzdem an, wenn sie in der Kontowährung rechnet: Gleichgesetztes
+        // (USDT wie USD) zählt wie in App und Bericht mit, statt einmal in den Summen und einmal als „ohne Kurs“.
+        if wunsch.isEmpty, export.angleichskurse != nil || waehrung == kontowaehrung, konto.trades.contains(where: {
             $0.waehrung(kontowaehrung: kontowaehrung) != kontowaehrung
         }) {
             // Kurstag in deutscher Zeit wie in App und Bericht (Dritter Gegencheck G6).
-            let angleich = Waehrungsangleich(konto.trades, kontowaehrung: kontowaehrung, kurse: kurse)
+            let angleich = Waehrungsangleich(konto.trades, kontowaehrung: kontowaehrung, kurse: export.angleichskurse)
             for t in konto.trades where angleich.umgerechnet.contains(t.id) {
                 umgerechnet[t.waehrung(kontowaehrung: kontowaehrung), default: 0] += 1
             }
             andere = Dictionary(grouping: angleich.ohneKurs) { $0.waehrung(kontowaehrung: kontowaehrung) }
             waehrung = kontowaehrung
             konto.trades = angleich.trades
-            angleichskurse = kurse
+            angleichskurse = export.angleichskurse
         } else {
             konto.trades = konto.trades.filter { $0.waehrung(kontowaehrung: kontowaehrung) == waehrung }
         }
