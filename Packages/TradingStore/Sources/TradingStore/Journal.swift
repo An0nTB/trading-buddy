@@ -50,8 +50,12 @@ public final class Journal: Sendable {
     let db: any DatabaseWriter
 
     /// Öffnet die Datenbank an diesem Pfad oder legt sie an und bringt sie auf den neuesten Aufbau.
+    ///
+    /// Vorher prüft es die Datei (`PRAGMA quick_check`) und ihren Migrationsstand. Eine beschädigte Datei
+    /// oder eine aus einer neueren App-Version wird nicht verändert; es kommt `JournalFehler.beschaedigt`
+    /// bzw. `.ausNeuererVersion`. Weiter geht es mit `legeBeiseite` oder `oeffneAusSicherung` (Doc 11).
     public convenience init(pfad: String) throws {
-        try self.init(writer: DatabaseQueue(path: pfad))
+        try self.init(writer: Self.gemeldet { try DatabaseQueue(path: pfad) })
     }
 
     /// Datenbank nur im Arbeitsspeicher, für Tests.
@@ -61,15 +65,28 @@ public final class Journal: Sendable {
 
     private init(writer: any DatabaseWriter) throws {
         db = writer
-        try Schema.migrator.migrate(db)
+        try Self.gemeldet {
+            try writer.read { db in
+                let pruefung = try String.fetchAll(db, sql: "PRAGMA quick_check")
+                guard pruefung == ["ok"] else {
+                    throw JournalFehler.beschaedigt(pruefung.prefix(3).joined(separator: "; "))
+                }
+                guard try db.tableExists("grdb_migrations") else { return }
+                let bekannt = Schema.migrator.migrations
+                let unbekannt = try String.fetchAll(db, sql: "SELECT identifier FROM grdb_migrations")
+                    .filter { !bekannt.contains($0) }
+                guard unbekannt.isEmpty else { throw JournalFehler.ausNeuererVersion(unbekannt) }
+            }
+            try Schema.migrator.migrate(writer)
+        }
     }
 
-    func lies<T>(_ arbeit: (Database) throws -> T) throws -> T { try db.read(arbeit) }
-    func schreibe<T>(_ arbeit: (Database) throws -> T) throws -> T { try db.write(arbeit) }
+    func lies<T>(_ arbeit: (Database) throws -> T) throws -> T { try Self.gemeldet { try db.read(arbeit) } }
+    func schreibe<T>(_ arbeit: (Database) throws -> T) throws -> T { try Self.gemeldet { try db.write(arbeit) } }
 
     /// Namen der Migrationen, die in dieser Datenbank gelaufen sind.
     public func angewandteMigrationen() throws -> [String] {
-        try db.read { try Schema.migrator.appliedMigrations($0) }
+        try lies { try Schema.migrator.appliedMigrations($0) }
     }
 
     // MARK: Import
@@ -91,7 +108,7 @@ public final class Journal: Sendable {
                               kontowaehrung: String = "EUR",
                               jetzt: Date = Date()) throws -> ImportErgebnis {
         let hash = Self.fingerabdruck(datei)
-        if let bekannt = try db.read({ try Importlauf.filter(Column("dateiHash") == hash).fetchOne($0) }) {
+        if let bekannt = try lies({ try Importlauf.filter(Column("dateiHash") == hash).fetchOne($0) }) {
             return ImportErgebnis(status: .dateiBereitsImportiert, importlaufId: bekannt.id!)
         }
 
@@ -102,7 +119,7 @@ public final class Journal: Sendable {
             throw SpeicherFehler.auszugWidersprichtSeinenSummen(abweichungen.map(\.description))
         }
 
-        return try db.write { db in
+        return try schreibe { db in
             // Erneut prüfen, falls dieselbe Datei inzwischen parallel importiert wurde.
             if let bekannt = try Importlauf.filter(Column("dateiHash") == hash).fetchOne(db) {
                 return ImportErgebnis(status: .dateiBereitsImportiert, importlaufId: bekannt.id!)
@@ -200,12 +217,12 @@ public final class Journal: Sendable {
     // MARK: Abfragen
 
     public func konten() throws -> [Konto] {
-        try db.read { try Konto.order(Column("id")).fetchAll($0) }
+        try lies { try Konto.order(Column("id")).fetchAll($0) }
     }
 
     /// Alle Importe eines Kontos, ältester Stichtag zuerst.
     public func importe(konto: Konto) throws -> [Importlauf] {
-        try db.read {
+        try lies {
             try Importlauf.filter(Column("kontoId") == konto.id!)
                 .order(Column("stichtag"), Column("id")).fetchAll($0)
         }
@@ -214,7 +231,7 @@ public final class Journal: Sendable {
     /// Geschlossene Positionen eines Kontos, je Ticket einmal, nach Schließzeit sortiert.
     /// `von` und `bis` begrenzen die Schließzeit (von einschließlich, bis ausschließlich).
     public func geschlossenePositionen(konto: Konto, von: Date? = nil, bis: Date? = nil) throws -> [ClosedPosition] {
-        try db.read { db in
+        try lies { db in
             var anfrage = GeschlossenZeile.filter(Column("kontoId") == konto.id!)
             if let von { anfrage = anfrage.filter(Column("closeTime") >= von) }
             if let bis { anfrage = anfrage.filter(Column("closeTime") < bis) }
@@ -224,7 +241,7 @@ public final class Journal: Sendable {
 
     /// Gelöschte Pending Orders eines Kontos, je Ticket einmal.
     public func geloeschteOrders(konto: Konto) throws -> [CancelledOrder] {
-        try db.read { db in
+        try lies { db in
             try GeloeschtZeile.filter(Column("kontoId") == konto.id!)
                 .order(Column("cancelledAt"), Column("ticket")).fetchAll(db).map { try $0.modell() }
         }
@@ -232,12 +249,12 @@ public final class Journal: Sendable {
 
     /// Kontoübersicht aus einem Import.
     public func kontostand(importlauf: Importlauf) throws -> AccountSummary? {
-        try db.read { try KontostandZeile.fetchOne($0, key: importlauf.id!)?.modell }
+        try lies { try KontostandZeile.fetchOne($0, key: importlauf.id!)?.modell }
     }
 
     /// Offene Positionen laut einem Import (Momentaufnahme zum Stichtag dieses Auszugs).
     public func offenePositionen(importlauf: Importlauf) throws -> [OpenPosition] {
-        try db.read { db in
+        try lies { db in
             try OffenZeile.filter(Column("importlaufId") == importlauf.id!)
                 .order(Column("ticket")).fetchAll(db).map { try $0.modell() }
         }
@@ -248,7 +265,7 @@ public final class Journal: Sendable {
     /// `nil`: Für das Konto gibt es keinen MT4-Auszug (andere Importer liefern keine offenen Positionen).
     public func offenePositionenLetzterAuszug(konto: Konto) throws
         -> (importlauf: Importlauf, positionen: [OpenPosition])? {
-        try db.read { db in
+        try lies { db in
             guard let lauf = try Importlauf
                 .filter(Column("kontoId") == konto.id! && Column("importer") == Self.mt4Importer)
                 .order(Column("stichtag").desc, Column("id").desc).fetchOne(db)
@@ -261,7 +278,7 @@ public final class Journal: Sendable {
 
     /// Wartende Orders laut einem Import.
     public func wartendeOrders(importlauf: Importlauf) throws -> [WorkingOrder] {
-        try db.read { db in
+        try lies { db in
             try WartendZeile.filter(Column("importlaufId") == importlauf.id!)
                 .order(Column("ticket")).fetchAll(db).map { try $0.modell() }
         }
