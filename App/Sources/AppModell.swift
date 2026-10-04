@@ -441,11 +441,14 @@ final class AppModell {
     /// Offene Ziele, frühester Beginn zuerst.
     var offeneZiele: [Reviewziel] { ziele.filter { $0.status == .offen } }
 
-    /// Legt ein Ziel für das gewählte Konto an; die Speicherung lehnt leeren Text und einen Zeitraum ohne Dauer ab.
-    func legeZielAn(_ ziel: Reviewziel) throws {
-        guard let journal, let konto else { throw Zielfehler.keinKonto }
-        try journal.legeZielAn(ziel, konto: konto)
-        ziele = try journal.ziele(konto: konto)
+    /// Legt ein Ziel an, ohne `konto` für das gewählte Konto; die Speicherung lehnt leeren Text und einen Zeitraum
+    /// ohne Dauer ab. Ein Entwurf merkt sich sein Konto: Nach einem Kontowechsel landet das Ziel trotzdem dort
+    /// (Codex-Review 04.10.2026, M5), die Liste des gerade gewählten Kontos bleibt unberührt.
+    func legeZielAn(_ ziel: Reviewziel, konto kontoId: Int64? = nil) throws {
+        let zielkonto = kontoId == nil ? konto : konten.first { $0.id == kontoId }
+        guard let journal, let zielkonto else { throw Zielfehler.keinKonto }
+        try journal.legeZielAn(ziel, konto: zielkonto)
+        if zielkonto.id == konto?.id { ziele = try journal.ziele(konto: zielkonto) }
         exportiere()
     }
 
