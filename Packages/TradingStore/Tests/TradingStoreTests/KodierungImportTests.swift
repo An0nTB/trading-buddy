@@ -3,7 +3,7 @@ import Testing
 import TradingCore
 @testable import TradingStore
 
-/// Testdateien aus den TradingCore-Tests (synthetisch oder pseudonymisiert, nur gelesen).
+/// Testdateien aus den TradingCore-Tests (synthetisch oder erfunden, nur gelesen).
 private func kern(_ pfad: String) throws -> String {
     let url = URL(fileURLWithPath: #filePath)
         .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
@@ -54,7 +54,7 @@ private func utf16LE(_ text: String) -> Data {
 }
 
 @Test func mt4AuszugInUtf16UndBinaerdatei() throws {
-    let html = try kern("MT4/gbe-2025-05-14-daily.html")
+    let html = try kern("MT4/beispiel-2026-05-13-daily.html")
     let utc = TimeZone(secondsFromGMT: 0)!
     let journal = try Journal.imSpeicher()
     let erster = try journal.importiereMT4(datei: utf16LE(html), dateiname: "a-utf16.html", serverZeitzone: utc)

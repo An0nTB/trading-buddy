@@ -8,9 +8,9 @@ import TradingCore
 private let berlin = TimeZone(identifier: "Europe/Berlin")!
 private func zeit(_ text: String) -> Date { ISO8601DateFormatter().date(from: text)! }
 
-private func gbeExport() throws -> JournalExport {
+private func beispielExport() throws -> JournalExport {
     let url = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
-        .appending(path: "../../../TradingCore/Tests/TradingCoreTests/Fixtures/MT4/gbe-2025-05-31-monthly.html")
+        .appending(path: "../../../TradingCore/Tests/TradingCoreTests/Fixtures/MT4/beispiel-2026-05-31-monthly.html")
     let auszug = try MT4Statement.parse(html: String(contentsOf: url, encoding: .utf8),
                                         serverZeitzone: TimeZone(secondsFromGMT: 3 * 3600)!)
     return JournalExport(
@@ -26,18 +26,18 @@ private func trade(_ id: String, _ eroeffnet: String, _ side: Side = .buy, profi
 }
 
 @Test func verstoesseGegenEigeneRegelnMitDerFunktionDerApp() throws {
-    var export = try gbeExport()
-    let ohne = Ausgabe.auswertung(try Anfrage.lies(["monat": "2025-05"], export: export))
+    var export = try beispielExport()
+    let ohne = Ausgabe.auswertung(try Anfrage.lies(["monat": "2026-05"], export: export))
     #expect(ohne.contains("- Handelsregeln: keine in der App eingetragen.") && !ohne.contains("## Eigene Handelsregeln"))
 
     export.konten[0].regeln = Handelsregeln(maxTradesJeTag: 3, stoppNachVerlusten: 2)
-    export.konten[0].journal = ["87955600": Journalangaben(regeltreue: false)]
-    let anfrage = try Anfrage.lies(["monat": "2025-05"], export: export)
+    export.konten[0].journal = ["51788391": Journalangaben(regeltreue: false)]
+    let anfrage = try Anfrage.lies(["monat": "2026-05"], export: export)
     let text = Ausgabe.auswertung(anfrage)
     #expect(text.contains("## Eigene Handelsregeln (eingetragen in der App, geprüft nach dem Import)"))
     #expect(text.contains("Regeln: höchstens 3 Trades je Tag; Schluss nach 2 Verlusten in Folge am Tag."))
     let erwartet = Regelpruefung.pruefe(export.konten[0].trades, regeln: export.konten[0].regeln!, zeitzone: berlin,
-                                        manuell: ["87955600"])
+                                        manuell: ["51788391"])
     let jeTag = Set(erwartet.filter { $0.art == .tradesJeTag }.map(\.trade))
     #expect(!jeTag.isEmpty && text.contains("| Trades am Tag | \(jeTag.count) |"))
     #expect(text.contains("| Im Journal „nicht regeltreu“ | 1 | 1 ("))
@@ -49,7 +49,7 @@ private func trade(_ id: String, _ eroeffnet: String, _ side: Side = .buy, profi
     let kaputt = json.replacingOccurrences(of: "\"maxTradesJeTag\":3", with: "\"maxTradesJeTag\":\"drei\"")
     #expect(kaputt != json)
     let gelesen = try JournalExport.lese(Data(kaputt.utf8))
-    #expect(gelesen.konten[0].regeln == nil && gelesen.konten[0].trades.count == 83)
+    #expect(gelesen.konten[0].regeln == nil && gelesen.konten[0].trades.count == 110)
     #expect(JournalExport.Kontodaten(broker: "X", kontonummer: "1", waehrung: "EUR", trades: [],
                                      regeln: Handelsregeln()).regeln == nil)
 }
@@ -71,8 +71,8 @@ private func trade(_ id: String, _ eroeffnet: String, _ side: Side = .buy, profi
     #expect(!text.contains("- Muster: keine Gruppe"))
     #expect(Rezept.text.contains("Zufallsanteil"))
 
-    let wenige = Ausgabe.auswertung(try Anfrage.lies(["monat": "2025-05"], export: try gbeExport()))
-    let gefunden = MusterFinder.finde(try Anfrage.lies(["monat": "2025-05"], export: try gbeExport()).auswertung().trades,
+    let wenige = Ausgabe.auswertung(try Anfrage.lies(["monat": "2026-05"], export: try beispielExport()))
+    let gefunden = MusterFinder.finde(try Anfrage.lies(["monat": "2026-05"], export: try beispielExport()).auswertung().trades,
                                       zeitzone: berlin)
     #expect(wenige.contains("## Muster") == !gefunden.isEmpty)
     #expect(wenige.contains("- Muster: keine Gruppe") == gefunden.isEmpty)
