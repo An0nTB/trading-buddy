@@ -395,8 +395,26 @@ final class AppModell {
     }
 
     /// Speichert den Eintrag; ein Eintrag ohne Angaben wird gelöscht. Trades und Kennzahlen ziehen sofort mit.
+    /// Geschrieben wird immer beim Konto des Eintrags: Nach einem Kontowechsel speichert der Notiz-Editor beim
+    /// Verlassen noch den Eintrag des alten Kontos, und eine gleiche Ticketnummer im neuen Konto bleibt unberührt
+    /// (Codex-Review 04.10.2026, B2).
     func speichereJournal(_ eintrag: Journaleintrag) {
-        guard let journal, let konto else { return }
+        guard let journal, let ziel = konten.first(where: { $0.id == eintrag.kontoId }) else { return }
+        guard let konto, konto.id == ziel.id else {
+            do {
+                if eintrag.ohneAngaben {
+                    try journal.loescheJournal(konto: ziel, ticket: eintrag.ticket)
+                } else {
+                    var neu = eintrag
+                    neu.geaendertAm = Date()
+                    try journal.speichereJournal(neu)
+                }
+                exportiere()
+            } catch {
+                fehler = error.localizedDescription
+            }
+            return
+        }
         do {
             if eintrag.ohneAngaben {
                 try journal.loescheJournal(konto: konto, ticket: eintrag.ticket)
@@ -586,6 +604,12 @@ final class AppModell {
     func trades(eroeffnetAm tag: Date) -> [Trade] {
         let kalender = self.kalender
         return angleich.trades.filter { kalender.startOfDay(for: $0.openTime) == tag }
+    }
+
+    /// Trades mit Verstoß gegen eigene oder Prop-Firm-Regeln, dieselbe Quelle wie Disziplin und Monatsbericht.
+    /// Fehlermuster wie „ohne Stop“ sind keine Regelverstöße (Codex-Review 04.10.2026, B1).
+    var verletzteTrades: Set<String> {
+        Set(verstoesse.map(\.trade)).union(propFirmErgebnis?.verstoesse.map(\.trade) ?? [])
     }
 
     /// Disziplin-Kurve der gefilterten Trades; die Verstöße stammen aus der Prüfung über alle Trades,
