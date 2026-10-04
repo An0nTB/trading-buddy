@@ -60,12 +60,15 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: de.timbock.journal
-        PRODUCT_NAME: Trading Buddy
+        # App-Datei „Henry.app“, damit Dock und Finder „Henry“ zeigen (Tim 04.10.2026); Modulname bleibt für
+        # `@testable import Trading_Buddy`. Bundle-ID und Datenordner („Application Support/Trading Buddy“) bleiben.
+        PRODUCT_NAME: Henry
+        PRODUCT_MODULE_NAME: Trading_Buddy
         MARKETING_VERSION: "0.1.0"
         CURRENT_PROJECT_VERSION: "1"
         GENERATE_INFOPLIST_FILE: YES
         # Sichtbarer Name „Henry“ (Tim 02.10.2026, vorher Brad): Xcode mischt App/Info.plist (CFBundleName, CFBundleDisplayName)
-        # in die erzeugte Info.plist; PRODUCT_NAME, Bundle-ID und Pfade bleiben „Trading Buddy“.
+        # in die erzeugte Info.plist; Bundle-ID und Datenpfade bleiben „Trading Buddy“.
         INFOPLIST_FILE: App/Info.plist
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.finance
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
@@ -92,7 +95,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: de.timbock.journal.tests
         GENERATE_INFOPLIST_FILE: YES
         SWIFT_VERSION: "6.0"
-        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Trading Buddy.app/Contents/MacOS/Trading Buddy"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Henry.app/Contents/MacOS/Henry"
         BUNDLE_LOADER: "$(TEST_HOST)"
 schemes:
   TradingBuddyTests:
