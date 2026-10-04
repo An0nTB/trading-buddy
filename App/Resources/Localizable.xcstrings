@@ -322,6 +322,16 @@
         }
       }
     },
+    "Beispieldaten: Die Beispiel-Trades haben erfundene Preise und erscheinen deshalb nicht im Chart." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sample data: the sample trades have made-up prices and are therefore not shown in the chart."
+          }
+        }
+      }
+    },
     "Beispielkonto" : {
       "localizations" : {
         "en" : {
