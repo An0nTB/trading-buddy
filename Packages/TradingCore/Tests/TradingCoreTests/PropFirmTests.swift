@@ -99,3 +99,19 @@ private let topstepAehnlich = PropFirmRegeln(
     #expect(d.punkte.map(\.wert) == [1, 0, -1, -2, -3, -4])
     #expect(Disziplin(trades: propTrades, verstoesse: eigene).verletzt == 1)
 }
+
+/// Ziel an Tag 1 erreicht, an Tag 2 wieder verloren: nicht bestanden, auch wenn beide Bedingungen
+/// einmal erfüllt waren, nur nie gleichzeitig (Codex 04.10.2026, M2).
+@Test func propFirmBestandenNurBeiGleichzeitigErfuellten() {
+    let r = PropFirmRegeln(name: "Ziel", startkapital: 10_000, zeitzone: "UTC", gewinnziel: 1000,
+                           mindestHandelstage: 2)
+    let tag1 = trade("1", "2026-04-06T10:00:00Z", "2026-04-06T11:00:00Z", netto: 1000)
+    let verloren = PropFirmPruefung.pruefe(
+        [tag1, trade("2", "2026-04-07T10:00:00Z", "2026-04-07T11:00:00Z", netto: -500)], regeln: r)
+    #expect(verloren.gewinnzielErreicht == zeit("2026-04-06T11:00:00Z"))
+    #expect(verloren.handelstage == 2)
+    #expect(verloren.bestanden == false)
+    let gehalten = PropFirmPruefung.pruefe(
+        [tag1, trade("2", "2026-04-07T10:00:00Z", "2026-04-07T11:00:00Z", netto: 100)], regeln: r)
+    #expect(gehalten.bestanden == true)
+}
