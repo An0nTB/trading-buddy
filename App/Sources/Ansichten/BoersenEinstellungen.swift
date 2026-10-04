@@ -282,6 +282,9 @@ private struct BoerseEinrichten: View {
     @State private var zeitzone: String
     @State private var zeiten: [Sitzungszeile]
     @State private var fehler: String?
+    /// Geänderte Kalenderzuordnung, erst mit „Sichern“ übernommen; `nil`, solange nichts umgeschaltet ist
+    /// (Codex-Review 04.10.2026, M4: „Abbrechen“ verwarf sie vorher nicht).
+    @State private var kalenderEntwurf: Set<String>?
 
     init(boerse: Boerse?) {
         vorhandene = boerse
@@ -337,8 +340,12 @@ private struct BoerseEinrichten: View {
                     Section("Zusätzliche Feiertagskalender") {
                         ForEach(verwaltung.auswahl.kalender) { kalender in
                             Toggle(kalender.name, isOn: Binding(
-                                get: { verwaltung.kalender(fuer: vorhandene.id).contains(kalender.id) },
-                                set: { verwaltung.ordneKalender(kalender.id, boerse: vorhandene.id, zu: $0) }))
+                                get: { kalenderwahl(vorhandene.id).contains(kalender.id) },
+                                set: { an in
+                                    var wahl = kalenderwahl(vorhandene.id)
+                                    if an { wahl.insert(kalender.id) } else { wahl.remove(kalender.id) }
+                                    kalenderEntwurf = wahl
+                                }))
                         }
                     }
                 }
@@ -373,6 +380,11 @@ private struct BoerseEinrichten: View {
         #endif
     }
 
+    /// Kalender der Börse, wie das Formular sie gerade zeigt: Entwurf oder gespeicherte Zuordnung.
+    private func kalenderwahl(_ boerse: String) -> Set<String> {
+        kalenderEntwurf ?? Set(modell.boersen.kalender(fuer: boerse))
+    }
+
     private func sichern() {
         let verwaltung = modell.boersen
         do {
@@ -399,6 +411,12 @@ private struct BoerseEinrichten: View {
                                         hinweise: [String(localized: "In der App angelegt, ohne Feiertage.")])
                 }
                 verwaltung.speichereEigene(boerse)
+            }
+            if let vorhandene, let kalenderEntwurf {
+                let bisher = Set(verwaltung.kalender(fuer: vorhandene.id))
+                for id in kalenderEntwurf.symmetricDifference(bisher).sorted() {
+                    verwaltung.ordneKalender(id, boerse: vorhandene.id, zu: kalenderEntwurf.contains(id))
+                }
             }
             if let problem = verwaltung.fehler {
                 fehler = problem
