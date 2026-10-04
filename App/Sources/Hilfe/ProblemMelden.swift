@@ -4,8 +4,8 @@ import TradingCore
 import AppKit
 #endif
 
-/// Die letzten Importfehler dieser Sitzung, nur im Speicher, für „Problem melden“. Ohne Dateinamen, weil Broker
-/// die Kontonummer oft in den Namen schreiben.
+/// Die letzten Importfehler dieser Sitzung, nur im Speicher, für „Problem melden“. Nur die Fehlerart
+/// (`Importlesung.kategorie`), keine Dateinamen, Spalten oder Feldinhalte (Codex-Review 04.10.2026).
 @MainActor
 enum Fehlerprotokoll {
     private(set) static var eintraege: [(zeit: Date, text: String)] = []
@@ -17,8 +17,9 @@ enum Fehlerprotokoll {
     }
 }
 
-/// Diagnosetext für Tester (Nachtpaket AP11): Versionen, System, Zahl der Konten und die letzten Importfehler.
-/// Keine Trades, keine Beträge, keine Pfade mit Benutzernamen, keine langen Nummern.
+/// Diagnosetext für Tester (Nachtpaket AP11): Versionen, System, Zähler und die Arten der letzten Importfehler.
+/// Keine Trades, keine Beträge, keine Dateinamen, keine Konto- oder Feldinhalte. `bereinigt` kürzt zusätzlich
+/// Pfade und lange Nummern, falls doch etwas durchrutscht.
 enum Diagnose {
     struct Angaben {
         var app: String
@@ -27,6 +28,8 @@ enum Diagnose {
         var system: String
         var konten: Int
         var importordnerAktiv: Bool
+        /// Dateien im Import-Ordner, die auf eine Antwort warten; nur die Zahl, nicht Name oder Grund.
+        var rueckfragen = 0
         var fehler: [(zeit: Date, text: String)]
     }
 
@@ -40,6 +43,7 @@ enum Diagnose {
             "Konten: \(a.konten)",
             "Import-Ordner: \(a.importordnerAktiv ? "an" : "aus")",
         ]
+        if a.rueckfragen > 0 { zeilen.append("Import-Ordner, offene Rückfragen: \(a.rueckfragen)") }
         if a.fehler.isEmpty {
             zeilen.append("Importfehler in dieser Sitzung: keine")
         } else {
@@ -134,16 +138,15 @@ struct ProblemMeldenBlatt: View {
     }
 
     private var diagnose: String {
-        let fehler = Fehlerprotokoll.eintraege
-            + Importordner.geteilt.rueckfragen.map { (zeit: Date(), text: "Import-Ordner: \($0.grund)") }
-        return Diagnose.text(Diagnose.Angaben(
+        Diagnose.text(Diagnose.Angaben(
             app: Diagnose.appVersion,
             kern: TradingCore.version,
             connector: Diagnose.connectorVersion,
             system: ProcessInfo.processInfo.operatingSystemVersionString,
             konten: modell.konten.count,
             importordnerAktiv: Importordner.geteilt.aktiv,
-            fehler: fehler))
+            rueckfragen: Importordner.geteilt.rueckfragen.count,
+            fehler: Fehlerprotokoll.eintraege))
     }
 }
 #endif
