@@ -58,9 +58,9 @@ enum KaputtLeser: String, Sendable, CaseIterable {
         case .bitpanda: return try ["Krypto/Bitpanda/bitpanda_alt.csv", "Krypto/Bitpanda/bitpanda_neu.csv"].map(fixture)
         case .ibkr: return [ibkrCSV]
         case .mt5: return [mt5HTML]
-        case .mt4: return try ["MT4/gbe-2025-05-18-daily.html"].map(fixture)
+        case .mt4: return try ["MT4/beispiel-2026-05-17-daily.html"].map(fixture)
         case .mt4Verlauf:
-            return ["2025.05.05,11:52,191.270,191.290,191.200,191.210,30\n2025.05.05,11:51,191.281,191.300,191.250,191.270,45\n",
+            return ["2026.05.06,10:42,197.840,197.866,197.812,197.829,28\n2026.05.06,10:41,197.851,197.873,197.836,197.840,41\n",
                     "<DATE>\t<TIME>\t<OPEN>\t<HIGH>\t<LOW>\t<CLOSE>\t<TICKVOL>\t<VOL>\t<SPREAD>\n"
                         + "2025.05.05\t12:00:00\t1.15\t1.3\t1.1\t1.2\t12\t0\t5\n"
                         + "2025.05.05\t11:00:00\t1.1\t1.2\t1.0\t1.15\t10\t0\t5\n"]

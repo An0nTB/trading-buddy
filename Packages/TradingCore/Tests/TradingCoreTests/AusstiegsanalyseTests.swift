@@ -103,12 +103,12 @@ private let stundenkerzen = [
 }
 
 @Test func mt4VerlaufBeideFormate() throws {
-    let mt4 = "2025.05.05,11:52,191.270,191.290,191.200,191.210,30\n2025.05.05,11:51,191.281,191.300,191.250,191.270,45\n"
+    let mt4 = "2026.05.06,10:42,197.840,197.866,197.812,197.829,28\n2026.05.06,10:41,197.851,197.873,197.836,197.840,41\n"
     let plus3 = TimeZone(secondsFromGMT: 3 * 3_600)!
     let k = try MT4Verlauf.parse(text: mt4, serverZeitzone: plus3)
-    #expect(k.count == 2 && k[0].beginn == zeit("2025-05-05T08:51:00") && k[0].dauer == 60)
-    #expect(k[0].open == dez("191.281") && k[0].high == dez("191.3") && k[0].low == dez("191.25"))
-    #expect(k[1].close == dez("191.21"))
+    #expect(k.count == 2 && k[0].beginn == zeit("2026-05-06T07:41:00") && k[0].dauer == 60)
+    #expect(k[0].open == dez("197.851") && k[0].high == dez("197.873") && k[0].low == dez("197.836"))
+    #expect(k[1].close == dez("197.829"))
 
     let mt5 = "<DATE>\t<TIME>\t<OPEN>\t<HIGH>\t<LOW>\t<CLOSE>\t<TICKVOL>\t<VOL>\t<SPREAD>\n"
         + "2025.05.05\t12:00:00\t1.15\t1.3\t1.1\t1.2\t12\t0\t5\n"

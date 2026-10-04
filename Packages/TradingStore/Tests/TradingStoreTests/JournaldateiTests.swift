@@ -13,12 +13,12 @@ private func ordner() throws -> URL {
     return url
 }
 
-/// MT4-Testauszug aus den TradingCore-Tests (pseudonymisiert, nur gelesen).
+/// MT4-Testauszug aus den TradingCore-Tests (erfundener Beispielauszug, nur gelesen).
 private func mt4Auszug() throws -> Data {
     let url = URL(fileURLWithPath: #filePath)
         .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
         .deletingLastPathComponent()
-        .appendingPathComponent("TradingCore/Tests/TradingCoreTests/Fixtures/MT4/gbe-2025-05-14-daily.html")
+        .appendingPathComponent("TradingCore/Tests/TradingCoreTests/Fixtures/MT4/beispiel-2026-05-13-daily.html")
     return try Data(contentsOf: url)
 }
 
@@ -42,9 +42,9 @@ func sicherungAusAelteremStandWirdMigriert(stand: String) throws {
     try Schema.migrator.migrate(alt, upTo: stand)
     try alt.write { db in
         try db.execute(sql: """
-            INSERT INTO konto (broker, kontonummer, kontoname, waehrung) VALUES ('GBE brokers Ltd.', '100001', 'Test', 'EUR');
+            INSERT INTO konto (broker, kontonummer, kontoname, waehrung) VALUES ('Beispiel Broker Ltd.', '12345678', 'Test', 'EUR');
             INSERT INTO journal (kontoId, ticket, setup, zustand, geaendertAm)
-                VALUES (1, '4711', 'Ausbruch', 4, '2025-05-14 10:00:00.000');
+                VALUES (1, '4711', 'Ausbruch', 4, '2026-05-13 10:00:00.000');
             """)
     }
     try alt.close()

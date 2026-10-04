@@ -4,7 +4,7 @@ import Testing
 import TradingCore
 @testable import TradingStore
 
-/// Testdateien aus den TradingCore-Tests (pseudonymisiert oder synthetisch, nur gelesen).
+/// Testdateien aus den TradingCore-Tests (erfunden oder synthetisch, nur gelesen).
 private func kern(_ pfad: String) throws -> Data {
     let url = URL(fileURLWithPath: #filePath)
         .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
@@ -36,8 +36,8 @@ private func nurKonto(_ journal: Journal) throws -> Konto {
 
 @Test func produktartKommtAusDerDatenbankZurueck() throws {
     let journal = try Journal.imSpeicher()
-    try mt4(journal, "gbe-2025-05-14-daily")
-    try mt4(journal, "gbe-2025-05-25-daily")
+    try mt4(journal, "beispiel-2026-05-13-daily")
+    try mt4(journal, "beispiel-2026-05-24-daily")
     let konto = try nurKonto(journal)
     let geschlossen = try journal.geschlossenePositionen(konto: konto)
     #expect(geschlossen.count == 4)
@@ -72,9 +72,9 @@ private func nurKonto(_ journal: Journal) throws -> Konto {
 @Test func unbekannteProduktartBeiMT4ErgaenztDerMonatsauszug() throws {
     // Tagesauszug ohne Art gespeichert, danach der Monatsauszug mit denselben vier Trades als CFD.
     let journal = try Journal.imSpeicher()
-    try mt4(journal, "gbe-2025-05-14-daily")
+    try mt4(journal, "beispiel-2026-05-13-daily")
     try journal.schreibe { try $0.execute(sql: "UPDATE geschlossenePosition SET produktart = 'unbekannt'") }
-    let monat = try mt4(journal, "gbe-2025-05-31-monthly")
+    let monat = try mt4(journal, "beispiel-2026-05-31-monthly")
     #expect(monat.geschlosseneBekannt == 4)
     #expect(try journal.geschlossenePositionen(konto: nurKonto(journal)).allSatisfy { $0.produktart == .cfd })
 }
@@ -96,13 +96,13 @@ private func nurKonto(_ journal: Journal) throws -> Konto {
 @Test func handgesetzteProduktartUeberstehtMonatsauszug() throws {
     // Befund S1: MT4 liefert CFD; nach der Korrektur von Hand bricht der Monatsauszug nicht mehr ab.
     let journal = try Journal.imSpeicher()
-    try mt4(journal, "gbe-2025-05-14-daily")
+    try mt4(journal, "beispiel-2026-05-13-daily")
     let konto = try nurKonto(journal)
     let vorher = try journal.geschlossenePositionen(konto: konto)
     let symbol = try #require(vorher.first?.symbol)
     let korrigiert = Set(vorher.filter { $0.symbol == symbol }.map(\.ticket))
     #expect(try journal.setzeProduktart(konto: konto, symbol: symbol, .aktie) == korrigiert.count)
-    let monat = try mt4(journal, "gbe-2025-05-31-monthly")
+    let monat = try mt4(journal, "beispiel-2026-05-31-monthly")
     #expect(monat.status == .gespeichert)
     #expect(monat.geschlosseneBekannt == 4)
     for p in try journal.geschlossenePositionen(konto: konto) {
@@ -118,8 +118,8 @@ private func nurKonto(_ journal: Journal) throws -> Konto {
 
     do {
         let journal = try Journal(pfad: pfad)
-        try mt4(journal, "gbe-2025-05-14-daily")
-        try mt4(journal, "gbe-2025-05-25-daily")
+        try mt4(journal, "beispiel-2026-05-13-daily")
+        try mt4(journal, "beispiel-2026-05-24-daily")
         try journal.importiereXTB(datei: kern("XTB/xtb_einfach.xlsx"), dateiname: "xtb.xlsx")
         try tr(journal, "trade_republic_2026_komma")
         // Zurück auf den Stand vor v6: Spalte weg, Migration als nicht gelaufen markiert.
@@ -134,13 +134,13 @@ private func nurKonto(_ journal: Journal) throws -> Konto {
     let journal = try Journal(pfad: pfad)
     #expect(try journal.angewandteMigrationen().contains("v6 Produktart"))
     let konten = try journal.konten()
-    let gbe = try #require(konten.first { $0.broker == "GBE brokers Ltd." })
+    let beispiel = try #require(konten.first { $0.broker == "Beispiel Broker Ltd." })
     let xtb = try #require(konten.first { $0.broker == "XTB" })
     let depot = try #require(konten.first { $0.broker == "Trade Republic" })
-    let geschlossen = try journal.geschlossenePositionen(konto: gbe)
+    let geschlossen = try journal.geschlossenePositionen(konto: beispiel)
     #expect(geschlossen.count == 4)
     #expect(geschlossen.allSatisfy { $0.produktart == .cfd })
-    let offen = try alleOffenen(journal, gbe)
+    let offen = try alleOffenen(journal, beispiel)
     #expect(!offen.isEmpty)
     #expect(offen.allSatisfy { $0.produktart == .cfd })
     let xtbPositionen = try journal.geschlossenePositionen(konto: xtb)

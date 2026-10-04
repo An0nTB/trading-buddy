@@ -4,7 +4,7 @@ import Testing
 import TradingCore
 @testable import TradingStore
 
-/// Testdateien aus den TradingCore-Tests (pseudonymisiert oder synthetisch, nur gelesen).
+/// Testdateien aus den TradingCore-Tests (erfunden oder synthetisch, nur gelesen).
 private func kern(_ pfad: String) throws -> Data {
     let url = URL(fileURLWithPath: #filePath)
         .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
@@ -21,7 +21,7 @@ private func ordner() throws -> URL {
 
 private func gefuellt() throws -> Journal {
     let journal = try Journal.imSpeicher()
-    try journal.importiereMT4(datei: kern("MT4/gbe-2025-05-14-daily.html"), dateiname: "a.html",
+    try journal.importiereMT4(datei: kern("MT4/beispiel-2026-05-13-daily.html"), dateiname: "a.html",
                               serverZeitzone: TimeZone(secondsFromGMT: 0)!)
     try journal.importiereCSV(datei: kern("R2/trade_republic_2026_komma.csv"), dateiname: "tr.csv",
                               kontonummer: "Depot")
