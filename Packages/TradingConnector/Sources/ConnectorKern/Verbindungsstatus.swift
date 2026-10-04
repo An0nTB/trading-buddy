@@ -5,7 +5,7 @@ import TradingCore
 /// zu tun ist, wenn nicht. Antwortet auch ohne lesbare Exportdatei.
 public enum Verbindungsstatus {
     /// Version der Erweiterung; dieselbe steht in `Connector/manifest.json` (CI prüft das).
-    public static let connectorVersion = "0.15.0"
+    public static let connectorVersion = "0.15.1"
     /// Ab diesem Alter gilt der Export als veraltet.
     public static let hoechstesAlter: TimeInterval = 24 * 3_600
 
