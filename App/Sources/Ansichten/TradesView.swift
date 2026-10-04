@@ -541,7 +541,7 @@ struct JournalEingabe: View {
 
     private func speichern() {
         let bereinigt = eintrag.bereinigt
-        guard !bereinigt.gleicheAngaben(wie: modell.journaleintraege[bereinigt.ticket]) else { return }
+        guard modell.journalGeaendert(bereinigt) else { return }
         modell.speichereJournal(bereinigt)
     }
 
