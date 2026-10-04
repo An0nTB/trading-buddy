@@ -53,8 +53,11 @@ struct KurschartView: View {
         }
     }
 
+    private var istBeispiel: Bool { modell.konto.map(Beispieldaten.istBeispiel) ?? false }
+
     private func chart(_ verlauf: Kursverlauf) -> Kurschart? {
-        let marken = KurschartQuellen.marken(modell.alleTrades, symbol: verlauf.journalSymbol)
+        // Beispielkonto: erfundene Preise nicht als Ein- und Ausstiege auf echte Kerzen zeichnen (Doc 57, 04.10.2026).
+        let marken = istBeispiel ? [] : KurschartQuellen.marken(modell.alleTrades, symbol: verlauf.journalSymbol)
         let zuordnung = Kurszuordnung(journalSymbol: verlauf.journalSymbol, quelle: verlauf.quelle,
                                       quellSymbol: verlauf.quellSymbol)
         let meldungen = modell.nachrichten.aktiv
@@ -85,6 +88,9 @@ struct KurschartView: View {
     private func hinweise(_ chart: Kurschart, verlauf: Kursverlauf) -> some View {
         VStack(alignment: .leading, spacing: Abstand.raster) {
             Text("Dreieck: Einstieg, Kreis: Ausstieg, Kreuz: Ausstieg mit Verlust, Raute: Tag mit Meldungen. Tageskerzen, nur beschreibend.")
+            if istBeispiel {
+                Text("Beispieldaten: Die Beispiel-Trades haben erfundene Preise und erscheinen deshalb nicht im Chart.")
+            }
             if let naeherung = verlauf.naeherung { Text(verbatim: naeherung.uebersetzt) }
             if chart.ausserhalb > 0 {
                 Text("\(chart.ausserhalb) Ein- oder Ausstiege liegen weit außerhalb dieser Kurse (anderer Kurs des Brokers) und fehlen im Bild.")
