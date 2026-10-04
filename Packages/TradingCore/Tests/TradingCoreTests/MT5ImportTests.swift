@@ -113,3 +113,13 @@ private let server = TimeZone(secondsFromGMT: 3 * 3600)!
     #expect(kaputt != mt5HTML)
     #expect(throws: MT4ImportFehler.self) { try MT5Bericht.lies(kaputt, serverZeitzone: server) }
 }
+
+/// Fehlt einer Kassenzeile eine Zelle, bricht der Import ab, statt die Einzahlung still zu verlieren (Codex H4).
+@Test func mt5BerichtBeschaedigteKassenzeileBrichtAb() throws {
+    let ganz = "<td>9001</td><td></td><td>balance</td><td></td><td></td><td></td><td></td><td>0.00</td>"
+    let kaputt = mt5HTML.replacingOccurrences(of: ganz,
+                                              with: "<td>9001</td><td></td><td>balance</td><td></td><td></td><td></td><td>0.00</td>")
+    #expect(kaputt != mt5HTML)
+    #expect(throws: MT4ImportFehler.self) { try MT5Bericht.lies(kaputt, serverZeitzone: server) }
+}
+
