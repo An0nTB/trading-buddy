@@ -223,7 +223,7 @@ struct JournalSicherungBlatt: View {
                 daten: vorschau.daten, dateiname: vorschau.dateiname,
                 kontoname: kontoname.trimmingCharacters(in: .whitespacesAndNewlines))
         } catch {
-            speicherfehler = Importlesung.fehlertext(error)
+            speicherfehler = Self.lesefehlerText(error)
         }
     }
 }
