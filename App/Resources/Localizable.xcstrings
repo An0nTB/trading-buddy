@@ -273,6 +273,16 @@
         }
       }
     },
+    "Analysieren" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Analyse"
+          }
+        }
+      }
+    },
     "Anonymisierte Probe sichern" : {
       "localizations" : {
         "en" : {
@@ -420,6 +430,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sample account: no price analysis, because the sample trades have made-up prices and don't belong next to real prices."
+          }
+        }
+      }
+    },
+    "Bereitet eine Frage zu diesem Wert für Claude vor. Gesendet wird erst in Claude." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prepares a question about this value for Claude. It is only sent from within Claude."
           }
         }
       }
@@ -1203,6 +1223,16 @@
         }
       }
     },
+    "Neue Werte unter Kurschart › Wert hinzufügen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add new values under Price chart › Add value."
+          }
+        }
+      }
+    },
     "New Year's Day (Ersatztag)" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1210,6 +1240,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "New Year's Day (observed)"
+          }
+        }
+      }
+    },
+    "Noch kein Wert" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No value yet"
           }
         }
       }
@@ -2489,6 +2529,16 @@
         }
       }
     },
+    "Werte kommen aus eigenen Trades, offenen Positionen, der Merkliste und dem Kurschart." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Values come from own trades, open positions, the watchlist and the price chart."
+          }
+        }
+      }
+    },
     "Wie beim letzten Kontoimport dieses Kontos." : {
       "localizations" : {
         "en" : {
@@ -2636,6 +2686,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Choose an export folder in Settings under “Claude”. Then install the “Henry” extension in Claude Desktop and enter the same folder there."
+          }
+        }
+      }
+    },
+    "Zum Kurschart" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Go to price chart"
           }
         }
       }
