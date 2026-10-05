@@ -244,12 +244,17 @@ let september = FragBradKontext(konto: "XTB …1234", von: zeit("2026-09-01 00:0
     kontext.tag = zeit("2026-09-17 15:00")
     let trade = try #require(FragBrad.text(.trade, kontext: kontext, ton: .sachlich, zeitzone: berlin))
     let tag = try #require(FragBrad.text(.tag, kontext: kontext, ton: .sachlich, zeitzone: berlin))
-    #expect(trade.contains("Welches Fehlermuster zeigt der Trade, und woran sieht man das?"))
-    #expect(trade.contains("beim nächsten ähnlichen Setup"))
-    #expect(tag.contains("Welche Fehlermuster zeigt der Tag, und woran sieht man das?"))
-    #expect(tag.contains("am nächsten Handelstag"))
+    #expect(trade.contains("1. Woran ist der Trade gescheitert, oder was hat ihn getragen?"))
+    #expect(trade.contains("2. War es mein Fehler?"))
+    #expect(trade.contains("3. Was mache ich beim nächsten ähnlichen Setup besser?"))
+    #expect(tag.contains("1. Woran lag das Ergebnis des Tages?"))
+    #expect(tag.contains("2. Waren es meine Fehler?"))
+    #expect(tag.contains("3. Was mache ich am nächsten Handelstag besser?"))
     for text in [trade, tag] {
-        #expect(text.contains("meinen Regeln, meinem Playbook, Plan und Stop und meinem Journal"))
+        #expect(text.contains("ist Marktrisiko, kein Fehler"))
+        #expect(text.contains("Eine konkrete Regel je Fehlermuster"))
+        #expect(text.contains("ohne Stop keine R-Bewertung, ohne Kursverlauf keine Ursache, ohne Journaleintrag "
+                              + "keine Bewertung der Absicht"))
         #expect(text.contains("keine Kauf- oder Verkaufsempfehlung, kein Kursziel, keine Marktprognose"))
     }
     // Andere Vorlagen bleiben ohne Review

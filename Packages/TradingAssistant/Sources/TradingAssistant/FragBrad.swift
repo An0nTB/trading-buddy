@@ -221,17 +221,27 @@ public enum FragBrad {
         }
     }
 
-    /// Review-Teil für Trade- und Tagesfrage (Tim 05.10.2026): Fehlermuster mit Beleg und was beim nächsten Mal
-    /// anders laufen soll, gemessen an den eigenen Regeln. Nur Verhalten und Prozess; die Grenze steht ausdrücklich
-    /// im Text (Doc 02 Nr. 44 und 50).
+    /// Review-Teil für Trade- und Tagesfrage (Tim 05.10.2026, Lesart 2): drei Antworten (Ursache, eigener Fehler
+    /// oder Marktrisiko, Regel fürs nächste Mal), fehlende Quellen offen benannt. Nur Verhalten und Prozess; die
+    /// Grenze steht ausdrücklich im Text (Doc 02 Nr. 44 und 50).
     static func review(_ vorlage: FragBradVorlage) -> String {
-        let (muster, naechstes) = vorlage == .tag
-            ? ("Welche Fehlermuster zeigt der Tag", "am nächsten Handelstag")
-            : ("Welches Fehlermuster zeigt der Trade", "beim nächsten ähnlichen Setup")
-        return "Danach ein kurzes Review: \(muster), und woran sieht man das? Was sollte ich \(naechstes) anders "
-            + "machen, gemessen an meinen Regeln, meinem Playbook, Plan und Stop und meinem Journal: Stop halten, "
-            + "Positionsgröße, Einstieg nach Checkliste, Ausstieg nach Plan. Nur Verhalten und Prozess, keine Kauf- "
-            + "oder Verkaufsempfehlung, kein Kursziel, keine Marktprognose."
+        let tag = vorlage == .tag
+        let ursache = tag
+            ? "1. Woran lag das Ergebnis des Tages? Ursache je Trade"
+            : "1. Woran ist der Trade gescheitert, oder was hat ihn getragen? Ursache"
+        let fehler = tag
+            ? "2. Waren es meine Fehler? Plan, Setup und Regeln eingehalten und trotzdem Verlust ist Marktrisiko, kein "
+                + "Fehler; Plan verletzt oder ein Fehlermuster getroffen ist ein eigener Fehler, dann benenne welcher "
+                + "und bei welchem Trade."
+            : "2. War es mein Fehler? Plan, Setup und Regeln eingehalten und trotzdem Verlust ist Marktrisiko, kein "
+                + "Fehler; Plan verletzt oder ein Fehlermuster getroffen ist ein eigener Fehler, dann benenne welcher."
+        let naechstes = tag ? "am nächsten Handelstag" : "beim nächsten ähnlichen Setup"
+        return "Danach ein Review in drei Antworten. \(ursache) aus Kursverlauf und Ausstiegsanalyse (MAE/MFE), falls "
+            + "vorhanden, sonst aus den Importdaten. \(fehler) 3. Was mache ich \(naechstes) besser? Eine konkrete "
+            + "Regel je Fehlermuster, gemessen an meinen Regeln, meinem Playbook, Plan und Stop und meinem Journal. "
+            + "Fehlt eine Quelle, sag es offen: ohne Stop keine R-Bewertung, ohne Kursverlauf keine Ursache, ohne "
+            + "Journaleintrag keine Bewertung der Absicht. Nur Verhalten und Prozess, keine Kauf- oder "
+            + "Verkaufsempfehlung, kein Kursziel, keine Marktprognose."
     }
 
     /// „Konto: XTB …1234. Zeitraum: 2026-09-01 bis 2026-09-30.“ Tage im Format der Connector-Werkzeuge.
