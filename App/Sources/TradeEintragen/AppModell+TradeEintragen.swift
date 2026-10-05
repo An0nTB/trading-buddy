@@ -3,24 +3,47 @@ import TradingCore
 import TradingStore
 
 /// Speichern aus dem Formular „Trade eintragen“ und Import der Journal-Sicherung. Die eine Stelle, an der die
-/// Oberfläche die Speicherung (TradingStore, AP9) aufruft.
+/// Oberfläche die Speicherung (TradingStore, AP9 #276) aufruft.
 extension AppModell {
+    /// Broker neuer Konten für Handeinträge; Konten heißen nach ihrer Bezeichnung (Broker + Nummer = Name).
+    static let handBroker = "Von Hand"
+
     /// Speichert den Trade samt Angaben im gewählten oder in einem neuen Konto für Handeinträge,
-    /// lädt neu und wechselt zum Konto des Trades.
+    /// lädt neu und wechselt zum Konto des Trades. Gibt das Ticket zurück.
+    @discardableResult
     func speichereManuellenTrade(_ trade: ManuellerTrade, angaben: TradeAngaben, kontowahl: TradeEntwurf.Kontowahl,
-                                 neuerKontoname: String, waehrung: String) throws {
-        guard journal != nil else { throw TradeEintragenFehler.keinJournal }
-        _ = (trade, angaben, kontowahl, neuerKontoname, waehrung)
-        // Store-API folgt aus AP9 (speichereManuellenTrade, manuellesKonto); bis dahin nicht speicherbar.
-        throw TradeEintragenFehler.speicherungFolgt
+                                 neuerKontoname: String, waehrung: String) throws -> String {
+        guard let journal else { throw TradeEintragenFehler.keinJournal }
+        let konto: Konto
+        switch kontowahl {
+        case .bestehend(let id):
+            guard let gefunden = konten.first(where: { $0.id == id }) else { throw TradeEintragenFehler.kontoFehlt }
+            konto = gefunden
+        case .neu:
+            let name = neuerKontoname.trimmingCharacters(in: .whitespacesAndNewlines)
+            konto = try journal.legeKontoAn(broker: Self.handBroker, kontonummer: name, kontoname: name,
+                                            waehrung: waehrung)
+        }
+        guard let kontoId = konto.id else { throw TradeEintragenFehler.kontoFehlt }
+        // Konto und Ticket setzt die Speicherung; der Stop steht in der Position, das Risiko im Eintrag.
+        let eintrag = Journaleintrag(kontoId: kontoId, ticket: "", setup: angaben.setup,
+                                     regeltreue: angaben.regeltreue, grund: angaben.notiz,
+                                     risikoEinstieg: trade.risiko.map { abs($0) },
+                                     zeiteinheit: angaben.zeiteinheit)
+        let position = try journal.speichereManuellenTrade(trade, konto: konto, eintrag: eintrag)
+        nachHandeintrag(kontoId: kontoId)
+        return position.ticket
     }
 
-    /// Liest und speichert eine Journal-Sicherung in ein Euro-Konto mit diesem Namen.
+    /// Liest und speichert eine Journal-Sicherung in ein Euro-Konto mit dieser Bezeichnung.
     func importiereJournalSicherung(daten: Data, dateiname: String, kontoname: String) throws -> ImportErgebnis {
-        guard journal != nil else { throw TradeEintragenFehler.keinJournal }
-        _ = (daten, dateiname, kontoname)
-        // Store-API folgt aus AP9 (importiereJournalSicherung); bis dahin nicht speicherbar.
-        throw TradeEintragenFehler.speicherungFolgt
+        guard let journal else { throw TradeEintragenFehler.keinJournal }
+        let ergebnis = try journal.importiereJournalSicherung(datei: daten, dateiname: dateiname,
+                                                              kontonummer: kontoname, kontoname: kontoname,
+                                                              zeitzone: JournalSicherungVorschau.zeitzone)
+        laden() // erst danach kennt `importe` den neuen Lauf und sein Konto
+        nachHandeintrag(kontoId: importe.first(where: { $0.lauf.id == ergebnis.importlaufId })?.konto.id)
+        return ergebnis
     }
 
     /// Standard-Risiko für einen neuen Trade (Nr. 64): Setup vor Konto; `nil` ohne Angabe oder bei neuem Konto.
@@ -54,12 +77,12 @@ extension AppModell {
 /// Fehler beim Speichern aus dem Formular oder der Journal-Sicherung.
 enum TradeEintragenFehler: LocalizedError, Equatable {
     case keinJournal
-    case speicherungFolgt
+    case kontoFehlt
 
     var errorDescription: String? {
         switch self {
         case .keinJournal: String(localized: "Die Journal-Datei ist nicht geöffnet.")
-        case .speicherungFolgt: String(localized: "Speichern folgt mit dem nächsten Stand der Speicherung.")
+        case .kontoFehlt: String(localized: "Das gewählte Konto gibt es nicht mehr.")
         }
     }
 }
