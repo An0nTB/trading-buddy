@@ -14,17 +14,17 @@
     "https://www.boj.or.jp/en/mopo/mpmsche_minu/index.htm und past.htm (abgerufen 02.10.2026); keine feste Uhrzeit",
     "https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.en.html und https://www.ecb.europa.eu/press/tvservices/webcast/html/index.en.html (abgerufen 02.10.2026); Uhrzeit 14:15 laut https://www.ecb.europa.eu/press/govcdec/html/index.en.html",
     "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm (abgerufen 02.10.2026); Uhrzeit: FOMC-Statement 29.07.2026 „2:00 p.m. EDT“",
-    "https://www.snb.ch/en/the-snb/mandates-goals/monetary-policy/decisions und Event-Schedule (abgerufen 02.10.2026); 09:30 laut Event-Schedule 2027",
+    "https://www.snb.ch/en/the-snb/mandates-goals/monetary-policy/decisions und https://www.snb.ch/en/services-events/digital-services/event-schedule (abgerufen 02.10.2026, erneut 05.10.2026: 10.12.2026 09:30 bestätigt)",
     "Feiertage USA: 5 U.S.C. 6103 nach Regel, Samstagsregel laut Fed K.8 https://www.federalreserve.gov/aboutthefed/k8.htm (abgerufen 02.10.2026)",
     "Feiertage Großbritannien: https://www.gov.uk/bank-holidays.json (abgerufen 02.10.2026), gleich mit TradingClock lse.json",
-    "Feiertage Euroraum: TARGET-Schließtage nach Regel (ungeprüft)",
-    "Feiertage Japan: Feiertagsgesetz und Bankgesetz nach Regel (ungeprüft)"
+    "Feiertage Euroraum: TARGET-Schließtage laut https://www.ecb.europa.eu/paym/target/t2/html/index.en.html (abgerufen 05.10.2026), Daten aus dem Ostertermin",
+    "Feiertage Japan: https://www8.cao.go.jp/chosei/shukujitsu/syukujitsu.csv und gaiyou.html, Bankschließung https://www.boj.or.jp/en/about/outline/holi.htm (abgerufen 05.10.2026)"
   ],
   "hinweise": [
     "Feiertage nur an Werktagen; Art feiertag deckt USD, EUR, GBP und JPY ab, CHF fehlt noch.",
     "Zeiten in Ortszeit der Zeitzone; Termine ohne Uhrzeit gelten den ganzen Tag dort.",
     "Fed: jeder Termin gilt als vorläufig, bis die vorige Sitzung ihn bestätigt (Fed-Kalender).",
-    "SNB 09:30 für 2025 und 2026 ist Einschätzung nach dem Event-Schedule 2027."
+    "SNB 09:30 für 2025 und 2026 ist Einschätzung nach dem Event-Schedule; 10.12.2026 09:30 dort bestätigt (05.10.2026)."
   ],
   "termine": [
     {
@@ -37,8 +37,7 @@
       "waehrungen": [
         "JPY"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+      "hinweis": "Feiertagsgesetz laut Cabinet Office, Bankschließung 31.12. bis 03.01. laut BoJ (geprüft 05.10.2026)"
     },
     {
       "id": "feiertag-eur-2025-01-01",
@@ -50,8 +49,7 @@
       "waehrungen": [
         "EUR"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: TARGET-Schließtag nach Regel berechnet"
+      "hinweis": "TARGET-Schließtag laut EZB-Regel, Datum aus dem Ostertermin (geprüft 05.10.2026)"
     },
     {
       "id": "feiertag-gbp-2025-01-01",
@@ -87,8 +85,7 @@
       "waehrungen": [
         "JPY"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+      "hinweis": "Feiertagsgesetz laut Cabinet Office, Bankschließung 31.12. bis 03.01. laut BoJ (geprüft 05.10.2026)"
     },
     {
       "id": "feiertag-jpy-2025-01-03",
@@ -100,8 +97,7 @@
       "waehrungen": [
         "JPY"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+      "hinweis": "Feiertagsgesetz laut Cabinet Office, Bankschließung 31.12. bis 03.01. laut BoJ (geprüft 05.10.2026)"
     },
     {
       "id": "bls-nfp-2025-01-10",
@@ -125,8 +121,7 @@
       "waehrungen": [
         "JPY"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+      "hinweis": "Feiertagsgesetz laut Cabinet Office, Bankschließung 31.12. bis 03.01. laut BoJ (geprüft 05.10.2026)"
     },
     {
       "id": "bls-cpi-2025-01-15",
@@ -222,8 +217,7 @@
       "waehrungen": [
         "JPY"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+      "hinweis": "Feiertagsgesetz laut Cabinet Office, Bankschließung 31.12. bis 03.01. laut BoJ (geprüft 05.10.2026)"
     },
     {
       "id": "bls-cpi-2025-02-12",
@@ -259,8 +253,7 @@
       "waehrungen": [
         "JPY"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+      "hinweis": "Feiertagsgesetz laut Cabinet Office, Bankschließung 31.12. bis 03.01. laut BoJ (geprüft 05.10.2026)"
     },
     {
       "id": "ezb-2025-03-06",
@@ -320,8 +313,7 @@
       "waehrungen": [
         "JPY"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+      "hinweis": "Feiertagsgesetz laut Cabinet Office, Bankschließung 31.12. bis 03.01. laut BoJ (geprüft 05.10.2026)"
     },
     {
       "id": "fed-2025-03-19",
@@ -406,8 +398,7 @@
       "waehrungen": [
         "EUR"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: TARGET-Schließtag nach Regel berechnet"
+      "hinweis": "TARGET-Schließtag laut EZB-Regel, Datum aus dem Ostertermin (geprüft 05.10.2026)"
     },
     {
       "id": "feiertag-gbp-2025-04-18",
@@ -431,8 +422,7 @@
       "waehrungen": [
         "EUR"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: TARGET-Schließtag nach Regel berechnet"
+      "hinweis": "TARGET-Schließtag laut EZB-Regel, Datum aus dem Ostertermin (geprüft 05.10.2026)"
     },
     {
       "id": "feiertag-gbp-2025-04-21",
@@ -456,8 +446,7 @@
       "waehrungen": [
         "JPY"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+      "hinweis": "Feiertagsgesetz laut Cabinet Office, Bankschließung 31.12. bis 03.01. laut BoJ (geprüft 05.10.2026)"
     },
     {
       "id": "boj-2025-05-01",
@@ -481,8 +470,7 @@
       "waehrungen": [
         "EUR"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: TARGET-Schließtag nach Regel berechnet"
+      "hinweis": "TARGET-Schließtag laut EZB-Regel, Datum aus dem Ostertermin (geprüft 05.10.2026)"
     },
     {
       "id": "bls-nfp-2025-05-02",
@@ -506,8 +494,7 @@
       "waehrungen": [
         "JPY"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+      "hinweis": "Feiertagsgesetz laut Cabinet Office, Bankschließung 31.12. bis 03.01. laut BoJ (geprüft 05.10.2026)"
     },
     {
       "id": "feiertag-gbp-2025-05-05",
@@ -531,8 +518,7 @@
       "waehrungen": [
         "JPY"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+      "hinweis": "Feiertagsgesetz laut Cabinet Office, Bankschließung 31.12. bis 03.01. laut BoJ (geprüft 05.10.2026)"
     },
     {
       "id": "fed-2025-05-07",
@@ -737,8 +723,7 @@
       "waehrungen": [
         "JPY"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+      "hinweis": "Feiertagsgesetz laut Cabinet Office, Bankschließung 31.12. bis 03.01. laut BoJ (geprüft 05.10.2026)"
     },
     {
       "id": "ezb-2025-07-24",
@@ -810,8 +795,7 @@
       "waehrungen": [
         "JPY"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+      "hinweis": "Feiertagsgesetz laut Cabinet Office, Bankschließung 31.12. bis 03.01. laut BoJ (geprüft 05.10.2026)"
     },
     {
       "id": "bls-cpi-2025-08-12",
@@ -895,8 +879,7 @@
       "waehrungen": [
         "JPY"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+      "hinweis": "Feiertagsgesetz laut Cabinet Office, Bankschließung 31.12. bis 03.01. laut BoJ (geprüft 05.10.2026)"
     },
     {
       "id": "fed-2025-09-17",
@@ -945,8 +928,7 @@
       "waehrungen": [
         "JPY"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+      "hinweis": "Feiertagsgesetz laut Cabinet Office, Bankschließung 31.12. bis 03.01. laut BoJ (geprüft 05.10.2026)"
     },
     {
       "id": "snb-2025-09-25",
@@ -970,8 +952,7 @@
       "waehrungen": [
         "JPY"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+      "hinweis": "Feiertagsgesetz laut Cabinet Office, Bankschließung 31.12. bis 03.01. laut BoJ (geprüft 05.10.2026)"
     },
     {
       "id": "feiertag-usd-2025-10-13",
@@ -1043,8 +1024,7 @@
       "waehrungen": [
         "JPY"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+      "hinweis": "Feiertagsgesetz laut Cabinet Office, Bankschließung 31.12. bis 03.01. laut BoJ (geprüft 05.10.2026)"
     },
     {
       "id": "boe-2025-11-06",
@@ -1092,8 +1072,7 @@
       "waehrungen": [
         "JPY"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+      "hinweis": "Feiertagsgesetz laut Cabinet Office, Bankschließung 31.12. bis 03.01. laut BoJ (geprüft 05.10.2026)"
     },
     {
       "id": "feiertag-usd-2025-11-27",
@@ -1202,8 +1181,7 @@
       "waehrungen": [
         "EUR"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: TARGET-Schließtag nach Regel berechnet"
+      "hinweis": "TARGET-Schließtag laut EZB-Regel, Datum aus dem Ostertermin (geprüft 05.10.2026)"
     },
     {
       "id": "feiertag-gbp-2025-12-25",
@@ -1239,8 +1217,7 @@
       "waehrungen": [
         "EUR"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: TARGET-Schließtag nach Regel berechnet"
+      "hinweis": "TARGET-Schließtag laut EZB-Regel, Datum aus dem Ostertermin (geprüft 05.10.2026)"
     },
     {
       "id": "feiertag-gbp-2025-12-26",
@@ -1264,8 +1241,7 @@
       "waehrungen": [
         "JPY"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+      "hinweis": "Feiertagsgesetz laut Cabinet Office, Bankschließung 31.12. bis 03.01. laut BoJ (geprüft 05.10.2026)"
     }
   ]
 }

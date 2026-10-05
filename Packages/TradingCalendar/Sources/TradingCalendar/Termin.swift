@@ -7,12 +7,43 @@ public enum Terminart: String, Sendable, Hashable, Codable, CaseIterable {
     case inflation
     /// Bankfeiertag einer Währung, ganztägig; dünner Handel, viele Broker schließen am 25.12. und 01.01.
     case feiertag
+    /// Konjunkturdaten außer Arbeitsmarkt und Inflation: BIP, Einkaufsmanager, ifo, ZEW, Einzelhandel, Tankan.
+    case konjunktur
+    /// Notenbank-Termine ohne Zinsentscheid: Protokolle (FOMC, EZB), Jackson Hole.
+    case notenbank
+    /// Rohstoff-Termine: US-Öllager (EIA), OPEC- und OPEC+-Treffen.
+    case rohstoffe
+    /// Verfallstage von Optionen und Futures, nach Börsenregel.
+    case verfall
+    /// Index-Überprüfungen und Neugewichtungen (STOXX/DAX, S&P DJI, MSCI).
+    case index
+    /// Wahlen und politische Termine.
+    case politik
+    /// Börse geschlossen; kommt nicht aus den Jahresdateien, sondern aus den Kalendern der Börsenuhr (TradingClock).
+    case boersenfeiertag
+}
+
+/// Wie stark ein Termin die Märkte üblicherweise bewegt; Einschätzung nach den Kalendern der Trading-Szene (Stand-Doc 63).
+public enum Wichtigkeit: String, Sendable, Hashable, Codable, CaseIterable, Comparable {
+    case mittel
+    case hoch
+
+    public static func < (a: Wichtigkeit, b: Wichtigkeit) -> Bool { a == .mittel && b == .hoch }
+
+    /// Standard ohne Angabe in der Datei: Zinsentscheid, Arbeitsmarkt und Inflation hoch, alles andere mittel.
+    public static func standard(fuer art: Terminart) -> Wichtigkeit {
+        switch art {
+        case .zinsentscheid, .arbeitsmarkt, .inflation: .hoch
+        default: .mittel
+        }
+    }
 }
 
 /// Ein Wirtschaftstermin in Ortszeit seiner Zeitzone, in JSON etwa
 /// `{"id": "fed-2026-10-28", "art": "zinsentscheid", "institution": "fed", "titel": "Fed-Zinsentscheid",
 ///   "datum": "2026-10-28", "uhrzeit": "14:00", "zeitzone": "America/New_York", "waehrungen": ["USD"]}`.
 /// Ohne `uhrzeit` gilt der Termin den ganzen Tag in seiner Zeitzone (BoJ nennt keine feste Uhrzeit).
+/// Ab Format 2 optional `wichtigkeit` ("hoch", "mittel") und `region` (Kürzel wie "us", "eu", "de", "cn").
 public struct Termin: Sendable, Hashable, Identifiable {
     public let id: String
     public let art: Terminart
@@ -30,6 +61,54 @@ public struct Termin: Sendable, Hashable, Identifiable {
     /// Termin nur aus Sekundärquelle oder noch nicht bestätigt.
     public let vorlaeufig: Bool
     public let hinweis: String?
+    public let wichtigkeit: Wichtigkeit
+    /// Kürzel der Region, siehe `Terminkalender.regionen`; ohne Angabe aus der einzigen Währung abgeleitet, sonst „welt“.
+    public let region: String
+
+    public init(id: String, art: Terminart, institution: String, titel: String, beginn: Date, ende: Date,
+                ganztaegig: Bool, zeitzone: TimeZone, waehrungen: Set<String>, vorlaeufig: Bool = false,
+                hinweis: String? = nil, wichtigkeit: Wichtigkeit? = nil, region: String? = nil) {
+        self.id = id
+        self.art = art
+        self.institution = institution
+        self.titel = titel
+        self.beginn = beginn
+        self.ende = ende
+        self.ganztaegig = ganztaegig
+        self.zeitzone = zeitzone
+        self.waehrungen = waehrungen
+        self.vorlaeufig = vorlaeufig
+        self.hinweis = hinweis
+        self.wichtigkeit = wichtigkeit ?? Wichtigkeit.standard(fuer: art)
+        self.region = region ?? Terminkalender.region(waehrungen: waehrungen)
+    }
+
+    /// Ganztägiger Termin am Kalendertag `jahr-monat-tag` in `zeitzone`; `nil` bei ungültigem Datum.
+    public static func ganztaegig(id: String, art: Terminart, institution: String, titel: String,
+                                  jahr: Int, monat: Int, tag: Int, zeitzone: TimeZone, waehrungen: Set<String>,
+                                  vorlaeufig: Bool = false, hinweis: String? = nil,
+                                  wichtigkeit: Wichtigkeit? = nil, region: String? = nil) -> Termin? {
+        var kalender = Calendar(identifier: .gregorian)
+        kalender.timeZone = zeitzone
+        guard let beginn = kalender.date(from: DateComponents(year: jahr, month: monat, day: tag)),
+              kalender.component(.year, from: beginn) == jahr, kalender.component(.month, from: beginn) == monat,
+              kalender.component(.day, from: beginn) == tag,
+              let ende = kalender.date(byAdding: .day, value: 1, to: beginn)
+        else { return nil }
+        return Termin(id: id, art: art, institution: institution, titel: titel, beginn: beginn, ende: ende,
+                      ganztaegig: true, zeitzone: zeitzone, waehrungen: waehrungen, vorlaeufig: vorlaeufig,
+                      hinweis: hinweis, wichtigkeit: wichtigkeit, region: region)
+    }
+
+    /// Erfüllt der Termin alle gesetzten Filter? `nil` heißt jeweils: kein Filter.
+    public func passt(waehrungen: Set<String>? = nil, arten: Set<Terminart>? = nil,
+                      regionen: Set<String>? = nil, mindestens: Wichtigkeit? = nil) -> Bool {
+        if let waehrungen, self.waehrungen.isDisjoint(with: waehrungen) { return false }
+        if let arten, !arten.contains(art) { return false }
+        if let regionen, !regionen.contains(region) { return false }
+        if let mindestens, wichtigkeit < mindestens { return false }
+        return true
+    }
 
     /// Liegt der Termin ganz oder teilweise in [von, bis]?
     public func liegt(zwischen von: Date, und bis: Date) -> Bool {
@@ -60,7 +139,7 @@ public struct Jahresdatei: Sendable {
 
     public static func lade(json: Data) throws -> Jahresdatei {
         let roh = try JSONDecoder().decode(Roh.self, from: json)
-        guard roh.format == 1 else { throw TerminkalenderFehler.unbekanntesFormat(roh.format) }
+        guard (1...2).contains(roh.format) else { throw TerminkalenderFehler.unbekanntesFormat(roh.format) }
         var ids: Set<String> = []
         var termine: [Termin] = []
         for t in roh.termine {
@@ -94,6 +173,8 @@ public struct Jahresdatei: Sendable {
         let waehrungen: [String]
         let vorlaeufig: Bool?
         let hinweis: String?
+        let wichtigkeit: Wichtigkeit?
+        let region: String?
 
         func termin() throws -> Termin {
             guard let zone = TimeZone(identifier: zeitzone) else {
@@ -124,7 +205,8 @@ public struct Jahresdatei: Sendable {
             return Termin(id: id, art: art, institution: institution, titel: titel,
                           beginn: beginn, ende: uhrzeit == nil ? folgetag : beginn, ganztaegig: uhrzeit == nil,
                           zeitzone: zone, waehrungen: Set(waehrungen.map { $0.uppercased() }),
-                          vorlaeufig: vorlaeufig ?? false, hinweis: hinweis)
+                          vorlaeufig: vorlaeufig ?? false, hinweis: hinweis,
+                          wichtigkeit: wichtigkeit, region: region)
         }
     }
 }

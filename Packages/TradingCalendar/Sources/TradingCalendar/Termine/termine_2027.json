@@ -1,41 +1,102 @@
 {
-  "format": 1,
+  "format": 2,
   "jahr": 2027,
-  "stand": "2026-10-02",
+  "stand": "2026-10-05",
   "vollstaendig": [
     "zinsentscheid",
-    "feiertag"
+    "feiertag",
+    "verfall"
   ],
   "quellen": [
     "https://www.bankofengland.co.uk/monetary-policy/upcoming-mpc-dates und https://www.bankofengland.co.uk/news/2024/september/monetary-policy-committee-dates-for-2025 (abgerufen 02.10.2026); 12 Uhr laut Monetary Policy Summary",
     "https://www.boj.or.jp/en/mopo/mpmsche_minu/index.htm und past.htm (abgerufen 02.10.2026); keine feste Uhrzeit",
     "https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.en.html und https://www.ecb.europa.eu/press/tvservices/webcast/html/index.en.html (abgerufen 02.10.2026); Uhrzeit 14:15 laut https://www.ecb.europa.eu/press/govcdec/html/index.en.html",
     "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm (abgerufen 02.10.2026); Uhrzeit: FOMC-Statement 29.07.2026 „2:00 p.m. EDT“",
-    "https://www.snb.ch/en/the-snb/mandates-goals/monetary-policy/decisions und Event-Schedule (abgerufen 02.10.2026); 09:30 laut Event-Schedule 2027",
+    "https://www.snb.ch/en/the-snb/mandates-goals/monetary-policy/decisions und https://www.snb.ch/en/services-events/digital-services/event-schedule (abgerufen 02.10.2026, erneut 05.10.2026: 10.12.2026 09:30 bestätigt)",
     "Feiertage USA: 5 U.S.C. 6103 nach Regel, Samstagsregel laut Fed K.8 https://www.federalreserve.gov/aboutthefed/k8.htm (abgerufen 02.10.2026)",
     "Feiertage Großbritannien: https://www.gov.uk/bank-holidays.json (abgerufen 02.10.2026), gleich mit TradingClock lse.json",
-    "Feiertage Euroraum: TARGET-Schließtage nach Regel (ungeprüft)",
-    "Feiertage Japan: Feiertagsgesetz und Bankgesetz nach Regel (ungeprüft)"
+    "Feiertage Euroraum: TARGET-Schließtage laut https://www.ecb.europa.eu/paym/target/t2/html/index.en.html (abgerufen 05.10.2026), Daten aus dem Ostertermin",
+    "Feiertage Japan: https://www8.cao.go.jp/chosei/shukujitsu/syukujitsu.csv und gaiyou.html, Bankschließung https://www.boj.or.jp/en/about/outline/holi.htm (abgerufen 05.10.2026)",
+    "https://ec.europa.eu/eurostat/web/products-euro-indicators/w/2-07012026-ap (abgerufen 05.10.2026): HVPI-Schnellschätzung 07.01.2026 10:00 UTC, next release 04.02.2026; ebenso Pressemitteilungen 2-04022026-ap, 2-03032026-ap, 2-31032026-ap, 2-30042026-ap, 2-02062026-ap, 2-01072026-ap, 2-31072026-ap, 2-01092026-ap, 2-02102026-ap (Veröffentlichungszeit 09:00/10:00 UTC = 11:00 Luxemburg; 'Next release' 04.11.2026)",
+    "https://ec.europa.eu/eurostat/documents/24987/6642470/QNA_release_calendar.pdf (abgerufen 05.10.2026): Eurostat-Kalender BIP-Veröffentlichungen Ende 2025 bis Anfang 2027 (T+30, T+45), 'dates are PROVISIONAL until confirmed in Eurostat weekly release calendar', keine Uhrzeit",
+    "https://ec.europa.eu/eurostat/web/products-euro-indicators/w/2-30012026-ap, 2-30042026-bp, 2-30072026-ap (abgerufen 05.10.2026): BIP-Schnellschätzungen 10:00/09:00 UTC (= 11:00 Luxemburg)",
+    "https://www.pmi.spglobal.com/Public/Home/PDF/UK_Rel_Dates (abgerufen 05.10.2026): S&P Global PMI-Kalender 2026 (Dez 2025 bis Nov 2026), Flash-PMI-Termine in UTC und Ortszeit; Euroraum 10:00 MEZ/MESZ, Deutschland 09:30, UK 09:30 Ortszeit",
+    "https://www.pmi.spglobal.com/Public/Release/ReleaseDates (abgerufen 05.10.2026): bestätigt Flash-PMIs 23.10.2026 (Deutschland 07:30, Euroraum 08:00, UK 08:30 UTC)",
+    "https://www.ifo.de/umfrage/ifo-geschaeftsklima-deutschland (abgerufen 05.10.2026): Nächste Termine 26.10., 24.11., 17.12.2026 jeweils 10:30 CET/CEST; vergangene Termine aus Monatsseiten ifo.de/en/ifo-business-climate-index-germany-<monat>-2026 (Zeitstempel 10:30 CET/CEST)",
+    "https://www.zew.de/en/press/latest-press-releases/2026-release-dates-for-zew-indicator-of-economic-sentiment-fixed (abgerufen 05.10.2026): alle Termine 2026 und 19.01.2027, 'at 11:05 a.m. Frankfurt Time'",
+    "https://www.destatis.de/DE/Presse/Pressemitteilungen/2026/ (PD26_002_611, PD26_036_611, PD26_069_611, PD26_108_611, PD26_149_611, PD26_182_611, PD26_229_611, PD26_270_611, PD26_311_611, PD26_348_611; abgerufen 05.10.2026): Datum der vorläufigen VPI-Pressemitteilungen 2026; 14:00 in den Zeitstempeln vom 27.02. und 30.09.2026",
+    "https://www.ons.gov.uk/releases/consumerpriceinflationuk<monat><jahr> und https://www.ons.gov.uk/releasecalendar (abgerufen 05.10.2026): CPI-Termine 2026 und 2027 jeweils 7:00am; ab Dezember 2026 Status 'Provisional'",
+    "https://www.stats.gov.cn/english/PressRelease/ReleaseCalendar/202512/t20251226_1962154.html (abgerufen 05.10.2026): Regular Press Release Calendar of NBS in 2026, CPI/PPI und PMI 9:30; Februar-PMI am 4. März (Frühlingsfest)",
+    "https://www.boj.or.jp/en/statistics/tk/gaiyo/2026/tka2603.pdf, tka2606.pdf, tka2609.pdf (abgerufen 05.10.2026): Sperrfrist 'Not to be released before 8:50 a.m.' am 01.04., 01.07., 01.10.2026",
+    "https://www.six-group.com/dam/download/banking-services/interbank-clearing/de/payment_services/sic/banking-holidays.pdf (abgerufen 05.10.2026): SIX Valutaregelung, SIC-Feiertage 25.12.2026 bis 01.01.2028; bestätigt durch https://api.six-group.com/api/epcd/clearingday/v1/calendar.csv",
+    "https://www.rba.gov.au/schedules-events/board-meeting-schedules.html (abgerufen 05.10.2026): Monetary Policy Board Sitzungstermine 2026 und 2027, keine Uhrzeit",
+    "https://www.rba.gov.au/media-releases/2025/mr-25-02.html (abgerufen 05.10.2026): 2026er Termine; 'The outcome of the meeting will be announced at 2.30 pm on the second day of the Board meeting', Pressekonferenz 3.30 pm",
+    "https://www.bankofcanada.ca/core-functions/monetary-policy/key-interest-rate/ (abgerufen 05.10.2026): Ankündigungstermine 2026 und 2027",
+    "https://www.bankofcanada.ca/2026/07/bank-canada-publishes-2027-schedule-policy-interest-rate-announcements-other-major-publications/ (abgerufen 05.10.2026): Termine 2027, 'All interest rate announcements will take place at 09:45 (ET)', MPR im Jan/Apr/Jul/Okt",
+    "https://www.bankofcanada.ca/press/upcoming-events/ (abgerufen 05.10.2026): 28.10.2026 und 09.12.2026 jeweils 09:45 (ET)",
+    "https://www.bankofcanada.ca/2026/07/fad-announcement-release-mpr-2026-07-15/ (abgerufen 05.10.2026): 15.07.2026 9:45 a.m. ET (Beleg 09:45 auch für vergangene 2026er Termine)",
+    "https://www.rbnz.govt.nz/news-and-events/how-we-release-information/ocr-decision-dates-and-financial-stability-report-dates-to-feb-2028 (abgerufen 05.10.2026): OCR-Termine Apr 2026 bis Feb 2028, ohne Uhrzeit",
+    "https://www.rbnz.govt.nz/hub/news/2024/06/monetary-policy-announcement-and-financial-stability-report-dates-for-late-2025-and-2026 (abgerufen 05.10.2026): 18.02.2026 MPS; 'Announcements will be made as usual at 2pm for the MPS and MPR'",
+    "https://www.rbnz.govt.nz/news-and-events/events/2026/october/monetary-policy-review-and-ocr-october-2026 (abgerufen 05.10.2026): 28.10.2026, 2pm NZT",
+    "https://www.norges-bank.no/en/news-events/calendar/policy-rate-decisions/ (abgerufen 05.10.2026): 05.11.2026, 17.12.2026 und alle 2027er Termine jeweils 10:00",
+    "https://www.norges-bank.no/en/topics/monetary-policy/Monetary-policy-meetings/2026/ (Unterseiten january/march/may/june/august/september-2026) (abgerufen 05.10.2026): 'Published <Datum> 10:00' für 22.01., 26.03., 07.05., 18.06., 13.08., 24.09.2026",
+    "https://www.chinamoney.com.cn/chinese/rdgz/ (Einzelseiten 20260120, 20260224, 20260320, 20260520, 20260622, 20260720, 20260820, 20260920) (abgerufen 05.10.2026): LPR-Bekanntmachungen jeweils 09:00",
+    "https://www.chinamoney.com.cn/chinese/bklpr/ (abgerufen 05.10.2026): Regel 'jeden Monat am 20. (an Feiertagen verschoben), Veröffentlichung 9 Uhr'",
+    "https://www.news.cn/money/20260421/7af4278f0f6949219b12e974bf3ea635/c.html und https://finance.sina.com.cn/roll/2026-04-20/doc-inhvcewe3860003.shtml (abgerufen 05.10.2026) (nur Suchtreffer-Titel): LPR April 2026 am 20.04. (Sekundärquelle)",
+    "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm (abgerufen 05.10.2026): FOMC-Sitzungen 2026 und 2027 (2027 tentativ), Minutes-Freigaben 2026 bis Aug., Regel 'released three weeks after the date of the policy decision'",
+    "https://www.federalreserve.gov/newsevents/2026-february.htm, -october.htm, -november.htm, -december.htm (abgerufen 05.10.2026): 'FOMC Minutes' 18.02., 07.10., 18.11., 30.12.2026 jeweils 2:00 p.m.",
+    "https://www.ecb.europa.eu/press/accounts/2026/html/ (Accounts ecb.mg260122, mg260305, mg260416, mg260528, mg260709, mg260827) (abgerufen 05.10.2026): Veröffentlichungsdaten und Sitzungstermine",
+    "https://www.ecb.europa.eu/press/calendars/weekly/html/index.en.html (abgerufen 05.10.2026): 08.10.2026 13:30 CET Account der Sitzung 9.-10.09.2026 in Berlin",
+    "https://www.ecb.europa.eu/press/accounts/html/index.en.html (abgerufen 05.10.2026): 'typically published four weeks after the meetings', nächste Veröffentlichung 08.10.2026",
+    "https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.en.html (abgerufen 05.10.2026): EZB-Sitzungen 28.-29.10. und 16.-17.12.2026 sowie 2027 (März bis Oktober sichtbar)",
+    "https://www.kansascityfed.org/newsroom/2026-news-releases/kansas-city-fed-to-host-annual-jackson-hole-economic-policy-symposium-2026/ (abgerufen 05.10.2026): Symposium 27.-29.08.2026, Thema 'Financial Innovation: Implications for Payments and Policy'",
+    "https://infomemo.theocc.com/infomemos?number=57897 (abgerufen 05.10.2026): OCC 2026 Holiday and Expiration Schedule, monatliche Verfälle 2026 (Juni: 18.06. wegen Juneteenth)",
+    "https://www.cboe.com/about/hours/us-options/ (abgerufen 05.10.2026): Cboe-Expiration-Calendar nur 2025 und 2026 verlinkt, kein 2027",
+    "https://cdn.cboe.com/resources/options/Cboe2026OPTIONSCalendar.pdf (abgerufen 05.10.2026): Kalender 2026, Markierungen nicht maschinell lesbar",
+    "https://www.eurex.com/ex-en/markets/idx/dax/DAX-Options-139884 (abgerufen 05.10.2026): Regel 'third Friday of each expiration month if this is an exchange day; otherwise the exchange day immediately preceding that day'",
+    "https://www.eurex.com/ex-en/trade/trading-calendar/trading-calendar-archive (abgerufen 05.10.2026): Handelskalender 2026 vorhanden (PDF), 2027 noch nicht veröffentlicht",
+    "https://stoxx.com/stoxx-announces-scheduled-adjustments-to-dax-blue-chip-indices-mar-4-2026/ (abgerufen 05.10.2026): wirksam 23.03.2026",
+    "https://stoxx.com/stoxx-announces-scheduled-adjustments-to-dax-blue-chip-indices-jun-3-2026/ (abgerufen 05.10.2026): wirksam 22.06.2026",
+    "https://stoxx.com/stoxx-announces-scheduled-adjustments-to-dax-blue-chip-indices-sep-3-2026/ (abgerufen 05.10.2026): wirksam 21.09.2026, nächste Überprüfung 03.12.2026",
+    "https://stoxx.com/new-dax-review-timeline-to-reduce-trading-risk-for-index-trackers/ (abgerufen 05.10.2026): Wirksamkeit Montag nach dem dritten Freitag",
+    "https://www.spglobal.com/spdji/en/documents/methodologies/methodology-sp-us-indices.pdf (abgerufen 05.10.2026): 'rebalanced quarterly after the close of business on the third Friday of March, June, September, and December'",
+    "https://press.spglobal.com/2026-03-06-Vertiv-Holdings,-Lumentum-Holdings,-Coherent,-and-EchoStar-Set-to-Join-S-P-500-Others-to-Join-S-P-100,-S-P-MidCap-400,-and-S-P-SmallCap-600 (abgerufen 05.10.2026): wirksam vor Handelsbeginn 23.03.2026",
+    "https://press.spglobal.com/2026-06-05-Marvell-Technology-and-Flex-Set-to-Join-S-P-500-Others-to-Join-S-P-MidCap-400-and-S-P-SmallCap-600 (abgerufen 05.10.2026): wirksam vor Handelsbeginn 22.06.2026",
+    "https://press.spglobal.com/2026-09-04-Bloom-Energy,-Illumina,-and-Everpure-Set-to-Join-S-P-500-Others-to-Join-S-P-100,-S-P-MidCap-400,-and-S-P-SmallCap-600 (abgerufen 05.10.2026): wirksam vor Handelsbeginn 21.09.2026",
+    "https://www.msci.com/eqb/pressreleases/archive/ir_dates.pdf (abgerufen 05.10.2026): MSCI 'Next Eight Index Review Dates' vom 12.08.2026, Nov 2026 bis Aug 2028",
+    "https://www.msci.com/downloads/documents/press-releases/media-room/MSCI_Feb_2026_IR_Pre-Ann_PR_Doc.pdf (abgerufen 05.10.2026): Bekanntgabe 10.02.2026 kurz nach 23:00 MEZ, Umsetzung zum Schluss 27.02.2026",
+    "https://app2.msci.com/webapp/index_ann/DocGet?pub_key=bN889ud22q4%3D&lang=en&format=html (abgerufen 05.10.2026): Bekanntgabe 12.05.2026 kurz nach 23:00 MESZ, Umsetzung zum Schluss 29.05.2026",
+    "https://ir.msci.com/news-releases/news-release-details/msci-august-index-review-announcement-scheduled-august-12-2026 (abgerufen 05.10.2026): Bekanntgabe 12.08.2026 kurz nach 23:00 MESZ, Umsetzung zum Schluss 31.08.2026",
+    "https://www.fec.gov/help-candidates-and-committees/dates-and-deadlines/2026-reporting-dates/congressional-pre-election-reporting-dates-2026/ (abgerufen 05.10.2026): General Election 11/03/2026",
+    "https://www.usa.gov/midterm-elections (abgerufen 05.10.2026): 'next midterm elections will be in November 2026'",
+    "https://www.elections.interieur.gouv.fr/scrutins/lelection-presidentielle (abgerufen 05.10.2026): 1. Wahlgang 18.04.2027, 2. Wahlgang 02.05.2027",
+    "https://www.opec.org/pr-detail/243582-30-november-2025.html (abgerufen 05.10.2026): 41. ONOMM am 07.06.2026",
+    "https://www.opec.org/pr-detail/605-7-june-2026.html (abgerufen 05.10.2026): 41. ONOMM, 42. ONOMM am 29.11.2026",
+    "https://www.opec.org/pr-detail/587-4-january-2026.html, 589-1-february-2026, 593-1-march-2026, 597-5-april-2026, 602-3-may-2026, 604-7-june-2026, 1835609-5-july-2026, 1854611-2-august-2026, 1835613-6-september-2026, 616-4-october-2026 (abgerufen 05.10.2026): Treffen der acht bzw. sieben Länder, jeweils mit nächstem Termin (zuletzt 01.11.2026)",
+    "https://www.opec.org/pr-detail/590-1-february-2026.html, 596-5-april-2026, 1870612-2-august-2026, 1870617-4-october-2026 (abgerufen 05.10.2026): 64., 65., 67., 68. JMMC; 66. JMMC am 07.06.2026 angekündigt, 69. JMMC am 29.11.2026"
   ],
   "hinweise": [
-    "Feiertage nur an Werktagen; Art feiertag deckt USD, EUR, GBP und JPY ab, CHF fehlt noch.",
+    "Feiertage nur an Werktagen; Art feiertag deckt USD, EUR, GBP und JPY ab, CHF erst ab 25.12.2026 (SIX-Liste).",
     "Zeiten in Ortszeit der Zeitzone; Termine ohne Uhrzeit gelten den ganzen Tag dort.",
     "Fed: jeder Termin gilt als vorläufig, bis die vorige Sitzung ihn bestätigt (Fed-Kalender).",
-    "BLS hat die US-Termine 2027 noch nicht veröffentlicht."
+    "BLS hat die US-Termine 2027 noch nicht veröffentlicht.",
+    "Ab Format 2: wichtigkeit (hoch/mittel) nach Einschätzung im Abgleich mit Trading-Kalendern (Stand-Doc 63), region als Kürzel. Termine nur von den Herausgebern; vorlaeufig heißt nach Regel berechnet, Sekundärquelle oder vom Herausgeber als vorläufig markiert.",
+    "vollstaendig bezieht sich auf die Kernreihen aus Format 1 (Zinsentscheide Fed, EZB, BoE, BoJ, SNB; BLS-Arbeitsmarkt und -CPI; Bankfeiertage) und auf die Verfallstage. Neue Reihen können Lücken haben (Stand-Doc 63): Riksbank fehlt, PBoC-LPR nur bis September 2026, mehrere Reihen enden mit dem letzten veröffentlichten Termin."
   ],
   "termine": [
     {
-      "id": "feiertag-jpy-2027-01-01",
+      "id": "feiertag-chf-2027-01-01",
       "art": "feiertag",
-      "institution": "boj",
-      "titel": "Feiertag Japan: Neujahr",
+      "institution": "snb",
+      "titel": "Feiertag Schweiz: Neujahr",
       "datum": "2027-01-01",
-      "zeitzone": "Asia/Tokyo",
+      "zeitzone": "Europe/Zurich",
       "waehrungen": [
-        "JPY"
+        "CHF"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+      "region": "ch",
+      "wichtigkeit": "mittel",
+      "hinweis": "SIC (CHF) kein Clearingtag laut SIX-Valutaregelung"
     },
     {
       "id": "feiertag-eur-2027-01-01",
@@ -47,8 +108,7 @@
       "waehrungen": [
         "EUR"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: TARGET-Schließtag nach Regel berechnet"
+      "hinweis": "TARGET-Schließtag laut EZB-Regel, Datum aus dem Ostertermin (geprüft 05.10.2026)"
     },
     {
       "id": "feiertag-gbp-2027-01-01",
@@ -61,6 +121,18 @@
         "GBP"
       ],
       "hinweis": "Bank Holiday England und Wales"
+    },
+    {
+      "id": "feiertag-jpy-2027-01-01",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Neujahr",
+      "datum": "2027-01-01",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "hinweis": "Feiertagsgesetz laut Cabinet Office, Bankschließung 31.12. bis 03.01. laut BoJ (geprüft 05.10.2026)"
     },
     {
       "id": "feiertag-usd-2027-01-01",
@@ -84,8 +156,37 @@
       "waehrungen": [
         "JPY"
       ],
+      "hinweis": "Feiertagsgesetz laut Cabinet Office, Bankschließung 31.12. bis 03.01. laut BoJ (geprüft 05.10.2026)"
+    },
+    {
+      "id": "cboe-2027-01-15",
+      "art": "verfall",
+      "institution": "cboe",
+      "titel": "Verfall US-Optionen",
+      "datum": "2027-01-15",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "region": "us",
+      "wichtigkeit": "mittel",
       "vorlaeufig": true,
-      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+      "hinweis": "nach Regel berechnet (dritter Freitag, bei Feiertag Donnerstag)"
+    },
+    {
+      "id": "eurex-2027-01-15",
+      "art": "verfall",
+      "institution": "eurex",
+      "titel": "Verfall Eurex",
+      "datum": "2027-01-15",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "EUR"
+      ],
+      "region": "de",
+      "wichtigkeit": "mittel",
+      "vorlaeufig": true,
+      "hinweis": "nach Regel berechnet (Eurex: dritter Freitag, sonst vorhergehender Börsentag); Eurex-Kalender 2027 noch nicht veröffentlicht"
     },
     {
       "id": "feiertag-usd-2027-01-18",
@@ -100,6 +201,50 @@
       "hinweis": "Bankfeiertag der Fed (Fedwire geschlossen)"
     },
     {
+      "id": "zew-2027-01-19",
+      "art": "konjunktur",
+      "institution": "zew",
+      "titel": "ZEW-Konjunkturerwartungen",
+      "datum": "2027-01-19",
+      "uhrzeit": "11:05",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "EUR"
+      ],
+      "region": "de",
+      "wichtigkeit": "mittel"
+    },
+    {
+      "id": "ons-cpi-2027-01-20",
+      "art": "inflation",
+      "institution": "ons",
+      "titel": "UK-Verbraucherpreise",
+      "datum": "2027-01-20",
+      "uhrzeit": "07:00",
+      "zeitzone": "Europe/London",
+      "waehrungen": [
+        "GBP"
+      ],
+      "region": "uk",
+      "wichtigkeit": "hoch",
+      "vorlaeufig": true,
+      "hinweis": "ONS-Status 'Provisional'"
+    },
+    {
+      "id": "norgesbank-2027-01-21",
+      "art": "zinsentscheid",
+      "institution": "norgesbank",
+      "titel": "Norges-Bank-Zinsentscheid",
+      "datum": "2027-01-21",
+      "uhrzeit": "10:00",
+      "zeitzone": "Europe/Oslo",
+      "waehrungen": [
+        "NOK"
+      ],
+      "region": "no",
+      "wichtigkeit": "hoch"
+    },
+    {
       "id": "boj-2027-01-22",
       "art": "zinsentscheid",
       "institution": "boj",
@@ -112,6 +257,21 @@
       "hinweis": "zweiter Sitzungstag; Uhrzeit nicht fest, ganzer Tag in Tokio"
     },
     {
+      "id": "boc-2027-01-27",
+      "art": "zinsentscheid",
+      "institution": "boc",
+      "titel": "BoC-Zinsentscheid",
+      "datum": "2027-01-27",
+      "uhrzeit": "09:45",
+      "zeitzone": "America/Toronto",
+      "waehrungen": [
+        "CAD"
+      ],
+      "region": "ca",
+      "wichtigkeit": "hoch",
+      "hinweis": "mit Monetary Policy Report"
+    },
+    {
       "id": "fed-2027-01-27",
       "art": "zinsentscheid",
       "institution": "fed",
@@ -122,6 +282,21 @@
       "waehrungen": [
         "USD"
       ]
+    },
+    {
+      "id": "eurostat-bip-2027-01-29",
+      "art": "konjunktur",
+      "institution": "eurostat",
+      "titel": "Euroraum-BIP Schnellschätzung",
+      "datum": "2027-01-29",
+      "zeitzone": "Europe/Luxembourg",
+      "waehrungen": [
+        "EUR"
+      ],
+      "region": "eu",
+      "wichtigkeit": "mittel",
+      "vorlaeufig": true,
+      "hinweis": "Q4 2026 (T+30); provisorisch laut QNA-Kalender"
     },
     {
       "id": "boe-2027-02-04",
@@ -148,6 +323,49 @@
       ]
     },
     {
+      "id": "msci-ank-2027-02-09",
+      "art": "index",
+      "institution": "msci",
+      "titel": "MSCI Index Review (Bekanntgabe)",
+      "datum": "2027-02-09",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "USD"
+      ],
+      "region": "welt",
+      "wichtigkeit": "mittel",
+      "hinweis": "Ankündigungstag laut MSCI-Liste 'Next Eight Index Review Dates' (12.08.2026)"
+    },
+    {
+      "id": "rba-2027-02-09",
+      "art": "zinsentscheid",
+      "institution": "rba",
+      "titel": "RBA-Zinsentscheid",
+      "datum": "2027-02-09",
+      "zeitzone": "Australia/Sydney",
+      "waehrungen": [
+        "AUD"
+      ],
+      "region": "au",
+      "wichtigkeit": "hoch",
+      "hinweis": "Zweiter Sitzungstag; Pressekonferenz 15:30; mit Statement on Monetary Policy; Uhrzeit 2027 noch nicht bestätigt (2026: 14:30)"
+    },
+    {
+      "id": "rbnz-2027-02-10",
+      "art": "zinsentscheid",
+      "institution": "rbnz",
+      "titel": "RBNZ-Zinsentscheid (OCR)",
+      "datum": "2027-02-10",
+      "uhrzeit": "14:00",
+      "zeitzone": "Pacific/Auckland",
+      "waehrungen": [
+        "NZD"
+      ],
+      "region": "nz",
+      "wichtigkeit": "hoch",
+      "hinweis": "Monetary Policy Review"
+    },
+    {
       "id": "feiertag-jpy-2027-02-11",
       "art": "feiertag",
       "institution": "boj",
@@ -157,8 +375,22 @@
       "waehrungen": [
         "JPY"
       ],
+      "hinweis": "Feiertagsgesetz laut Cabinet Office, Bankschließung 31.12. bis 03.01. laut BoJ (geprüft 05.10.2026)"
+    },
+    {
+      "id": "eurostat-bip45-2027-02-15",
+      "art": "konjunktur",
+      "institution": "eurostat",
+      "titel": "Euroraum-BIP und Beschäftigung Schnellschätzung",
+      "datum": "2027-02-15",
+      "zeitzone": "Europe/Luxembourg",
+      "waehrungen": [
+        "EUR"
+      ],
+      "region": "eu",
+      "wichtigkeit": "mittel",
       "vorlaeufig": true,
-      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+      "hinweis": "Q4 2026 (T+45); provisorisch laut QNA-Kalender"
     },
     {
       "id": "feiertag-usd-2027-02-15",
@@ -173,6 +405,52 @@
       "hinweis": "Bankfeiertag der Fed (Fedwire geschlossen)"
     },
     {
+      "id": "ons-cpi-2027-02-17",
+      "art": "inflation",
+      "institution": "ons",
+      "titel": "UK-Verbraucherpreise",
+      "datum": "2027-02-17",
+      "uhrzeit": "07:00",
+      "zeitzone": "Europe/London",
+      "waehrungen": [
+        "GBP"
+      ],
+      "region": "uk",
+      "wichtigkeit": "hoch",
+      "vorlaeufig": true,
+      "hinweis": "ONS-Status 'Provisional'"
+    },
+    {
+      "id": "cboe-2027-02-19",
+      "art": "verfall",
+      "institution": "cboe",
+      "titel": "Verfall US-Optionen",
+      "datum": "2027-02-19",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "region": "us",
+      "wichtigkeit": "mittel",
+      "vorlaeufig": true,
+      "hinweis": "nach Regel berechnet (dritter Freitag, bei Feiertag Donnerstag)"
+    },
+    {
+      "id": "eurex-2027-02-19",
+      "art": "verfall",
+      "institution": "eurex",
+      "titel": "Verfall Eurex",
+      "datum": "2027-02-19",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "EUR"
+      ],
+      "region": "de",
+      "wichtigkeit": "mittel",
+      "vorlaeufig": true,
+      "hinweis": "nach Regel berechnet (Eurex: dritter Freitag, sonst vorhergehender Börsentag); Eurex-Kalender 2027 noch nicht veröffentlicht"
+    },
+    {
       "id": "feiertag-jpy-2027-02-23",
       "art": "feiertag",
       "institution": "boj",
@@ -182,20 +460,35 @@
       "waehrungen": [
         "JPY"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+      "hinweis": "Feiertagsgesetz laut Cabinet Office, Bankschließung 31.12. bis 03.01. laut BoJ (geprüft 05.10.2026)"
     },
     {
-      "id": "boj-2027-03-18",
-      "art": "zinsentscheid",
-      "institution": "boj",
-      "titel": "BoJ-Zinsentscheid",
-      "datum": "2027-03-18",
-      "zeitzone": "Asia/Tokyo",
+      "id": "msci-2027-03-01",
+      "art": "index",
+      "institution": "msci",
+      "titel": "MSCI Index Review wirksam",
+      "datum": "2027-03-01",
+      "zeitzone": "Europe/Berlin",
       "waehrungen": [
-        "JPY"
+        "USD"
       ],
-      "hinweis": "zweiter Sitzungstag; Uhrzeit nicht fest, ganzer Tag in Tokio"
+      "region": "welt",
+      "wichtigkeit": "mittel",
+      "hinweis": "'Effective date' laut MSCI-Liste"
+    },
+    {
+      "id": "boc-2027-03-03",
+      "art": "zinsentscheid",
+      "institution": "boc",
+      "titel": "BoC-Zinsentscheid",
+      "datum": "2027-03-03",
+      "uhrzeit": "09:45",
+      "zeitzone": "America/Toronto",
+      "waehrungen": [
+        "CAD"
+      ],
+      "region": "ca",
+      "wichtigkeit": "hoch"
     },
     {
       "id": "fed-2027-03-17",
@@ -211,6 +504,33 @@
       "hinweis": "mit Projektionen (SEP) und Pressekonferenz"
     },
     {
+      "id": "rbnz-2027-03-17",
+      "art": "zinsentscheid",
+      "institution": "rbnz",
+      "titel": "RBNZ-Zinsentscheid (OCR)",
+      "datum": "2027-03-17",
+      "uhrzeit": "14:00",
+      "zeitzone": "Pacific/Auckland",
+      "waehrungen": [
+        "NZD"
+      ],
+      "region": "nz",
+      "wichtigkeit": "hoch",
+      "hinweis": "Monetary Policy Statement (mit Pressekonferenz)"
+    },
+    {
+      "id": "boj-2027-03-18",
+      "art": "zinsentscheid",
+      "institution": "boj",
+      "titel": "BoJ-Zinsentscheid",
+      "datum": "2027-03-18",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "hinweis": "zweiter Sitzungstag; Uhrzeit nicht fest, ganzer Tag in Tokio"
+    },
+    {
       "id": "snb-2027-03-18",
       "art": "zinsentscheid",
       "institution": "snb",
@@ -221,6 +541,20 @@
       "waehrungen": [
         "CHF"
       ]
+    },
+    {
+      "id": "norgesbank-2027-03-18",
+      "art": "zinsentscheid",
+      "institution": "norgesbank",
+      "titel": "Norges-Bank-Zinsentscheid",
+      "datum": "2027-03-18",
+      "uhrzeit": "10:00",
+      "zeitzone": "Europe/Oslo",
+      "waehrungen": [
+        "NOK"
+      ],
+      "region": "no",
+      "wichtigkeit": "hoch"
     },
     {
       "id": "boe-2027-03-18",
@@ -247,6 +581,51 @@
       ]
     },
     {
+      "id": "cboe-2027-03-19",
+      "art": "verfall",
+      "institution": "cboe",
+      "titel": "Großer Verfall US (Triple Witching)",
+      "datum": "2027-03-19",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "region": "us",
+      "wichtigkeit": "hoch",
+      "vorlaeufig": true,
+      "hinweis": "nach Regel berechnet (dritter Freitag, bei Feiertag Donnerstag)"
+    },
+    {
+      "id": "eurex-2027-03-19",
+      "art": "verfall",
+      "institution": "eurex",
+      "titel": "Großer Verfall Eurex (Hexensabbat)",
+      "datum": "2027-03-19",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "EUR"
+      ],
+      "region": "de",
+      "wichtigkeit": "hoch",
+      "vorlaeufig": true,
+      "hinweis": "nach Regel berechnet (Eurex: dritter Freitag, sonst vorhergehender Börsentag); Eurex-Kalender 2027 noch nicht veröffentlicht"
+    },
+    {
+      "id": "spdji-2027-03-19",
+      "art": "index",
+      "institution": "spdji",
+      "titel": "S&P 500 Quartals-Rebalancing",
+      "datum": "2027-03-19",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "region": "us",
+      "wichtigkeit": "mittel",
+      "vorlaeufig": true,
+      "hinweis": "nach S&P-Methodik berechnet"
+    },
+    {
       "id": "feiertag-jpy-2027-03-22",
       "art": "feiertag",
       "institution": "boj",
@@ -256,8 +635,66 @@
       "waehrungen": [
         "JPY"
       ],
+      "hinweis": "Feiertagsgesetz laut Cabinet Office, Bankschließung 31.12. bis 03.01. laut BoJ (geprüft 05.10.2026)"
+    },
+    {
+      "id": "stoxx-dax-2027-03-22",
+      "art": "index",
+      "institution": "stoxx",
+      "titel": "DAX-Indexüberprüfung wirksam",
+      "datum": "2027-03-22",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "EUR"
+      ],
+      "region": "de",
+      "wichtigkeit": "mittel",
       "vorlaeufig": true,
-      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+      "hinweis": "nach STOXX-Regel berechnet (wirksam am Montag nach dem dritten Freitag); Umsetzung zum Handelsschluss am Freitag davor"
+    },
+    {
+      "id": "rba-2027-03-23",
+      "art": "zinsentscheid",
+      "institution": "rba",
+      "titel": "RBA-Zinsentscheid",
+      "datum": "2027-03-23",
+      "zeitzone": "Australia/Sydney",
+      "waehrungen": [
+        "AUD"
+      ],
+      "region": "au",
+      "wichtigkeit": "hoch",
+      "hinweis": "Zweiter Sitzungstag; Pressekonferenz 15:30; Uhrzeit 2027 noch nicht bestätigt (2026: 14:30)"
+    },
+    {
+      "id": "ons-cpi-2027-03-24",
+      "art": "inflation",
+      "institution": "ons",
+      "titel": "UK-Verbraucherpreise",
+      "datum": "2027-03-24",
+      "uhrzeit": "07:00",
+      "zeitzone": "Europe/London",
+      "waehrungen": [
+        "GBP"
+      ],
+      "region": "uk",
+      "wichtigkeit": "hoch",
+      "vorlaeufig": true,
+      "hinweis": "ONS-Status 'Provisional'"
+    },
+    {
+      "id": "feiertag-chf-2027-03-26",
+      "art": "feiertag",
+      "institution": "snb",
+      "titel": "Feiertag Schweiz: Karfreitag",
+      "datum": "2027-03-26",
+      "zeitzone": "Europe/Zurich",
+      "waehrungen": [
+        "CHF"
+      ],
+      "region": "ch",
+      "wichtigkeit": "mittel",
+      "hinweis": "SIC (CHF) kein Clearingtag laut SIX-Valutaregelung"
     },
     {
       "id": "feiertag-eur-2027-03-26",
@@ -269,8 +706,7 @@
       "waehrungen": [
         "EUR"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: TARGET-Schließtag nach Regel berechnet"
+      "hinweis": "TARGET-Schließtag laut EZB-Regel, Datum aus dem Ostertermin (geprüft 05.10.2026)"
     },
     {
       "id": "feiertag-gbp-2027-03-26",
@@ -285,6 +721,20 @@
       "hinweis": "Bank Holiday England und Wales"
     },
     {
+      "id": "feiertag-chf-2027-03-29",
+      "art": "feiertag",
+      "institution": "snb",
+      "titel": "Feiertag Schweiz: Ostermontag",
+      "datum": "2027-03-29",
+      "zeitzone": "Europe/Zurich",
+      "waehrungen": [
+        "CHF"
+      ],
+      "region": "ch",
+      "wichtigkeit": "mittel",
+      "hinweis": "SIC (CHF) kein Clearingtag laut SIX-Valutaregelung"
+    },
+    {
       "id": "feiertag-eur-2027-03-29",
       "art": "feiertag",
       "institution": "ezb",
@@ -294,8 +744,7 @@
       "waehrungen": [
         "EUR"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: TARGET-Schließtag nach Regel berechnet"
+      "hinweis": "TARGET-Schließtag laut EZB-Regel, Datum aus dem Ostertermin (geprüft 05.10.2026)"
     },
     {
       "id": "feiertag-gbp-2027-03-29",
@@ -310,6 +759,66 @@
       "hinweis": "Bank Holiday England und Wales"
     },
     {
+      "id": "cboe-2027-04-16",
+      "art": "verfall",
+      "institution": "cboe",
+      "titel": "Verfall US-Optionen",
+      "datum": "2027-04-16",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "region": "us",
+      "wichtigkeit": "mittel",
+      "vorlaeufig": true,
+      "hinweis": "nach Regel berechnet (dritter Freitag, bei Feiertag Donnerstag)"
+    },
+    {
+      "id": "eurex-2027-04-16",
+      "art": "verfall",
+      "institution": "eurex",
+      "titel": "Verfall Eurex",
+      "datum": "2027-04-16",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "EUR"
+      ],
+      "region": "de",
+      "wichtigkeit": "mittel",
+      "vorlaeufig": true,
+      "hinweis": "nach Regel berechnet (Eurex: dritter Freitag, sonst vorhergehender Börsentag); Eurex-Kalender 2027 noch nicht veröffentlicht"
+    },
+    {
+      "id": "minint-fr-2027-04-18",
+      "art": "politik",
+      "institution": "minint-fr",
+      "titel": "Präsidentschaftswahl Frankreich, 1. Wahlgang",
+      "datum": "2027-04-18",
+      "zeitzone": "Europe/Paris",
+      "waehrungen": [
+        "EUR"
+      ],
+      "region": "fr",
+      "wichtigkeit": "hoch",
+      "hinweis": "Datum laut französischem Innenministerium"
+    },
+    {
+      "id": "ons-cpi-2027-04-21",
+      "art": "inflation",
+      "institution": "ons",
+      "titel": "UK-Verbraucherpreise",
+      "datum": "2027-04-21",
+      "uhrzeit": "07:00",
+      "zeitzone": "Europe/London",
+      "waehrungen": [
+        "GBP"
+      ],
+      "region": "uk",
+      "wichtigkeit": "hoch",
+      "vorlaeufig": true,
+      "hinweis": "ONS-Status 'Provisional'"
+    },
+    {
       "id": "boj-2027-04-28",
       "art": "zinsentscheid",
       "institution": "boj",
@@ -322,17 +831,19 @@
       "hinweis": "zweiter Sitzungstag; Uhrzeit nicht fest, ganzer Tag in Tokio"
     },
     {
-      "id": "feiertag-jpy-2027-04-29",
-      "art": "feiertag",
-      "institution": "boj",
-      "titel": "Feiertag Japan: Showa-Tag",
-      "datum": "2027-04-29",
-      "zeitzone": "Asia/Tokyo",
+      "id": "boc-2027-04-28",
+      "art": "zinsentscheid",
+      "institution": "boc",
+      "titel": "BoC-Zinsentscheid",
+      "datum": "2027-04-28",
+      "uhrzeit": "09:45",
+      "zeitzone": "America/Toronto",
       "waehrungen": [
-        "JPY"
+        "CAD"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+      "region": "ca",
+      "wichtigkeit": "hoch",
+      "hinweis": "mit Monetary Policy Report"
     },
     {
       "id": "fed-2027-04-28",
@@ -345,6 +856,18 @@
       "waehrungen": [
         "USD"
       ]
+    },
+    {
+      "id": "feiertag-jpy-2027-04-29",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Showa-Tag",
+      "datum": "2027-04-29",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "hinweis": "Feiertagsgesetz laut Cabinet Office, Bankschließung 31.12. bis 03.01. laut BoJ (geprüft 05.10.2026)"
     },
     {
       "id": "boe-2027-04-29",
@@ -371,17 +894,18 @@
       ]
     },
     {
-      "id": "feiertag-jpy-2027-05-03",
-      "art": "feiertag",
-      "institution": "boj",
-      "titel": "Feiertag Japan: Verfassungstag",
-      "datum": "2027-05-03",
-      "zeitzone": "Asia/Tokyo",
+      "id": "minint-fr-2027-05-02",
+      "art": "politik",
+      "institution": "minint-fr",
+      "titel": "Präsidentschaftswahl Frankreich, Stichwahl",
+      "datum": "2027-05-02",
+      "zeitzone": "Europe/Paris",
       "waehrungen": [
-        "JPY"
+        "EUR"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+      "region": "fr",
+      "wichtigkeit": "hoch",
+      "hinweis": "Datum laut französischem Innenministerium"
     },
     {
       "id": "feiertag-gbp-2027-05-03",
@@ -396,6 +920,18 @@
       "hinweis": "Bank Holiday England und Wales"
     },
     {
+      "id": "feiertag-jpy-2027-05-03",
+      "art": "feiertag",
+      "institution": "boj",
+      "titel": "Feiertag Japan: Verfassungstag",
+      "datum": "2027-05-03",
+      "zeitzone": "Asia/Tokyo",
+      "waehrungen": [
+        "JPY"
+      ],
+      "hinweis": "Feiertagsgesetz laut Cabinet Office, Bankschließung 31.12. bis 03.01. laut BoJ (geprüft 05.10.2026)"
+    },
+    {
       "id": "feiertag-jpy-2027-05-04",
       "art": "feiertag",
       "institution": "boj",
@@ -405,8 +941,21 @@
       "waehrungen": [
         "JPY"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+      "hinweis": "Feiertagsgesetz laut Cabinet Office, Bankschließung 31.12. bis 03.01. laut BoJ (geprüft 05.10.2026)"
+    },
+    {
+      "id": "rba-2027-05-04",
+      "art": "zinsentscheid",
+      "institution": "rba",
+      "titel": "RBA-Zinsentscheid",
+      "datum": "2027-05-04",
+      "zeitzone": "Australia/Sydney",
+      "waehrungen": [
+        "AUD"
+      ],
+      "region": "au",
+      "wichtigkeit": "hoch",
+      "hinweis": "Zweiter Sitzungstag; Pressekonferenz 15:30; mit Statement on Monetary Policy; Uhrzeit 2027 noch nicht bestätigt (2026: 14:30)"
     },
     {
       "id": "feiertag-jpy-2027-05-05",
@@ -418,8 +967,138 @@
       "waehrungen": [
         "JPY"
       ],
+      "hinweis": "Feiertagsgesetz laut Cabinet Office, Bankschließung 31.12. bis 03.01. laut BoJ (geprüft 05.10.2026)"
+    },
+    {
+      "id": "norgesbank-2027-05-05",
+      "art": "zinsentscheid",
+      "institution": "norgesbank",
+      "titel": "Norges-Bank-Zinsentscheid",
+      "datum": "2027-05-05",
+      "uhrzeit": "10:00",
+      "zeitzone": "Europe/Oslo",
+      "waehrungen": [
+        "NOK"
+      ],
+      "region": "no",
+      "wichtigkeit": "hoch"
+    },
+    {
+      "id": "rbnz-2027-05-05",
+      "art": "zinsentscheid",
+      "institution": "rbnz",
+      "titel": "RBNZ-Zinsentscheid (OCR)",
+      "datum": "2027-05-05",
+      "uhrzeit": "14:00",
+      "zeitzone": "Pacific/Auckland",
+      "waehrungen": [
+        "NZD"
+      ],
+      "region": "nz",
+      "wichtigkeit": "hoch",
+      "hinweis": "Monetary Policy Review"
+    },
+    {
+      "id": "feiertag-chf-2027-05-06",
+      "art": "feiertag",
+      "institution": "snb",
+      "titel": "Feiertag Schweiz: Auffahrt",
+      "datum": "2027-05-06",
+      "zeitzone": "Europe/Zurich",
+      "waehrungen": [
+        "CHF"
+      ],
+      "region": "ch",
+      "wichtigkeit": "mittel",
+      "hinweis": "SIC (CHF) kein Clearingtag laut SIX-Valutaregelung"
+    },
+    {
+      "id": "msci-ank-2027-05-10",
+      "art": "index",
+      "institution": "msci",
+      "titel": "MSCI Index Review (Bekanntgabe)",
+      "datum": "2027-05-10",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "USD"
+      ],
+      "region": "welt",
+      "wichtigkeit": "mittel",
+      "hinweis": "Ankündigungstag laut MSCI-Liste 'Next Eight Index Review Dates' (12.08.2026)"
+    },
+    {
+      "id": "feiertag-chf-2027-05-17",
+      "art": "feiertag",
+      "institution": "snb",
+      "titel": "Feiertag Schweiz: Pfingstmontag",
+      "datum": "2027-05-17",
+      "zeitzone": "Europe/Zurich",
+      "waehrungen": [
+        "CHF"
+      ],
+      "region": "ch",
+      "wichtigkeit": "mittel",
+      "hinweis": "SIC (CHF) kein Clearingtag laut SIX-Valutaregelung"
+    },
+    {
+      "id": "ons-cpi-2027-05-19",
+      "art": "inflation",
+      "institution": "ons",
+      "titel": "UK-Verbraucherpreise",
+      "datum": "2027-05-19",
+      "uhrzeit": "07:00",
+      "zeitzone": "Europe/London",
+      "waehrungen": [
+        "GBP"
+      ],
+      "region": "uk",
+      "wichtigkeit": "hoch",
       "vorlaeufig": true,
-      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+      "hinweis": "ONS-Status 'Provisional'"
+    },
+    {
+      "id": "cboe-2027-05-21",
+      "art": "verfall",
+      "institution": "cboe",
+      "titel": "Verfall US-Optionen",
+      "datum": "2027-05-21",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "region": "us",
+      "wichtigkeit": "mittel",
+      "vorlaeufig": true,
+      "hinweis": "nach Regel berechnet (dritter Freitag, bei Feiertag Donnerstag)"
+    },
+    {
+      "id": "eurex-2027-05-21",
+      "art": "verfall",
+      "institution": "eurex",
+      "titel": "Verfall Eurex",
+      "datum": "2027-05-21",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "EUR"
+      ],
+      "region": "de",
+      "wichtigkeit": "mittel",
+      "vorlaeufig": true,
+      "hinweis": "nach Regel berechnet (Eurex: dritter Freitag, sonst vorhergehender Börsentag); Eurex-Kalender 2027 noch nicht veröffentlicht"
+    },
+    {
+      "id": "msci-2027-05-28",
+      "art": "index",
+      "institution": "msci",
+      "titel": "MSCI Index Review wirksam",
+      "datum": "2027-05-28",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "USD"
+      ],
+      "region": "welt",
+      "wichtigkeit": "mittel",
+      "hinweis": "'Effective date' laut MSCI-Liste"
     },
     {
       "id": "feiertag-gbp-2027-05-31",
@@ -444,6 +1123,20 @@
         "USD"
       ],
       "hinweis": "Bankfeiertag der Fed (Fedwire geschlossen)"
+    },
+    {
+      "id": "boc-2027-06-02",
+      "art": "zinsentscheid",
+      "institution": "boc",
+      "titel": "BoC-Zinsentscheid",
+      "datum": "2027-06-02",
+      "uhrzeit": "09:45",
+      "zeitzone": "America/Toronto",
+      "waehrungen": [
+        "CAD"
+      ],
+      "region": "ca",
+      "wichtigkeit": "hoch"
     },
     {
       "id": "fed-2027-06-09",
@@ -483,6 +1176,81 @@
       "hinweis": "zweiter Sitzungstag; Uhrzeit nicht fest, ganzer Tag in Tokio"
     },
     {
+      "id": "ons-cpi-2027-06-16",
+      "art": "inflation",
+      "institution": "ons",
+      "titel": "UK-Verbraucherpreise",
+      "datum": "2027-06-16",
+      "uhrzeit": "07:00",
+      "zeitzone": "Europe/London",
+      "waehrungen": [
+        "GBP"
+      ],
+      "region": "uk",
+      "wichtigkeit": "hoch",
+      "vorlaeufig": true,
+      "hinweis": "ONS-Status 'Provisional'"
+    },
+    {
+      "id": "rbnz-2027-06-16",
+      "art": "zinsentscheid",
+      "institution": "rbnz",
+      "titel": "RBNZ-Zinsentscheid (OCR)",
+      "datum": "2027-06-16",
+      "uhrzeit": "14:00",
+      "zeitzone": "Pacific/Auckland",
+      "waehrungen": [
+        "NZD"
+      ],
+      "region": "nz",
+      "wichtigkeit": "hoch",
+      "hinweis": "Monetary Policy Statement (mit Pressekonferenz)"
+    },
+    {
+      "id": "cboe-2027-06-17",
+      "art": "verfall",
+      "institution": "cboe",
+      "titel": "Großer Verfall US (Triple Witching)",
+      "datum": "2027-06-17",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "region": "us",
+      "wichtigkeit": "hoch",
+      "vorlaeufig": true,
+      "hinweis": "nach Regel berechnet (dritter Freitag, bei Feiertag Donnerstag); 18.06.2027 NYSE-Feiertag (Juneteenth), daher Donnerstag"
+    },
+    {
+      "id": "spdji-2027-06-17",
+      "art": "index",
+      "institution": "spdji",
+      "titel": "S&P 500 Quartals-Rebalancing",
+      "datum": "2027-06-17",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "region": "us",
+      "wichtigkeit": "mittel",
+      "vorlaeufig": true,
+      "hinweis": "nach S&P-Methodik; dritter Freitag 18.06.2027 ist NYSE-Feiertag, Vortag angenommen, nicht offiziell bestätigt"
+    },
+    {
+      "id": "norgesbank-2027-06-17",
+      "art": "zinsentscheid",
+      "institution": "norgesbank",
+      "titel": "Norges-Bank-Zinsentscheid",
+      "datum": "2027-06-17",
+      "uhrzeit": "10:00",
+      "zeitzone": "Europe/Oslo",
+      "waehrungen": [
+        "NOK"
+      ],
+      "region": "no",
+      "wichtigkeit": "hoch"
+    },
+    {
       "id": "boe-2027-06-17",
       "art": "zinsentscheid",
       "institution": "boe",
@@ -493,6 +1261,50 @@
       "waehrungen": [
         "GBP"
       ]
+    },
+    {
+      "id": "eurex-2027-06-18",
+      "art": "verfall",
+      "institution": "eurex",
+      "titel": "Großer Verfall Eurex (Hexensabbat)",
+      "datum": "2027-06-18",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "EUR"
+      ],
+      "region": "de",
+      "wichtigkeit": "hoch",
+      "vorlaeufig": true,
+      "hinweis": "nach Regel berechnet (Eurex: dritter Freitag, sonst vorhergehender Börsentag); Eurex-Kalender 2027 noch nicht veröffentlicht"
+    },
+    {
+      "id": "stoxx-dax-2027-06-21",
+      "art": "index",
+      "institution": "stoxx",
+      "titel": "DAX-Indexüberprüfung wirksam",
+      "datum": "2027-06-21",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "EUR"
+      ],
+      "region": "de",
+      "wichtigkeit": "mittel",
+      "vorlaeufig": true,
+      "hinweis": "nach STOXX-Regel berechnet (wirksam am Montag nach dem dritten Freitag); Umsetzung zum Handelsschluss am Freitag davor"
+    },
+    {
+      "id": "rba-2027-06-22",
+      "art": "zinsentscheid",
+      "institution": "rba",
+      "titel": "RBA-Zinsentscheid",
+      "datum": "2027-06-22",
+      "zeitzone": "Australia/Sydney",
+      "waehrungen": [
+        "AUD"
+      ],
+      "region": "au",
+      "wichtigkeit": "hoch",
+      "hinweis": "Zweiter Sitzungstag; Pressekonferenz 15:30; Uhrzeit 2027 noch nicht bestätigt (2026: 14:30)"
     },
     {
       "id": "snb-2027-06-24",
@@ -519,6 +1331,36 @@
       "hinweis": "Bankfeiertag der Fed (Fedwire geschlossen)"
     },
     {
+      "id": "cboe-2027-07-16",
+      "art": "verfall",
+      "institution": "cboe",
+      "titel": "Verfall US-Optionen",
+      "datum": "2027-07-16",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "region": "us",
+      "wichtigkeit": "mittel",
+      "vorlaeufig": true,
+      "hinweis": "nach Regel berechnet (dritter Freitag, bei Feiertag Donnerstag)"
+    },
+    {
+      "id": "eurex-2027-07-16",
+      "art": "verfall",
+      "institution": "eurex",
+      "titel": "Verfall Eurex",
+      "datum": "2027-07-16",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "EUR"
+      ],
+      "region": "de",
+      "wichtigkeit": "mittel",
+      "vorlaeufig": true,
+      "hinweis": "nach Regel berechnet (Eurex: dritter Freitag, sonst vorhergehender Börsentag); Eurex-Kalender 2027 noch nicht veröffentlicht"
+    },
+    {
       "id": "feiertag-jpy-2027-07-19",
       "art": "feiertag",
       "institution": "boj",
@@ -528,8 +1370,38 @@
       "waehrungen": [
         "JPY"
       ],
+      "hinweis": "Feiertagsgesetz laut Cabinet Office, Bankschließung 31.12. bis 03.01. laut BoJ (geprüft 05.10.2026)"
+    },
+    {
+      "id": "ons-cpi-2027-07-21",
+      "art": "inflation",
+      "institution": "ons",
+      "titel": "UK-Verbraucherpreise",
+      "datum": "2027-07-21",
+      "uhrzeit": "07:00",
+      "zeitzone": "Europe/London",
+      "waehrungen": [
+        "GBP"
+      ],
+      "region": "uk",
+      "wichtigkeit": "hoch",
       "vorlaeufig": true,
-      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+      "hinweis": "ONS-Status 'Provisional'"
+    },
+    {
+      "id": "boc-2027-07-21",
+      "art": "zinsentscheid",
+      "institution": "boc",
+      "titel": "BoC-Zinsentscheid",
+      "datum": "2027-07-21",
+      "uhrzeit": "09:45",
+      "zeitzone": "America/Toronto",
+      "waehrungen": [
+        "CAD"
+      ],
+      "region": "ca",
+      "wichtigkeit": "hoch",
+      "hinweis": "mit Monetary Policy Report"
     },
     {
       "id": "boj-2027-07-22",
@@ -580,6 +1452,35 @@
       ]
     },
     {
+      "id": "rbnz-2027-08-04",
+      "art": "zinsentscheid",
+      "institution": "rbnz",
+      "titel": "RBNZ-Zinsentscheid (OCR)",
+      "datum": "2027-08-04",
+      "uhrzeit": "14:00",
+      "zeitzone": "Pacific/Auckland",
+      "waehrungen": [
+        "NZD"
+      ],
+      "region": "nz",
+      "wichtigkeit": "hoch",
+      "hinweis": "Monetary Policy Review"
+    },
+    {
+      "id": "rba-2027-08-10",
+      "art": "zinsentscheid",
+      "institution": "rba",
+      "titel": "RBA-Zinsentscheid",
+      "datum": "2027-08-10",
+      "zeitzone": "Australia/Sydney",
+      "waehrungen": [
+        "AUD"
+      ],
+      "region": "au",
+      "wichtigkeit": "hoch",
+      "hinweis": "Zweiter Sitzungstag; Pressekonferenz 15:30; mit Statement on Monetary Policy; Uhrzeit 2027 noch nicht bestätigt (2026: 14:30)"
+    },
+    {
       "id": "feiertag-jpy-2027-08-11",
       "art": "feiertag",
       "institution": "boj",
@@ -589,8 +1490,81 @@
       "waehrungen": [
         "JPY"
       ],
+      "hinweis": "Feiertagsgesetz laut Cabinet Office, Bankschließung 31.12. bis 03.01. laut BoJ (geprüft 05.10.2026)"
+    },
+    {
+      "id": "msci-ank-2027-08-12",
+      "art": "index",
+      "institution": "msci",
+      "titel": "MSCI Index Review (Bekanntgabe)",
+      "datum": "2027-08-12",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "USD"
+      ],
+      "region": "welt",
+      "wichtigkeit": "mittel",
+      "hinweis": "Ankündigungstag laut MSCI-Liste 'Next Eight Index Review Dates' (12.08.2026)"
+    },
+    {
+      "id": "ons-cpi-2027-08-18",
+      "art": "inflation",
+      "institution": "ons",
+      "titel": "UK-Verbraucherpreise",
+      "datum": "2027-08-18",
+      "uhrzeit": "07:00",
+      "zeitzone": "Europe/London",
+      "waehrungen": [
+        "GBP"
+      ],
+      "region": "uk",
+      "wichtigkeit": "hoch",
       "vorlaeufig": true,
-      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+      "hinweis": "ONS-Status 'Provisional'"
+    },
+    {
+      "id": "norgesbank-2027-08-19",
+      "art": "zinsentscheid",
+      "institution": "norgesbank",
+      "titel": "Norges-Bank-Zinsentscheid",
+      "datum": "2027-08-19",
+      "uhrzeit": "10:00",
+      "zeitzone": "Europe/Oslo",
+      "waehrungen": [
+        "NOK"
+      ],
+      "region": "no",
+      "wichtigkeit": "hoch"
+    },
+    {
+      "id": "cboe-2027-08-20",
+      "art": "verfall",
+      "institution": "cboe",
+      "titel": "Verfall US-Optionen",
+      "datum": "2027-08-20",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "region": "us",
+      "wichtigkeit": "mittel",
+      "vorlaeufig": true,
+      "hinweis": "nach Regel berechnet (dritter Freitag, bei Feiertag Donnerstag)"
+    },
+    {
+      "id": "eurex-2027-08-20",
+      "art": "verfall",
+      "institution": "eurex",
+      "titel": "Verfall Eurex",
+      "datum": "2027-08-20",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "EUR"
+      ],
+      "region": "de",
+      "wichtigkeit": "mittel",
+      "vorlaeufig": true,
+      "hinweis": "nach Regel berechnet (Eurex: dritter Freitag, sonst vorhergehender Börsentag); Eurex-Kalender 2027 noch nicht veröffentlicht"
     },
     {
       "id": "feiertag-gbp-2027-08-30",
@@ -605,6 +1579,20 @@
       "hinweis": "Bank Holiday England und Wales"
     },
     {
+      "id": "msci-2027-09-01",
+      "art": "index",
+      "institution": "msci",
+      "titel": "MSCI Index Review wirksam",
+      "datum": "2027-09-01",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "USD"
+      ],
+      "region": "welt",
+      "wichtigkeit": "mittel",
+      "hinweis": "'Effective date' laut MSCI-Liste"
+    },
+    {
       "id": "feiertag-usd-2027-09-06",
       "art": "feiertag",
       "institution": "fed",
@@ -617,6 +1605,20 @@
       "hinweis": "Bankfeiertag der Fed (Fedwire geschlossen)"
     },
     {
+      "id": "boc-2027-09-08",
+      "art": "zinsentscheid",
+      "institution": "boc",
+      "titel": "BoC-Zinsentscheid",
+      "datum": "2027-09-08",
+      "uhrzeit": "09:45",
+      "zeitzone": "America/Toronto",
+      "waehrungen": [
+        "CAD"
+      ],
+      "region": "ca",
+      "wichtigkeit": "hoch"
+    },
+    {
       "id": "ezb-2027-09-09",
       "art": "zinsentscheid",
       "institution": "ezb",
@@ -627,6 +1629,22 @@
       "waehrungen": [
         "EUR"
       ]
+    },
+    {
+      "id": "ons-cpi-2027-09-15",
+      "art": "inflation",
+      "institution": "ons",
+      "titel": "UK-Verbraucherpreise",
+      "datum": "2027-09-15",
+      "uhrzeit": "07:00",
+      "zeitzone": "Europe/London",
+      "waehrungen": [
+        "GBP"
+      ],
+      "region": "uk",
+      "wichtigkeit": "hoch",
+      "vorlaeufig": true,
+      "hinweis": "ONS-Status 'Provisional'"
     },
     {
       "id": "fed-2027-09-15",
@@ -642,6 +1660,21 @@
       "hinweis": "mit Projektionen (SEP) und Pressekonferenz"
     },
     {
+      "id": "rbnz-2027-09-15",
+      "art": "zinsentscheid",
+      "institution": "rbnz",
+      "titel": "RBNZ-Zinsentscheid (OCR)",
+      "datum": "2027-09-15",
+      "uhrzeit": "14:00",
+      "zeitzone": "Pacific/Auckland",
+      "waehrungen": [
+        "NZD"
+      ],
+      "region": "nz",
+      "wichtigkeit": "hoch",
+      "hinweis": "Monetary Policy Statement (mit Pressekonferenz)"
+    },
+    {
       "id": "boe-2027-09-16",
       "art": "zinsentscheid",
       "institution": "boe",
@@ -654,6 +1687,51 @@
       ]
     },
     {
+      "id": "cboe-2027-09-17",
+      "art": "verfall",
+      "institution": "cboe",
+      "titel": "Großer Verfall US (Triple Witching)",
+      "datum": "2027-09-17",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "region": "us",
+      "wichtigkeit": "hoch",
+      "vorlaeufig": true,
+      "hinweis": "nach Regel berechnet (dritter Freitag, bei Feiertag Donnerstag)"
+    },
+    {
+      "id": "eurex-2027-09-17",
+      "art": "verfall",
+      "institution": "eurex",
+      "titel": "Großer Verfall Eurex (Hexensabbat)",
+      "datum": "2027-09-17",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "EUR"
+      ],
+      "region": "de",
+      "wichtigkeit": "hoch",
+      "vorlaeufig": true,
+      "hinweis": "nach Regel berechnet (Eurex: dritter Freitag, sonst vorhergehender Börsentag); Eurex-Kalender 2027 noch nicht veröffentlicht"
+    },
+    {
+      "id": "spdji-2027-09-17",
+      "art": "index",
+      "institution": "spdji",
+      "titel": "S&P 500 Quartals-Rebalancing",
+      "datum": "2027-09-17",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "region": "us",
+      "wichtigkeit": "mittel",
+      "vorlaeufig": true,
+      "hinweis": "nach S&P-Methodik berechnet"
+    },
+    {
       "id": "feiertag-jpy-2027-09-20",
       "art": "feiertag",
       "institution": "boj",
@@ -663,8 +1741,22 @@
       "waehrungen": [
         "JPY"
       ],
+      "hinweis": "Feiertagsgesetz laut Cabinet Office, Bankschließung 31.12. bis 03.01. laut BoJ (geprüft 05.10.2026)"
+    },
+    {
+      "id": "stoxx-dax-2027-09-20",
+      "art": "index",
+      "institution": "stoxx",
+      "titel": "DAX-Indexüberprüfung wirksam",
+      "datum": "2027-09-20",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "EUR"
+      ],
+      "region": "de",
+      "wichtigkeit": "mittel",
       "vorlaeufig": true,
-      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+      "hinweis": "nach STOXX-Regel berechnet (wirksam am Montag nach dem dritten Freitag); Umsetzung zum Handelsschluss am Freitag davor"
     },
     {
       "id": "boj-2027-09-22",
@@ -688,8 +1780,7 @@
       "waehrungen": [
         "JPY"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+      "hinweis": "Feiertagsgesetz laut Cabinet Office, Bankschließung 31.12. bis 03.01. laut BoJ (geprüft 05.10.2026)"
     },
     {
       "id": "snb-2027-09-23",
@@ -704,6 +1795,34 @@
       ]
     },
     {
+      "id": "norgesbank-2027-09-23",
+      "art": "zinsentscheid",
+      "institution": "norgesbank",
+      "titel": "Norges-Bank-Zinsentscheid",
+      "datum": "2027-09-23",
+      "uhrzeit": "10:00",
+      "zeitzone": "Europe/Oslo",
+      "waehrungen": [
+        "NOK"
+      ],
+      "region": "no",
+      "wichtigkeit": "hoch"
+    },
+    {
+      "id": "rba-2027-09-28",
+      "art": "zinsentscheid",
+      "institution": "rba",
+      "titel": "RBA-Zinsentscheid",
+      "datum": "2027-09-28",
+      "zeitzone": "Australia/Sydney",
+      "waehrungen": [
+        "AUD"
+      ],
+      "region": "au",
+      "wichtigkeit": "hoch",
+      "hinweis": "Zweiter Sitzungstag; Pressekonferenz 15:30; Uhrzeit 2027 noch nicht bestätigt (2026: 14:30)"
+    },
+    {
       "id": "feiertag-jpy-2027-10-11",
       "art": "feiertag",
       "institution": "boj",
@@ -713,8 +1832,7 @@
       "waehrungen": [
         "JPY"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+      "hinweis": "Feiertagsgesetz laut Cabinet Office, Bankschließung 31.12. bis 03.01. laut BoJ (geprüft 05.10.2026)"
     },
     {
       "id": "feiertag-usd-2027-10-11",
@@ -729,6 +1847,67 @@
       "hinweis": "Bankfeiertag der Fed (Fedwire geschlossen)"
     },
     {
+      "id": "cboe-2027-10-15",
+      "art": "verfall",
+      "institution": "cboe",
+      "titel": "Verfall US-Optionen",
+      "datum": "2027-10-15",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "region": "us",
+      "wichtigkeit": "mittel",
+      "vorlaeufig": true,
+      "hinweis": "nach Regel berechnet (dritter Freitag, bei Feiertag Donnerstag)"
+    },
+    {
+      "id": "eurex-2027-10-15",
+      "art": "verfall",
+      "institution": "eurex",
+      "titel": "Verfall Eurex",
+      "datum": "2027-10-15",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "EUR"
+      ],
+      "region": "de",
+      "wichtigkeit": "mittel",
+      "vorlaeufig": true,
+      "hinweis": "nach Regel berechnet (Eurex: dritter Freitag, sonst vorhergehender Börsentag); Eurex-Kalender 2027 noch nicht veröffentlicht"
+    },
+    {
+      "id": "ons-cpi-2027-10-20",
+      "art": "inflation",
+      "institution": "ons",
+      "titel": "UK-Verbraucherpreise",
+      "datum": "2027-10-20",
+      "uhrzeit": "07:00",
+      "zeitzone": "Europe/London",
+      "waehrungen": [
+        "GBP"
+      ],
+      "region": "uk",
+      "wichtigkeit": "hoch",
+      "vorlaeufig": true,
+      "hinweis": "ONS-Status 'Provisional'"
+    },
+    {
+      "id": "boc-2027-10-27",
+      "art": "zinsentscheid",
+      "institution": "boc",
+      "titel": "BoC-Zinsentscheid",
+      "datum": "2027-10-27",
+      "uhrzeit": "09:45",
+      "zeitzone": "America/Toronto",
+      "waehrungen": [
+        "CAD"
+      ],
+      "region": "ca",
+      "wichtigkeit": "hoch",
+      "hinweis": "mit Monetary Policy Report"
+    },
+    {
       "id": "fed-2027-10-27",
       "art": "zinsentscheid",
       "institution": "fed",
@@ -739,6 +1918,21 @@
       "waehrungen": [
         "USD"
       ]
+    },
+    {
+      "id": "rbnz-2027-10-27",
+      "art": "zinsentscheid",
+      "institution": "rbnz",
+      "titel": "RBNZ-Zinsentscheid (OCR)",
+      "datum": "2027-10-27",
+      "uhrzeit": "14:00",
+      "zeitzone": "Pacific/Auckland",
+      "waehrungen": [
+        "NZD"
+      ],
+      "region": "nz",
+      "wichtigkeit": "hoch",
+      "hinweis": "Monetary Policy Review"
     },
     {
       "id": "ezb-2027-10-28",
@@ -765,6 +1959,20 @@
       "hinweis": "zweiter Sitzungstag; Uhrzeit nicht fest, ganzer Tag in Tokio"
     },
     {
+      "id": "rba-2027-11-02",
+      "art": "zinsentscheid",
+      "institution": "rba",
+      "titel": "RBA-Zinsentscheid",
+      "datum": "2027-11-02",
+      "zeitzone": "Australia/Sydney",
+      "waehrungen": [
+        "AUD"
+      ],
+      "region": "au",
+      "wichtigkeit": "hoch",
+      "hinweis": "Zweiter Sitzungstag; Pressekonferenz 15:30; mit Statement on Monetary Policy; Uhrzeit 2027 noch nicht bestätigt (2026: 14:30)"
+    },
+    {
       "id": "feiertag-jpy-2027-11-03",
       "art": "feiertag",
       "institution": "boj",
@@ -774,8 +1982,21 @@
       "waehrungen": [
         "JPY"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+      "hinweis": "Feiertagsgesetz laut Cabinet Office, Bankschließung 31.12. bis 03.01. laut BoJ (geprüft 05.10.2026)"
+    },
+    {
+      "id": "norgesbank-2027-11-04",
+      "art": "zinsentscheid",
+      "institution": "norgesbank",
+      "titel": "Norges-Bank-Zinsentscheid",
+      "datum": "2027-11-04",
+      "uhrzeit": "10:00",
+      "zeitzone": "Europe/Oslo",
+      "waehrungen": [
+        "NOK"
+      ],
+      "region": "no",
+      "wichtigkeit": "hoch"
     },
     {
       "id": "boe-2027-11-04",
@@ -802,6 +2023,66 @@
       "hinweis": "Bankfeiertag der Fed (Fedwire geschlossen)"
     },
     {
+      "id": "msci-ank-2027-11-11",
+      "art": "index",
+      "institution": "msci",
+      "titel": "MSCI Index Review (Bekanntgabe)",
+      "datum": "2027-11-11",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "USD"
+      ],
+      "region": "welt",
+      "wichtigkeit": "mittel",
+      "hinweis": "Ankündigungstag laut MSCI-Liste 'Next Eight Index Review Dates' (12.08.2026)"
+    },
+    {
+      "id": "ons-cpi-2027-11-17",
+      "art": "inflation",
+      "institution": "ons",
+      "titel": "UK-Verbraucherpreise",
+      "datum": "2027-11-17",
+      "uhrzeit": "07:00",
+      "zeitzone": "Europe/London",
+      "waehrungen": [
+        "GBP"
+      ],
+      "region": "uk",
+      "wichtigkeit": "hoch",
+      "vorlaeufig": true,
+      "hinweis": "ONS-Status 'Provisional'"
+    },
+    {
+      "id": "cboe-2027-11-19",
+      "art": "verfall",
+      "institution": "cboe",
+      "titel": "Verfall US-Optionen",
+      "datum": "2027-11-19",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "region": "us",
+      "wichtigkeit": "mittel",
+      "vorlaeufig": true,
+      "hinweis": "nach Regel berechnet (dritter Freitag, bei Feiertag Donnerstag)"
+    },
+    {
+      "id": "eurex-2027-11-19",
+      "art": "verfall",
+      "institution": "eurex",
+      "titel": "Verfall Eurex",
+      "datum": "2027-11-19",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "EUR"
+      ],
+      "region": "de",
+      "wichtigkeit": "mittel",
+      "vorlaeufig": true,
+      "hinweis": "nach Regel berechnet (Eurex: dritter Freitag, sonst vorhergehender Börsentag); Eurex-Kalender 2027 noch nicht veröffentlicht"
+    },
+    {
       "id": "feiertag-jpy-2027-11-23",
       "art": "feiertag",
       "institution": "boj",
@@ -811,8 +2092,7 @@
       "waehrungen": [
         "JPY"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+      "hinweis": "Feiertagsgesetz laut Cabinet Office, Bankschließung 31.12. bis 03.01. laut BoJ (geprüft 05.10.2026)"
     },
     {
       "id": "feiertag-usd-2027-11-25",
@@ -825,6 +2105,34 @@
         "USD"
       ],
       "hinweis": "Bankfeiertag der Fed (Fedwire geschlossen)"
+    },
+    {
+      "id": "msci-2027-12-01",
+      "art": "index",
+      "institution": "msci",
+      "titel": "MSCI Index Review wirksam",
+      "datum": "2027-12-01",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "USD"
+      ],
+      "region": "welt",
+      "wichtigkeit": "mittel",
+      "hinweis": "'Effective date' laut MSCI-Liste"
+    },
+    {
+      "id": "boc-2027-12-08",
+      "art": "zinsentscheid",
+      "institution": "boc",
+      "titel": "BoC-Zinsentscheid",
+      "datum": "2027-12-08",
+      "uhrzeit": "09:45",
+      "zeitzone": "America/Toronto",
+      "waehrungen": [
+        "CAD"
+      ],
+      "region": "ca",
+      "wichtigkeit": "hoch"
     },
     {
       "id": "fed-2027-12-08",
@@ -840,6 +2148,51 @@
       "hinweis": "mit Projektionen (SEP) und Pressekonferenz"
     },
     {
+      "id": "rbnz-2027-12-08",
+      "art": "zinsentscheid",
+      "institution": "rbnz",
+      "titel": "RBNZ-Zinsentscheid (OCR)",
+      "datum": "2027-12-08",
+      "uhrzeit": "14:00",
+      "zeitzone": "Pacific/Auckland",
+      "waehrungen": [
+        "NZD"
+      ],
+      "region": "nz",
+      "wichtigkeit": "hoch",
+      "hinweis": "Monetary Policy Statement (mit Pressekonferenz)"
+    },
+    {
+      "id": "rba-2027-12-14",
+      "art": "zinsentscheid",
+      "institution": "rba",
+      "titel": "RBA-Zinsentscheid",
+      "datum": "2027-12-14",
+      "zeitzone": "Australia/Sydney",
+      "waehrungen": [
+        "AUD"
+      ],
+      "region": "au",
+      "wichtigkeit": "hoch",
+      "hinweis": "Zweiter Sitzungstag; Pressekonferenz 15:30; Uhrzeit 2027 noch nicht bestätigt (2026: 14:30)"
+    },
+    {
+      "id": "ons-cpi-2027-12-15",
+      "art": "inflation",
+      "institution": "ons",
+      "titel": "UK-Verbraucherpreise",
+      "datum": "2027-12-15",
+      "uhrzeit": "07:00",
+      "zeitzone": "Europe/London",
+      "waehrungen": [
+        "GBP"
+      ],
+      "region": "uk",
+      "wichtigkeit": "hoch",
+      "vorlaeufig": true,
+      "hinweis": "ONS-Status 'Provisional'"
+    },
+    {
       "id": "snb-2027-12-16",
       "art": "zinsentscheid",
       "institution": "snb",
@@ -850,6 +2203,20 @@
       "waehrungen": [
         "CHF"
       ]
+    },
+    {
+      "id": "norgesbank-2027-12-16",
+      "art": "zinsentscheid",
+      "institution": "norgesbank",
+      "titel": "Norges-Bank-Zinsentscheid",
+      "datum": "2027-12-16",
+      "uhrzeit": "10:00",
+      "zeitzone": "Europe/Oslo",
+      "waehrungen": [
+        "NOK"
+      ],
+      "region": "no",
+      "wichtigkeit": "hoch"
     },
     {
       "id": "boe-2027-12-16",
@@ -888,6 +2255,66 @@
       "hinweis": "zweiter Sitzungstag; Uhrzeit nicht fest, ganzer Tag in Tokio"
     },
     {
+      "id": "cboe-2027-12-17",
+      "art": "verfall",
+      "institution": "cboe",
+      "titel": "Großer Verfall US (Triple Witching)",
+      "datum": "2027-12-17",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "region": "us",
+      "wichtigkeit": "hoch",
+      "vorlaeufig": true,
+      "hinweis": "nach Regel berechnet (dritter Freitag, bei Feiertag Donnerstag)"
+    },
+    {
+      "id": "eurex-2027-12-17",
+      "art": "verfall",
+      "institution": "eurex",
+      "titel": "Großer Verfall Eurex (Hexensabbat)",
+      "datum": "2027-12-17",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "EUR"
+      ],
+      "region": "de",
+      "wichtigkeit": "hoch",
+      "vorlaeufig": true,
+      "hinweis": "nach Regel berechnet (Eurex: dritter Freitag, sonst vorhergehender Börsentag); Eurex-Kalender 2027 noch nicht veröffentlicht"
+    },
+    {
+      "id": "spdji-2027-12-17",
+      "art": "index",
+      "institution": "spdji",
+      "titel": "S&P 500 Quartals-Rebalancing",
+      "datum": "2027-12-17",
+      "zeitzone": "America/New_York",
+      "waehrungen": [
+        "USD"
+      ],
+      "region": "us",
+      "wichtigkeit": "mittel",
+      "vorlaeufig": true,
+      "hinweis": "nach S&P-Methodik berechnet"
+    },
+    {
+      "id": "stoxx-dax-2027-12-20",
+      "art": "index",
+      "institution": "stoxx",
+      "titel": "DAX-Indexüberprüfung wirksam",
+      "datum": "2027-12-20",
+      "zeitzone": "Europe/Berlin",
+      "waehrungen": [
+        "EUR"
+      ],
+      "region": "de",
+      "wichtigkeit": "mittel",
+      "vorlaeufig": true,
+      "hinweis": "nach STOXX-Regel berechnet (wirksam am Montag nach dem dritten Freitag); Umsetzung zum Handelsschluss am Freitag davor"
+    },
+    {
       "id": "feiertag-gbp-2027-12-27",
       "art": "feiertag",
       "institution": "boe",
@@ -921,8 +2348,7 @@
       "waehrungen": [
         "JPY"
       ],
-      "vorlaeufig": true,
-      "hinweis": "ungeprüft: nach Feiertagsgesetz und Bankgesetz berechnet, Tagundnachtgleichen aus dem Gedächtnis"
+      "hinweis": "Feiertagsgesetz laut Cabinet Office, Bankschließung 31.12. bis 03.01. laut BoJ (geprüft 05.10.2026)"
     }
   ]
 }
