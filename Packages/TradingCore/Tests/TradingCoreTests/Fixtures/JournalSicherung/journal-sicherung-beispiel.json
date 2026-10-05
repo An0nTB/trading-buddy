@@ -1,0 +1,18 @@
+{
+  "trades": [
+    {"id": "t1001", "datum": "2026-03-02", "uhrzeit": "10:00", "asset": "Beispiel AG", "klasse": "Aktie", "richtung": "Long", "art": "direkt", "setup": "Ausbruch", "zeiteinheit": "M15", "groesse": "10", "entry": "100,00", "exit": "112,50", "risiko": "50", "regel": true, "link": "", "notiz": "erfundener Testtrade"},
+    {"id": "t1002", "datum": "2026-07-01", "uhrzeit": "10:00", "asset": "DAX", "klasse": "Index", "richtung": "Short", "art": "direkt", "setup": "Umkehr", "zeiteinheit": "H1", "groesse": "2", "entry": "18.872", "exit": "18.650,5", "risiko": "", "regel": false, "link": "https://example.org/chart/1", "notiz": "erfundener Short mit Gewinn"},
+    {"id": "t1003", "datum": "2026-07-02", "uhrzeit": "15:30", "asset": "KO Short DAX", "klasse": "Index", "richtung": "Short", "art": "schein", "setup": "Umkehr", "zeiteinheit": "M5", "groesse": "500", "entry": "1,20", "exit": "1,45", "risiko": "100", "regel": true, "link": "", "notiz": "erfundener Schein, Markt faellt, Schein steigt"},
+    {"id": "t1004", "datum": "2026-01-15", "uhrzeit": "", "asset": "Beispiel Welt ETF", "klasse": "ETF", "richtung": "Long", "art": "direkt", "setup": "Pullback", "zeiteinheit": "D1", "groesse": 20, "entry": "148.20", "exit": 150.35, "risiko": 0, "regel": true, "link": "", "notiz": ""},
+    {"id": "t1005", "datum": "2026-04-10", "uhrzeit": "21:15", "asset": "Beispielcoin", "klasse": "Krypto", "richtung": "Long", "art": "direkt", "setup": "", "zeiteinheit": "H4", "groesse": "0,4", "entry": "1.234,50", "exit": "1.180,25", "risiko": "", "regel": false, "link": "", "notiz": "erfundener Verlust"},
+    {"id": "t1006", "datum": "2026-05-04", "uhrzeit": "11:00", "asset": "Beispiel AG", "klasse": "Aktie", "richtung": "Long", "art": "direkt", "setup": "Ausbruch", "zeiteinheit": "M15", "groesse": "5", "entry": "120", "exit": "", "risiko": "40", "regel": true, "link": "", "notiz": "erfundener offener Trade"},
+    {"id": "t1007", "uhrzeit": "09:30", "asset": "Muster SE", "klasse": "Aktie", "richtung": "Long", "art": "direkt", "setup": "Ausbruch", "zeiteinheit": "M15", "groesse": "3", "entry": "80", "exit": "82", "risiko": "", "regel": true, "link": "", "notiz": "erfundener Trade ohne Datum"},
+    {"id": "t1008", "datum": "2026-03-02", "uhrzeit": "14:05", "asset": "Beispiel AG", "klasse": "Aktie", "richtung": "Short", "art": "direkt", "setup": "", "zeiteinheit": "M5", "groesse": "10", "entry": "50", "exit": "52,5", "risiko": "30", "regel": false, "link": "", "notiz": "erfundener Short mit Verlust"},
+    {"id": "t1009", "datum": "2026-03-03", "uhrzeit": "10:00", "asset": "Beispiel AG", "klasse": "Aktie", "richtung": "Long", "art": "direkt", "setup": "Ausbruch", "zeiteinheit": "M15", "groesse": "10", "entry": "abc", "exit": "101", "risiko": "", "regel": true, "link": "", "notiz": "erfundener Tippfehler"},
+    {"datum": "2026-11-02", "uhrzeit": "9:05", "asset": "Gold", "klasse": "Rohstoff", "richtung": "Long", "art": "direkt", "setup": "Pullback", "zeiteinheit": "H1", "groesse": "1", "entry": "2345.10", "exit": "2.360,60", "risiko": "", "link": "", "notiz": "erfundener Trade ohne id und ohne regel"},
+    {"id": "t1011", "datum": "2026-10-01", "uhrzeit": "", "asset": "KO Long Beispiel AG", "klasse": "Aktie", "richtung": "Long", "art": "schein", "setup": "Ausbruch", "zeiteinheit": "M15", "groesse": "3,", "entry": "6,106", "exit": "6,52", "risiko": "1,5", "regel": true, "link": "", "notiz": "erfundener Schein mit drei Nachkommastellen"}
+  ],
+  "setups": ["Ausbruch", "Pullback", "Umkehr"],
+  "assets": [{"name": "Beispiel AG", "klasse": "Aktie"}, {"name": "DAX", "klasse": "Index"}],
+  "klassen": ["Aktie", "Index", "ETF", "Krypto", "Rohstoff"]
+}
