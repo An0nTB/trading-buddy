@@ -37,7 +37,7 @@ private func neuesKonto(_ journal: Journal, _ nummer: String) throws -> Konto {
     try alt.close()
 
     let journal = try Journal(pfad: pfad, jetzt: zeit, zeitzone: utc)
-    #expect(try journal.angewandteMigrationen().last == "v10 Risiko und Tags")
+    #expect(try journal.angewandteMigrationen().contains("v10 Risiko und Tags"))
     #expect(Journal.kopienVorMigration(pfad: pfad).map(\.lastPathComponent)
         == ["journal.vor-v10-2026-10-05-210000.sqlite"])
     let konto = try #require(try journal.konten().first)

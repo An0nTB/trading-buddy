@@ -95,8 +95,13 @@ struct GeschlossenZeile: Codable, FetchableRecord, PersistableRecord {
     var swap: Decimal
     var profit: Decimal
     var produktart: String
+    var ausstiegszeitBekannt: Bool
+    /// `Side.rawValue`; nur bei Journal-Sicherung und Formular gesetzt (v11).
+    var markterwartung: String?
+    var schein: Bool
 
-    init(kontoId: Int64, importlaufId: Int64, _ p: ClosedPosition) {
+    init(kontoId: Int64, importlaufId: Int64, _ p: ClosedPosition, markterwartung: Side? = nil,
+         schein: Bool = false) {
         self.kontoId = kontoId
         self.importlaufId = importlaufId
         ticket = p.ticket
@@ -114,13 +119,22 @@ struct GeschlossenZeile: Codable, FetchableRecord, PersistableRecord {
         swap = p.swap
         profit = p.profit
         produktart = p.produktart.rawValue
+        ausstiegszeitBekannt = p.ausstiegszeitBekannt
+        self.markterwartung = markterwartung?.rawValue
+        self.schein = schein
     }
 
     func modell() throws -> ClosedPosition {
         ClosedPosition(ticket: ticket, rohzeile: rohzeile, side: try seite(side), lots: lots, symbol: symbol,
                        openTime: openTime, openPrice: openPrice, stopLoss: stopLoss,
                        takeProfit: takeProfit, closeTime: closeTime, closePrice: closePrice,
-                       commission: commission, swap: swap, profit: profit, produktart: try art(produktart))
+                       commission: commission, swap: swap, profit: profit, produktart: try art(produktart),
+                       ausstiegszeitBekannt: ausstiegszeitBekannt)
+    }
+
+    /// Erwartete Marktrichtung: gespeichert oder, ohne Angabe, die Handelsseite.
+    func erwartung() throws -> Side {
+        try seite(markterwartung ?? side)
     }
 }
 
