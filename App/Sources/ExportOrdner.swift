@@ -33,7 +33,8 @@ enum ExportOrdner {
     }
 
     /// Exportdatei für den Connector aus allen Konten des Journals, mit dem Stop aus dem Journal
-    /// wie in der App (`Trade.mitJournal`), den übrigen Journalangaben, den Review-Zielen, den Handelsregeln,
+    /// wie in der App (`Trade.mitJournal`), dem geplanten Risiko (`mitRisiko`), den übrigen Journalangaben,
+    /// den Review-Zielen, den Handelsregeln, dem Best-Exit aus `bestExit` (Schlüssel wie `ausstieg`),
     /// den Tagesnotizen, den verpassten Trades, den Tageskerzen geladener Kurse, den EZB-Kursen für Trades in
     /// fremder Währung und den Ausstiegsanalysen aus `ausstieg` (Konto nach `ausstiegskonto` → Trade-ID → Analyse,
     /// damit gleiche Tickets in zwei Konten nicht dieselbe Analyse bekommen). Ohne Kontonamen und Rohzeilen;
@@ -46,6 +47,7 @@ enum ExportOrdner {
     /// abgehakte Kriterien je Trade gehen mit, damit der Review prüfen kann, ob ein Trade nach Plan lief.
     static func export(_ journal: Journal, zeitzone: TimeZone,
                        ausstieg: [String: [String: Ausstiegsanalyse]] = [:],
+                       bestExit: [String: [String: BestExit]] = [:],
                        kerzenquellen: [String: String] = [:],
                        anzeigewaehrung: String? = nil) throws -> JournalExport {
         let alle = try journal.konten()
@@ -53,9 +55,13 @@ enum ExportOrdner {
             let eintraege = try journal.journaleintraege(konto: konto)
             let andere = alle.filter { $0.broker == konto.broker }.map(\.kontonummer)
             let stellen = JournalExport.endziffern(konto.kontonummer, neben: andere)
-            let trades = try Self.trades(journal, konto).map { $0.mitJournal(eintraege[$0.id]) }
+            let quellen = try journal.risikoquellen(konto: konto)
+            let trades = try Self.trades(journal, konto).map { t in
+                mitRisiko(t.mitJournal(eintraege[t.id]), quellen: quellen, kontowaehrung: konto.waehrung)
+            }
             let nummer = String(konto.kontonummer.suffix(stellen))
             let analysen = ausstieg[ausstiegskonto(konto.broker, nummer)] ?? [:]
+            let besteAusstiege = bestExit[ausstiegskonto(konto.broker, nummer)] ?? [:]
             return JournalExport.Kontodaten(
                 broker: konto.broker, kontonummer: nummer, waehrung: konto.waehrung,
                 trades: trades,
@@ -67,7 +73,8 @@ enum ExportOrdner {
                     analysen[t.id].map { a in
                         let quelle = kerzenquellen[t.symbol]
                         return JournalExport.Ausstieg(a, quelle: quelle,
-                                                      hinweis: quelle.flatMap { kerzenhinweis(symbol: t.symbol, quelle: $0) })
+                                                      hinweis: quelle.flatMap { kerzenhinweis(symbol: t.symbol, quelle: $0) },
+                                                      bestExit: besteAusstiege[t.id])
                     }
                 },
                 beispiel: Beispieldaten.istBeispiel(konto),
@@ -86,6 +93,15 @@ enum ExportOrdner {
                              referenzkurse: referenzkurse(konten, anzeigewaehrung: anzeigewaehrung),
                              anzeigewaehrung: anzeigewaehrung,
                              playbook: try journal.playbook().map { JournalExport.Playbookkarte($0) })
+    }
+
+    /// Trade mit seinem geplanten Risiko (Doc 02 Nr. 64): Angabe am Trade, sonst Standard des Setups, sonst des
+    /// Kontos (`Risikoquellen.wirksam`). Der Betrag steht in Kontowährung, R aber rechnet mit dem Ergebnis in der
+    /// Währung des Trades; Trades in fremder Währung bekommen deshalb kein geplantes Risiko. Ein echter Stop gewinnt
+    /// im Kern (`Trade.risk`).
+    static func mitRisiko(_ trade: Trade, quellen: Risikoquellen, kontowaehrung: String) -> Trade {
+        guard trade.waehrung(kontowaehrung: kontowaehrung) == kontowaehrung.uppercased() else { return trade }
+        return trade.mitGeplantemRisiko(quellen.wirksam(ticket: trade.id)?.betrag)
     }
 
     /// EZB-Referenzkurse aus dem Zwischenspeicher von TradingRates, nur für die Tage und Währungen der Trades in
@@ -176,8 +192,8 @@ enum ExportOrdner {
             let anzeige = UserDefaults.standard.string(forKey: AppModell.anzeigewaehrungSchluessel)
             let quellen = Dictionary(Ausstiegsdienst.geteilt.bestand.map { ($0.symbol, $0.quellen.joined(separator: ", ")) },
                                      uniquingKeysWith: { erste, _ in erste })
-            let daten = try export(journal, zeitzone: zeitzone, ausstieg: ausstieg, kerzenquellen: quellen,
-                                   anzeigewaehrung: anzeige)
+            let daten = try export(journal, zeitzone: zeitzone, ausstieg: ausstieg, bestExit: bestExit,
+                                   kerzenquellen: quellen, anzeigewaehrung: anzeige)
             try daten.json().write(to: ordner.appending(path: JournalExport.dateiname), options: .atomic)
             let jeKonto = Dictionary(daten.konten.map { (ausstiegskonto($0.broker, $0.kontonummer), $0.trades) },
                                      uniquingKeysWith: { erste, _ in erste })
@@ -192,6 +208,8 @@ enum ExportOrdner {
     /// Ausstiegsanalysen (Doc 39, B4) zum Stand `ausstiegStand`, für den nächsten Export; je Konto, weil
     /// Tickets nur innerhalb eines Kontos eindeutig sind (Befund G25, Doc 49).
     @MainActor private static var ausstieg: [String: [String: Ausstiegsanalyse]] = [:]
+    /// Best-Exit (`BestExit`) aus denselben Minutenkerzen, je Konto wie `ausstieg`.
+    @MainActor private static var bestExit: [String: [String: BestExit]] = [:]
 
     /// Schlüssel eines Kontos im Export: Broker und die exportierten Endziffern (`JournalExport.endziffern`
     /// macht sie je Broker eindeutig).
@@ -229,17 +247,49 @@ enum ExportOrdner {
                 return
             }
             var neu: [String: [String: Ausstiegsanalyse]] = [:]
+            var neuBest: [String: [String: BestExit]] = [:]
             for (konto, liste) in trades {
                 let analysen = await dienst.analysen(liste)
                 if !analysen.isEmpty { neu[konto] = analysen }
+                let mitAnalyse = liste.filter { analysen[$0.id] != nil }
+                let besteAusstiege = await Task.detached { ExportOrdner.bestExits(mitAnalyse) }.value
+                if !besteAusstiege.isEmpty { neuBest[konto] = besteAusstiege }
             }
             ausstiegStand = stand
             ausstiegLaeuft = false
-            if neu != ausstieg || ausstiegNachlauf {
+            if neu != ausstieg || neuBest != bestExit || ausstiegNachlauf {
                 ausstieg = neu
+                bestExit = neuBest
                 schreibe(journal, zeitzone: zeitzone)
             }
         }
+    }
+
+    /// Best-Exit der Trades mit Stop aus den gespeicherten Minutenkerzen (Tradezella-Vergleich, Doc 02 Nr. 65),
+    /// nach Trade-ID. Je Symbol in zeitlicher Reihenfolge wie `Ausstiegsdienst`: Jede Monatsdatei wird einmal gelesen
+    /// und verworfen, sobald kein späterer Trade sie braucht. Ohne Stop, ohne Uhrzeit oder ohne Kerze fehlt der Trade.
+    static func bestExits(_ trades: [Trade],
+                          speicher: Zeitkerzenspeicher = Zeitkerzenspeicher()) -> [String: BestExit] {
+        var ergebnis: [String: BestExit] = [:]
+        let passend = trades.filter { !$0.nurDatum && $0.stopLoss != nil && $0.risk != nil }
+        for (symbol, gruppe) in Dictionary(grouping: passend, by: \.symbol) {
+            var geladen: [String: [Zeitkerze]] = [:]
+            for trade in gruppe.sorted(by: { $0.openTime < $1.openTime }) {
+                let bis = max(trade.openTime, trade.closeTime)
+                let monate = Zeitkerzenspeicher.monate(von: trade.openTime.addingTimeInterval(-86_400), bis: bis)
+                guard let erster = monate.first else { continue }
+                geladen = geladen.filter { $0.key >= erster }
+                var kerzen: [Zeitkerze] = []
+                for monat in monate {
+                    if geladen[monat] == nil { geladen[monat] = speicher.kerzen(symbol: symbol, monat: monat) }
+                    kerzen += (geladen[monat] ?? []).filter {
+                        $0.ende > trade.openTime && $0.beginn <= bis
+                    }
+                }
+                if let best = BestExit(trade: trade, kerzen: kerzen) { ergebnis[trade.id] = best }
+            }
+        }
+        return ergebnis
     }
 }
 #endif

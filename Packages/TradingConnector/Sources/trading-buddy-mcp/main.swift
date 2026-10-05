@@ -61,7 +61,10 @@ enum Katalog {
                  "monate": .object(["type": .string("integer"),
                                     "description": .string("Zeitraum der eigenen Trades in Monaten, 1 bis 12, Vorgabe 12; die Kennzahlen gelten immer für 12 Monate")])
              ], pflicht: ["symbol"]),
-             annotations: nurLesen)
+             annotations: nurLesen),
+        Tool(name: "hole_tiefenanalyse",
+             description: "Tiefenanalyse eines Zeitraums mit denselben Rechnungen wie die Seite „Auswertung“ der App: Ergebnis in R (Ø Gewinn und Verlust, Erwartungswert, Verluste über 1 R), stärkste und schwächste Felder Wochentag × Stunde, Stärken und Schwächen nach Wochentag, Stunde, Haltedauer, Symbol, Monat und Setup, Kosten der Fehlermuster, größter Rückgang und Serien, Leistungsscore 0 bis 100 und Best-Exit (feste Ziele in R gegen den tatsächlichen Ausstieg, aus den Minutenkerzen der App), dazu das Rezept. Für Fragen wie „Wann und womit verdiene oder verliere ich?“. Ohne Zeitraum gilt der letzte Monat mit Trades.",
+             inputSchema: schema(zeitraum), annotations: nurLesen)
     ]
 
     static let vorlagen = [
@@ -128,6 +131,8 @@ enum Ausfuehrung {
             case "hole_kursanalyse":
                 let monate = argumente["monate"].flatMap { Int($0) } ?? 12
                 return antwort(Ausgabe.kursanalyse(export, symbol: argumente["symbol"] ?? "", monate: monate))
+            case "hole_tiefenanalyse":
+                return antwort(Ausgabe.tiefenanalyse(try Anfrage.lies(argumente, export: export)))
             case "hole_notizen":
                 return antwort(Ausgabe.notizen(try Anfrage.lies(argumente, export: export)))
             case "hole_trades":
