@@ -27,11 +27,18 @@ public struct Trade: Sendable, Equatable, Identifiable {
     /// Währung der Beträge, wenn sie von der Kontowährung abweichen kann (Positionsbildung aus Ausführungen,
     /// z. B. BTC/USD auf einem Euro-Konto). `nil` heißt Kontowährung (MetaTrader, XTB).
     public var waehrung: String?
+    /// Basiswert eines Hebelprodukts („Nasdaq 100“), erkannt am Namen (`Hebelprodukt`). `symbol` bleibt der
+    /// volle Name des Scheins; `nil` bei allem anderen.
+    public var basiswert: String?
+    /// Markterwartung eines Hebelprodukts: `.sell` bei Short und Put. `side` bleibt `.buy`, weil der Schein
+    /// gekauft wird und das Ergebnis so stimmt. `nil` bei allem anderen.
+    public var markterwartung: Side?
 
     public init(id: String, symbol: String, side: Side, lots: Decimal, openTime: Date, closeTime: Date,
                 openPrice: Decimal, closePrice: Decimal, stopLoss: Decimal? = nil, takeProfit: Decimal? = nil,
                 commission: Decimal = 0, swap: Decimal = 0, profit: Decimal, taxes: Decimal = 0,
-                produktart: Produktart = .unbekannt, nurDatum: Bool = false, waehrung: String? = nil) {
+                produktart: Produktart = .unbekannt, nurDatum: Bool = false, waehrung: String? = nil,
+                basiswert: String? = nil, markterwartung: Side? = nil) {
         self.id = id
         self.symbol = symbol
         self.side = side
@@ -49,6 +56,8 @@ public struct Trade: Sendable, Equatable, Identifiable {
         self.produktart = produktart
         self.nurDatum = nurDatum
         self.waehrung = waehrung?.uppercased()
+        self.basiswert = basiswert
+        self.markterwartung = markterwartung
     }
 
     /// Währung der Beträge in Großbuchstaben, ohne eigene Angabe die Kontowährung.

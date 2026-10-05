@@ -111,13 +111,18 @@ public enum Positionsbildung {
     private static func trade(verkauf v: Ausfuehrung, lose: [(kauf: Ausfuehrung, menge: Decimal)]) -> Trade {
         let anteile = lose.map { anteil($0.kauf, $0.menge) }
         let einstand = anteile.map(\.betrag).reduce(0, +)
+        let art = v.produktart != .unbekannt ? v.produktart : anteile.first?.produktart ?? .unbekannt
+        // Hebelprodukt: Symbol bleibt der volle Name, damit jeder Schein eine eigene Position ist
+        // (nötig für Fehlermuster wie Verbilligen); Basiswert und Markterwartung kommen dazu.
+        let hebel = Hebelprodukt.erkenne(v.name)
         return Trade(id: v.id, symbol: v.name.isEmpty ? v.kennung : v.name, side: .buy, lots: v.menge,
                      openTime: anteile.map(\.zeit).min() ?? v.zeit, closeTime: v.zeit,
                      openPrice: -einstand / v.menge, closePrice: v.betrag / v.menge,
                      commission: anteile.map(\.gebuehr).reduce(0, +) + v.gebuehr,
                      profit: v.betrag + einstand,
                      taxes: anteile.map(\.steuer).reduce(0, +) + v.steuer,
-                     produktart: v.produktart != .unbekannt ? v.produktart : anteile.first?.produktart ?? .unbekannt,
-                     nurDatum: v.nurDatum || anteile.contains(where: \.nurDatum), waehrung: v.waehrung)
+                     produktart: art == .unbekannt && hebel != nil ? .derivat : art,
+                     nurDatum: v.nurDatum || anteile.contains(where: \.nurDatum), waehrung: v.waehrung,
+                     basiswert: hebel?.basiswert, markterwartung: hebel?.markterwartung)
     }
 }
