@@ -454,12 +454,32 @@
         }
       }
     },
+    "Bitte einen Wert eingeben, etwa BTC/EUR oder AAPL." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please enter a value, such as BTC/EUR or AAPL."
+          }
+        }
+      }
+    },
     "Bitte vor dem Weitergeben ansehen, Freitext kann weitere Angaben enthalten." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Please review before passing it on; free text may contain further details."
+          }
+        }
+      }
+    },
+    "BTC/EUR, ETH/USD oder AAPL" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BTC/EUR, ETH/USD or AAPL"
           }
         }
       }
@@ -843,6 +863,16 @@
         }
       }
     },
+    "Eigene Werte" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Own values"
+          }
+        }
+      }
+    },
     "Ein Konto entsteht mit dem ersten Import. Henry liest Broker und Kontonummer aus der Datei; Namen und Kontowährung legst du im Import-Blatt fest." : {
       "localizations" : {
         "en" : {
@@ -1022,6 +1052,16 @@
         }
       }
     },
+    "Im Journal steht kein Wert mit freiem Kurs. Füge Krypto wie BTC/EUR oder US-Aktien wie AAPL selbst hinzu; für CFDs und Devisen gibt es keine freien Kurse." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The journal has no value with a free price. Add crypto such as BTC/EUR or US stocks such as AAPL yourself; there are no free prices for CFDs and currencies."
+          }
+        }
+      }
+    },
     "Independence Movement Day (Ersatztag)" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1029,6 +1069,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Independence Movement Day (observed)"
+          }
+        }
+      }
+    },
+    "Krypto kommt von Kraken ohne Schlüssel, US-Aktien von Alpaca mit dem Schlüssel aus Einstellungen › Kurse. CFDs und Devisen des Brokers haben keinen freien Kurs." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Crypto comes from Kraken without a key, US stocks from Alpaca with the key from Settings › Prices. Broker CFDs and currencies have no free price."
           }
         }
       }
@@ -1150,6 +1200,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "New Year's Day (observed)"
+          }
+        }
+      }
+    },
+    "Noch keine eigenen Werte." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No own values yet."
           }
         }
       }
@@ -1825,6 +1885,16 @@
         }
       }
     },
+    "US-Aktien laufen über Alpaca und brauchen dort einen kostenlosen Schlüssel: Einstellungen › Kurse." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "US stocks come from Alpaca and need a free key there: Settings › Prices."
+          }
+        }
+      }
+    },
     "Version" : {
       "localizations" : {
         "en" : {
@@ -2389,6 +2459,26 @@
         }
       }
     },
+    "Wert hinzufügen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add value"
+          }
+        }
+      }
+    },
+    "Werte für den Kurschart" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Values for the price chart"
+          }
+        }
+      }
+    },
     "Wie beim letzten Kontoimport dieses Kontos." : {
       "localizations" : {
         "en" : {
@@ -2586,6 +2676,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "–"
+          }
+        }
+      }
+    },
+    "„%@“ hat keine freie Kursquelle. Möglich sind Krypto wie BTC/EUR oder ETH/USD und US-Aktien wie AAPL." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” has no free price source. Crypto such as BTC/EUR or ETH/USD and US stocks such as AAPL are possible."
           }
         }
       }
@@ -11679,16 +11779,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Price chart with %1$lld daily candles and %2$lld markers"
-          }
-        }
-      }
-    },
-    "Kurscharts gibt es für Krypto und US-Aktien aus dem Journal. Für CFDs und Devisen gibt es keine freien Kurse." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Price charts are available for crypto and US stocks from the journal. There are no free prices for CFDs and currencies."
           }
         }
       }
