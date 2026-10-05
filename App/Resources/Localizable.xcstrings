@@ -86,12 +86,12 @@
         }
       }
     },
-    "%@ %lld neue Trades, %lld schon bekannt." : {
+    "%@ %lld neue Trades, %lld schon bekannt, %lld Journaleinträge, %lld neue Setups, %lld offen nicht übernommen." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ %2$lld new trades, %3$lld already known."
+            "value" : "%1$@ %2$lld new trades, %3$lld already known, %4$lld journal entries, %5$lld new setups, %6$lld open not imported."
           }
         }
       }

@@ -195,7 +195,7 @@ struct JournalSicherungBlatt: View {
                                     henry: "Diese Datei lag bereits vor. Nichts geändert.")
         case .gespeichert:
             let gespeichert = Ton.aktuell.text("Gespeichert:", henry: "Verbucht:")
-            return String(localized: "\(gespeichert) \(ergebnis.geschlosseneNeu) neue Trades, \(ergebnis.geschlosseneBekannt) schon bekannt.")
+            return String(localized: "\(gespeichert) \(ergebnis.geschlosseneNeu) neue Trades, \(ergebnis.geschlosseneBekannt) schon bekannt, \(ergebnis.journaleintraegeNeu) Journaleinträge, \(ergebnis.setupsNeu) neue Setups, \(ergebnis.ohneAusstieg) offen nicht übernommen.")
         }
     }
 

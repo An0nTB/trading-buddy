@@ -18,9 +18,14 @@ struct ImportView: View {
             + [UTType("org.openxmlformats.spreadsheetml.sheet"), UTType(filenameExtension: "xlsx")].compactMap { $0 }
     }
 
+    /// Importierte Dateien; der Lauf „Von Hand“ (Trades aus dem Formular, ohne Datei) bleibt draußen.
+    private var dateiImporte: [ImportEintrag] {
+        modell.importe.filter { $0.lauf.importer != Journal.vonHandImporter }
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: Abstand.kachelAbstand) {
-            Kopfzeile("Import", untertitel: String(localized: "\(modell.importe.count) Dateien")) {
+            Kopfzeile("Import", untertitel: String(localized: "\(dateiImporte.count) Dateien")) {
                 #if os(macOS)
                 Button("Datei wählen") { dateiWaehlen = true }
                     .buttonStyle(.borderedProminent)
@@ -40,11 +45,11 @@ struct ImportView: View {
             #if os(macOS)
             ImportordnerKarte() // Rückfragen und stille Importe aus dem Import-Ordner (Doc 45)
             #endif
-            if modell.importe.isEmpty {
+            if dateiImporte.isEmpty {
                 ContentUnavailableView(ton.text("Noch kein Import", henry: "Ein Auszug, bitte."), systemImage: "square.and.arrow.down",
                                        description: Text("Wähle einen Kontoauszug: MetaTrader 4 (HTML-Auszug aus der Broker-Mail, nicht der Bericht aus dem Terminal), MetaTrader 5 (Handelsbericht), den Transaktionsexport von Trade Republic oder Scalable Capital (CSV), das Activity Statement von Interactive Brokers (CSV), den Trade- oder Transaktionsexport von Kraken, Binance, Coinbase oder Bitpanda (CSV), die Kontohistorie von XTB (Excel aus xStation 5) oder die Sicherung des Browser-Journals (JSON)."))
             } else {
-                List(modell.importe) { eintrag in
+                List(dateiImporte) { eintrag in
                     ImportZeile(eintrag: eintrag)
                         .listRowBackground(thema.flaeche)
                 }
