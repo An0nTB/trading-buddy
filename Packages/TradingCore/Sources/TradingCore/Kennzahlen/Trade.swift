@@ -15,6 +15,7 @@ public struct Trade: Sendable, Equatable, Identifiable {
     public var stopLoss: Decimal?
     /// Geplantes Risiko (1 R) in Kontowährung, positiv, für Trades ohne brauchbaren Stop (Scalable,
     /// Trade Republic). Ohne Angabe `nil`, kein init-Parameter; setzen per Kopie oder `mitGeplantemRisiko(_:)`.
+    /// Der Währungsangleich rechnet es nicht um; R aus dem geplanten Risiko stimmt erst nach dem Angleich.
     public var geplantesRisiko: Decimal?
     public var takeProfit: Decimal?
     public var commission: Decimal
