@@ -26,7 +26,8 @@ private func datei(_ termine: String, jahr: Int = 2026) -> Data {
     // Jede Art aus den Dateien kommt vor; Börsenfeiertage nie, die liefert die Börsenuhr.
     let arten = Set(kalender.termine.map(\.art))
     #expect(arten == Set(Terminart.allCases).subtracting([.boersenfeiertag]))
-    #expect(kalender.termine.allSatisfy { Terminkalender.regionen.map(\.kuerzel).contains($0.region) })
+    let kuerzel = Set(Terminkalender.regionen.map { $0.kuerzel })
+    #expect(kalender.termine.allSatisfy { kuerzel.contains($0.region) })
 }
 
 @Test func zeitenInOrtszeitMitSommerzeit() throws {
