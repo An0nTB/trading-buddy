@@ -52,18 +52,21 @@ extension Journal {
     /// Legt den Eintrag an oder ersetzt den vorhandenen mit gleichem Konto und Ticket.
     /// Eine Position zum Ticket muss es nicht geben, das Konto schon.
     public func speichereJournal(_ eintrag: Journaleintrag) throws {
-        if let zustand = eintrag.zustand, !(1...5).contains(zustand) {
-            throw SpeicherFehler.ungueltigerWert("Zustand \(zustand), erlaubt 1 bis 5")
-        }
-        if let risiko = eintrag.risikoEinstieg, risiko <= 0 {
-            throw SpeicherFehler.ungueltigerWert("Risiko \(risiko) muss größer als 0 sein")
-        }
+        try Self.pruefeEintrag(eintrag)
         try schreibe { db in
             guard try Konto.exists(db, key: eintrag.kontoId) else {
                 throw SpeicherFehler.ungueltigerWert("Konto \(eintrag.kontoId) gibt es nicht")
             }
             try eintrag.save(db)
         }
+    }
+
+    /// Wertebereiche eines Eintrags; auch für das Formular „Trade eintragen“.
+    static func pruefeEintrag(_ eintrag: Journaleintrag) throws {
+        if let zustand = eintrag.zustand, !(1...5).contains(zustand) {
+            throw SpeicherFehler.ungueltigerWert("Zustand \(zustand), erlaubt 1 bis 5")
+        }
+        try pruefeRisiko(eintrag.risikoEinstieg)
     }
 
     /// Entfernt den Eintrag zu diesem Ticket, falls vorhanden.

@@ -40,6 +40,12 @@ public struct ImportErgebnis: Sendable, Equatable {
     /// Zähler eines CSV-Imports (Trade Republic, Scalable); bei XTB Kassenoperationen und Hinweise;
     /// beim MT4-Import leer.
     public var csv = CSVZaehler()
+    /// Journal-Sicherung: neu angelegte Journaleinträge (vorhandene bleiben unverändert).
+    public var journaleintraegeNeu: Int = 0
+    /// Journal-Sicherung: neu angelegte Setup-Karten.
+    public var setupsNeu: Int = 0
+    /// Journal-Sicherung: Trades ohne Exit, nicht übernommen.
+    public var ohneAusstieg: Int = 0
 }
 
 /// Das Trading-Journal auf der Festplatte: eine SQLite-Datei.
