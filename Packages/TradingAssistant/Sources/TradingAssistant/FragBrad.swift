@@ -197,11 +197,11 @@ public enum FragBrad {
             guard let trade = kontext.trade else { return nil }
             let nummer = trade.ticket.map { " (Ticket \($0))" } ?? ""
             return "Ordne meinen Trade \(trade.symbol)\(nummer) ein, \(tradezeit(trade, zeitzone: zeitzone)): "
-                + "Plan, Stop, Regeltreue und Fehlermuster."
+                + "Plan, Stop, Regeltreue und Fehlermuster. " + review(.trade)
         case .tag:
             guard let tag = kontext.tag else { return nil }
             return "Ordne meinen Handelstag am \(deutscherTag(tag, zeitzone: zeitzone)) ein: Ergebnis, Regeltreue "
-                + "und Fehlermuster."
+                + "und Fehlermuster. " + review(.tag)
         case .ziel:
             return "Wie stehe ich beim Ziel aus meinem letzten Review?"
         case .analyse:
@@ -219,6 +219,19 @@ public enum FragBrad {
             let text = bereinigt(freieFrage)
             return text.isEmpty ? nil : text
         }
+    }
+
+    /// Review-Teil für Trade- und Tagesfrage (Tim 05.10.2026): Fehlermuster mit Beleg und was beim nächsten Mal
+    /// anders laufen soll, gemessen an den eigenen Regeln. Nur Verhalten und Prozess; die Grenze steht ausdrücklich
+    /// im Text (Doc 02 Nr. 44 und 50).
+    static func review(_ vorlage: FragBradVorlage) -> String {
+        let (muster, naechstes) = vorlage == .tag
+            ? ("Welche Fehlermuster zeigt der Tag", "am nächsten Handelstag")
+            : ("Welches Fehlermuster zeigt der Trade", "beim nächsten ähnlichen Setup")
+        return "Danach ein kurzes Review: \(muster), und woran sieht man das? Was sollte ich \(naechstes) anders "
+            + "machen, gemessen an meinen Regeln, meinem Playbook, Plan und Stop und meinem Journal: Stop halten, "
+            + "Positionsgröße, Einstieg nach Checkliste, Ausstieg nach Plan. Nur Verhalten und Prozess, keine Kauf- "
+            + "oder Verkaufsempfehlung, kein Kursziel, keine Marktprognose."
     }
 
     /// „Konto: XTB …1234. Zeitraum: 2026-09-01 bis 2026-09-30.“ Tage im Format der Connector-Werkzeuge.
