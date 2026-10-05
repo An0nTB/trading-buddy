@@ -65,3 +65,33 @@ private func meldung(_ titel: String, vorStunden: Double, merkliste: [String] = 
     #expect(Ausgabe.suchwoerter("aapl.us") == ["aapl"] && Ausgabe.suchwoerter("eur") == ["eur"])
     #expect(Ausgabe.suchwoerter("eth/usdt") == ["eth", "ethereum"] && Ausgabe.suchwoerter("deutsche bank").isEmpty)
 }
+
+@Test func indexKuerzelFindenIndexnamen() {
+    // Tim testete die Wertanalyse mit de40.c, hole_nachrichten fand nichts: Meldungen schreiben DAX, nicht DE40.
+    let jetzt = Date(timeIntervalSince1970: 1_790_000_000)
+    func m(_ titel: String, symbole: [String] = []) -> JournalExport.Meldung {
+        JournalExport.Meldung(titel: titel, anriss: nil, quelle: "Alpaca", link: "https://example.org/\(titel.count)",
+                              zeit: jetzt.addingTimeInterval(-3600), symbole: symbole)
+    }
+    let export = JournalExport(konten: [], zeitzone: TimeZone(identifier: "Europe/Berlin")!, erstellt: jetzt,
+                               nachrichten: [m("DAX schließt fester"), m("S&P 500 auf Rekord"), m("Nasdaq-100 gibt nach"),
+                                             m("Dow Jones ruhig"), m("Daxsektor ohne Bezug"),
+                                             m("Index-Termin", symbole: ["GER40"])])
+    for begriff in ["de40.c", "GER40.cash", "DAX40", "#ger40_cash", "de40c", "DE40m"] {
+        let dax = Ausgabe.nachrichten(export, tage: 7, begriff: begriff, jetzt: jetzt)
+        #expect(dax.contains("DAX schließt fester") && dax.contains("Index-Termin") && !dax.contains("Daxsektor"), "\(begriff)")
+        #expect(!dax.contains("S&P 500 auf Rekord"), "\(begriff)")
+    }
+    for begriff in ["US500", "SPX500", "spx500usd", "US500.cash"] {
+        let sp = Ausgabe.nachrichten(export, tage: 7, begriff: begriff, jetzt: jetzt)
+        #expect(sp.contains("S&P 500 auf Rekord") && !sp.contains("DAX schließt"), "\(begriff)")
+    }
+    #expect(Ausgabe.nachrichten(export, tage: 7, begriff: "NAS100", jetzt: jetzt).contains("Nasdaq-100 gibt nach"))
+    #expect(Ausgabe.nachrichten(export, tage: 7, begriff: "USTEC.c", jetzt: jetzt).contains("Nasdaq-100 gibt nach"))
+    #expect(Ausgabe.nachrichten(export, tage: 7, begriff: "US30", jetzt: jetzt).contains("Dow Jones ruhig"))
+    #expect(Ausgabe.suchwoerter("uk100") == ["uk100", "ftse 100", "ftse"])
+    #expect(Ausgabe.suchwoerter("jp225.m") == ["jp225", "nikkei 225", "nikkei"])
+    #expect(Ausgabe.suchwoerter("eu50") == ["eu50", "euro stoxx 50", "euro stoxx", "eurostoxx"])
+    #expect(Ausgabe.suchwoerter("fra40.cash") == ["fra40", "cac 40", "cac"])
+    #expect(Ausgabe.suchwoerter("ethusdc") == ["eth", "ethereum"] && Ausgabe.suchwoerter("btc-usd") == ["btc", "bitcoin"])
+}
