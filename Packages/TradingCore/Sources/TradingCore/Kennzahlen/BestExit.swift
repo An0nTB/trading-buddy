@@ -5,6 +5,9 @@ import Foundation
 ///
 /// Annahmen:
 /// - 1 R ist der Abstand Einstieg bis Stop wie bei `Trade.risk` (bei MetaTrader der letzte Stand des Stops).
+///   Bei angenommenem Risiko (`Trade.risikoAngenommen`, kein brauchbarer Stop) ist 1 R der Kursabstand, der
+///   dem geplanten Risiko entspricht: Risiko ÷ Wert je Kurspunkt (|Kursergebnis| ÷ |Kursbewegung|). Der
+///   Stop der Varianten liegt dann gedacht dort; `risikoAngenommen` markiert solche Analysen.
 /// - Kerzen wie bei `Ausstiegsanalyse`: von der Kerze des Einstiegs bis zur Kerze des Ausstiegs, Auflösung
 ///   eine Kerze. Erste und letzte Kerze können Kurse kurz vor dem Einstieg oder nach dem Ausstieg enthalten.
 /// - Kerze für Kerze: Berührt eine Kerze zuerst den Stop, endet die Variante bei −1 R, berührt sie zuerst
@@ -62,20 +65,21 @@ public struct BestExit: Sendable, Equatable {
     public var kerzenUnscharf: Bool
     /// Anteil der Haltedauer, den Kerzen abdecken (siehe `Ausstiegsanalyse.abdeckung`).
     public var abdeckung: Decimal
+    /// 1 R stammt aus dem geplanten Risiko (`Trade.risikoAngenommen`), nicht aus einem Stop.
+    public var risikoAngenommen: Bool
 
-    /// `nil` ohne Risiko (kein Stop, Stop auf der Gewinnseite, keine Kursbewegung), ohne Uhrzeit
-    /// (`nurDatum`) oder ohne Kerze in der Haltedauer.
+    /// `nil` ohne Risiko (weder Stop noch geplantes Risiko, Stop auf der Gewinnseite ohne geplantes Risiko,
+    /// keine Kursbewegung), ohne Uhrzeit (`nurDatum`) oder ohne Kerze in der Haltedauer.
     /// - Parameters:
     ///   - kerzen: beliebig sortiert; doppelte Kerzen (gleicher Beginn) zählen einmal, die letzte gilt.
     ///   - ziele: Ziele in R; Werte ≤ 0 und doppelte fallen weg, sortiert wird aufsteigend.
     public init?(trade: Trade, kerzen: [Zeitkerze], ziele: [Decimal] = BestExit.standardZiele) {
-        guard let risiko = trade.risk, risiko > 0, let stop = trade.stopLoss,
-              let tatsaechlich = trade.rMultiple else { return nil }
-        guard let analyse = Ausstiegsanalyse(trade: trade, kerzen: kerzen, nachlauf: 0),
-              let mfeR = analyse.mfeR else { return nil }
+        guard let risiko = trade.risk, risiko > 0, let tatsaechlich = trade.rMultiple,
+              let abstand = Self.abstandEinR(trade) else { return nil }
+        guard let analyse = Ausstiegsanalyse(trade: trade, kerzen: kerzen, nachlauf: 0) else { return nil }
+        // Wie `Ausstiegsanalyse.mfeR`, aber auch für den Abstand aus dem geplanten Risiko.
+        let mfeR = analyse.mfe / abstand
         let kauf = trade.side == .buy
-        let abstand = kauf ? trade.openPrice - stop : stop - trade.openPrice
-        guard abstand > 0 else { return nil }
         let verlauf = Self.kerzenImTrade(trade, kerzen)
         let kostenR = trade.costs / risiko
 
@@ -104,6 +108,23 @@ public struct BestExit: Sendable, Equatable {
         differenzTheoretischesMaximum = max(0, maximum - tatsaechlich)
         kerzenUnscharf = analyse.unscharf
         abdeckung = analyse.abdeckung
+        risikoAngenommen = trade.risikoAngenommen
+    }
+
+    /// Kursabstand für 1 R, positiv. Mit Risiko aus dem Stop der Abstand Einstieg bis Stop; bei angenommenem
+    /// Risiko `Trade.risk` ÷ Wert je Kurspunkt (|Kursergebnis| ÷ |Kursbewegung|). `nil` ohne Risiko, bei Stop
+    /// auf der Gewinnseite ohne geplantes Risiko oder, bei angenommenem Risiko, ohne Kursbewegung oder Ergebnis.
+    static func abstandEinR(_ trade: Trade) -> Decimal? {
+        guard let risiko = trade.risk, risiko > 0 else { return nil }
+        if trade.risikoAngenommen {
+            let bewegung = abs(trade.closePrice - trade.openPrice)
+            let ergebnis = abs(trade.profit)
+            guard bewegung > 0, ergebnis > 0 else { return nil }
+            return risiko * bewegung / ergebnis
+        }
+        guard let stop = trade.stopLoss else { return nil }
+        let abstand = trade.side == .buy ? trade.openPrice - stop : stop - trade.openPrice
+        return abstand > 0 ? abstand : nil
     }
 
     /// Ziele > 0, aufsteigend, ohne doppelte.
@@ -175,12 +196,14 @@ public struct BestExitAuswertung: Sendable, Equatable {
     public var einzeln: [BestExit]
     /// Analysierte Trades.
     public var anzahl: Int
-    /// Ausgelassen: ohne Risiko (kein Stop, Stop auf der Gewinnseite, keine Kursbewegung).
+    /// Ausgelassen: ohne Risiko (weder Stop noch geplantes Risiko, Stop auf der Gewinnseite, keine Kursbewegung).
     public var ohneRisiko: Int
     /// Ausgelassen: mit Risiko, aber ohne nutzbare Kerzen (keine Kerze in der Haltedauer oder ohne Uhrzeit).
     public var ohneKerzen: Int
     /// Analysierte Trades, deren Kerzen deutlich über Ein- oder Ausstieg hinausreichen.
     public var anzahlKerzenUnscharf: Int
+    /// Analysierte Trades mit angenommenem Risiko (`BestExit.risikoAngenommen`): 1 R aus dem geplanten Risiko.
+    public var anzahlRisikoAngenommen: Int
     public var summeTatsaechlichR: Decimal
     public var durchschnittTatsaechlichR: Decimal?
     public var stufen: [Stufe]
@@ -201,7 +224,7 @@ public struct BestExitAuswertung: Sendable, Equatable {
         var ohneRisiko = 0
         var ohneKerzen = 0
         for trade in trades {
-            guard let risiko = trade.risk, risiko > 0 else {
+            guard BestExit.abstandEinR(trade) != nil else {
                 ohneRisiko += 1
                 continue
             }
@@ -242,6 +265,7 @@ public struct BestExitAuswertung: Sendable, Equatable {
         self.ohneRisiko = ohneRisiko
         self.ohneKerzen = ohneKerzen
         anzahlKerzenUnscharf = einzeln.filter(\.kerzenUnscharf).count
+        anzahlRisikoAngenommen = einzeln.filter(\.risikoAngenommen).count
         summeTatsaechlichR = summeTatsaechlich
         durchschnittTatsaechlichR = einzeln.isEmpty ? nil : summeTatsaechlich / Decimal(einzeln.count)
         self.stufen = stufen

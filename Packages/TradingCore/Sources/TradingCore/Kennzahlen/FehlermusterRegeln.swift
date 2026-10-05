@@ -46,10 +46,12 @@ extension Fehlermuster {
             befunde.append(befund(.ueberhandeln, betroffen, stichprobe: jeTag.count, wert: Decimal(grenze)))
         }
 
-        // Stop nicht eingehalten: Verlust deutlich über 1 R.
-        let mitR = nachEroeffnung.filter { $0.rMultiple != nil }
-        befunde.append(befund(.stopNichtEingehalten, mitR.filter { $0.rMultiple! < s.stopVerlustR },
-                              stichprobe: mitR.count))
+        // Stop nicht eingehalten: Verlust deutlich über 1 R. Nur Trades mit R aus dem Stop: Bei angenommenem
+        // Risiko (`risikoAngenommen`) gibt es keinen Stop, der gebrochen werden könnte; ein Verlust über dem
+        // geplanten Risiko ist „geplantes Risiko überschritten“ und steht in `RKennzahlen.verlusteUeber1R`.
+        let mitStopR = nachEroeffnung.filter { $0.rMultiple != nil && !$0.risikoAngenommen }
+        befunde.append(befund(.stopNichtEingehalten, mitStopR.filter { $0.rMultiple! < s.stopVerlustR },
+                              stichprobe: mitStopR.count))
 
         // Gewinne zu früh: Gewinner, die weit vor dem gesetzten Ziel geschlossen wurden.
         let gewinnerMitZiel = nachEroeffnung.filter { $0.outcome == .win && zielanteil($0) != nil }
@@ -75,8 +77,9 @@ extension Fehlermuster {
 
         befunde.append(befund(.ohneStop, nachEroeffnung.filter { $0.stopLoss == nil }, stichprobe: n))
 
-        // Schwankende Größe: Risiko je Trade stark gestreut.
-        let risiken = mitR.compactMap(\.risk).map { NSDecimalNumber(decimal: $0).doubleValue }
+        // Schwankende Größe: Risiko je Trade stark gestreut. Wie „Größe nach Gewinnserie“ nur mit Risiko aus
+        // dem Stop: Ein vorgegebenes Standard-Risiko ist keine echte Positionsgröße.
+        let risiken = mitStopR.compactMap(\.stopRisiko).map { NSDecimalNumber(decimal: $0).doubleValue }
         if risiken.count >= 2 {
             let mittel = risiken.reduce(0, +) / Double(risiken.count)
             let streuung = (risiken.map { ($0 - mittel) * ($0 - mittel) }.reduce(0, +) / Double(risiken.count)).squareRoot()
@@ -87,14 +90,16 @@ extension Fehlermuster {
         }
 
         // Größe nach Gewinnserie: nach mehreren Gewinnen in Folge deutlich mehr Risiko.
-        let medianRisiko = median(mitR.compactMap(\.risk))
-        let nachSerie = mitR.filter { t in
-            guard let medianRisiko, let risiko = t.risk, risiko > medianRisiko * s.groessenFaktor else { return false }
+        let medianRisiko = median(mitStopR.compactMap(\.stopRisiko))
+        let nachSerie = mitStopR.filter { t in
+            guard let medianRisiko, let risiko = t.stopRisiko, risiko > medianRisiko * s.groessenFaktor else {
+                return false
+            }
             let davor = nachSchluss.filter { $0.sicherGeschlossen(vor: t, kalender: kalender) }
             return davor.suffix(s.gewinnserie).count == s.gewinnserie
                 && davor.suffix(s.gewinnserie).allSatisfy { $0.outcome == .win }
         }
-        befunde.append(befund(.groesseNachGewinnserie, nachSerie, stichprobe: mitR.count))
+        befunde.append(befund(.groesseNachGewinnserie, nachSerie, stichprobe: mitStopR.count))
 
         // Ständiges Umplanen: viele gelöschte Pending Orders.
         if let quote = Kennzahlen.stornoquote(ausgefuehrt: n, geloescht: geloeschteOrders), quote > s.stornoquote {
