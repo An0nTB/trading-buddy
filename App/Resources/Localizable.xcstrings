@@ -86,6 +86,26 @@
         }
       }
     },
+    "%@ %lld neue Trades, %lld schon bekannt." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ %2$lld new trades, %3$lld already known."
+          }
+        }
+      }
+    },
+    "%@ (angenommen)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ (assumed)"
+          }
+        }
+      }
+    },
     "%@ (ohne Kurse)" : {
       "localizations" : {
         "en" : {
@@ -364,6 +384,696 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$lld, of which %2$lld tax-free"
+          }
+        }
+      }
+    },
+    "Abrechnung" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settlement"
+          }
+        }
+      }
+    },
+    "Aktie, CFD, Future: Short dreht das Vorzeichen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stock, CFD, future: short flips the sign."
+          }
+        }
+      }
+    },
+    "Asset" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Asset"
+          }
+        }
+      }
+    },
+    "Asset fehlt." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Asset is missing."
+          }
+        }
+      }
+    },
+    "Assetklasse" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Asset class"
+          }
+        }
+      }
+    },
+    "Ausführung" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Execution"
+          }
+        }
+      }
+    },
+    "Ausstiegskurs" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exit price"
+          }
+        }
+      }
+    },
+    "Ausstiegszeit bekannt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exit time known"
+          }
+        }
+      }
+    },
+    "Bekannte" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Known"
+          }
+        }
+      }
+    },
+    "Beträge in der Währung des Kontos." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Amounts in the account currency."
+          }
+        }
+      }
+    },
+    "Browser-Journal" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Browser journal"
+          }
+        }
+      }
+    },
+    "Das Journal kennt keine Ausstiegszeit und keine Gebühren: Die Trades zählen nur mit Datum, Uhrzeit- und Haltedauer-Auswertungen lassen sie aus." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The journal has no exit time and no fees: the trades count by date only, and time-of-day and holding-time analyses leave them out."
+          }
+        }
+      }
+    },
+    "Das gewählte Konto gibt es nicht mehr." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The selected account no longer exists."
+          }
+        }
+      }
+    },
+    "Davon Gewinner" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Of which winners"
+          }
+        }
+      }
+    },
+    "Der Stop liegt auf der Gewinnseite des Einstiegs." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The stop is on the profit side of the entry."
+          }
+        }
+      }
+    },
+    "Die Ausstiegszeit liegt vor dem Einstieg." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The exit time is before the entry."
+          }
+        }
+      }
+    },
+    "Die Datei ist kein gültiges JSON." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The file is not valid JSON."
+          }
+        }
+      }
+    },
+    "Die Größe muss über 0 liegen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The size must be above 0."
+          }
+        }
+      }
+    },
+    "Die Journal-Datei ist nicht geöffnet." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The journal file is not open."
+          }
+        }
+      }
+    },
+    "Direkt gehandelt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Traded directly"
+          }
+        }
+      }
+    },
+    "Einstieg muss über 0 liegen, Exit auch (nur ein Schein darf mit 0 enden)." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entry must be above 0, exit too (only a certificate may end at 0)."
+          }
+        }
+      }
+    },
+    "Einstiegskurs" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entry price"
+          }
+        }
+      }
+    },
+    "Entry" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entry"
+          }
+        }
+      }
+    },
+    "Entry fehlt." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entry is missing."
+          }
+        }
+      }
+    },
+    "Ergebnis erscheint, sobald Größe, Entry und Exit stehen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The result appears once size, entry and exit are filled in."
+          }
+        }
+      }
+    },
+    "Ergebnis in R" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Result in R"
+          }
+        }
+      }
+    },
+    "Erkannt: Hebelprodukt %@ auf %@. Abrechnung und Richtung sind vorgestellt." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detected: leveraged product %1$@ on %2$@. Settlement and direction are preset."
+          }
+        }
+      }
+    },
+    "Erkannt: Sicherung des Browser-Journals (JSON)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detected: backup of the browser journal (JSON)"
+          }
+        }
+      }
+    },
+    "Exit" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exit"
+          }
+        }
+      }
+    },
+    "Exit fehlt; offene Trades kommen später." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exit is missing; open trades come later."
+          }
+        }
+      }
+    },
+    "Gebühren" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fees"
+          }
+        }
+      }
+    },
+    "Gedanken" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thoughts"
+          }
+        }
+      }
+    },
+    "Geschlossene Trades" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Closed trades"
+          }
+        }
+      }
+    },
+    "Größe fehlt." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Size is missing."
+          }
+        }
+      }
+    },
+    "JSON ohne Liste „trades“: keine Sicherung des Browser-Journals." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "JSON without a “trades” list: not a backup of the browser journal."
+          }
+        }
+      }
+    },
+    "Kaufkurs des Scheins" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Purchase price of the certificate"
+          }
+        }
+      }
+    },
+    "Knock-out, Optionsschein, Zertifikat: Gewinn bei steigendem Scheinpreis, auch bei Short." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Knock-out, warrant, certificate: profit when the certificate price rises, short too."
+          }
+        }
+      }
+    },
+    "Kurs" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Price"
+          }
+        }
+      }
+    },
+    "Mit Risiko (ergibt R)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "With risk (gives R)"
+          }
+        }
+      }
+    },
+    "Name des Kontos" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Account name"
+          }
+        }
+      }
+    },
+    "Name für das neue Konto fehlt." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Name for the new account is missing."
+          }
+        }
+      }
+    },
+    "Netto nach Gebühren" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Net after fees"
+          }
+        }
+      }
+    },
+    "Neue Setups im Playbook: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New setups in the playbook: %@"
+          }
+        }
+      }
+    },
+    "Neuer Trade" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New trade"
+          }
+        }
+      }
+    },
+    "Neues Konto für Handeinträge" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New account for manual entries"
+          }
+        }
+      }
+    },
+    "Neues Konto in Euro: Das Journal rechnet nur in Euro. Gleicher Name beim nächsten Import, dann kommen nur neue Trades dazu." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New account in euros: the journal only calculates in euros. Use the same name on the next import, then only new trades are added."
+          }
+        }
+      }
+    },
+    "Offen, nicht übernommen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open, not imported"
+          }
+        }
+      }
+    },
+    "Ohne" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "None"
+          }
+        }
+      }
+    },
+    "Ohne Angabe" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not specified"
+          }
+        }
+      }
+    },
+    "Ohne Ausstiegszeit zählt der Trade nur mit Datum; Uhrzeit- und Haltedauer-Auswertungen lassen ihn aus." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Without an exit time the trade counts by date only; time-of-day and holding-time analyses leave it out."
+          }
+        }
+      }
+    },
+    "Ohne Stop rechnet Henry mit dem Standard-Risiko des Kontos: %@ (angenommen)." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Without a stop, Henry uses the account's default risk: %@ (assumed)."
+          }
+        }
+      }
+    },
+    "Ohne Stop rechnet Henry mit dem Standard-Risiko des Setups: %@ (angenommen)." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Without a stop, Henry uses the setup's default risk: %@ (assumed)."
+          }
+        }
+      }
+    },
+    "Ohne Stop und ohne Standard-Risiko bleibt R offen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Without a stop and without a default risk, R stays open."
+          }
+        }
+      }
+    },
+    "Plan eingehalten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Followed the plan"
+          }
+        }
+      }
+    },
+    "Review" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Review"
+          }
+        }
+      }
+    },
+    "Richtung (Markterwartung)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Direction (market expectation)"
+          }
+        }
+      }
+    },
+    "Risiko in %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Risk in %@"
+          }
+        }
+      }
+    },
+    "SAP, DAX, Gold …" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SAP, DAX, gold …"
+          }
+        }
+      }
+    },
+    "Schein gekauft" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Certificate bought"
+          }
+        }
+      }
+    },
+    "Scheine" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Certificates"
+          }
+        }
+      }
+    },
+    "Stop-Kurs" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop price"
+          }
+        }
+      }
+    },
+    "Stück bzw. € je Punkt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shares or € per point"
+          }
+        }
+      }
+    },
+    "Summe aller Gebühren, positiv" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sum of all fees, positive"
+          }
+        }
+      }
+    },
+    "Trade eintragen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add trade"
+          }
+        }
+      }
+    },
+    "Trade sichern" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save trade"
+          }
+        }
+      }
+    },
+    "Verkaufskurs des Scheins, 0 bei Knock-out" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sale price of the certificate, 0 on knock-out"
+          }
+        }
+      }
+    },
+    "Was war die Idee, wie hast du dich gefühlt, was würdest du anders machen?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What was the idea, how did you feel, what would you do differently?"
+          }
+        }
+      }
+    },
+    "Währung" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Currency"
+          }
+        }
+      }
+    },
+    "Zeiteinheit" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Timeframe"
           }
         }
       }
@@ -2631,6 +3341,26 @@
         }
       }
     },
+    "optional" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "optional"
+          }
+        }
+      }
+    },
+    "optional, ergibt R und den Stop" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "optional, gives R and the stop"
+          }
+        }
+      }
+    },
     "tatsächlich %@" : {
       "localizations" : {
         "en" : {
@@ -4172,6 +4902,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "State %lld of 5"
+          }
+        }
+      }
+    },
+    "z. B. Comdirect Depot" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "e.g. Comdirect account"
           }
         }
       }
