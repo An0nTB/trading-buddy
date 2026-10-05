@@ -49,7 +49,7 @@
     },
     {
       "name": "hole_kursanalyse",
-      "description": "Beschreibende Kursanalyse eines Werts aus den Tageskerzen der App, mit eigenen Trades im Wert."
+      "description": "Kursanalyse eines Werts aus den Tageskerzen der App, mit eigenen Trades im Wert, als Grundlage für Einschätzungen."
     }
   ],
   "prompts_generated": true,

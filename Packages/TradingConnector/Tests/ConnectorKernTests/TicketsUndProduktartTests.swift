@@ -146,14 +146,16 @@ private func export(_ trades: [Trade] = alle, zone: TimeZone = berlin) -> Journa
     // beschreibend (Doc 02 Nr. 44/50).
     #expect(Rezept.text.contains("6. Review und besser machen:") && Rezept.text.contains("8. Genau ein messbares Ziel"))
     #expect(Rezept.text.contains("- Review des eigenen Vorgehens ist erwünscht"))
-    #expect(Rezept.text.contains("Kursziele, Kursprognosen") && Rezept.text.contains("Marktrisiko, kein Fehler"))
+    #expect(Rezept.text.contains(Rezept.einschaetzungsRegel) && Rezept.text.contains("Marktrisiko, kein Fehler"))
     let trades = Ausgabe.trades(try Anfrage.lies(["monat": "2025-05"], export: export()), auswahl: .chronologisch,
                                 muster: nil, anzahl: 10)
-    #expect(trades.contains("## Hinweis für die Antwort (Henry)") && trades.contains("Weiter ausgeschlossen: Kauf-"))
+    #expect(trades.contains("## Hinweis für die Antwort (Henry)"))
+    #expect(trades.contains("Einschätzungen, Empfehlungen, Kursziele und Szenarien sind erlaubt"))
+    #expect(trades.contains(Rezept.hinweis) && Rezept.kursanalyseText.contains(Rezept.hinweis))
     let leer = Ausgabe.trades(try Anfrage.lies(["monat": "2025-05"], export: export()),
                               auswahl: .chronologisch, muster: nil, anzahl: 10, symbol: "XYZ")
     #expect(leer.contains("Keine passenden Trades.") && !leer.contains("## Hinweis für die Antwort"))
-    #expect(!Rezept.kursanalyseText.contains("Review des eigenen") && Rezept.kursanalyseText.contains("keine Empfehlungen"))
+    #expect(!Rezept.kursanalyseText.contains("Review des eigenen") && Rezept.kursanalyseText.contains("6. Einschätzung:"))
     #expect(!Rezept.nachrichtenText.contains("Review des eigenen"))
 }
 

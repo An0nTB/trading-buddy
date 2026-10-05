@@ -55,7 +55,7 @@ enum Katalog {
              ]),
              annotations: nurLesen),
         Tool(name: "hole_kursanalyse",
-             description: "Beschreibende Kursanalyse eines Werts aus den Tageskerzen der App: Veränderung über Woche, Monat, Quartal und Jahr, Schwankung, Tagesspanne, Abstand zum 52-Wochen-Hoch und -Tief, größter Rückgang, dazu die eigenen Trades im Wert und das Rezept. Keine Prognose.",
+             description: "Kursanalyse eines Werts aus den Tageskerzen der App: Veränderung über Woche, Monat, Quartal und Jahr, Schwankung, Tagesspanne, Abstand zum 52-Wochen-Hoch und -Tief, größter Rückgang, dazu die eigenen Trades im Wert und das Rezept, als Grundlage für Einschätzungen und Szenarien.",
              inputSchema: schema([
                  "symbol": text("Symbol wie im Journal, z. B. BTCUSD oder AAPL"),
                  "monate": .object(["type": .string("integer"),
