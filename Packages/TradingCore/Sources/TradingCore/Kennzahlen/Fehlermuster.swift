@@ -22,6 +22,12 @@ public enum Fehlermuster: String, Sendable, CaseIterable {
         public var revancheMinuten: Double = 15
         /// Überhandeln: Trades am Tag über Median plus diese Zahl.
         public var ueberhandelnUeberMedian: Int = 2
+        /// Überhandeln: so viele Tage mit Trades braucht der Median mindestens. Darunter prüft die Regel
+        /// nur gegen ein eigenes Limit (`maxTradesProTag`); drei Tage ergeben kein „üblich“ (Tim 05.10.2026).
+        public var ueberhandelnMindestTage: Int = 10
+        /// Eigenes Tageslimit, etwa aus den Handelsregeln (`Handelsregeln.maxTradesJeTag`). Gesetzt gilt es
+        /// als Grenze für „Überhandeln“ statt des Medians, unabhängig von der Zahl der Tage.
+        public var maxTradesProTag: Int? = nil
         /// Stop nicht eingehalten: Verlust kleiner als dieses R.
         public var stopVerlustR: Decimal = Decimal(string: "-1.2")!
         /// Gewinne zu früh: erzielt weniger als dieser Anteil des geplanten Ziels.
@@ -51,6 +57,7 @@ public struct Befund: Sendable, Equatable {
     public var netto: Decimal
     /// Summe der R-Multiples der betroffenen Trades mit bekanntem Risiko.
     public var summeR: Decimal?
+    /// Kennzahl oder Grenze der Regel; bei „Überhandeln“ die Grenze an Positionen je Tag.
     public var wert: Decimal?
     /// Grundgesamtheit, auf die sich die Regel stützt. Unter 30: nur beschreiben.
     public var stichprobe: Int

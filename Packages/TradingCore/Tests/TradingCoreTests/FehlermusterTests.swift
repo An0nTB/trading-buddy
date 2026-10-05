@@ -33,10 +33,17 @@ private func d(_ text: String) -> Decimal { Decimal(string: text)! }
     var s = Fehlermuster.Schwellen()
     s.ueberhandelnUeberMedian = 1   // Montag hat 3 Trades, Median der Tage ist 1.
     s.zielAnteil = d("1.5")         // Trade 4 erreichte sein Ziel genau, also 100 % < 150 %.
+    // Früher markierte das den ganzen Montag (1, 2, 3). Seit Tim 05.10.2026 trägt der Median erst ab
+    // 10 Tagen mit Trades; die Hand-Trades haben 4, also ohne eigenes Limit kein Überhandeln.
+    let ohneLimit = Fehlermuster.pruefe(handTrades, zeitzone: utc, schwellen: s)
+    #expect(!ohneLimit.contains { $0.muster == .ueberhandeln })
+    // Mit eigenem Limit 2 je Tag ist nur die dritte Position des Montags zu viel, nicht der ganze Tag.
+    s.maxTradesProTag = 2
     let befunde = Fehlermuster.pruefe(handTrades, zeitzone: utc, schwellen: s)
     let jeMuster = Dictionary(uniqueKeysWithValues: befunde.map { ($0.muster, $0) })
-    #expect(jeMuster[.ueberhandeln]?.trades == ["1", "2", "3"])
+    #expect(jeMuster[.ueberhandeln]?.trades == ["3"])
     #expect(jeMuster[.ueberhandeln]?.stichprobe == 4)
+    #expect(jeMuster[.ueberhandeln]?.wert == 2)
     #expect(jeMuster[.gewinneZuFrueh]?.trades == ["4"])
 }
 
@@ -79,8 +86,12 @@ private func d(_ text: String) -> Decimal { Decimal(string: text)! }
     let jeMuster = Dictionary(uniqueKeysWithValues: befunde.map { ($0.muster, $0) })
     #expect(jeMuster[.revancheTrade]?.trades.count == 6)
     #expect(jeMuster[.revancheTrade]?.netto == d("-1.87"))
-    #expect(jeMuster[.ueberhandeln]?.trades.count == 33)
+    // 20 Tage, Positionen je Tag im Median 5, Grenze 7. Früher zählten alle Trades der drei Tage über 7
+    // (10 + 10 + 13 = 33); seit Tim 05.10.2026 nur die Positionen ab der 8. des Tages: 3 + 3 + 6 = 12
+    // (nachgerechnet mit Python am Fixture, Eröffnung in UTC).
+    #expect(jeMuster[.ueberhandeln]?.trades.count == 12)
     #expect(jeMuster[.ueberhandeln]?.stichprobe == 20)
+    #expect(jeMuster[.ueberhandeln]?.wert == 7)
     #expect(jeMuster[.gewinneZuFrueh]?.trades.count == 7)
     #expect(jeMuster[.gewinneZuFrueh]?.stichprobe == 50)
     #expect(jeMuster[.verliererLaufenLassen]?.wert?.gerundet(4) == d("2.1129"))

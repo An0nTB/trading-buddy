@@ -5,6 +5,7 @@ extension Fehlermuster {
     /// - Parameters:
     ///   - geloeschteOrders: Anzahl gelöschter Pending Orders im selben Zeitraum.
     ///   - zeitzone: Tagesgrenze für „Trades pro Tag“, in der Regel die des Nutzers.
+    ///   - schwellen: Bei „Überhandeln“ steht in `Befund.wert` die Grenze (siehe `ueberhandelnGrenze`).
     public static func pruefe(_ trades: [Trade], geloeschteOrders: Int = 0, zeitzone: TimeZone,
                               schwellen s: Schwellen = Schwellen()) -> [Befund] {
         let nachEroeffnung = trades.sorted { ($0.openTime, $0.id) < ($1.openTime, $1.id) }
@@ -14,12 +15,13 @@ extension Fehlermuster {
         var kalender = Calendar(identifier: .gregorian)
         kalender.timeZone = zeitzone
 
-        // Revanche: kurz nach einem Verlust eröffnet, mit mehr Lots als üblich.
+        // Revanche: kurz nach einem Verlust eröffnet, größer als üblich (`groessenmass`).
         // Minutenabstände brauchen Uhrzeiten; Trades nur mit Datum fallen hier heraus.
-        let medianLots = median(trades.map(\.lots))
+        let medianGroesse = Dictionary(grouping: trades) { misstEinsatz($0) }
+            .compactMapValues { gruppe in median(gruppe.map { groessenmass($0) }) }
         let mitUhrzeit = nachEroeffnung.filter { !$0.nurDatum }
         let revanche = mitUhrzeit.filter { t in
-            guard let medianLots, t.lots > medianLots else { return false }
+            guard let m = medianGroesse[misstEinsatz(t)], groessenmass(t) > m else { return false }
             return nachSchluss.contains { v in
                 v.outcome == .loss && !v.nurDatum && v.id != t.id && v.closeTime <= t.openTime
                     && t.openTime.timeIntervalSince(v.closeTime) <= s.revancheMinuten * 60
@@ -27,13 +29,21 @@ extension Fehlermuster {
         }
         befunde.append(befund(.revancheTrade, revanche, stichprobe: mitUhrzeit.count))
 
-        // Überhandeln: Tage mit deutlich mehr Trades als üblich; Teilverkäufe zählen als ein Trade.
-        let jeTag = Dictionary(grouping: nachEroeffnung) { $0.eroeffnungstag(kalender) }
-            .mapValues { Decimal(Set($0.map(\.positionsschluessel)).count) }
-        if let medianTag = median(Array(jeTag.values)) {
-            let grenze = medianTag + Decimal(s.ueberhandelnUeberMedian)
-            let betroffen = nachEroeffnung.filter { jeTag[$0.eroeffnungstag(kalender)]! > grenze }
-            befunde.append(befund(.ueberhandeln, betroffen, stichprobe: jeTag.count))
+        // Überhandeln: nur die Positionen über dem üblichen Maß des Tages, nicht der ganze Tag (Tim 05.10.2026).
+        // Teilverkäufe zählen als ein Trade: alle Teile tragen die laufende Nummer ihrer Position.
+        let jeTag = tradesJeTag(trades, zeitzone: zeitzone)
+        if let grenze = ueberhandelnGrenze(jeTag: jeTag, schwellen: s) {
+            var positionenJeTag: [Date: [String]] = [:]
+            var betroffen: [Trade] = []
+            for t in nachEroeffnung {
+                let tag = t.eroeffnungstag(kalender)
+                var positionen = positionenJeTag[tag] ?? []
+                if !positionen.contains(t.positionsschluessel) { positionen.append(t.positionsschluessel) }
+                positionenJeTag[tag] = positionen
+                let nummer = (positionen.firstIndex(of: t.positionsschluessel) ?? 0) + 1
+                if nummer > grenze { betroffen.append(t) }
+            }
+            befunde.append(befund(.ueberhandeln, betroffen, stichprobe: jeTag.count, wert: Decimal(grenze)))
         }
 
         // Stop nicht eingehalten: Verlust deutlich über 1 R.
@@ -92,6 +102,48 @@ extension Fehlermuster {
                                   wert: quote, stichprobe: n + geloeschteOrders))
         }
         return befunde.compactMap { $0 }
+    }
+
+    /// Positionen je Eröffnungstag: Tagesbeginn im Kalender der Zeitzone → Anzahl. Teilverkäufe einer Position
+    /// zählen als eine (`positionsschluessel`). Für die Begründung „22 Trades an diesem Tag, üblich sind 10“.
+    public static func tradesJeTag(_ trades: [Trade], zeitzone: TimeZone) -> [Date: Int] {
+        var kalender = Calendar(identifier: .gregorian)
+        kalender.timeZone = zeitzone
+        return Dictionary(grouping: trades) { $0.eroeffnungstag(kalender) }
+            .mapValues { Set($0.map(\.positionsschluessel)).count }
+    }
+
+    /// Grenze für „Überhandeln“: Positionen eines Tages mit laufender Nummer darüber gelten als überhandelt.
+    /// Ein eigenes Limit (`maxTradesProTag`) hat Vorrang; sonst Median der Positionen je Tag plus
+    /// `ueberhandelnUeberMedian`, aber erst ab `ueberhandelnMindestTage` Tagen mit Trades. `nil`: keine Prüfung.
+    /// Ein halber Median wird abgerundet (Median 4,5 + 2 ergibt 6): Gezählt wird in ganzen Positionen.
+    public static func ueberhandelnGrenze(_ trades: [Trade], zeitzone: TimeZone,
+                                          schwellen: Schwellen = Schwellen()) -> Int? {
+        ueberhandelnGrenze(jeTag: tradesJeTag(trades, zeitzone: zeitzone), schwellen: schwellen)
+    }
+
+    static func ueberhandelnGrenze(jeTag: [Date: Int], schwellen s: Schwellen) -> Int? {
+        if let limit = s.maxTradesProTag { return max(limit, 0) }
+        let anzahlen = jeTag.values.sorted()
+        guard !anzahlen.isEmpty, anzahlen.count >= s.ueberhandelnMindestTage else { return nil }
+        let mitte = anzahlen.count / 2
+        let medianTag = anzahlen.count % 2 == 1 ? anzahlen[mitte] : (anzahlen[mitte - 1] + anzahlen[mitte]) / 2
+        return medianTag + s.ueberhandelnUeberMedian
+    }
+
+    /// Größe eines Trades für „mehr als üblich“ (Revanche). Bei Scheinen, Aktien, Fonds und Krypto der Einsatz
+    /// (Eröffnungskurs mal Stück): Stückzahlen verschiedener Produkte sind nicht vergleichbar, ein Schein zu 3 €
+    /// hat 700 Stück, einer zu 47 € 45 Stück. Bei CFD und allen übrigen Arten die Lots wie bisher.
+    static func groessenmass(_ t: Trade) -> Decimal {
+        misstEinsatz(t) ? t.openPrice * t.lots : t.lots
+    }
+
+    /// Wird die Größe als Einsatz gemessen? Verglichen wird nur innerhalb derselben Messart.
+    static func misstEinsatz(_ t: Trade) -> Bool {
+        switch t.produktart {
+        case .derivat, .aktie, .fonds, .krypto: true
+        case .cfd, .anleihe, .sonstiges, .unbekannt: false
+        }
     }
 
     /// Erreichter Anteil der geplanten Bewegung bis zum Ziel. `nil` ohne Ziel auf der Gewinnseite.
