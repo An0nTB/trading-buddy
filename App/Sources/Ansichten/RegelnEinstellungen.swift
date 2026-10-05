@@ -10,6 +10,8 @@ struct RegelnEinstellungen: View {
     @Environment(AppModell.self) private var modell
     @Environment(\.thema) private var thema
     @State private var entwurf = Handelsregeln()
+    /// Standard-Risiko des Kontos (Doc 02 Nr. 64), gespeichert mit demselben Knopf wie die Regeln.
+    @State private var standardRisiko: Decimal?
     @State private var geladenFuer: Int64?
     @State private var meldung: String?
     @State private var meldungIstFehler = false
@@ -30,6 +32,10 @@ struct RegelnEinstellungen: View {
                     hinweis("Ein Gewinner oder ein neuer Tag setzt die Zählung zurück.")
                     betragsgrenze("Höchstes Risiko je Trade", $entwurf.maxRisikoJeTrade, standard: 50, einheit: konto.waehrung)
                     hinweis("Abstand Einstieg bis Stop; ein Verlust über der Grenze zählt auch ohne Stop.")
+                }
+                Section("Geplantes Risiko") {
+                    betragsgrenze("Standard-Risiko je Trade", $standardRisiko, standard: 50, einheit: konto.waehrung)
+                    hinweis("Gilt für Trades ohne Stop und ohne eigenes Risiko; R ist dann als angenommen gekennzeichnet. Ein Standard der Setup-Karte geht vor, ein echter Stop immer.")
                 }
                 Section("Prop-Firm") {
                     Toggle("Konto bei einer Prop-Firm", isOn: propFirmAn)
@@ -64,7 +70,7 @@ struct RegelnEinstellungen: View {
         }
     }
 
-    private var geaendert: Bool { entwurf != modell.regeln }
+    private var geaendert: Bool { entwurf != modell.regeln || standardRisiko != modell.risikoquellen.konto }
 
     // MARK: Prop-Firm
 
@@ -274,6 +280,7 @@ struct RegelnEinstellungen: View {
 
     private func laden() {
         entwurf = modell.regeln
+        standardRisiko = modell.risikoquellen.konto
         geladenFuer = modell.konto?.id
         vorlagenHinweis = nil
     }
@@ -286,6 +293,10 @@ struct RegelnEinstellungen: View {
         do {
             try modell.speichereRegeln(entwurf)
             entwurf = modell.regeln
+            if standardRisiko != modell.risikoquellen.konto {
+                try modell.setzeStandardRisiko(standardRisiko)
+            }
+            standardRisiko = modell.risikoquellen.konto
             meldung = entwurf.leer
                 ? String(localized: "Gespeichert, keine Regel aktiv.")
                 : Ton.aktuell.text("Gespeichert. Die Übersicht zeigt jetzt Regel-Ampel und Disziplin-Kurve.",
