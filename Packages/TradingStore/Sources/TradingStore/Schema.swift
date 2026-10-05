@@ -431,6 +431,8 @@ enum Schema {
                 t.add(column: "markterwartung", .text)
                 t.add(column: "schein", .boolean).notNull().defaults(to: false)
             }
+            // Zeiteinheit des Charts („M15“, „H1“) aus Formular und Journal-Sicherung, freier Text.
+            try db.alter(table: "journal") { t in t.add(column: "zeiteinheit", .text) }
         }
 
         return migrator
