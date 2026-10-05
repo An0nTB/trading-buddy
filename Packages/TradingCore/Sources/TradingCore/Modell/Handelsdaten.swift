@@ -20,8 +20,12 @@ public struct ClosedPosition: Sendable, Equatable {
     /// Ergebnis aus der Kursbewegung, ohne Kommission und Swap.
     public var profit: Decimal
     public var produktart: Produktart
+    /// `false`, wenn die Quelle keine Ausstiegszeit kennt (Browser-Journal, von Hand ohne Ausstieg):
+    /// `closeTime` ist dann gleich `openTime`, Haltedauer und Ausstiegsstunde sind unbekannt.
+    /// Der zugehörige `Trade` hat dann `nurDatum`, damit die Zeitauswertungen ihn auslassen.
+    public var ausstiegszeitBekannt: Bool
 
-    public init(ticket: String, rohzeile: [String], side: Side, lots: Decimal, symbol: String, openTime: Date, openPrice: Decimal, stopLoss: Decimal? = nil, takeProfit: Decimal? = nil, closeTime: Date, closePrice: Decimal, commission: Decimal, swap: Decimal, profit: Decimal, produktart: Produktart = .unbekannt) {
+    public init(ticket: String, rohzeile: [String], side: Side, lots: Decimal, symbol: String, openTime: Date, openPrice: Decimal, stopLoss: Decimal? = nil, takeProfit: Decimal? = nil, closeTime: Date, closePrice: Decimal, commission: Decimal, swap: Decimal, profit: Decimal, produktart: Produktart = .unbekannt, ausstiegszeitBekannt: Bool = true) {
         self.ticket = ticket
         self.rohzeile = rohzeile
         self.side = side
@@ -37,6 +41,7 @@ public struct ClosedPosition: Sendable, Equatable {
         self.swap = swap
         self.profit = profit
         self.produktart = produktart
+        self.ausstiegszeitBekannt = ausstiegszeitBekannt
     }
 
     /// Ergebnis nach Kosten: Kommission + Swap + Kursergebnis.
