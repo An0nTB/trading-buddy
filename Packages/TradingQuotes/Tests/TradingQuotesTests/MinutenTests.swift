@@ -85,7 +85,7 @@ struct FesteMinuten: Minutenquelle {
     #expect(kerzen.allSatisfy { $0.dauer == 60 })
     let anfragen = await mitschnitt.anfragen
     #expect(anfragen.first?.url.absoluteString == "https://data.alpaca.markets/v2/stocks/AAPL/bars?timeframe=1Min"
-            + "&start=2027-01-14T14:30:00Z&end=2027-01-14T15:30:00Z&feed=iex&adjustment=split&limit=10000")
+            + "&start=2027-01-14T14:30:00Z&end=2027-01-14T15:30:00Z&feed=iex&adjustment=raw&limit=10000")
     #expect(anfragen.last?.url.absoluteString.hasSuffix("&page_token=abc") == true)
     #expect(anfragen.first?.kopf["APCA-API-KEY-ID"] != nil)
 }
