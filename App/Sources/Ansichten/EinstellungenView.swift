@@ -79,7 +79,6 @@ struct EinstellungenView: View {
             Section("Claude") {
                 Text("Der Claude-Connector und der Export-Ordner laufen am Mac.")
             }
-            Section("Frag Henry") { EmpfehlungenFeld() }
         }
         .navigationTitle("Einstellungen")
         #endif
@@ -248,7 +247,6 @@ struct ClaudeFelder: View {
             Text("In Claude Desktop die Vorlage „Henry-Status“ wählen oder „Henry-Status“ schreiben: Claude meldet, ob die Erweiterung diesen Export liest.")
                 .font(Schrift.beschriftung)
                 .foregroundStyle(thema.textSchwach)
-            Section("Frag Henry") { EmpfehlungenFeld() }
         }
         .formStyle(.grouped)
         .task { modell.exportiere() }
@@ -269,18 +267,3 @@ struct ClaudeFelder: View {
     }
 }
 #endif
-
-/// Schalter „Empfehlungen und Einschätzungen erlauben“ (Tim 05.10.2026), am Mac im Reiter Claude, am iPad/iPhone
-/// unter Frag Henry. Aus: Fragen an Claude schließen Empfehlung, Kursziel und Prognose aus.
-struct EmpfehlungenFeld: View {
-    @Environment(AppModell.self) private var modell
-    @Environment(\.thema) private var thema
-
-    var body: some View {
-        @Bindable var modell = modell
-        Toggle("Empfehlungen und Einschätzungen erlauben", isOn: $modell.empfehlungenErlaubt)
-        Text("Henry ist keine Anlageberatung. Einschätzungen von Claude können falsch sein.")
-            .font(Schrift.beschriftung)
-            .foregroundStyle(thema.textSchwach)
-    }
-}

@@ -104,10 +104,7 @@ final class AppModell {
                                    .appendingPathComponent("appt-verlaeufe-\(UUID().uuidString).json"))
             nachrichten = Nachrichtendienst(speicher: speicher, schluesselbund: schluessel)
         }
-        if nebenwirkungen {
-            anzeigewaehrung = UserDefaults.standard.string(forKey: Self.anzeigewaehrungSchluessel)
-            empfehlungenErlaubt = UserDefaults.standard.bool(forKey: Self.empfehlungenSchluessel)
-        }
+        if nebenwirkungen { anzeigewaehrung = UserDefaults.standard.string(forKey: Self.anzeigewaehrungSchluessel) }
         if let journal { uebernimm(journal) }
         if nebenwirkungen {
             Task { await ladeEZBKurse() }
@@ -294,17 +291,6 @@ final class AppModell {
         }
     }
     static let anzeigewaehrungSchluessel = "anzeige.waehrung"
-
-    /// Schalter „Empfehlungen und Einschätzungen erlauben“ unter Frag Henry (Tim 05.10.2026), Standard aus.
-    /// Aus: Fragen an Claude tragen die Grenze aus Doc 02 Nr. 44/50. Der Export trägt den Wert (AP12).
-    var empfehlungenErlaubt = false {
-        didSet {
-            guard empfehlungenErlaubt != oldValue else { return }
-            if nebenwirkungen { UserDefaults.standard.set(empfehlungenErlaubt, forKey: Self.empfehlungenSchluessel) }
-            exportiere()
-        }
-    }
-    static let empfehlungenSchluessel = "fragHenry.empfehlungen"
 
     /// Währung, in der Übersicht, Kennzahlen und Fehlermuster summieren.
     var summenwaehrung: String { (anzeigewaehrung ?? waehrung).uppercased() }
