@@ -8,6 +8,7 @@ extension Trade: Codable {
     private enum CodingKeys: String, CodingKey {
         case id, symbol, side, lots, openTime, closeTime, openPrice, closePrice
         case stopLoss, takeProfit, commission, swap, profit, taxes, produktart, nurDatum, waehrung
+        case geplantesRisiko, basiswert, markterwartung
     }
 
     public init(from decoder: any Decoder) throws {
@@ -28,7 +29,11 @@ extension Trade: Codable {
                   taxes: try c.optionalerBetrag(.taxes) ?? 0,
                   produktart: try c.decodeIfPresent(Produktart.self, forKey: .produktart) ?? .unbekannt,
                   nurDatum: try c.decodeIfPresent(Bool.self, forKey: .nurDatum) ?? false,
-                  waehrung: try c.decodeIfPresent(String.self, forKey: .waehrung))
+                  waehrung: try c.decodeIfPresent(String.self, forKey: .waehrung),
+                  basiswert: try? c.decodeIfPresent(String.self, forKey: .basiswert),
+                  markterwartung: try? c.decodeIfPresent(Side.self, forKey: .markterwartung))
+        // Neuere Felder mit `try?`: ein unlesbarer Wert kostet nur das Feld, nicht den ganzen Export.
+        geplantesRisiko = try? c.optionalerBetrag(.geplantesRisiko)
     }
 
     public func encode(to encoder: any Encoder) throws {
@@ -52,6 +57,9 @@ extension Trade: Codable {
         if produktart != .unbekannt { try c.encode(produktart, forKey: .produktart) }
         if nurDatum { try c.encode(true, forKey: .nurDatum) }
         try c.encodeIfPresent(waehrung, forKey: .waehrung)
+        try c.encodeIfPresent(geplantesRisiko?.description, forKey: .geplantesRisiko)
+        try c.encodeIfPresent(basiswert, forKey: .basiswert)
+        try c.encodeIfPresent(markterwartung, forKey: .markterwartung)
     }
 }
 

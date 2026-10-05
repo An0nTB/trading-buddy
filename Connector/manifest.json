@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "trading-buddy",
   "display_name": "Henry",
-  "version": "0.17.0",
+  "version": "0.18.0",
   "description": "Henry führt Buch über deine Trades. Kennzahlen, Fehlermuster und Wochen- oder Monatsauswertung aus deinem Journal. Nur lesend, die Daten bleiben auf deinem Mac.",
   "author": {
     "name": "Tim Bock"
@@ -50,6 +50,10 @@
     {
       "name": "hole_kursanalyse",
       "description": "Kursanalyse eines Werts aus den Tageskerzen der App, mit eigenen Trades im Wert, als Grundlage für Einschätzungen."
+    },
+    {
+      "name": "hole_tiefenanalyse",
+      "description": "Tiefenanalyse eines Zeitraums wie die Seite Auswertung der App: Ergebnis in R, Wochentag und Uhrzeit, Stärken und Schwächen, Kosten der Fehlermuster, Rückgang, Leistungsscore und Best-Exit."
     }
   ],
   "prompts_generated": true,
