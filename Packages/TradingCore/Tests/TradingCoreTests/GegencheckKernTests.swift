@@ -147,6 +147,14 @@ private func gcTrade(_ id: String, _ auf: String, _ zu: String, netto: Decimal, 
     let einzeln = ["03", "04", "05"].map { gcTrade("T\($0)", "2026-03-\($0)T09:00:00Z", "2026-03-\($0)T10:00:00Z", netto: 5) }
     let befunde = Fehlermuster.pruefe(teile + einzeln, zeitzone: gcUTC)
     #expect(!befunde.contains { $0.muster == .ueberhandeln })
+    // Seit Tim 05.10.2026 rechnet die Regel bei 4 Tagen keinen Median mehr; die Prüfung oben träfe also
+    // auch ohne Zusammenfassen nicht. Mit eigenem Limit 1 je Tag bleibt der 02.03. weiter unauffällig,
+    // weil die vier Teile eine Position sind.
+    var s = Fehlermuster.Schwellen()
+    s.maxTradesProTag = 1
+    let mitLimit = Fehlermuster.pruefe(teile + einzeln, zeitzone: gcUTC, schwellen: s)
+    #expect(!mitLimit.contains { $0.muster == .ueberhandeln })
+    #expect(Fehlermuster.tradesJeTag(teile + einzeln, zeitzone: gcUTC).values.allSatisfy { $0 == 1 })
 }
 
 // K7: Zellen weit rechts blähen Zeilen nicht auf.
