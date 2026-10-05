@@ -56,6 +56,11 @@ import TradingStore
         #expect(!eintrag.ohneAngaben)
         eintrag.risikoEinstieg = 0
         #expect(eintrag.bereinigt.risikoEinstieg == nil)
+        var mitZeiteinheit = Journaleintrag(kontoId: 1, ticket: "1")
+        mitZeiteinheit.zeiteinheit = " M5 "
+        #expect(!mitZeiteinheit.ohneAngaben)
+        #expect(mitZeiteinheit.bereinigt.zeiteinheit == "M5")
+        #expect(!mitZeiteinheit.gleicheAngaben(wie: Journaleintrag(kontoId: 1, ticket: "1")))
     }
 
     /// Tags ohne Leerzeichen und doppelte Schreibweisen; Vorschläge kennen sie danach.
