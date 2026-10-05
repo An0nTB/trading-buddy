@@ -2816,12 +2816,12 @@
         }
       }
     },
-    "Wähle einen Kontoauszug: MetaTrader 4 (HTML-Auszug aus der Broker-Mail, nicht der Bericht aus dem Terminal), MetaTrader 5 (Handelsbericht), den Transaktionsexport von Trade Republic oder Scalable Capital (CSV), das Activity Statement von Interactive Brokers (CSV), den Trade- oder Transaktionsexport von Kraken, Binance, Coinbase oder Bitpanda (CSV) oder die Kontohistorie von XTB (Excel aus xStation 5)." : {
+    "Wähle einen Kontoauszug: MetaTrader 4 (HTML-Auszug aus der Broker-Mail, nicht der Bericht aus dem Terminal), MetaTrader 5 (Handelsbericht), den Transaktionsexport von Trade Republic oder Scalable Capital (CSV), das Activity Statement von Interactive Brokers (CSV), den Trade- oder Transaktionsexport von Kraken, Binance, Coinbase oder Bitpanda (CSV), die Kontohistorie von XTB (Excel aus xStation 5) oder die Sicherung des Browser-Journals (JSON)." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Choose an account statement: MetaTrader 4 (HTML statement from the broker email, not the report from the terminal), MetaTrader 5 (trade report), the transaction export from Trade Republic or Scalable Capital (CSV), the Activity Statement from Interactive Brokers (CSV), the trade or transaction export from Kraken, Binance, Coinbase or Bitpanda (CSV), or the account history from XTB (Excel from xStation 5)."
+            "value" : "Choose an account statement: MetaTrader 4 (HTML statement from the broker email, not the report from the terminal), MetaTrader 5 (trade report), the transaction export from Trade Republic or Scalable Capital (CSV), the Activity Statement from Interactive Brokers (CSV), the trade or transaction export from Kraken, Binance, Coinbase or Bitpanda (CSV), the account history from XTB (Excel from xStation 5), or the backup of the browser journal (JSON)."
           }
         }
       }
