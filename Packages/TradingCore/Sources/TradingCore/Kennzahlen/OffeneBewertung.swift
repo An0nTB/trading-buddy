@@ -27,7 +27,7 @@ public enum OffeneBewertung {
         public var waehrung: String?
     }
 
-    /// MetaTrader: Wert je Kurspunkt aus dem Auszug selbst (Kursergebnis ÷ Kursbewegung, wie bei `Trade.risk`),
+    /// MetaTrader: Wert je Kurspunkt aus dem Auszug selbst (Kursergebnis ÷ Kursbewegung, wie bei `Trade.stopRisiko`),
     /// deshalb ohne Kontraktgrößen. Näherung bei Paaren, deren Gegenwährung nicht die Kontowährung ist:
     /// Der Umrechnungskurs zum Auszugszeitpunkt bleibt stehen.
     public static func bewerte(_ p: OpenPosition, kurs: Decimal) -> Ergebnis {

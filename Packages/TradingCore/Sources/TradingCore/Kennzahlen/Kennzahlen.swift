@@ -27,9 +27,11 @@ public struct Kennzahlen: Sendable, Equatable {
     public var profitfaktor: Decimal?
     /// Trefferquote, ab der der Payoff gerade reicht: 1 ÷ (1 + Payoff).
     public var breakevenTrefferquote: Decimal?
-    /// Mittelwert der R-Multiples aller Trades mit bekanntem Risiko.
+    /// Mittelwert der R-Multiples aller Trades mit bekanntem Risiko, auch angenommenem.
     public var erwartungswertR: Decimal?
     public var anzahlMitR: Int
+    /// Davon mit angenommenem Risiko (`Trade.risikoAngenommen`): ohne Stop, R aus dem geplanten Risiko.
+    public var anzahlRAngenommen: Int
     public var haltedauerGewinner: TimeInterval?
     public var haltedauerVerlierer: TimeInterval?
 
@@ -62,6 +64,7 @@ public struct Kennzahlen: Sendable, Equatable {
 
         let rWerte = trades.compactMap(\.rMultiple)
         anzahlMitR = rWerte.count
+        anzahlRAngenommen = trades.filter(\.risikoAngenommen).count
         erwartungswertR = rWerte.isEmpty ? nil : rWerte.reduce(0, +) / Decimal(rWerte.count)
 
         func mittel(_ werte: [TimeInterval]) -> TimeInterval? {
