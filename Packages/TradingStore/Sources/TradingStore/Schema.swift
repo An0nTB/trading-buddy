@@ -399,6 +399,27 @@ enum Schema {
             }
         }
 
+        migrator.registerMigration("v10 Risiko und Tags") { db in
+            // Geplantes Risiko (Doc 02 Nr. 64): Standard je Konto, je Setup-Karte und Angabe je Trade, jeweils
+            // ein Betrag in Kontowährung als Text wie alle Beträge. NULL heißt „keine Angabe“. Es gilt der
+            // Trade vor dem Setup vor dem Konto (`Risikoquellen`). Nur neue Spalten, alte Zeilen bleiben gültig.
+            try db.alter(table: "konto") { t in t.add(column: "standardRisiko", .text) }
+            try db.alter(table: "setup") { t in t.add(column: "standardRisiko", .text) }
+            try db.alter(table: "journal") { t in t.add(column: "risikoEinstieg", .text) }
+            // Freie Tags je Trade (Doc 02 Nr. 65), etwa Fehler oder Gefühle. Schlüssel wie beim Journal ist
+            // Konto + Ticket, damit Tags auch vor dem Import der Position stehen dürfen. `tag` behält die
+            // Schreibweise, `schluessel` (Kleinbuchstaben) verhindert denselben Tag zweimal am Trade.
+            try db.create(table: "tradetag") { t in
+                t.column("kontoId", .integer).notNull()
+                    .references("konto", onDelete: .cascade)
+                t.column("ticket", .text).notNull()
+                t.column("tag", .text).notNull()
+                t.column("schluessel", .text).notNull()
+                t.column("erstellt", .datetime).notNull()
+                t.primaryKey(["kontoId", "ticket", "schluessel"])
+            }
+        }
+
         return migrator
     }
 }
