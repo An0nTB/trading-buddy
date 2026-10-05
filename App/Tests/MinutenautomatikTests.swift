@@ -3,10 +3,12 @@ import Testing
 import TradingCore
 @testable import Trading_Buddy
 
-private let jetztFest = T.zeit(2026, 10, 5, 12)
+private let jetztFest = AppTestdaten.zeit(2026, 10, 5, 12)
 
 /// Automatischer Abruf der Minutenkerzen (Tim 05.10.2026): wann er anläuft und welche Trades er nimmt.
 @Suite struct MinutenautomatikTests {
+    private typealias T = AppTestdaten
+
     private func trade(_ id: String, auf: Date, zu: Date, nurDatum: Bool = false) -> Trade {
         Trade(id: id, symbol: "BTC/EUR", side: .buy, lots: 1, openTime: auf, closeTime: zu,
               openPrice: 100, closePrice: 110, profit: 10, nurDatum: nurDatum)
