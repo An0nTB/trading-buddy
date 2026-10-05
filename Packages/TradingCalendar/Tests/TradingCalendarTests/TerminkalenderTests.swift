@@ -108,15 +108,15 @@ private func datei(_ termine: String, jahr: Int = 2026) -> Data {
 
 @Test func boersenfeiertageAusDerBoersenuhr() throws {
     let tokio = try #require(TimeZone(identifier: "Asia/Tokyo"))
-    let tag = try #require(Terminkalender.boersenfeiertag(boerse: "xtks", boersenname: "Tokio", feiertag: "Neujahr",
+    let tag = try #require(Terminkalender.boersenfeiertag(boerse: "xtks", titel: "Tokio geschlossen: Neujahr",
                                                            jahr: 2027, monat: 1, tag: 1, zeitzone: tokio))
-    #expect(tag.id == "boerse-xtks-2027-01-01")
+    #expect(tag.id == "boerse-xtks-2027-01-01" && tag.titel == "Tokio geschlossen: Neujahr")
     #expect(tag.art == .boersenfeiertag && tag.ganztaegig && tag.wichtigkeit == .mittel)
     #expect(tag.waehrungen == ["JPY"] && tag.region == "jp")
     #expect(tag.beginn == utc("2026-12-31T15:00:00Z") && tag.ende == utc("2027-01-01T15:00:00Z"))
-    #expect(Terminkalender.boersenfeiertag(boerse: "xtks", boersenname: "Tokio", feiertag: "X",
+    #expect(Terminkalender.boersenfeiertag(boerse: "xtks", titel: "X",
                                            jahr: 2027, monat: 2, tag: 30, zeitzone: tokio) == nil)
-    let fremd = try #require(Terminkalender.boersenfeiertag(boerse: "eigene", boersenname: "Eigene", feiertag: "X",
+    let fremd = try #require(Terminkalender.boersenfeiertag(boerse: "eigene", titel: "X",
                                                              jahr: 2027, monat: 2, tag: 1, zeitzone: tokio))
     #expect(fremd.waehrungen.isEmpty && fremd.region == "welt")
     // Einhängen in den mitgelieferten Kalender; dieselbe ID zweimal wirft.

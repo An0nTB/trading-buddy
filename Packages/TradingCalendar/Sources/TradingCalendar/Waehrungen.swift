@@ -79,15 +79,15 @@ extension Terminkalender {
     ]
 
     /// Börsenfeiertag als ganztägiger Termin in der Zeitzone der Börse, ID „boerse-xetra-2026-12-24“.
-    /// Die App übergibt die Feiertage aus TradingClock, damit sie nur an einer Stelle gepflegt werden.
+    /// Die App übergibt die Feiertage aus TradingClock, damit sie nur an einer Stelle gepflegt werden, und den
+    /// fertigen Titel in der Sprache der Oberfläche („Xetra geschlossen: Heiligabend“).
     /// `nil` bei ungültigem Datum; Börsen ohne Eintrag in `boersen` bekommen keine Währung und Region „welt“.
-    public static func boersenfeiertag(boerse: String, boersenname: String, feiertag: String,
+    public static func boersenfeiertag(boerse: String, titel: String,
                                        jahr: Int, monat: Int, tag: Int, zeitzone: TimeZone) -> Termin? {
         let zuordnung = boersen[boerse]
         func zweistellig(_ zahl: Int) -> String { zahl < 10 ? "0\(zahl)" : "\(zahl)" }
         let id = "boerse-\(boerse)-\(jahr)-\(zweistellig(monat))-\(zweistellig(tag))"
-        return Termin.ganztaegig(id: id, art: .boersenfeiertag, institution: boerse,
-                                 titel: "\(boersenname) geschlossen: \(feiertag)",
+        return Termin.ganztaegig(id: id, art: .boersenfeiertag, institution: boerse, titel: titel,
                                  jahr: jahr, monat: monat, tag: tag, zeitzone: zeitzone,
                                  waehrungen: zuordnung.map { [$0.waehrung] } ?? [],
                                  wichtigkeit: .mittel, region: zuordnung?.region ?? "welt")
