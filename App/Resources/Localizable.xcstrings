@@ -4,6 +4,16 @@
     "" : {
 
     },
+    " (zu wenig Daten)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : " (too little data)"
+          }
+        }
+      }
+    },
     " · %lld von %lld erledigt" : {
       "localizations" : {
         "en" : {
@@ -82,6 +92,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ (no prices)"
+          }
+        }
+      }
+    },
+    "%@ der Verlierer mit Risiko" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ of losers with risk"
+          }
+        }
+      }
+    },
+    "%@ mit %@ bei %lld Trades" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ with %2$@ across %3$lld trades"
           }
         }
       }
@@ -172,12 +202,82 @@
         }
       }
     },
+    "%lld Gewinner mit Risiko" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld winners with risk"
+          }
+        }
+      }
+    },
     "%lld Konten, %lld geschlossene Positionen" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld accounts, %lld closed positions"
+          }
+        }
+      }
+    },
+    "%lld Trades ausgewertet, %lld ohne Risiko, %lld ohne Kurse." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld trades analysed, %2$lld without risk, %3$lld without prices."
+          }
+        }
+      }
+    },
+    "%lld Trades ohne bekanntes Risiko fehlen hier." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld trades without known risk are not shown here."
+          }
+        }
+      }
+    },
+    "%lld Trades ohne Eintrag." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld trades without an entry."
+          }
+        }
+      }
+    },
+    "%lld Trades ohne Uhrzeit fehlen hier." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld trades without a time are not shown here."
+          }
+        }
+      }
+    },
+    "%lld Trades ohne Uhrzeit zählen im Tagesergebnis, fehlen im Zeitstrahl." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld trades without a time count towards the day result but are not on the timeline."
+          }
+        }
+      }
+    },
+    "%lld Trades · Netto %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld trades · net %2$@"
           }
         }
       }
@@ -208,12 +308,42 @@
         }
       }
     },
+    "%lld Trades, Netto %@, Treffer %@, Ø %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld trades, net %2$@, win rate %3$@, avg %4$@"
+          }
+        }
+      }
+    },
+    "%lld Verlierer mit Risiko" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld losers with risk"
+          }
+        }
+      }
+    },
     "%lld Zeilen weggelassen" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld lines omitted"
+          }
+        }
+      }
+    },
+    "0 bis 100 aus Trefferquote, Gewinn-Verlust-Verhältnis, Profitfaktor, Beständigkeit (Anteil Tage im Plus), Drawdown im Verhältnis zu den Gewinnen und Regeltreue. Die Ankerwerte sind Vorschläge und beschreiben die Vergangenheit." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "0 to 100 from win rate, win/loss ratio, profit factor, consistency (share of days in profit), drawdown relative to profits and rule compliance. The anchor values are suggestions and describe the past."
           }
         }
       }
@@ -234,6 +364,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$lld, of which %2$lld tax-free"
+          }
+        }
+      }
+    },
+    "ab %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "from %@"
           }
         }
       }
@@ -284,6 +424,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "All amounts in account currency %1$@. The app currently shows totals in %2$@, so the figures there differ."
+          }
+        }
+      }
+    },
+    "Am schwächsten: %@." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weakest: %@."
+          }
+        }
+      }
+    },
+    "Am stärksten: %@." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strongest: %@."
+          }
+        }
+      }
+    },
+    "An diesem Tag nur Trades ohne Uhrzeit; kein Zeitstrahl." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Only trades without a time on this day; no timeline."
           }
         }
       }
@@ -365,6 +535,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "View"
+          }
+        }
+      }
+    },
+    "Anteil" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share"
+          }
+        }
+      }
+    },
+    "Anteil an Verlierern" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share of losers"
+          }
+        }
+      }
+    },
+    "Anteile" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shares"
           }
         }
       }
@@ -530,6 +730,16 @@
         }
       }
     },
+    "Best-Exit" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Best exit"
+          }
+        }
+      }
+    },
     "Bestand am Ende der Daten" : {
       "localizations" : {
         "en" : {
@@ -546,6 +756,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Best day"
+          }
+        }
+      }
+    },
+    "Beständigkeit" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consistency"
           }
         }
       }
@@ -717,6 +937,26 @@
         }
       }
     },
+    "Dafür braucht es mindestens zwei Trades." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This needs at least two trades."
+          }
+        }
+      }
+    },
+    "Dafür braucht es Trades an mehreren Tagen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This needs trades on several days."
+          }
+        }
+      }
+    },
     "Das Beispielkonto geht. Eigene Konten bleiben, wo sie sind." : {
       "localizations" : {
         "en" : {
@@ -778,6 +1018,16 @@
         }
       }
     },
+    "Dein tatsächlicher Ausstieg mit %@ war besser als jedes feste Ziel; das beste wäre %@ R mit %@." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your actual exit at %1$@ beat every fixed target; the best would have been %2$@ R with %3$@."
+          }
+        }
+      }
+    },
     "Der Entwurf gehört zu „%@“, nicht zum gerade gewählten Konto; angelegt wird er dort." : {
       "localizations" : {
         "en" : {
@@ -804,6 +1054,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "The “Bilder” folder next to the backup could not be read. If the backup is not in the chosen backup folder, choose that folder first and restore the backup again; the screenshots will then come along."
+          }
+        }
+      }
+    },
+    "Der Score braucht mindestens %lld Trades im gewählten Zeitraum." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The score needs at least %lld trades in the selected period."
+          }
+        }
+      }
+    },
+    "Di" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tue"
           }
         }
       }
@@ -908,6 +1178,16 @@
         }
       }
     },
+    "Die zwölf Gruppen mit dem höchsten Netto; %lld weitere ohne Balken." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The twelve groups with the highest net; %lld more without a bar."
+          }
+        }
+      }
+    },
     "Diese Seite zeigt das gewählte Konto." : {
       "localizations" : {
         "en" : {
@@ -938,6 +1218,16 @@
         }
       }
     },
+    "Do" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thu"
+          }
+        }
+      }
+    },
     "Download-Seite öffnen" : {
       "localizations" : {
         "en" : {
@@ -955,6 +1245,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dragon Boat Festival"
+          }
+        }
+      }
+    },
+    "Drawdown" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drawdown"
+          }
+        }
+      }
+    },
+    "Drawdown und Serien" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drawdown and streaks"
           }
         }
       }
@@ -999,6 +1309,16 @@
         }
       }
     },
+    "Ein festes Ziel bei %@ R hätte %@ gebracht statt %@, also %@ mehr." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A fixed target at %1$@ R would have made %2$@ instead of %3$@, that is %4$@ more."
+          }
+        }
+      }
+    },
     "Ein Konto entsteht mit dem ersten Import. Henry liest Broker und Kontonummer aus der Datei; Namen und Kontowährung legst du im Import-Blatt fest." : {
       "localizations" : {
         "en" : {
@@ -1009,12 +1329,32 @@
         }
       }
     },
+    "Ein Punkt je Handelstag. Teilverkäufe einer Position zählen als ein Trade. Klick auf eine Spalte zeigt die Trades dieser Tage." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One dot per trading day. Partial closes of a position count as one trade. Click a column to see the trades of those days."
+          }
+        }
+      }
+    },
     "Eine anonymisierte Probe hilft, den Importer für diese Datei zu erweitern." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "An anonymised sample helps extend the importer for this file."
+          }
+        }
+      }
+    },
+    "Einheit" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unit"
           }
         }
       }
@@ -1069,6 +1409,16 @@
         }
       }
     },
+    "Ergebnis netto je Trade in Klassen gleicher Breite." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Net result per trade in bins of equal width."
+          }
+        }
+      }
+    },
     "Erkannt: MetaTrader 5 Handelsbericht (HTML)" : {
       "localizations" : {
         "en" : {
@@ -1096,6 +1446,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Just looking for now? A sample account with 60 made-up trades. Gone again later with one click at the bottom of the sidebar."
+          }
+        }
+      }
+    },
+    "Fehlermuster in Geld und R" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mistake patterns in money and R"
+          }
+        }
+      }
+    },
+    "Fr" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fri"
           }
         }
       }
@@ -1133,6 +1503,26 @@
         }
       }
     },
+    "Für Best-Exit braucht es Trades mit Stop oder geplantem Risiko und Minutenkurse. Kurse holt oder importiert die Seite „Ausstieg“." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Best exit needs trades with a stop or planned risk and minute prices. The Exit page fetches or imports prices."
+          }
+        }
+      }
+    },
+    "Für eine Trendlinie braucht es mindestens drei Tage mit unterschiedlich vielen Trades." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A trend line needs at least three days with different numbers of trades."
+          }
+        }
+      }
+    },
     "Geplanter Verlust bis zum Stop. Ohne Stop rechnet R damit, als angenommen gekennzeichnet; leer gilt der Standard des Setups oder Kontos (Einstellungen)." : {
       "localizations" : {
         "en" : {
@@ -1153,12 +1543,42 @@
         }
       }
     },
+    "Gewinn zu Verlust" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Win to loss"
+          }
+        }
+      }
+    },
     "Gewinn- zu Verlusttagen" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Winning to losing days"
+          }
+        }
+      }
+    },
+    "Gewinner" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Winners"
+          }
+        }
+      }
+    },
+    "Gewinner und Verlierer" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Winners and losers"
           }
         }
       }
@@ -1179,6 +1599,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Applies to trades without a stop and without their own risk; R is then marked as assumed. A setup card default takes precedence, and a real stop always does."
+          }
+        }
+      }
+    },
+    "Gruppen ab %lld Trades, nach Netto. Ein Trade steht in mehreren Gruppen, etwa in seinem Wochentag und in seinem Setup." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Groups with %lld trades or more, by net. A trade appears in several groups, for example its weekday and its setup."
+          }
+        }
+      }
+    },
+    "Größter Rückgang %@, Tiefpunkt am %@, das alte Hoch ist noch nicht wieder erreicht." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Largest drawdown %1$@, low on %2$@; the previous high has not been reached again yet."
+          }
+        }
+      }
+    },
+    "Größter Rückgang %@, Tiefpunkt am %@, wieder auf dem alten Hoch am %@ (%@ nach dem Tiefpunkt)." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Largest drawdown %1$@, low on %2$@, back at the previous high on %3$@ (%4$@ after the low)."
+          }
+        }
+      }
+    },
+    "Größter Verlust in R" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Largest loss in R"
           }
         }
       }
@@ -1238,12 +1698,32 @@
         }
       }
     },
+    "Im gewählten Zeitraum hat kein Fehlermuster angeschlagen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No mistake pattern was found in the selected period."
+          }
+        }
+      }
+    },
     "Im Journal steht kein Wert mit freiem Kurs. Füge Krypto wie BTC/EUR oder US-Aktien wie AAPL selbst hinzu; für CFDs und Devisen gibt es keine freien Kurse." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "The journal has no value with a free price. Add crypto such as BTC/EUR or US stocks such as AAPL yourself; there are no free prices for CFDs and currencies."
+          }
+        }
+      }
+    },
+    "in R" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "in R"
           }
         }
       }
@@ -1259,12 +1739,162 @@
         }
       }
     },
+    "Kapital" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Equity"
+          }
+        }
+      }
+    },
+    "Kein Rückgang vom Hoch im gewählten Zeitraum." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No drawdown from the high in the selected period."
+          }
+        }
+      }
+    },
     "kein Standard" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "no default"
+          }
+        }
+      }
+    },
+    "Kein Trade mit bekanntem Risiko. Ohne Stop oder geplantes Risiko gibt es kein R." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No trade with known risk. Without a stop or planned risk there is no R."
+          }
+        }
+      }
+    },
+    "Kein Zeitfenster sticht heraus." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No time slot stands out."
+          }
+        }
+      }
+    },
+    "keine" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "none"
+          }
+        }
+      }
+    },
+    "Keine Daten im gewählten Zeitraum." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No data in the selected period."
+          }
+        }
+      }
+    },
+    "keine Regeln" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no rules"
+          }
+        }
+      }
+    },
+    "Keine Trades im gewählten Zeitraum." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No trades in the selected period."
+          }
+        }
+      }
+    },
+    "Keine Trades mit Uhrzeit im gewählten Zeitraum." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No trades with a time in the selected period."
+          }
+        }
+      }
+    },
+    "Keine Trades mit Uhrzeit." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No trades with a time."
+          }
+        }
+      }
+    },
+    "Kennzahl" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Metric"
+          }
+        }
+      }
+    },
+    "Klasse" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bin"
+          }
+        }
+      }
+    },
+    "Klassen zu einem halben R. Links von −1 R liegen Verluste, die größer waren als geplant." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bins of half an R. Left of −1 R are losses larger than planned."
+          }
+        }
+      }
+    },
+    "Klick auf einen Balken zeigt die Trades. Die kleine Zahl ist die Anzahl der Trades." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Click a bar to see the trades. The small number is the number of trades."
+          }
+        }
+      }
+    },
+    "Klick auf einen Trade öffnet ihn in der Trade-Liste." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Click a trade to open it in the trade list."
           }
         }
       }
@@ -1300,6 +1930,66 @@
         }
       }
     },
+    "Linie" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Line"
+          }
+        }
+      }
+    },
+    "Linie: laufende Summe des Tages nach jedem Schluss. Orange hinterlegt: Revanche-Trade nach einem Verlust. Rot hinterlegt: Überhandeln, mehr Trades als an üblichen Tagen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Line: running total of the day after each close. Orange background: revenge trade after a loss. Red background: overtrading, more trades than on usual days."
+          }
+        }
+      }
+    },
+    "Long und Short" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Long and short"
+          }
+        }
+      }
+    },
+    "Längste Gewinnserie" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Longest winning streak"
+          }
+        }
+      }
+    },
+    "Läuft gut" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Going well"
+          }
+        }
+      }
+    },
+    "Läuft schlecht" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Going badly"
+          }
+        }
+      }
+    },
     "Maharashtra-Tag" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1311,6 +2001,16 @@
         }
       }
     },
+    "Mi" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wed"
+          }
+        }
+      }
+    },
     "Mittagspause als zwei Handelszeiten am selben Tag: In der Pause zeigt die Uhr geschlossen und als nächste Öffnung den Nachmittag." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1318,6 +2018,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lunch break as two trading sessions on the same day: during the break the clock shows closed and the afternoon as the next opening."
+          }
+        }
+      }
+    },
+    "Mo" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mon"
           }
         }
       }
@@ -1342,6 +2052,16 @@
         }
       }
     },
+    "Monat, in dem der Trade geschlossen wurde." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Month in which the trade was closed."
+          }
+        }
+      }
+    },
     "Mondfest" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1360,6 +2080,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Muhurat trading on the evening of Diwali is not included."
+          }
+        }
+      }
+    },
+    "Muster" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pattern"
           }
         }
       }
@@ -1439,6 +2169,16 @@
         }
       }
     },
+    "Netto und Summe R der Trades mit diesem Muster; ein Trade kann mehrere Muster tragen. Im Kreis zählt jeder Verlierer nur einmal, beim ersten seiner Muster." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Net and total R of the trades with this pattern; a trade can carry several patterns. In the donut each loser counts once, under its first pattern."
+          }
+        }
+      }
+    },
     "Neue Werte unter Kurschart › Wert hinzufügen." : {
       "localizations" : {
         "en" : {
@@ -1460,12 +2200,52 @@
         }
       }
     },
+    "Noch kein Marktumfeld eingetragen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No market condition entered yet."
+          }
+        }
+      }
+    },
+    "Noch kein Setup eingetragen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No setup entered yet."
+          }
+        }
+      }
+    },
     "Noch kein Wert" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "No value yet"
+          }
+        }
+      }
+    },
+    "Noch kein Zeitfenster mit mindestens %lld Trades. Die Farben zeigen erst ab dann Gewinn und Verlust." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No time slot with at least %lld trades yet. Colours only show profit and loss from then on."
+          }
+        }
+      }
+    },
+    "Noch kein Zustand eingetragen. Den Zustand von 1 bis 5 trägst du im Inspektor eines Trades ein." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No state entered yet. Enter your state from 1 to 5 in the inspector of a trade."
           }
         }
       }
@@ -1480,12 +2260,62 @@
         }
       }
     },
+    "Noch keine Gruppe mit mindestens %lld Trades." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No group with at least %lld trades yet."
+          }
+        }
+      }
+    },
+    "Noch keine Tags an Trades im gewählten Zeitraum." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No tags on trades in the selected period yet."
+          }
+        }
+      }
+    },
     "Noch keine Tags." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "No tags yet."
+          }
+        }
+      }
+    },
+    "Nur ein Monat im gewählten Zeitraum. Unter „Zeitraum“ alle Monate wählen, um Monate zu vergleichen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Only one month in the selected period. Choose all months under Period to compare months."
+          }
+        }
+      }
+    },
+    "Oben die Summe netto nach jedem Trade, darunter der Abstand zum bisherigen Hoch. Null unterbricht eine Serie." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Top: net total after each trade; below: the distance to the previous high. Breakeven ends a streak."
+          }
+        }
+      }
+    },
+    "Obergrenze" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Upper bound"
           }
         }
       }
@@ -1500,6 +2330,16 @@
         }
       }
     },
+    "ohne Zuordnung" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "unassigned"
+          }
+        }
+      }
+    },
     "Peace Memorial Day (Ersatztag)" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1507,6 +2347,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Peace Memorial Day (observed)"
+          }
+        }
+      }
+    },
+    "Plan war −1 R" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plan was −1 R"
           }
         }
       }
@@ -1533,6 +2383,26 @@
         }
       }
     },
+    "Reiter" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tab"
+          }
+        }
+      }
+    },
+    "Rest" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Other"
+          }
+        }
+      }
+    },
     "Richtung Basiswert" : {
       "localizations" : {
         "en" : {
@@ -1549,6 +2419,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Risk (%@)"
+          }
+        }
+      }
+    },
+    "Rückblick auf vergangene Kurse, Kerze für Kerze ohne Schlupf. Berührt eine Kerze Stop und Ziel, zählt der Stop. Die Obergrenze ist der Ausstieg genau am besten Kurs; den kennt man im Voraus nicht." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Review of past prices, candle by candle without slippage. If a candle touches both stop and target, the stop counts. The upper bound is the exit exactly at the best price, which nobody knows in advance."
+          }
+        }
+      }
+    },
+    "Sa" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sat"
           }
         }
       }
@@ -1585,6 +2475,26 @@
         }
       }
     },
+    "Score" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Score"
+          }
+        }
+      }
+    },
+    "Score %@ von 100" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Score %@ of 100"
+          }
+        }
+      }
+    },
     "Seollal (Ersatztag)" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1592,6 +2502,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Seollal (observed)"
+          }
+        }
+      }
+    },
+    "Setup %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Setup %@"
+          }
+        }
+      }
+    },
+    "Setup aus dem Journal. Basiswert bei Hebelprodukten der Wert dahinter, sonst das Symbol. Unter %lld Trades je Gruppe beschreibt die Zahl nur. Klick auf einen Balken zeigt die Trades." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Setup from the journal. Underlying is the asset behind a leveraged product, otherwise the symbol. Below %lld trades per group the number only describes. Click a bar to see the trades."
+          }
+        }
+      }
+    },
+    "Setups" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Setups"
+          }
+        }
+      }
+    },
+    "Setups und Basiswerte" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Setups and underlyings"
           }
         }
       }
@@ -1622,6 +2572,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Backup incomplete: %@ saved, but the images could not be checked."
+          }
+        }
+      }
+    },
+    "So" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sun"
           }
         }
       }
@@ -1664,6 +2624,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Default risk per trade"
+          }
+        }
+      }
+    },
+    "Stop zuerst" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop first"
+          }
+        }
+      }
+    },
+    "Stunde der Eröffnung in deiner Zeitzone. Grün im Plus, rot im Minus, je kräftiger, desto größer. Grau: unter %lld Trades, zu wenig Daten. Die Zahl in der Zelle ist die Anzahl der Trades." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opening hour in your time zone. Green in profit, red in loss, the stronger the larger. Grey: fewer than %lld trades, too little data. The number in a cell is the number of trades."
+          }
+        }
+      }
+    },
+    "Stärken und Schwächen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strengths and weaknesses"
+          }
+        }
+      }
+    },
+    "Summe R" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total R"
           }
         }
       }
@@ -1720,6 +2720,16 @@
         }
       }
     },
+    "Tage mit %lld Trades" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Days with %lld trades"
+          }
+        }
+      }
+    },
     "Tage mit mehr als %lld Trades (eigene Regel)." : {
       "localizations" : {
         "en" : {
@@ -1750,12 +2760,42 @@
         }
       }
     },
+    "Tagesergebnis %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Day result %@"
+          }
+        }
+      }
+    },
+    "Tagesverlauf" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Day timeline"
+          }
+        }
+      }
+    },
     "Tags" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tags"
+          }
+        }
+      }
+    },
+    "Tags, Zustand und Marktumfeld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tags, state and market condition"
           }
         }
       }
@@ -1767,6 +2807,96 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Taiwan Restoration Day (observed)"
+          }
+        }
+      }
+    },
+    "Tatsächlich" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Actual"
+          }
+        }
+      }
+    },
+    "tatsächlich %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "actual %@"
+          }
+        }
+      }
+    },
+    "Tatsächlich: %@." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Actual: %@."
+          }
+        }
+      }
+    },
+    "Trades je Tag" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trades per day"
+          }
+        }
+      }
+    },
+    "Trend" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trend"
+          }
+        }
+      }
+    },
+    "Trendlinie: Jeder weitere Trade am Tag ging im Schnitt mit %@ mehr Tagesergebnis einher." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trend line: each additional trade per day came with %@ more day result on average."
+          }
+        }
+      }
+    },
+    "Trendlinie: Jeder weitere Trade am Tag ging im Schnitt mit %@ weniger Tagesergebnis einher." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trend line: each additional trade per day came with %@ less day result on average."
+          }
+        }
+      }
+    },
+    "unter %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "below %@"
+          }
+        }
+      }
+    },
+    "Unterschied" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Difference"
           }
         }
       }
@@ -1797,6 +2927,86 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Incomplete: %lld image files could not be brought back."
+          }
+        }
+      }
+    },
+    "Verhalten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Behaviour"
+          }
+        }
+      }
+    },
+    "Verlierer" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Losers"
+          }
+        }
+      }
+    },
+    "Verluste je Fehlermuster" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Losses by mistake pattern"
+          }
+        }
+      }
+    },
+    "Verluste über 1 R" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Losses beyond 1 R"
+          }
+        }
+      }
+    },
+    "Verteilung der Ergebnisse" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Distribution of results"
+          }
+        }
+      }
+    },
+    "von 100" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "of 100"
+          }
+        }
+      }
+    },
+    "Werte" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Symbols"
+          }
+        }
+      }
+    },
+    "Wie oft" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How often"
           }
         }
       }
@@ -3015,6 +4225,26 @@
         }
       }
     },
+    "Wochentag und Uhrzeit" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weekday and time"
+          }
+        }
+      }
+    },
+    "Wochentage und Stunden" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weekdays and hours"
+          }
+        }
+      }
+    },
     "Women and Children's Day (Ersatztag)" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3066,6 +4296,16 @@
         }
       }
     },
+    "Ziel zuerst" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Target first"
+          }
+        }
+      }
+    },
     "Zum Kurschart" : {
       "localizations" : {
         "en" : {
@@ -3106,12 +4346,52 @@
         }
       }
     },
+    "Zur Seite Ausstieg" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Go to Exit"
+          }
+        }
+      }
+    },
+    "Zustand %lld von 5" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "State %lld of 5"
+          }
+        }
+      }
+    },
+    "Ø Gewinn in R" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avg win in R"
+          }
+        }
+      }
+    },
     "Ø Gewinn zu Ø Verlust %@ · %@ / %@" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Avg win to avg loss %@ · %@ / %@"
+          }
+        }
+      }
+    },
+    "Ø Verlust in R" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avg loss in R"
           }
         }
       }
