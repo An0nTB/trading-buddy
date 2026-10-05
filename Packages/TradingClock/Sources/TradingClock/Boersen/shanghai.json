@@ -1,0 +1,123 @@
+{
+  "format": 1,
+  "id": "xshg",
+  "name": "Shanghai",
+  "mic": "XSHG",
+  "zeitzone": "Asia/Shanghai",
+  "handelszeiten": [
+    {
+      "tage": [
+        "Mo",
+        "Di",
+        "Mi",
+        "Do",
+        "Fr"
+      ],
+      "beginn": "09:30",
+      "ende": "11:30"
+    },
+    {
+      "tage": [
+        "Mo",
+        "Di",
+        "Mi",
+        "Do",
+        "Fr"
+      ],
+      "beginn": "13:00",
+      "ende": "15:00"
+    }
+  ],
+  "feiertage": [
+    {
+      "datum": "2026-01-01",
+      "name": "Neujahr"
+    },
+    {
+      "datum": "2026-01-02",
+      "name": "Neujahr"
+    },
+    {
+      "datum": "2026-02-16",
+      "name": "Frühlingsfest"
+    },
+    {
+      "datum": "2026-02-17",
+      "name": "Frühlingsfest"
+    },
+    {
+      "datum": "2026-02-18",
+      "name": "Frühlingsfest"
+    },
+    {
+      "datum": "2026-02-19",
+      "name": "Frühlingsfest"
+    },
+    {
+      "datum": "2026-02-20",
+      "name": "Frühlingsfest"
+    },
+    {
+      "datum": "2026-02-23",
+      "name": "Frühlingsfest"
+    },
+    {
+      "datum": "2026-04-06",
+      "name": "Qingming-Fest"
+    },
+    {
+      "datum": "2026-05-01",
+      "name": "Tag der Arbeit"
+    },
+    {
+      "datum": "2026-05-04",
+      "name": "Tag der Arbeit"
+    },
+    {
+      "datum": "2026-05-05",
+      "name": "Tag der Arbeit"
+    },
+    {
+      "datum": "2026-06-19",
+      "name": "Drachenbootfest"
+    },
+    {
+      "datum": "2026-09-25",
+      "name": "Mondfest"
+    },
+    {
+      "datum": "2026-10-01",
+      "name": "Nationalfeiertag"
+    },
+    {
+      "datum": "2026-10-02",
+      "name": "Nationalfeiertag"
+    },
+    {
+      "datum": "2026-10-05",
+      "name": "Nationalfeiertag"
+    },
+    {
+      "datum": "2026-10-06",
+      "name": "Nationalfeiertag"
+    },
+    {
+      "datum": "2026-10-07",
+      "name": "Nationalfeiertag"
+    }
+  ],
+  "verkuerzteTage": [],
+  "datenGueltigBis": "2026-12-31",
+  "stand": "2026-10-05",
+  "quellen": [
+    {
+      "titel": "exchange_calendars 4.13.2 (Python-Bibliothek), Kalender XSHG",
+      "url": "https://github.com/gerrymanoim/exchange_calendars",
+      "abgerufen": "2026-10-05"
+    }
+  ],
+  "hinweise": [
+    "Handelszeiten, Feiertage und verkürzte Tage 2026 aus exchange_calendars 4.13.2, erzeugt am 05.10.2026; nicht gegen die Seiten der Börse nachgeprüft. Die Bibliothek führt die Feiertage dieser Börse nur bis Ende 2026, danach warnt die Uhr.",
+    "Mittagspause als zwei Handelszeiten am selben Tag: In der Pause zeigt die Uhr geschlossen und als nächste Öffnung den Nachmittag."
+  ]
+}

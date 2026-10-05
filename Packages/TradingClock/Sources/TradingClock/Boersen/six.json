@@ -1,0 +1,104 @@
+{
+  "format": 1,
+  "id": "xswx",
+  "name": "SIX Swiss Exchange",
+  "mic": "XSWX",
+  "zeitzone": "Europe/Zurich",
+  "handelszeiten": [
+    {
+      "tage": [
+        "Mo",
+        "Di",
+        "Mi",
+        "Do",
+        "Fr"
+      ],
+      "beginn": "09:00",
+      "ende": "17:30"
+    }
+  ],
+  "feiertage": [
+    {
+      "datum": "2026-01-01",
+      "name": "New Year's Day"
+    },
+    {
+      "datum": "2026-01-02",
+      "name": "Berchtold's Day"
+    },
+    {
+      "datum": "2026-04-03",
+      "name": "Good Friday"
+    },
+    {
+      "datum": "2026-04-06",
+      "name": "Easter Monday"
+    },
+    {
+      "datum": "2026-05-01",
+      "name": "Labour Day"
+    },
+    {
+      "datum": "2026-05-14",
+      "name": "Ascension Day"
+    },
+    {
+      "datum": "2026-05-25",
+      "name": "Whit Monday"
+    },
+    {
+      "datum": "2026-12-24",
+      "name": "Christmas Eve"
+    },
+    {
+      "datum": "2026-12-25",
+      "name": "Christmas Day"
+    },
+    {
+      "datum": "2026-12-31",
+      "name": "New Year's Eve"
+    },
+    {
+      "datum": "2027-01-01",
+      "name": "New Year's Day"
+    },
+    {
+      "datum": "2027-03-26",
+      "name": "Good Friday"
+    },
+    {
+      "datum": "2027-03-29",
+      "name": "Easter Monday"
+    },
+    {
+      "datum": "2027-05-06",
+      "name": "Ascension Day"
+    },
+    {
+      "datum": "2027-05-17",
+      "name": "Whit Monday"
+    },
+    {
+      "datum": "2027-12-24",
+      "name": "Christmas Eve"
+    },
+    {
+      "datum": "2027-12-31",
+      "name": "New Year's Eve"
+    }
+  ],
+  "verkuerzteTage": [],
+  "datenGueltigBis": "2027-12-31",
+  "stand": "2026-10-05",
+  "quellen": [
+    {
+      "titel": "exchange_calendars 4.13.2 (Python-Bibliothek), Kalender XSWX",
+      "url": "https://github.com/gerrymanoim/exchange_calendars",
+      "abgerufen": "2026-10-05"
+    }
+  ],
+  "hinweise": [
+    "Handelszeiten, Feiertage und verkürzte Tage 2026 und 2027 aus exchange_calendars 4.13.2, erzeugt am 05.10.2026; nicht gegen die Seiten der Börse nachgeprüft.",
+    "Schluss 17:30 laut exchange_calendars schließt die Schlussauktion ein (nicht geprüft)."
+  ]
+}
