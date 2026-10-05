@@ -324,16 +324,27 @@ final class AppModell {
 
     private func gleicheWaehrungenAn() {
         let konto = waehrung.uppercased()
-        angleich = Waehrungsangleich(alleTrades, kontowaehrung: konto, kurse: ezb.kurse)
+        // Geplantes Risiko steht in Kontowährung (Kern, Hauptthread 05.10.2026): erst nach dem Angleich passt es zu
+        // Fremdwährungs-Trades, deshalb hier auf alle Trades, in `alleTrades` nur auf die in Kontowährung.
+        let quellen = risikoquellen
+        let basis = alleTrades.map { $0.mitGeplantemRisiko(quellen.wirksam(ticket: $0.id)?.betrag) }
+        angleich = Waehrungsangleich(basis, kontowaehrung: konto, kurse: ezb.kurse)
         let ziel = summenwaehrung
         guard ziel != konto else { anzeige = angleich; return }
         // Trades ohne eigene Währung stehen in Kontowährung; ausdrücklich setzen, sonst gälten sie als Zielwährung.
-        let mitWaehrung = alleTrades.map { trade in
+        let mitWaehrung = basis.map { trade in
             var t = trade
             t.waehrung = trade.waehrung(kontowaehrung: konto)
             return t
         }
-        anzeige = Waehrungsangleich(mitWaehrung, kontowaehrung: ziel, kurse: ezb.kurse)
+        var umgerechnet = Waehrungsangleich(mitWaehrung, kontowaehrung: ziel, kurse: ezb.kurse)
+        // Das geplante Risiko folgt dem Ergebnis in die Anzeigewährung; ohne Kurs entfällt es, R bleibt dann leer.
+        let satz = ezb.kurse ?? Referenzkurse(kurse: [:])
+        umgerechnet.trades = umgerechnet.trades.map { t in
+            guard let risiko = t.geplantesRisiko else { return t }
+            return t.mitGeplantemRisiko(satz.umrechnen(risiko, von: konto, nach: ziel, am: t.closeTime))
+        }
+        anzeige = umgerechnet
     }
 
     /// Was die Umrechnung im gewählten Zeitraum getan hat: Grundlage des Mischwährungshinweises.
@@ -487,8 +498,13 @@ final class AppModell {
     /// Konto) geht vor allen Auswertungen mit; ein echter Stop hat im Kern Vorrang (Doc 02 Nr. 64).
     private func aktualisiereTrades() {
         let quellen = risikoquellen
-        alleTrades = (positionen.map(Trade.init) + positionsbildung.trades)
-            .map { $0.mitJournal(journaleintraege[$0.id]).mitGeplantemRisiko(quellen.wirksam(ticket: $0.id)?.betrag) }
+        let konto = waehrung.uppercased()
+        // Fremdwährungs-Trades bekommen das geplante Risiko (Kontowährung) erst im Angleich; roh gäbe es ein falsches R.
+        alleTrades = (positionen.map(Trade.init) + positionsbildung.trades).map { trade in
+            let mitJournal = trade.mitJournal(journaleintraege[trade.id])
+            guard mitJournal.waehrung(kontowaehrung: konto) == konto else { return mitJournal }
+            return mitJournal.mitGeplantemRisiko(quellen.wirksam(ticket: trade.id)?.betrag)
+        }
         gleicheWaehrungenAn()
     }
 

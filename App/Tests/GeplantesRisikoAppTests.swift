@@ -27,6 +27,8 @@ import TradingStore
         #expect(mit.risk == T.d("50"))
         #expect(mit.risikoAngenommen)
         #expect(m.wirksamesRisiko(mit)?.herkunft == .konto)
+        // Auch die angeglichenen Trades (Grundlage der Kennzahlen) rechnen damit.
+        #expect(m.angeglicheneTrades.first { $0.id == ohne.id }?.risk == T.d("50"))
 
         try m.setzeStandardRisiko(nil)
         #expect(m.trades.first { $0.id == ohne.id }?.risk == nil)
