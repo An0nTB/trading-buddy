@@ -1,0 +1,192 @@
+{
+  "format": 1,
+  "id": "xtks",
+  "name": "Tokio",
+  "mic": "XTKS",
+  "zeitzone": "Asia/Tokyo",
+  "handelszeiten": [
+    {
+      "tage": [
+        "Mo",
+        "Di",
+        "Mi",
+        "Do",
+        "Fr"
+      ],
+      "beginn": "09:00",
+      "ende": "11:30"
+    },
+    {
+      "tage": [
+        "Mo",
+        "Di",
+        "Mi",
+        "Do",
+        "Fr"
+      ],
+      "beginn": "12:30",
+      "ende": "15:30"
+    }
+  ],
+  "feiertage": [
+    {
+      "datum": "2026-01-01",
+      "name": "New Year's Day"
+    },
+    {
+      "datum": "2026-01-02",
+      "name": "New Year's Holiday"
+    },
+    {
+      "datum": "2026-01-12",
+      "name": "Coming of Age Day"
+    },
+    {
+      "datum": "2026-02-11",
+      "name": "National Foundation Day"
+    },
+    {
+      "datum": "2026-02-23",
+      "name": "Emperor's Birthday"
+    },
+    {
+      "datum": "2026-03-20",
+      "name": "Frühlingsanfang"
+    },
+    {
+      "datum": "2026-04-29",
+      "name": "Showa Day"
+    },
+    {
+      "datum": "2026-05-04",
+      "name": "Greenery Day"
+    },
+    {
+      "datum": "2026-05-05",
+      "name": "Children's Day"
+    },
+    {
+      "datum": "2026-05-06",
+      "name": "Constitution Memorial Day (Ersatztag)"
+    },
+    {
+      "datum": "2026-07-20",
+      "name": "Marine Day"
+    },
+    {
+      "datum": "2026-08-11",
+      "name": "Mountain Day"
+    },
+    {
+      "datum": "2026-09-21",
+      "name": "Respect for the Aged Day"
+    },
+    {
+      "datum": "2026-09-22",
+      "name": "Volksfeiertag"
+    },
+    {
+      "datum": "2026-09-23",
+      "name": "Herbstanfang"
+    },
+    {
+      "datum": "2026-10-12",
+      "name": "Sports Day"
+    },
+    {
+      "datum": "2026-11-03",
+      "name": "Culture Day"
+    },
+    {
+      "datum": "2026-11-23",
+      "name": "Labor Thanksgiving Day"
+    },
+    {
+      "datum": "2026-12-31",
+      "name": "New Year's Holiday"
+    },
+    {
+      "datum": "2027-01-01",
+      "name": "New Year's Day"
+    },
+    {
+      "datum": "2027-01-11",
+      "name": "Coming of Age Day"
+    },
+    {
+      "datum": "2027-02-11",
+      "name": "National Foundation Day"
+    },
+    {
+      "datum": "2027-02-23",
+      "name": "Emperor's Birthday"
+    },
+    {
+      "datum": "2027-03-22",
+      "name": "Frühlingsanfang (Ersatztag)"
+    },
+    {
+      "datum": "2027-04-29",
+      "name": "Showa Day"
+    },
+    {
+      "datum": "2027-05-03",
+      "name": "Constitution Memorial Day"
+    },
+    {
+      "datum": "2027-05-04",
+      "name": "Greenery Day"
+    },
+    {
+      "datum": "2027-05-05",
+      "name": "Children's Day"
+    },
+    {
+      "datum": "2027-07-19",
+      "name": "Marine Day"
+    },
+    {
+      "datum": "2027-08-11",
+      "name": "Mountain Day"
+    },
+    {
+      "datum": "2027-09-20",
+      "name": "Respect for the Aged Day"
+    },
+    {
+      "datum": "2027-09-23",
+      "name": "Herbstanfang"
+    },
+    {
+      "datum": "2027-10-11",
+      "name": "Sports Day"
+    },
+    {
+      "datum": "2027-11-03",
+      "name": "Culture Day"
+    },
+    {
+      "datum": "2027-11-23",
+      "name": "Labor Thanksgiving Day"
+    },
+    {
+      "datum": "2027-12-31",
+      "name": "New Year's Holiday"
+    }
+  ],
+  "verkuerzteTage": [],
+  "datenGueltigBis": "2027-12-31",
+  "stand": "2026-10-05",
+  "quellen": [
+    {
+      "titel": "exchange_calendars 4.13.2 (Python-Bibliothek), Kalender XTKS",
+      "url": "https://github.com/gerrymanoim/exchange_calendars",
+      "abgerufen": "2026-10-05"
+    }
+  ],
+  "hinweise": [
+    "Handelszeiten, Feiertage und verkürzte Tage 2026 und 2027 aus exchange_calendars 4.13.2, erzeugt am 05.10.2026; nicht gegen die Seiten der Börse nachgeprüft.",
+    "Mittagspause als zwei Handelszeiten am selben Tag: In der Pause zeigt die Uhr geschlossen und als nächste Öffnung den Nachmittag.",
+    "Schluss 15:30 seit 05.11.2024 (vorher 15:00)."
+  ]
+}

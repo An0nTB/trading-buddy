@@ -1,0 +1,126 @@
+{
+  "format": 1,
+  "id": "xtse",
+  "name": "Toronto (TSX)",
+  "mic": "XTSE",
+  "zeitzone": "America/Toronto",
+  "handelszeiten": [
+    {
+      "tage": [
+        "Mo",
+        "Di",
+        "Mi",
+        "Do",
+        "Fr"
+      ],
+      "beginn": "09:30",
+      "ende": "16:00"
+    }
+  ],
+  "feiertage": [
+    {
+      "datum": "2026-01-01",
+      "name": "New Year's Day"
+    },
+    {
+      "datum": "2026-02-16",
+      "name": "Family Day"
+    },
+    {
+      "datum": "2026-04-03",
+      "name": "Good Friday"
+    },
+    {
+      "datum": "2026-05-18",
+      "name": "Victoria Day"
+    },
+    {
+      "datum": "2026-07-01",
+      "name": "Canada Day"
+    },
+    {
+      "datum": "2026-08-03",
+      "name": "Civic Holiday"
+    },
+    {
+      "datum": "2026-09-07",
+      "name": "Labor Day"
+    },
+    {
+      "datum": "2026-10-12",
+      "name": "Thanksgiving"
+    },
+    {
+      "datum": "2026-12-25",
+      "name": "Christmas Day"
+    },
+    {
+      "datum": "2026-12-28",
+      "name": "Boxing Day (Ersatztag)"
+    },
+    {
+      "datum": "2027-01-01",
+      "name": "New Year's Day"
+    },
+    {
+      "datum": "2027-02-15",
+      "name": "Family Day"
+    },
+    {
+      "datum": "2027-03-26",
+      "name": "Good Friday"
+    },
+    {
+      "datum": "2027-05-24",
+      "name": "Victoria Day"
+    },
+    {
+      "datum": "2027-07-01",
+      "name": "Canada Day"
+    },
+    {
+      "datum": "2027-08-02",
+      "name": "Civic Holiday"
+    },
+    {
+      "datum": "2027-09-06",
+      "name": "Labor Day"
+    },
+    {
+      "datum": "2027-10-11",
+      "name": "Thanksgiving"
+    },
+    {
+      "datum": "2027-12-27",
+      "name": "Christmas Day (Ersatztag)"
+    },
+    {
+      "datum": "2027-12-28",
+      "name": "Boxing Day (Ersatztag)"
+    }
+  ],
+  "verkuerzteTage": [
+    {
+      "datum": "2026-12-24",
+      "ende": "13:00",
+      "name": "Christmas Eve"
+    },
+    {
+      "datum": "2027-12-24",
+      "ende": "13:00",
+      "name": "Christmas Eve"
+    }
+  ],
+  "datenGueltigBis": "2027-12-31",
+  "stand": "2026-10-05",
+  "quellen": [
+    {
+      "titel": "exchange_calendars 4.13.2 (Python-Bibliothek), Kalender XTSE",
+      "url": "https://github.com/gerrymanoim/exchange_calendars",
+      "abgerufen": "2026-10-05"
+    }
+  ],
+  "hinweise": [
+    "Handelszeiten, Feiertage und verkürzte Tage 2026 und 2027 aus exchange_calendars 4.13.2, erzeugt am 05.10.2026; nicht gegen die Seiten der Börse nachgeprüft."
+  ]
+}
