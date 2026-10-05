@@ -18,8 +18,8 @@ struct Minutenabruf: Equatable {
 
 /// Minutenkerzen für die Ausstiegsanalyse (Doc 39, Paket B2): holt je Trade das Fenster vom Einstieg bis eine
 /// Stunde nach dem Ausstieg und übergibt die Kerzen dem Ausstiegsdienst (Paket B3). Krypto über Binance ohne
-/// Schlüssel, US-Aktien über Alpaca mit dem Schlüssel der Echtzeitkurse. Nur auf Knopfdruck, nur bei
-/// eingeschalteten Kursen.
+/// Schlüssel, US-Aktien über Alpaca mit dem Schlüssel der Echtzeitkurse. Auf Knopfdruck und automatisch nach
+/// Start und Import (`Minutenautomatik`), nur bei eingeschalteten Kursen.
 extension Kursdienst {
     func ladeMinutenkerzen(fuer trades: [Trade], jetzt: Date = Date()) async -> Minutenabruf {
         var ergebnis = Minutenabruf()

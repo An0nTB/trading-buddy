@@ -439,6 +439,7 @@ final class AppModell {
             aktualisiereTrades()
             kurse.beobachte(offenePositionen.map(\.symbol))
             ladeKursverlaeufe()
+            if nebenwirkungen { Minutenautomatik.geteilt.stosseAn(self) } // Start und Import (Kurse, 05.10.2026)
         } catch {
             fehler = error.localizedDescription
         }
