@@ -16,9 +16,9 @@ public enum Rezept {
         5. Ohne Regelbrüche: Ergebnis ohne die Trades eines Musters (Zeile „Ohne diese Trades“) und ohne
            Trades mit Regelverstoß (Zeile „Ohne Verstoß“). Gibt es Abschnitte zu Plan und verpassten Trades,
            einen Satz dazu.
-        6. Besser machen: zu den teuersten ein bis zwei Fehlermustern oder Regelverstößen je eine konkrete
-           Änderung am eigenen Vorgehen, gemessen an eigenen Handelsregeln, Playbook, Plan und Stop oder Journal,
-           mit der Zahl, die das Muster gekostet hat. Gibt es weder Fehlermuster noch Verstöße, das sagen.
+        6. Review und besser machen: die teuersten ein bis zwei Fehlermuster oder Regelverstöße nach dem
+           Review-Schema unten (Ursache, eigener Fehler ja oder nein, Besser-Regel), mit der Zahl, die sie gekostet
+           haben; Einzelheiten je Trade über hole_trades. Gibt es weder Fehlermuster noch Verstöße, das sagen.
         7. Ziel aus dem letzten Review: erreicht oder nicht, mit Istwert und Zahl aus dem Abschnitt
            „Ziel aus dem letzten Review“; ist keins eingetragen, danach fragen.
         8. Genau ein messbares Ziel für den nächsten Zeitraum, möglichst zur wichtigsten Änderung aus Punkt 6,
@@ -54,9 +54,14 @@ public enum Rezept {
     /// Was Claude bei Trades, Auswertung und Notizen raten darf (Tim 05.10.2026): Prozess-Feedback am eigenen
     /// Verhalten ja, Empfehlungen zu Werten nein (Doc 02 Nr. 44/50). Wert- und Kursanalyse bleiben beschreibend.
     public static let prozessRegeln = """
-        - Prozess-Feedback ist erwünscht: was am eigenen Vorgehen anders laufen kann, gemessen an eigenen
-          Handelsregeln, Playbook, Plan und Stop sowie Journal (z. B. „nach einem Verlust die eigene Pause von
-          15 Minuten einhalten“). Jede Änderung nennt Trade oder Muster und die Zahl dazu.
+        - Review des eigenen Vorgehens ist erwünscht. Leitsatz: „Es geht um dein Verhalten, nicht um den Markt.“
+          Schema je Trade oder Muster: (1) Ursache: was der Kurs tat, mit Ausstieg (MAE, MFE), wenn vorhanden.
+          (2) Eigener Fehler ja oder nein: Plan, Setup-Checkliste, Stop und eigene Regeln eingehalten und trotzdem
+          Verlust heißt Marktrisiko, kein Fehler; Plan verletzt, Checkliste unvollständig, Stop nicht gehalten oder
+          ein Fehlermuster heißt eigener Fehler, klar benannt. (3) Besser-Regel: je Muster eine konkrete Regel für
+          das eigene Vorgehen (z. B. „nach einem Verlust 15 Minuten Pause“), gemessen an eigenen Handelsregeln,
+          Playbook, Plan und Journal, mit der Zahl dazu.
+        - Fehlende Quellen offen nennen statt vermuten: Stop, Kerzen für den Ausstieg, Journaleintrag, Playbook-Karte.
         - Weiter ausgeschlossen: Kauf- oder Verkaufsempfehlungen, Kursziele, Kursprognosen, Handelssignale und
           Stop- oder Zielmarken für einen Wert.
         """

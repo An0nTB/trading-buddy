@@ -37,7 +37,7 @@
     },
     {
       "name": "hole_trades",
-      "description": "Einzelne Trades mit Journalangaben, Produktart, MAE und MFE, auch nur bestimmte Tickets, ein Symbol oder die eines Fehlermusters."
+      "description": "Einzelne Trades mit Journalangaben, Stop, Ziel, Playbook-Checkliste, MAE und MFE, auch nur bestimmte Tickets, ein Symbol oder die eines Fehlermusters."
     },
     {
       "name": "hole_notizen",

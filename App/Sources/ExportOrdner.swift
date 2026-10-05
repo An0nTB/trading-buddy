@@ -42,7 +42,8 @@ enum ExportOrdner {
     /// Anzeigewährung der Einstellungen, damit Claude die Summen der App nennen kann (Vierter Gegencheck H21).
     /// `kerzenquellen` nennt je Journal-Symbol die Herkunft der Minutenkerzen („MT4“, „Binance“); sie geht mit
     /// einem Hinweis zu Bid oder USDT an jede Ausstiegsanalyse (Doc 59 B9). Das Beispielkonto trägt `beispiel`,
-    /// damit der Connector seine erfundenen Trades nicht neben echte Kurse stellt (Doc 59 B2).
+    /// damit der Connector seine erfundenen Trades nicht neben echte Kurse stellt (Doc 59 B2). Playbook-Karten und
+    /// abgehakte Kriterien je Trade gehen mit, damit der Review prüfen kann, ob ein Trade nach Plan lief.
     static func export(_ journal: Journal, zeitzone: TimeZone,
                        ausstieg: [String: [String: Ausstiegsanalyse]] = [:],
                        kerzenquellen: [String: String] = [:],
@@ -69,7 +70,8 @@ enum ExportOrdner {
                                                       hinweis: quelle.flatMap { kerzenhinweis(symbol: t.symbol, quelle: $0) })
                     }
                 },
-                beispiel: Beispieldaten.istBeispiel(konto))
+                beispiel: Beispieldaten.istBeispiel(konto),
+                checklisten: try journal.checklisten(konto: konto).mapValues { $0.erfuellt.sorted() })
         }
         // Tonfall aus den Einstellungen (AP11, `Ton`); ohne Wahl gilt in der App „bro“.
         let ton = Ton.aktuell.rawValue
@@ -82,7 +84,8 @@ enum ExportOrdner {
                              verpassteTrades: verpasst.map(JournalExport.Verpasst.init),
                              nachrichten: nachrichten(journal), kursverlauf: kursverlauf(),
                              referenzkurse: referenzkurse(konten, anzeigewaehrung: anzeigewaehrung),
-                             anzeigewaehrung: anzeigewaehrung)
+                             anzeigewaehrung: anzeigewaehrung,
+                             playbook: try journal.playbook().map { JournalExport.Playbookkarte($0) })
     }
 
     /// EZB-Referenzkurse aus dem Zwischenspeicher von TradingRates, nur für die Tage und Währungen der Trades in
