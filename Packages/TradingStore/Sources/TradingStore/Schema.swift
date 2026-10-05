@@ -420,6 +420,21 @@ enum Schema {
             }
         }
 
+        migrator.registerMigration("v11 Ausstiegszeit und Markterwartung") { db in
+            // Quellen ohne Ausstiegszeit (Journal-Sicherung, von Hand ohne Ausstieg): closeTime ist dann die
+            // Einstiegszeit und `ausstiegszeitBekannt` 0 (ClosedPosition.ausstiegszeitBekannt). Alte Zeilen
+            // stammen aus Auszügen mit Ausstiegszeit, deshalb Vorgabe 1.
+            // Markterwartung und Schein nur bei Trades aus Journal-Sicherung und Formular: Ein Short-Schein wird
+            // gekauft (`side` buy), erwartet aber fallende Kurse. NULL heißt „wie `side`“.
+            try db.alter(table: "geschlossenePosition") { t in
+                t.add(column: "ausstiegszeitBekannt", .boolean).notNull().defaults(to: true)
+                t.add(column: "markterwartung", .text)
+                t.add(column: "schein", .boolean).notNull().defaults(to: false)
+            }
+            // Zeiteinheit des Charts („M15“, „H1“) aus Formular und Journal-Sicherung, freier Text.
+            try db.alter(table: "journal") { t in t.add(column: "zeiteinheit", .text) }
+        }
+
         return migrator
     }
 }
