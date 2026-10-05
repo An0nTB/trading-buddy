@@ -81,7 +81,7 @@ public struct Ausstiegsanalyse: Sendable, Equatable {
     /// `nil`, wenn der Trade nie im Plus war.
     public var effizienz: Decimal?
     /// (MFE − erzielt) × Wert je Kurspunkt in der Währung des Trades, vor Kosten.
-    /// `nil` ohne Kursbewegung, weil der Wert je Kurspunkt dann unbekannt ist (wie bei `Trade.risk`).
+    /// `nil` ohne Kursbewegung, weil der Wert je Kurspunkt dann unbekannt ist (wie bei `Trade.stopRisiko`).
     public var liegengelassen: Decimal?
     /// Beginn der Kerze mit dem schlechtesten bzw. besten Kurs; `nil`, wenn es der Ausstieg selbst war.
     public var zeitMAE: Date?
