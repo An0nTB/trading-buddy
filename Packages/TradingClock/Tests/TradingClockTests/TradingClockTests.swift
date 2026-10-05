@@ -16,8 +16,11 @@ private func boerse(_ id: String) throws -> Boerse { try #require(try uhr()[id])
 
 // MARK: Mitgelieferte Daten
 
-@Test func alleSechsBoersenLadenInFesterReihenfolge() throws {
-    #expect(try uhr().boersen.map(\.id) == ["xetra", "nyse", "nasdaq", "lse", "forex", "krypto"])
+@Test func mitgelieferteBoersenLadenInFesterReihenfolge() throws {
+    // Seit 0.5.0 zwölf weitere (Asien-Pazifik, Paris, Zürich, Toronto, São Paulo), angezeigt nur auf Wunsch.
+    #expect(try uhr().boersen.map(\.id) == ["xetra", "nyse", "nasdaq", "lse", "forex", "krypto",
+                                            "xtks", "xhkg", "xshg", "xses", "xkrx", "xtai", "xbom", "xasx",
+                                            "xpar", "xswx", "xtse", "bvmf"])
 }
 
 @Test func boersenMitFeiertagenSindBis2027Gepflegt() throws {
@@ -242,7 +245,7 @@ private let eigeneBoerse = """
     let uhr = try Boersenuhr.mit(auswahl)
     #expect(uhr.boersen.map(\.id) == ["tse", "xetra"])
     #expect(uhr["tse"]?.istOffen(zeit("2026-10-07T01:00:00")) == true)   // 10:00 Tokio
-    #expect(try Boersenuhr.verfuegbar(auswahl).boersen.count == 7)
+    #expect(try Boersenuhr.verfuegbar(auswahl).boersen.count == 19)
 }
 
 @Test func auswahlUeberstehtSpeichernUndLaden() throws {

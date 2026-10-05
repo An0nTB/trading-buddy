@@ -1,0 +1,76 @@
+{
+  "format": 1,
+  "id": "xses",
+  "name": "Singapur",
+  "mic": "XSES",
+  "zeitzone": "Asia/Singapore",
+  "handelszeiten": [
+    {
+      "tage": [
+        "Mo",
+        "Di",
+        "Mi",
+        "Do",
+        "Fr"
+      ],
+      "beginn": "09:00",
+      "ende": "17:00"
+    }
+  ],
+  "feiertage": [
+    {
+      "datum": "2026-01-01",
+      "name": "Neujahr"
+    },
+    {
+      "datum": "2026-02-17",
+      "name": "Chinesisches Neujahr"
+    },
+    {
+      "datum": "2026-02-18",
+      "name": "Chinesisches Neujahr"
+    },
+    {
+      "datum": "2026-04-03",
+      "name": "Karfreitag"
+    },
+    {
+      "datum": "2026-05-01",
+      "name": "Tag der Arbeit"
+    },
+    {
+      "datum": "2026-05-27",
+      "name": "Hari Raya Haji"
+    },
+    {
+      "datum": "2026-06-01",
+      "name": "Vesak (Ersatztag)"
+    },
+    {
+      "datum": "2026-08-10",
+      "name": "Nationalfeiertag (Ersatztag)"
+    },
+    {
+      "datum": "2026-11-09",
+      "name": "Deepavali (Ersatztag)"
+    },
+    {
+      "datum": "2026-12-25",
+      "name": "1. Weihnachtstag"
+    }
+  ],
+  "verkuerzteTage": [],
+  "datenGueltigBis": "2026-12-31",
+  "stand": "2026-10-05",
+  "quellen": [
+    {
+      "titel": "exchange_calendars 4.13.2 (Python-Bibliothek), Kalender XSES",
+      "url": "https://github.com/gerrymanoim/exchange_calendars",
+      "abgerufen": "2026-10-05"
+    }
+  ],
+  "hinweise": [
+    "Handelszeiten, Feiertage und verkürzte Tage 2026 aus exchange_calendars 4.13.2, erzeugt am 05.10.2026; nicht gegen die Seiten der Börse nachgeprüft. Die Bibliothek führt die Feiertage dieser Börse nur bis Ende 2026, danach warnt die Uhr.",
+    "Halbe Handelstage (Vorabend des Chinesischen Neujahrs, Heiligabend, Silvester) führt exchange_calendars für Singapur nicht (nicht geprüft)."
+  ]
+}

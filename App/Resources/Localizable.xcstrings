@@ -262,6 +262,17 @@
         }
       }
     },
+    "An halben Handelstagen endet der Handel um 12:00, die Nachmittagssitzung entfällt." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On half trading days trading ends at 12:00; the afternoon session is cancelled."
+          }
+        }
+      }
+    },
     "Anonymisierte Probe sichern" : {
       "localizations" : {
         "en" : {
@@ -298,6 +309,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Breakout"
+          }
+        }
+      }
+    },
+    "B3 verschiebt die Handelszeiten üblicherweise mit der US-Sommerzeit; exchange_calendars rechnet ganzjährig 10:00 bis 18:00 (nicht geprüft)." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "B3 usually shifts its trading hours with US daylight saving time; exchange_calendars uses 10:00 to 18:00 all year (not checked)."
           }
         }
       }
@@ -442,6 +464,72 @@
         }
       }
     },
+    "Buddhas Geburtstag" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buddha's Birthday"
+          }
+        }
+      }
+    },
+    "Buddhas Geburtstag (Ersatztag)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buddha's Birthday (observed)"
+          }
+        }
+      }
+    },
+    "Börsenfeiertag" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exchange holiday"
+          }
+        }
+      }
+    },
+    "Chinesisches Neujahr" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lunar New Year"
+          }
+        }
+      }
+    },
+    "Chung-Yeung-Fest" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chung Yeung Festival"
+          }
+        }
+      }
+    },
+    "Chung-Yeung-Fest (Ersatztag)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chung Yeung Festival (observed)"
+          }
+        }
+      }
+    },
     "Claude Desktop ist auf diesem Mac nicht installiert. Die Frage liegt in der Zwischenablage. Installiere Claude Desktop, nur dort liest Claude dein Journal." : {
       "localizations" : {
         "en" : {
@@ -468,6 +556,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Connect Claude"
+          }
+        }
+      }
+    },
+    "Constitution Memorial Day (Ersatztag)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Constitution Memorial Day (observed)"
           }
         }
       }
@@ -518,6 +617,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Plus %lld more on the Tax page of the app."
+          }
+        }
+      }
+    },
+    "Deepavali (Ersatztag)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deepavali (observed)"
           }
         }
       }
@@ -692,6 +802,17 @@
         }
       }
     },
+    "Drachenbootfest" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dragon Boat Festival"
+          }
+        }
+      }
+    },
     "Drei Schritte, dann rechnet Henry mit deinen Trades und Claude kann darauf antworten." : {
       "localizations" : {
         "en" : {
@@ -792,12 +913,309 @@
         }
       }
     },
+    "Ersatztag für den Verfassungstag 25.12.2027 (Samstag) fehlt womöglich in exchange_calendars (nicht geprüft)." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The substitute day for Constitution Day on 25 Dec 2027 (a Saturday) may be missing from exchange_calendars (not checked)."
+          }
+        }
+      }
+    },
     "Erst einmal nur schauen? Ein Beispielkonto mit 60 erfundenen Trades. Später unten in der Seitenleiste mit einem Klick wieder fort." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Just looking for now? A sample account with 60 made-up trades. Gone again later with one click at the bottom of the sidebar."
+          }
+        }
+      }
+    },
+    "Frühlingsanfang" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vernal Equinox Day"
+          }
+        }
+      }
+    },
+    "Frühlingsanfang (Ersatztag)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vernal Equinox Day (observed)"
+          }
+        }
+      }
+    },
+    "Frühlingsfest" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spring Festival"
+          }
+        }
+      }
+    },
+    "Halbe Handelstage (Vorabend des Chinesischen Neujahrs, Heiligabend, Silvester) führt exchange_calendars für Singapur nicht (nicht geprüft)." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "exchange_calendars lists no half trading days for Singapore (Lunar New Year's Eve, Christmas Eve, New Year's Eve) (not checked)."
+          }
+        }
+      }
+    },
+    "Handelszeiten, Feiertage und verkürzte Tage 2026 aus exchange_calendars 4.13.2, erzeugt am 05.10.2026; nicht gegen die Seiten der Börse nachgeprüft. Die Bibliothek führt die Feiertage dieser Börse nur bis Ende 2026, danach warnt die Uhr." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trading hours, holidays and early closes for 2026 from exchange_calendars 4.13.2, generated on 5 Oct 2026; not checked against the exchange's website. The library lists this exchange's holidays only until the end of 2026; after that the clock shows a warning."
+          }
+        }
+      }
+    },
+    "Handelszeiten, Feiertage und verkürzte Tage 2026 und 2027 aus exchange_calendars 4.13.2, erzeugt am 05.10.2026; nicht gegen die Seiten der Börse nachgeprüft." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trading hours, holidays and early closes for 2026 and 2027 from exchange_calendars 4.13.2, generated on 5 Oct 2026; not checked against the exchange's website."
+          }
+        }
+      }
+    },
+    "Hangul Proclamation Day (Ersatztag)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hangul Proclamation Day (observed)"
+          }
+        }
+      }
+    },
+    "Herbstanfang" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Autumnal Equinox Day"
+          }
+        }
+      }
+    },
+    "Independence Movement Day (Ersatztag)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Independence Movement Day (observed)"
+          }
+        }
+      }
+    },
+    "Labour Day (Ersatztag)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Labour Day (observed)"
+          }
+        }
+      }
+    },
+    "Maharashtra-Tag" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maharashtra Day"
+          }
+        }
+      }
+    },
+    "Mittagspause als zwei Handelszeiten am selben Tag: In der Pause zeigt die Uhr geschlossen und als nächste Öffnung den Nachmittag." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lunch break as two trading sessions on the same day: during the break the clock shows closed and the afternoon as the next opening."
+          }
+        }
+      }
+    },
+    "Mondfest" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mid-Autumn Festival"
+          }
+        }
+      }
+    },
+    "Muhurat-Handel am Diwali-Abend ist nicht abgebildet." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Muhurat trading on the evening of Diwali is not included."
+          }
+        }
+      }
+    },
+    "National Day (Ersatztag)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "National Day (observed)"
+          }
+        }
+      }
+    },
+    "National Foundation Day (Ersatztag)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "National Foundation Day (observed)"
+          }
+        }
+      }
+    },
+    "National Liberation Day (Ersatztag)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "National Liberation Day (observed)"
+          }
+        }
+      }
+    },
+    "Nationalfeiertag" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "National Day"
+          }
+        }
+      }
+    },
+    "Nationalfeiertag (Ersatztag)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "National Day (observed)"
+          }
+        }
+      }
+    },
+    "New Year's Day (Ersatztag)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New Year's Day (observed)"
+          }
+        }
+      }
+    },
+    "Peace Memorial Day (Ersatztag)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Peace Memorial Day (observed)"
+          }
+        }
+      }
+    },
+    "Qingming-Fest" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Qingming Festival"
+          }
+        }
+      }
+    },
+    "Qingming-Fest (Ersatztag)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Qingming Festival (observed)"
+          }
+        }
+      }
+    },
+    "Schluss 15:30 seit 05.11.2024 (vorher 15:00)." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close at 15:30 since 5 Nov 2024 (previously 15:00)."
+          }
+        }
+      }
+    },
+    "Schluss 17:30 laut exchange_calendars schließt die Schlussauktion ein (nicht geprüft)." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The 17:30 close from exchange_calendars includes the closing auction (not checked)."
+          }
+        }
+      }
+    },
+    "Seollal (Ersatztag)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seollal (observed)"
           }
         }
       }
@@ -828,6 +1246,61 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Backup incomplete: %@ saved, but the images could not be checked."
+          }
+        }
+      }
+    },
+    "Späterer Beginn um 10:00 am ersten Handelstag des Jahres und am Tag der Hochschul-Aufnahmeprüfung im November ist nicht abgebildet; das Dateiformat kennt nur einen früheren Schluss." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The later start at 10:00 on the first trading day of the year and on the day of the college entrance exam in November is not included; the file format only supports an earlier close."
+          }
+        }
+      }
+    },
+    "Späterer Beginn um 13:00 am Aschermittwoch ist nicht abgebildet; das Dateiformat kennt nur einen früheren Schluss." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The later start at 13:00 on Ash Wednesday is not included; the file format only supports an earlier close."
+          }
+        }
+      }
+    },
+    "Tag der Republik" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Republic Day"
+          }
+        }
+      }
+    },
+    "Tag nach dem Mondfest" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Day after Mid-Autumn Festival"
+          }
+        }
+      }
+    },
+    "Taiwan Restoration Day (Ersatztag)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taiwan Restoration Day (observed)"
           }
         }
       }
@@ -1852,12 +2325,56 @@
         }
       }
     },
+    "Vesak (Ersatztag)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vesak Day (observed)"
+          }
+        }
+      }
+    },
+    "Volksfeiertag" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Citizens' Holiday"
+          }
+        }
+      }
+    },
+    "Vorabend des Chinesischen Neujahrs" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lunar New Year's Eve"
+          }
+        }
+      }
+    },
     "Vorgänge mit anderen Werten als beim früheren Import: %@. Bei MetaTrader und XTB: Stimmt die Serverzeit mit dem letzten Import überein?" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Transactions with different values than in the earlier import: %@. For MetaTrader and XTB: does the server time match the last import?"
+          }
+        }
+      }
+    },
+    "Wahltage, an denen die Börse schließt, fehlen für 2026 in exchange_calendars (Kommunalwahl 03.06.2026, nicht geprüft)." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Election days on which the exchange closes are missing for 2026 in exchange_calendars (local elections on 3 Jun 2026, not checked)."
           }
         }
       }
@@ -1968,6 +2485,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Weekly or monthly review. The “Henry” extension reads goals and results but cannot change them."
+          }
+        }
+      }
+    },
+    "Women and Children's Day (Ersatztag)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Women and Children's Day (observed)"
           }
         }
       }

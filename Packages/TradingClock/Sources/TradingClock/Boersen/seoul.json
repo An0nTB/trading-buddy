@@ -1,0 +1,153 @@
+{
+  "format": 1,
+  "id": "xkrx",
+  "name": "Seoul",
+  "mic": "XKRX",
+  "zeitzone": "Asia/Seoul",
+  "handelszeiten": [
+    {
+      "tage": [
+        "Mo",
+        "Di",
+        "Mi",
+        "Do",
+        "Fr"
+      ],
+      "beginn": "09:00",
+      "ende": "15:30"
+    }
+  ],
+  "feiertage": [
+    {
+      "datum": "2026-01-01",
+      "name": "New Year's Day"
+    },
+    {
+      "datum": "2026-02-16",
+      "name": "Seollal"
+    },
+    {
+      "datum": "2026-02-17",
+      "name": "Seollal"
+    },
+    {
+      "datum": "2026-02-18",
+      "name": "Seollal"
+    },
+    {
+      "datum": "2026-03-02",
+      "name": "Independence Movement Day (Ersatztag)"
+    },
+    {
+      "datum": "2026-05-01",
+      "name": "Labor Day"
+    },
+    {
+      "datum": "2026-05-05",
+      "name": "Children's Day"
+    },
+    {
+      "datum": "2026-05-25",
+      "name": "Buddhas Geburtstag (Ersatztag)"
+    },
+    {
+      "datum": "2026-08-17",
+      "name": "National Liberation Day (Ersatztag)"
+    },
+    {
+      "datum": "2026-09-24",
+      "name": "Chuseok"
+    },
+    {
+      "datum": "2026-09-25",
+      "name": "Chuseok"
+    },
+    {
+      "datum": "2026-10-05",
+      "name": "National Foundation Day (Ersatztag)"
+    },
+    {
+      "datum": "2026-10-09",
+      "name": "Hangul Proclamation Day"
+    },
+    {
+      "datum": "2026-12-25",
+      "name": "Christmas Day"
+    },
+    {
+      "datum": "2026-12-31",
+      "name": "End of Year Holiday"
+    },
+    {
+      "datum": "2027-01-01",
+      "name": "New Year's Day"
+    },
+    {
+      "datum": "2027-02-08",
+      "name": "Seollal"
+    },
+    {
+      "datum": "2027-02-09",
+      "name": "Seollal (Ersatztag)"
+    },
+    {
+      "datum": "2027-03-01",
+      "name": "Independence Movement Day"
+    },
+    {
+      "datum": "2027-05-05",
+      "name": "Children's Day"
+    },
+    {
+      "datum": "2027-05-13",
+      "name": "Buddha's Birthday"
+    },
+    {
+      "datum": "2027-08-16",
+      "name": "National Liberation Day (Ersatztag)"
+    },
+    {
+      "datum": "2027-09-14",
+      "name": "Chuseok"
+    },
+    {
+      "datum": "2027-09-15",
+      "name": "Chuseok"
+    },
+    {
+      "datum": "2027-09-16",
+      "name": "Chuseok"
+    },
+    {
+      "datum": "2027-10-04",
+      "name": "National Foundation Day (Ersatztag)"
+    },
+    {
+      "datum": "2027-10-11",
+      "name": "Hangul Proclamation Day (Ersatztag)"
+    },
+    {
+      "datum": "2027-12-27",
+      "name": "Christmas Day (Ersatztag)"
+    },
+    {
+      "datum": "2027-12-31",
+      "name": "End of Year Holiday"
+    }
+  ],
+  "verkuerzteTage": [],
+  "datenGueltigBis": "2027-12-31",
+  "stand": "2026-10-05",
+  "quellen": [
+    {
+      "titel": "exchange_calendars 4.13.2 (Python-Bibliothek), Kalender XKRX",
+      "url": "https://github.com/gerrymanoim/exchange_calendars",
+      "abgerufen": "2026-10-05"
+    }
+  ],
+  "hinweise": [
+    "Handelszeiten, Feiertage und verkürzte Tage 2026 und 2027 aus exchange_calendars 4.13.2, erzeugt am 05.10.2026; nicht gegen die Seiten der Börse nachgeprüft.",
+    "Späterer Beginn um 10:00 am ersten Handelstag des Jahres und am Tag der Hochschul-Aufnahmeprüfung im November ist nicht abgebildet; das Dateiformat kennt nur einen früheren Schluss.",
+    "Wahltage, an denen die Börse schließt, fehlen für 2026 in exchange_calendars (Kommunalwahl 03.06.2026, nicht geprüft)."
+  ]
+}
