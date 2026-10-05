@@ -37,7 +37,9 @@ let september = FragBradKontext(konto: "XTB …1234", von: zeit("2026-09-01 00:0
     let sachlich = try #require(FragBrad.text(.setups, kontext: september, ton: .sachlich, zeitzone: berlin))
     #expect(henry.hasSuffix(FragBrad.tonHenry))
     #expect(!henry.contains("Alter") && !henry.contains("Bro"))
-    #expect(!sachlich.contains("Henry"))
+    // Der Rahmen nennt die „Henry-Werkzeuge“ (Doc 59, B10); die Tonbitte fehlt bei „Sachlich“.
+    #expect(!sachlich.contains(FragBrad.tonHenry))
+    #expect(!sachlich.contains("Ton von Henry"))
 }
 
 @Test func jedeFrageTraegtDenRahmenOhneAnlageberatung() {
