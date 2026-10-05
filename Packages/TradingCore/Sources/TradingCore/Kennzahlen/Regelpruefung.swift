@@ -42,8 +42,10 @@ public enum Regelpruefung {
                 if let n = regeln.stoppNachVerlusten, n > 0, verlusteInFolge(vorher) >= n {
                     arten.append(.stoppNachVerlusten)
                 }
+                // Nur das Risiko aus dem Stop: Ein selbst gesetztes geplantes Risiko ist kein Verstoß je Trade.
+                // Der tatsächliche Verlust über der Grenze zählt weiter, auch bei angenommenem Risiko.
                 if let max = regeln.maxRisikoJeTrade, !ohneBetrag.contains(t.id),
-                   (t.risk ?? 0) > max || t.netProfit < -max {
+                   (t.stopRisiko ?? 0) > max || t.netProfit < -max {
                     arten.append(.risikoJeTrade)
                 }
                 if manuell.contains(t.id) { arten.append(.manuell) }

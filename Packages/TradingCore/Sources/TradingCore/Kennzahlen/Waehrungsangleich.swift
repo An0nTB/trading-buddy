@@ -3,7 +3,8 @@ import Foundation
 /// Bringt die Beträge aller Trades eines Kontos in die Kontowährung (Doc 40, W1–W3), bevor Kennzahlen,
 /// Regeln, Kapitalverlauf oder Monatsbericht summieren. Umgerechnet wird mit den Referenzkursen am Schlusstag
 /// wie in der Steuer-Orientierung (Näherung). Kurse (Einstieg, Ausstieg, Stop) bleiben in der Kurswährung;
-/// der Wert je Kurspunkt und damit `risk` und R folgen dem umgerechneten Ergebnis.
+/// der Wert je Kurspunkt und damit `risk` und R folgen dem umgerechneten Ergebnis. `geplantesRisiko` steht schon
+/// in Kontowährung und bleibt, wie es ist; R aus dem geplanten Risiko daher nur auf angeglichenen Trades rechnen.
 public struct Waehrungsangleich: Sendable, Equatable {
     /// Alle Trades in Kontowährung, Reihenfolge wie übergeben, ohne `ohneKurs`.
     public var trades: [Trade]
