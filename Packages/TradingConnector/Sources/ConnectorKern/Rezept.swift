@@ -64,7 +64,8 @@ public enum Rezept {
         2. Schwankung: Schwankung aufs Jahr, Tagesspanne (ATR 14) und größter Rückgang, als Zahlen eingeordnet.
         3. Abstand zum 52-Wochen-Hoch und -Tief.
         4. Eigene Trades in diesem Wert: Anzahl, Netto, Trefferquote; unter 30 Trades nur beschreiben.
-        5. Nachrichten nur, wenn gefragt: hole_nachrichten mit dem Symbol als begriff, höchstens drei Sätze mit Quelle.
+        5. Nachrichten nur, wenn gefragt: hole_nachrichten mit dem Symbol als begriff und tage=7, höchstens drei Sätze
+           mit Quelle.
         Regeln:
         - Keine Kursprognosen, keine Zielkurse, keine Kauf- oder Verkaufssignale, keine Empfehlungen; die Zahlen
           beschreiben vergangene Kurse.

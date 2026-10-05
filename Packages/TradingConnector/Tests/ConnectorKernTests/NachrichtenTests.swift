@@ -44,3 +44,24 @@ private func meldung(_ titel: String, vorStunden: Double, merkliste: [String] = 
     #expect(Rezept.nachrichtenvorlage(tage: "3").contains("hole_nachrichten mit tage=3"))
     #expect(Rezept.nachrichtenvorlage(tage: nil).contains("letzten 24 Stunden"))
 }
+
+@Test func begriffFindetBasisSymbolUndKryptonamen() {
+    // Doc 59 B4: Journal-Symbole wie AAPL.US oder BTC/EUR fanden vorher meist nichts.
+    let jetzt = Date(timeIntervalSince1970: 1_790_000_000)
+    func m(_ titel: String, symbole: [String] = []) -> JournalExport.Meldung {
+        JournalExport.Meldung(titel: titel, anriss: nil, quelle: "Alpaca", link: "https://example.org/\(titel.count)",
+                              zeit: jetzt.addingTimeInterval(-3600), symbole: symbole)
+    }
+    let export = JournalExport(konten: [], zeitzone: TimeZone(identifier: "Europe/Berlin")!, erstellt: jetzt,
+                               nachrichten: [m("Apple stellt vor", symbole: ["AAPL"]), m("Bitcoin über Marke"),
+                                             m("Solarwerte fallen"), m("Krypto ruhig", symbole: ["BTC/USD"])])
+    let apple = Ausgabe.nachrichten(export, tage: 7, begriff: "AAPL.US", jetzt: jetzt)
+    #expect(apple.contains("Apple stellt vor") && !apple.contains("Bitcoin"))
+    for begriff in ["BTC/EUR", "BTCUSD", "btc"] {
+        let btc = Ausgabe.nachrichten(export, tage: 7, begriff: begriff, jetzt: jetzt)
+        #expect(btc.contains("Bitcoin über Marke") && btc.contains("Krypto ruhig") && !btc.contains("Apple"), "\(begriff)")
+    }
+    #expect(Ausgabe.nachrichten(export, tage: 7, begriff: "SOLUSD", jetzt: jetzt).contains("Keine passenden Meldungen"))
+    #expect(Ausgabe.suchwoerter("aapl.us") == ["aapl"] && Ausgabe.suchwoerter("eur") == ["eur"])
+    #expect(Ausgabe.suchwoerter("eth/usdt") == ["eth", "ethereum"] && Ausgabe.suchwoerter("deutsche bank").isEmpty)
+}

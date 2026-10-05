@@ -4,8 +4,10 @@ import TradingCore
 /// Kursanalyse eines Werts für „Frag Henry“ (Doc 38, Paket A3): Kennzahlen aus den Tageskerzen der App
 /// (`Kursanalyse` im Rechenkern) und die eigenen Trades im Wert. Nur beschreibend, keine Prognose.
 extension Ausgabe {
-    /// Werkzeug `hole_kursanalyse`. `monate` 1 bis 12 begrenzt Kerzen und eigene Trades, vom letzten Kerzentag
-    /// an gerechnet, ohne Kerzen vom Export an.
+    /// Werkzeug `hole_kursanalyse`. Die Kennzahlen gelten immer für die letzten 12 Monate, wie ihre Namen sagen
+    /// (52-Wochen-Hoch, Schwankung aufs Jahr); `monate` 1 bis 12 begrenzt die eigenen Trades und ergänzt bei weniger
+    /// als 12 den größten Rückgang im gewählten Zeitraum (Doc 59 B3). Gezählt vom letzten Kerzentag an, ohne Kerzen
+    /// vom Export an. Trades des Beispielkontos stehen nicht neben echten Kursen (Doc 59 B2).
     public static func kursanalyse(_ export: JournalExport, symbol: String, monate: Int = 12) -> String {
         let zone = export.nutzerZeitzone
         let monate = min(max(monate, 1), 12)
@@ -21,15 +23,22 @@ extension Ausgabe {
                  "Export vom \(Format.datum(export.erstellt, zone)), Zeitzone \(export.zeitzone). Nur beschreibend: "
                      + "Kennzahlen vergangener Kurse, keine Prognose, kein Signal."]
 
-        if let reihe, let analyse = analyse(reihe, monate: monate) {
+        if let reihe, let analyse = analyse(reihe, monate: 12) {
             t.append("Kurse: Tageskerzen von \(Format.kurz(reihe.quelle, zeichen: 20)) in \(reihe.waehrung), "
                 + "abgerufen \(Format.datum(reihe.stand, zone)), \(analyse.anzahlKerzen) abgeschlossene Tage bis "
                 + "\(analyse.letzterTag) (UTC-Kalendertage).")
+            if let naeherung = reihe.naeherung.map({ Format.kurz($0, zeichen: 200) }) {
+                t.append("Näherung: \(naeherung.hasSuffix(".") ? naeherung : naeherung + ".") Die Kennzahlen beschreiben "
+                    + "diesen Kurs, nicht den gehandelten Wert selbst.")
+            }
             t.append("\n## Kennzahlen")
-            t.append(Format.tabelle(["Kennzahl", "Wert"], kennzahlzeilen(analyse, reihe.waehrung)))
+            let fenster = monate < 12 ? Self.analyse(reihe, monate: monate) : nil
+            t.append(Format.tabelle(["Kennzahl", "Wert"], kennzahlzeilen(analyse, reihe.waehrung, fenster: fenster,
+                                                                         monate: monate)))
             t.append("Veränderung: letzter Schluss gegen den Schluss vor 7, 30, 91 und 365 Kalendertagen; fehlt, wenn "
                 + "die Reihe kürzer ist. Schwankung: Standardabweichung der Tagesrenditen mal Wurzel aus "
-                + "\(analyse.handelstageJeJahr) Handelstagen. Abstände über die letzten 365 Tage.")
+                + "\(analyse.handelstageJeJahr) Handelstagen. Schwankung, Abstände und größter Rückgang über die letzten "
+                + "12 Monate, auch bei kürzerem Zeitraum.")
         } else if reihe != nil {
             t.append("Für \(name) liegen keine abgeschlossenen Tageskerzen vor.")
         } else {
@@ -41,7 +50,8 @@ extension Ausgabe {
         // Gleicher Rückblick wie die Kerzen; ohne Kerzen vom Export an.
         let bezug = reihe?.kerzen.last.map { $0.tag.beginn(in: TimeZone(secondsFromGMT: 0)!).addingTimeInterval(86_400) }
         t.append(contentsOf: eigeneTrades(export, wunsch: wunsch, monate: monate, bis: bezug ?? export.erstellt))
-        t.append("\nNachrichten zum Wert: hole_nachrichten mit begriff=\(name) (nur, wenn in der App eingeschaltet).")
+        t.append("\nNachrichten zum Wert: hole_nachrichten mit begriff=\(name) und tage=7 (nur, wenn in der App "
+            + "eingeschaltet).")
         t.append("\n" + Rezept.kursanalyseText)
         if export.personaTon { t.append(Rezept.personaRegel) }
         return t.joined(separator: "\n")
@@ -59,7 +69,9 @@ extension Ausgabe {
         return Kursanalyse(kerzen: reihe.kerzen.filter { $0.tag >= ab })
     }
 
-    static func kennzahlzeilen(_ a: Kursanalyse, _ waehrung: String) -> [[String]] {
+    /// - Parameter fenster: Analyse über die gewählten `monate`, wenn weniger als 12; nur für den Rückgang darin.
+    static func kennzahlzeilen(_ a: Kursanalyse, _ waehrung: String, fenster: Kursanalyse? = nil,
+                               monate: Int = 12) -> [[String]] {
         var zeilen: [[String]] = [["Letzter Schluss (\(a.letzterTag))", "\(kurs(a.letzterSchluss)) \(waehrung)"]]
         if let aktuell = a.aktuellerKurs {
             zeilen.append(["Aktueller Kurs (laufender Tag, kein Schluss)", "\(kurs(aktuell)) \(waehrung)"])
@@ -69,13 +81,17 @@ extension Ausgabe {
         for (spanne, text) in spannen {
             zeilen.append(["Veränderung \(text)", Format.prozent(a.veraenderung[spanne])])
         }
-        zeilen.append(["Schwankung aufs Jahr", Format.prozent(a.schwankungJahr)])
+        zeilen.append(["Schwankung aufs Jahr (12 Monate)", Format.prozent(a.schwankungJahr)])
         zeilen.append(["Durchschnittliche Tagesspanne (ATR 14)",
                        a.atr14.map { "\(kurs($0)) \(waehrung) (\(Format.prozent(a.atr14Anteil)) vom Kurs)" }
                            ?? "– (unter 15 Tagen)"])
         zeilen.append(["Abstand zum 52-Wochen-Hoch", Format.prozent(a.abstandHoch52W)])
         zeilen.append(["Abstand zum 52-Wochen-Tief", Format.prozent(a.abstandTief52W)])
-        zeilen.append(["Größter Rückgang vom Hoch im Zeitraum", Format.prozent(a.groessterRueckgang)])
+        zeilen.append(["Größter Rückgang vom Hoch (12 Monate)", Format.prozent(a.groessterRueckgang)])
+        if let fenster {
+            zeilen.append(["Größter Rückgang vom Hoch (letzte \(monate) \(monate == 1 ? "Monat" : "Monate"))",
+                           Format.prozent(fenster.groessterRueckgang)])
+        }
         return zeilen
     }
 
@@ -84,8 +100,14 @@ extension Ausgabe {
         let seit = kalender(export.nutzerZeitzone).date(byAdding: .month, value: -monate, to: bis)!
         let zone = export.nutzerZeitzone
         var zeilen: [[String]] = []
+        var beispiele = 0
         for konto in export.konten {
             let passend = konto.trades.filter { symbolschluessel($0.symbol) == wunsch && $0.closeTime >= seit }
+            // Erfundene Preise neben echten Kursen ergäben unsinnige Vergleiche (Doc 57, Doc 59 B2).
+            guard !konto.istBeispiel else {
+                beispiele += passend.count
+                continue
+            }
             let jeWaehrung = Dictionary(grouping: passend) { $0.waehrung(kontowaehrung: konto.waehrung) }
             for waehrung in jeWaehrung.keys.sorted() {
                 let k = Kennzahlen(trades: jeWaehrung[waehrung]!)
@@ -93,14 +115,16 @@ extension Ausgabe {
                                Format.prozent(k.trefferquote), Format.r(k.erwartungswertR)])
             }
         }
+        let ohneBeispiel = beispiele == 0 ? [] : ["\(beispiele) Trades des Beispielkontos der App sind erfunden und hier "
+            + "weggelassen; sie gehören nicht neben echte Kurse."]
         guard !zeilen.isEmpty else {
             return ["\n## Eigene Trades in diesem Wert",
-                    "Keine geschlossenen Trades seit \(Format.datum(seit, zone, mitZeit: false))."]
+                    "Keine geschlossenen Trades seit \(Format.datum(seit, zone, mitZeit: false))."] + ohneBeispiel
         }
         return ["\n## Eigene Trades in diesem Wert (geschlossen seit \(Format.datum(seit, zone, mitZeit: false)))",
                 Format.tabelle(["Konto", "Währung", "Trades", "Netto", "Treffer", "Erw. R"], zeilen),
                 "Je Konto und Währung getrennt; Beträge verschiedener Währungen nicht zusammenrechnen. "
-                    + "Einzelne Trades über hole_trades mit dem Konto."]
+                    + "Einzelne Trades über hole_trades mit dem Konto."] + ohneBeispiel
     }
 
     static func kalender(_ zone: TimeZone) -> Calendar {
