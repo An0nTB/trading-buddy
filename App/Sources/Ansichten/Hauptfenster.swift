@@ -3,14 +3,15 @@ import TradingStore
 
 /// Bereiche der App (Doc 10, Aufbau A): Seitenleiste am Mac und iPad, Tab-Leiste am iPhone.
 enum Bereich: String, Identifiable, Hashable {
-    case uebersicht, trades, kennzahlen, fehlermuster, kalender, tag, steuer, nachrichten, kurschart, boersenuhr, positionsrechner, importieren, konten, einstellungen, mehr, ziele, lernen, ausstieg
+    case uebersicht, trades, kennzahlen, fehlermuster, kalender, tag, steuer, nachrichten, kurschart, boersenuhr, positionsrechner, importieren, konten, einstellungen, mehr, ziele, lernen, ausstieg, analyse
 
     var id: String { rawValue }
 
     /// Seitenleiste, Abschnitt „Journal“.
     static let journal: [Bereich] = [.uebersicht, .tag, .trades, .kennzahlen, .fehlermuster, .ausstieg, .ziele, .kalender, .steuer]
-    /// Seitenleiste, Abschnitt „Markt“ (Börsenuhr nach Tims Wunsch vom 01.10.2026, Positionsrechner aus #47; nicht in Aufbau A gezeichnet).
-    static let markt: [Bereich] = [.nachrichten, .kurschart, .boersenuhr, .positionsrechner]
+    /// Seitenleiste, Abschnitt „Markt“ (Börsenuhr nach Tims Wunsch vom 01.10.2026, Positionsrechner aus #47, Analyse
+    /// nach Tims Wunsch vom 05.10.2026; nicht in Aufbau A gezeichnet).
+    static let markt: [Bereich] = [.nachrichten, .kurschart, .analyse, .boersenuhr, .positionsrechner]
     /// Seitenleiste, Abschnitt „Daten“.
     static let daten: [Bereich] = [.importieren, .konten]
     /// Seitenleiste, Abschnitt „Wissen“ (Lernbereich, Stand-Doc 40).
@@ -18,7 +19,7 @@ enum Bereich: String, Identifiable, Hashable {
     /// Tab-Leiste am iPhone.
     static let tabs: [Bereich] = [.uebersicht, .trades, .kennzahlen, .kalender, .mehr]
     /// Einträge unter „Mehr“ am iPhone.
-    static let unterMehr: [Bereich] = [.tag, .fehlermuster, .ausstieg, .ziele, .steuer, .nachrichten, .kurschart, .boersenuhr, .positionsrechner, .importieren, .konten, .lernen, .einstellungen]
+    static let unterMehr: [Bereich] = [.tag, .fehlermuster, .ausstieg, .ziele, .steuer, .nachrichten, .kurschart, .analyse, .boersenuhr, .positionsrechner, .importieren, .konten, .lernen, .einstellungen]
 
     var titel: LocalizedStringKey {
         switch self {
@@ -33,6 +34,7 @@ enum Bereich: String, Identifiable, Hashable {
         case .steuer: "Steuer"
         case .nachrichten: "Nachrichten"
         case .kurschart: "Kurschart"
+        case .analyse: "Analyse"
         case .boersenuhr: "Börsenuhr"
         case .positionsrechner: "Positionsrechner"
         case .importieren: "Import"
@@ -56,6 +58,7 @@ enum Bereich: String, Identifiable, Hashable {
         case .steuer: "percent"
         case .nachrichten: "newspaper"
         case .kurschart: "chart.xyaxis.line"
+        case .analyse: "text.magnifyingglass"
         case .boersenuhr: "clock"
         case .positionsrechner: "plus.forwardslash.minus"
         case .importieren: "square.and.arrow.down"
@@ -299,6 +302,7 @@ struct BereichInhalt: View {
         case .steuer: SteuerView()
         case .nachrichten: NachrichtenView()
         case .kurschart: KurschartView() // Kurse-Thread, Stand-Doc 20 Abschnitt 11
+        case .analyse: AnalyseView() // Wert wählen, Frag Henry „Wert analysieren“ (Tim 05.10.2026)
         case .boersenuhr: BoersenuhrView()
         case .positionsrechner:
             // Kontostand kennt die App nicht (die Kapitalkurve startet bei 0), der Nutzer trägt ihn ein.
