@@ -230,7 +230,7 @@ extension Anfrage {
     func bestExitAbschnitt(_ trades: [Trade]) -> [String] {
         guard konto.ausstieg != nil else { return [] }
         let jeTrade = konto.ausstiegJeTrade
-        let mitStop = trades.filter { $0.stopLoss != nil && $0.risk != nil && !$0.risikoAngenommen }
+        let mitStop = trades.filter { $0.stopRisiko != nil }
         let einzeln = mitStop.compactMap { t in jeTrade[t.id]?.bestExit?.bestExit(tradeID: t.id) }
         guard !einzeln.isEmpty else { return [] }
         // Beträge nur, wenn alle analysierten Trades in Kontowährung lauten (1 R in der Währung des Trades).
