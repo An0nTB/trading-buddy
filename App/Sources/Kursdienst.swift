@@ -9,15 +9,19 @@ import TradingQuotes
 final class Kursdienst {
     static let schluesselAktiv = "kurseAktiv"
     static let schluesselZuordnungen = "kurszuordnungen"
+    static let schluesselChartwerte = "kurschartWerte"
 
     /// Eigene Zuordnungen des Nutzers; sie überstimmen die Vorschläge des Pakets.
     private(set) var eigene: [Kurszuordnung]
     private(set) var stand = Kursstand()
     /// Symbole in Journal-Schreibweise, die gerade beobachtet werden.
     private(set) var symbole: [String] = []
+    /// Eigene Werte für den Kurschart (Tim 05.10.2026), in Journal-Schreibweise wie „BTC/EUR“ oder „AAPL.US“.
+    var chartwerte: [String]
     private(set) var aktiv: Bool
     private var aufgabe: Task<Void, Never>?
-    private let speicher: UserDefaults
+    /// Einstellungen; auch für die eigenen Werte des Kurscharts (Kursdienst+Chartwerte.swift).
+    let speicher: UserDefaults
     /// Alle Quellen, die die App kennt; verbunden wird nur, was eine Zuordnung braucht.
     let quellen: [any Kursquelle]
     /// Tageskerzen für die Analyse in Frag Henry (Paket A1, Doc 38), je Journal-Symbol; nur beschreibend.
@@ -44,6 +48,7 @@ final class Kursdienst {
         verlaufsquellen = [Kursverlaeufe.kraken(abruf: abruf), Kursverlaeufe.alpaca(schluessel: schluesselbund, abruf: abruf)]
         verlaufsspeicher = Verlaufsspeicher(datei: verlaufsdatei)
         aktiv = speicher.bool(forKey: Self.schluesselAktiv)
+        chartwerte = speicher.stringArray(forKey: Self.schluesselChartwerte) ?? []
         if let daten = speicher.data(forKey: Self.schluesselZuordnungen),
            let gespeichert = try? JSONDecoder().decode([Kurszuordnung].self, from: daten) {
             eigene = gespeichert

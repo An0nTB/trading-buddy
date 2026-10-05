@@ -11,10 +11,11 @@ struct KurschartView: View {
     @State private var symbol: String?
     @State private var zeitraum = Chartzeitraum.quartal
     @State private var gewaehlterTag: Date?
+    @State private var werteZeigen = false
 
     var body: some View {
         let kurse = modell.kurse
-        let symbole = KurschartQuellen.symbole(modell.alleTrades, kurse: kurse)
+        let symbole = alleSymbole(kurse)
         let aktuell = symbol.flatMap { symbole.contains($0) ? $0 : nil } ?? symbole.first
         ScrollView {
             VStack(alignment: .leading, spacing: Abstand.kachelAbstand) {
@@ -25,12 +26,28 @@ struct KurschartView: View {
                             ForEach(symbole, id: \.self) { Text(verbatim: $0).tag($0) }
                         }
                     }
+                    Button("Wert hinzufügen", systemImage: "plus") { werteZeigen = true }
                 }
                 inhalt(aktuell, kurse: kurse, symbole: symbole)
             }
             .padding(Abstand.seitenrand)
         }
         .task(id: symbole) { await kurse.ladeVerlaeufe(fuer: symbole) }
+        .sheet(isPresented: $werteZeigen) {
+            ChartwerteBlatt { neu in
+                symbol = neu
+                gewaehlterTag = nil
+            }
+        }
+    }
+
+    /// Journal-Werte mit freiem Kurs, eigene Werte und Symbole der Merkliste mit freier Quelle.
+    private func alleSymbole(_ kurse: Kursdienst) -> [String] {
+        let journal = KurschartQuellen.symbole(modell.alleTrades, kurse: kurse)
+        let merkbegriffe = modell.nachrichten.aktiveEintraege.filter { $0.art == .symbol }.map(\.begriff)
+        let merkliste = merkbegriffe.isEmpty ? []
+            : Chartwerteingabe.ausMerkliste(merkbegriffe, alpacaSchluessel: kurse.schluesselbund.vorhanden())
+        return Chartwerteingabe.liste(journal: journal, eigene: kurse.chartwerte, merkliste: merkliste)
     }
 
     @ViewBuilder
@@ -48,8 +65,13 @@ struct KurschartView: View {
             ProgressView("Tageskerzen werden geladen")
                 .frame(maxWidth: .infinity, minHeight: 200)
         } else {
-            Platzhalter(titel: "Kein passender Wert", symbol: "chart.xyaxis.line",
-                        text: "Kurscharts gibt es für Krypto und US-Aktien aus dem Journal. Für CFDs und Devisen gibt es keine freien Kurse.")
+            VStack(spacing: Abstand.kachelAbstand) {
+                Platzhalter(titel: "Kein passender Wert", symbol: "chart.xyaxis.line",
+                            text: "Im Journal steht kein Wert mit freiem Kurs. Füge Krypto wie BTC/EUR oder US-Aktien wie AAPL selbst hinzu; für CFDs und Devisen gibt es keine freien Kurse.")
+                Button("Wert hinzufügen", systemImage: "plus") { werteZeigen = true }
+                    .buttonStyle(.borderedProminent)
+            }
+            .frame(maxWidth: .infinity)
         }
     }
 
