@@ -9,6 +9,8 @@ import TradingCore
 struct KalenderView: View {
     @Environment(AppModell.self) private var modell
     @Environment(\.thema) private var thema
+    /// Termine oder Ergebnis je Tag (Tim 05.10.2026); bleibt über Neustarts.
+    @AppStorage("kalender.ansicht") private var ansicht = Kalenderansicht.termine
 
     var body: some View {
         @Bindable var dienst = modell.termine
@@ -17,13 +19,20 @@ struct KalenderView: View {
         TimelineView(.periodic(from: .now, by: 60)) { kontext in
             ScrollView {
                 VStack(alignment: .leading, spacing: Abstand.kachelAbstand) {
-                    Kopfzeile("Kalender", untertitel: String(localized: "Zinsentscheide Fed, EZB, BoE, BoJ, SNB · US-Arbeitsmarkt und -Inflation · Zeiten in deiner Zeit")) {
-                        Auswahlknopf("Währungen", anzeige: anzeige(dienst.nurMeineWaehrungen), auswahl: $dienst.nurMeineWaehrungen) {
-                            Text("Meine Währungen").tag(true)
-                            Text("Alle Währungen").tag(false)
+                    Kopfzeile("Kalender", untertitel: untertitel) {
+                        Auswahlknopf("Ansicht", anzeige: ansicht.titel, auswahl: $ansicht) {
+                            ForEach(Kalenderansicht.allCases) { Text(verbatim: $0.titel).tag($0) }
+                        }
+                        if ansicht == .termine {
+                            Auswahlknopf("Währungen", anzeige: anzeige(dienst.nurMeineWaehrungen), auswahl: $dienst.nurMeineWaehrungen) {
+                                Text("Meine Währungen").tag(true)
+                                Text("Alle Währungen").tag(false)
+                            }
                         }
                     }
-                    if let fehler = dienst.fehler {
+                    if ansicht == .ergebnis {
+                        ErgebnisKalender()
+                    } else if let fehler = dienst.fehler {
                         Platzhalter(titel: "Termine nicht lesbar", symbol: "calendar.badge.exclamationmark",
                                     text: "Die Termindateien des Pakets TradingCalendar ließen sich nicht lesen: \(fehler)")
                     } else {
@@ -41,6 +50,13 @@ struct KalenderView: View {
 
     private func anzeige(_ nurMeine: Bool) -> String {
         nurMeine ? String(localized: "Meine Währungen") : String(localized: "Alle Währungen")
+    }
+
+    private var untertitel: String {
+        switch ansicht {
+        case .termine: String(localized: "Zinsentscheide Fed, EZB, BoE, BoJ, SNB · US-Arbeitsmarkt und -Inflation · Zeiten in deiner Zeit")
+        case .ergebnis: String(localized: "Netto je Tag nach Schlusstag · in \(modell.summenwaehrung)")
+        }
     }
 
     @ViewBuilder private func kacheln(jetzt: Date, filter: Set<String>?) -> some View {

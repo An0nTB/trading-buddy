@@ -72,6 +72,8 @@ final class AppModell {
     var musterFilter: Fehlermuster?
     /// Zeigt in Trades nur Trades, die über einen Termin ihrer Währung gehalten wurden (Sprung von der Kalender-Seite).
     var nurUeberTermin = false
+    /// Tag, den die Tagesseite beim nächsten Erscheinen zeigen soll (Sprung aus dem Ergebnis-Kalender).
+    var tagSprung: Journaltag?
 
     /// EZB-Referenzkurse für die Steuer-Seite (Doc 34). Leer beim Start, damit init keine Datei liest;
     /// `ladeEZBKurse()` liest den Zwischenspeicher und fragt die EZB nur, wenn der Kurs von heute fehlt.
@@ -258,6 +260,18 @@ final class AppModell {
     /// Trades nach Zeitraum und Instrument in der Anzeigewährung: Grundlage der Summen auf Übersicht, Kennzahlen und
     /// Fehlermuster (Doc 40 W3, B4). Trades ohne Kurs am Schlusstag fehlen hier, `waehrungsstand` zählt sie.
     var angeglicheneTrades: [Trade] { gefiltert(anzeige.trades) }
+
+    /// Alle Trades des Kontos in der Anzeigewährung, nur nach Instrument gefiltert: Grundlage des Ergebnis-Kalenders,
+    /// der selbst durch die Monate blättert. Trades ohne Kurs am Schlusstag fehlen wie in `angeglicheneTrades`.
+    var kalenderTrades: [Trade] {
+        guard let instrument else { return anzeige.trades }
+        return anzeige.trades.filter { $0.symbol == instrument }
+    }
+
+    /// IDs der Trades im Ergebnis-Kalender, bei denen ein Fehlermuster anschlägt (alle Monate, nicht nur der Zeitraum).
+    var kalenderTradesMitMuster: Set<String> {
+        Set(Fehlermuster.pruefe(kalenderTrades, geloeschteOrders: geloeschteOrders, zeitzone: zeitzone).flatMap(\.trades))
+    }
 
     /// Trades nach Zeitraum und Instrument in Kontowährung: Grundlage der Regel-Seite (Grenzen stehen in Kontowährung).
     var kontoTrades: [Trade] { gefiltert(angleich.trades) }
