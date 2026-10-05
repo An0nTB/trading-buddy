@@ -146,3 +146,21 @@ private func ohneStop(_ id: String, _ tag: String, netto: Decimal) -> Trade {
         + "geprüft erst ab 10 Tagen mit Trades."))
     #expect(!text.contains("Nicht geprüft: Überhandeln"))
 }
+
+@Test func geplantesRisikoBeiFremdwaehrungErstNachDemAngleich() throws {
+    // Geplantes Risiko 20 Euro an beiden Trades; der USD-Trade bringt 50 USD = 40 Euro bei 1,25 USD je Euro.
+    let eur = ohneStop("e1", "2025-05-05", netto: 10).mitGeplantemRisiko(20)
+    var usd = ohneStop("u1", "2025-05-05", netto: 50).mitGeplantemRisiko(20)
+    usd.waehrung = "USD"
+    var export = JournalExport(konten: [.init(broker: "Kraken", kontonummer: "4242", waehrung: "EUR", trades: [eur, usd])],
+                               zeitzone: berlin, erstellt: zeit("2026-10-01T20:00:00"))
+    let tag = try #require(Journaltag("2025-05-05"))
+    export.referenzkurse = [JournalExport.Tageskurse(tag: tag, kurse: ["USD": zahl("1.25")])]
+    // In Kontowährung wie die App: 40 ÷ 20 = 2 R und 10 ÷ 20 = 0,5 R.
+    let inEuro = Ausgabe.tiefenanalyse(try Anfrage.lies(["monat": "2025-05"], export: export))
+    #expect(inEuro.contains("| Trades mit R | 2 von 2, davon 2 angenommen |"))
+    #expect(inEuro.contains("| Erwartungswert | 1,25 R |"))
+    // Nur USD ohne Umrechnung: Euro-Risiko gegen Dollar-Ergebnis gäbe ein falsches R, also keins.
+    let inDollar = Ausgabe.tiefenanalyse(try Anfrage.lies(["monat": "2025-05", "waehrung": "USD"], export: export))
+    #expect(inDollar.contains("Kein Trade mit R: weder Stop noch geplantes Risiko."))
+}

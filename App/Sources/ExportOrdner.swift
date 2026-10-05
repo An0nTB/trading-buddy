@@ -57,7 +57,7 @@ enum ExportOrdner {
             let stellen = JournalExport.endziffern(konto.kontonummer, neben: andere)
             let quellen = try journal.risikoquellen(konto: konto)
             let trades = try Self.trades(journal, konto).map { t in
-                mitRisiko(t.mitJournal(eintraege[t.id]), quellen: quellen, kontowaehrung: konto.waehrung)
+                mitRisiko(t.mitJournal(eintraege[t.id]), quellen: quellen)
             }
             let nummer = String(konto.kontonummer.suffix(stellen))
             let analysen = ausstieg[ausstiegskonto(konto.broker, nummer)] ?? [:]
@@ -96,12 +96,12 @@ enum ExportOrdner {
     }
 
     /// Trade mit seinem geplanten Risiko (Doc 02 Nr. 64): Angabe am Trade, sonst Standard des Setups, sonst des
-    /// Kontos (`Risikoquellen.wirksam`). Der Betrag steht in Kontowährung, R aber rechnet mit dem Ergebnis in der
-    /// Währung des Trades; Trades in fremder Währung bekommen deshalb kein geplantes Risiko. Ein echter Stop gewinnt
-    /// im Kern (`Trade.risk`).
-    static func mitRisiko(_ trade: Trade, quellen: Risikoquellen, kontowaehrung: String) -> Trade {
-        guard trade.waehrung(kontowaehrung: kontowaehrung) == kontowaehrung.uppercased() else { return trade }
-        return trade.mitGeplantemRisiko(quellen.wirksam(ticket: trade.id)?.betrag)
+    /// Kontos (`Risikoquellen.wirksam`). Ein echter Stop gewinnt im Kern (`Trade.risk`). Der Betrag steht in
+    /// Kontowährung und geht an alle Trades: Der Connector rechnet damit bei Trades in fremder Währung erst nach dem
+    /// Angleich in die Kontowährung, wie die App (`AppModell.gleicheWaehrungenAn`), und lässt es in einer Abfrage
+    /// je Fremdwährung weg (`Anfrage.lies`).
+    static func mitRisiko(_ trade: Trade, quellen: Risikoquellen) -> Trade {
+        trade.mitGeplantemRisiko(quellen.wirksam(ticket: trade.id)?.betrag)
     }
 
     /// EZB-Referenzkurse aus dem Zwischenspeicher von TradingRates, nur für die Tage und Währungen der Trades in
@@ -271,7 +271,8 @@ enum ExportOrdner {
     static func bestExits(_ trades: [Trade],
                           speicher: Zeitkerzenspeicher = Zeitkerzenspeicher()) -> [String: BestExit] {
         var ergebnis: [String: BestExit] = [:]
-        let passend = trades.filter { !$0.nurDatum && $0.stopLoss != nil && $0.risk != nil }
+        // Nur mit R aus dem Stop: Best-Exit misst Ziele am Abstand zum Stop, nie am geplanten Risiko.
+        let passend = trades.filter { !$0.nurDatum && $0.stopRisiko != nil }
         for (symbol, gruppe) in Dictionary(grouping: passend, by: \.symbol) {
             var geladen: [String: [Zeitkerze]] = [:]
             for trade in gruppe.sorted(by: { $0.openTime < $1.openTime }) {
