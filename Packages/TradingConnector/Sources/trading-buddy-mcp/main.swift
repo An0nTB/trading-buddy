@@ -33,7 +33,7 @@ enum Katalog {
                  pflicht: ["dimension"]),
              annotations: nurLesen),
         Tool(name: "hole_trades",
-             description: "Einzelne Trades eines Zeitraums mit Journalangaben (Setup, Regeltreue, Zustand, Grund), Produktart und, wenn die App Kerzen hat, MAE und MFE, wahlweise nur bestimmte Tickets, ein Symbol oder die Trades eines Fehlermusters, sortiert nach bestem oder schlechtestem Ergebnis.",
+             description: "Einzelne Trades eines Zeitraums mit Journalangaben (Setup, Regeltreue, Zustand, Grund), Produktart, Einstieg, Ausstieg, Stop, Ziel, Playbook-Checkliste und, wenn die App Kerzen hat, MAE und MFE, für den Review nach Plan oder eigener Fehler; wahlweise nur bestimmte Tickets, ein Symbol oder die Trades eines Fehlermusters, sortiert nach bestem oder schlechtestem Ergebnis.",
              inputSchema: schema(zeitraum.merging([
                  "auswahl": text("Sortierung, Vorgabe chronologisch", werte: Tradeauswahl.allCases.map(\.rawValue)),
                  "muster": text("Nur Trades dieses Fehlermusters", werte: Fehlermuster.allCases.map(\.rawValue)),

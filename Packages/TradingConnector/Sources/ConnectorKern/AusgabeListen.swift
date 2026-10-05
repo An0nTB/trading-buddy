@@ -124,10 +124,56 @@ extension Ausgabe {
                                                 Format.kurz(j?.grund)]
                                     }))
         }
+        t.append(contentsOf: plantabelle(gezeigt, anfrage))
         t.append(contentsOf: anfrage.ausstiegstabelle(gezeigt))
+        if let luecken = quellenluecken(gezeigt, anfrage) { t.append(luecken) }
         if liste.count > n { t.append("\(liste.count - n) weitere Trades nicht gezeigt.") }
         if liste.isEmpty { t.append("Keine passenden Trades.") } else { t.append("\n" + Rezept.prozessText) }
         return t.joined(separator: "\n")
+    }
+
+    /// Preise, Stop und Ziel je Trade, dazu Setup-Karte und Checkliste aus dem Playbook, für den Review „nach Plan
+    /// oder eigener Fehler“. Der Stop stammt aus dem Journal, sonst vom Broker (`Trade.mitJournal`).
+    static func plantabelle(_ trades: [Trade], _ anfrage: Anfrage) -> [String] {
+        guard !trades.isEmpty else { return [] }
+        let zeilen = trades.map { t in
+            [t.id, Format.preis(t.openPrice), Format.preis(t.closePrice), Format.preis(t.stopLoss),
+             Format.preis(t.takeProfit), checkliste(t, anfrage)]
+        }
+        return ["\nPlan und Preise (Stop aus dem Journal, sonst vom Broker; Checkliste aus dem Playbook der App):",
+                Format.tabelle(["Ticket", "Einstieg", "Ausstieg", "Stop", "Ziel", "Checkliste"], zeilen)]
+    }
+
+    /// „3 von 4, fehlt: „…““ zur Karte des Setups; „keine Karte“, wenn das Playbook das Setup nicht kennt.
+    static func checkliste(_ t: Trade, _ anfrage: Anfrage) -> String {
+        guard let setup = anfrage.journal(t)?.setup, !setup.isEmpty else { return "kein Setup" }
+        guard let karte = anfrage.export.playbookkarte(setup) else {
+            return anfrage.export.playbook == nil ? "–" : "keine Karte „\(Format.kurz(setup, zeichen: 30))“"
+        }
+        guard !karte.kriterien.isEmpty else { return "Karte ohne Kriterien" }
+        guard let checklisten = anfrage.konto.checklisten else { return "–" }
+        let erfuellt = Set(checklisten[t.id] ?? [])
+        let fehlt = karte.kriterien.filter { !erfuellt.contains($0.id) }
+        var text = "\(karte.kriterien.count - fehlt.count) von \(karte.kriterien.count)"
+        if !fehlt.isEmpty {
+            text += ", fehlt: " + fehlt.prefix(3).map { "„\(Format.kurz($0.text, zeichen: 40))“" }.joined(separator: ", ")
+            if fehlt.count > 3 { text += " und \(fehlt.count - 3) weitere" }
+        }
+        return text
+    }
+
+    /// Welche Quellen für den Review fehlen, damit Claude sie nennt statt zu raten; `nil`, wenn nichts fehlt.
+    static func quellenluecken(_ trades: [Trade], _ anfrage: Anfrage) -> String? {
+        let ausstieg = anfrage.konto.ausstiegJeTrade
+        var teile: [String] = []
+        let ohneStop = trades.filter { $0.stopLoss == nil }.count
+        if ohneStop > 0 { teile.append("Stop bei \(ohneStop)") }
+        let ohneJournal = trades.filter { anfrage.journal($0) == nil }.count
+        if ohneJournal > 0 { teile.append("Journaleintrag bei \(ohneJournal)") }
+        let ohneKerzen = trades.filter { ausstieg[$0.id] == nil }.count
+        if ohneKerzen > 0 { teile.append("Kerzen für den Ausstieg bei \(ohneKerzen)") }
+        guard !teile.isEmpty else { return nil }
+        return "Fehlende Angaben (im Review offen nennen): \(teile.joined(separator: ", ")) von \(trades.count) Trades."
     }
 
     /// Spalte „Produkt“ nur, wenn der Export für einen der Trades eine Produktart nennt.

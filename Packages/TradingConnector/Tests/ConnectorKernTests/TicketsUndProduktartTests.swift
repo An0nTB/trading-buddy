@@ -144,14 +144,56 @@ private func export(_ trades: [Trade] = alle, zone: TimeZone = berlin) -> Journa
 @Test func prozessFeedbackErlaubtEmpfehlungenZuWertenNicht() throws {
     // Tim 05.10.2026: Trade-Analyse mit Review zum Fehlermuster und dem, was besser laufen kann; Wertanalyse bleibt
     // beschreibend (Doc 02 Nr. 44/50).
-    #expect(Rezept.text.contains("6. Besser machen:") && Rezept.text.contains("8. Genau ein messbares Ziel"))
-    #expect(Rezept.text.contains("- Prozess-Feedback ist erwünscht") && Rezept.text.contains("Kursziele, Kursprognosen"))
+    #expect(Rezept.text.contains("6. Review und besser machen:") && Rezept.text.contains("8. Genau ein messbares Ziel"))
+    #expect(Rezept.text.contains("- Review des eigenen Vorgehens ist erwünscht"))
+    #expect(Rezept.text.contains("Kursziele, Kursprognosen") && Rezept.text.contains("Marktrisiko, kein Fehler"))
     let trades = Ausgabe.trades(try Anfrage.lies(["monat": "2025-05"], export: export()), auswahl: .chronologisch,
                                 muster: nil, anzahl: 10)
     #expect(trades.contains("## Hinweis für die Antwort (Henry)") && trades.contains("Weiter ausgeschlossen: Kauf-"))
     let leer = Ausgabe.trades(try Anfrage.lies(["monat": "2025-05"], export: export()),
                               auswahl: .chronologisch, muster: nil, anzahl: 10, symbol: "XYZ")
     #expect(leer.contains("Keine passenden Trades.") && !leer.contains("## Hinweis für die Antwort"))
-    #expect(!Rezept.kursanalyseText.contains("Prozess-Feedback") && Rezept.kursanalyseText.contains("keine Empfehlungen"))
-    #expect(!Rezept.nachrichtenText.contains("Prozess-Feedback"))
+    #expect(!Rezept.kursanalyseText.contains("Review des eigenen") && Rezept.kursanalyseText.contains("keine Empfehlungen"))
+    #expect(!Rezept.nachrichtenText.contains("Review des eigenen"))
+}
+
+@Test func reviewBekommtPlanStopUndChecklisteJeTrade() throws {
+    // Review „nach Plan oder eigener Fehler“ (05.10.2026): Stop, Ziel und Playbook-Checkliste je Trade, fehlende
+    // Quellen werden genannt.
+    let mitPlan = Trade(id: "5001", symbol: "EURUSD", side: .buy, lots: 1, openTime: zeit("2025-05-05T09:00:00"),
+                        closeTime: zeit("2025-05-05T10:00:00"), openPrice: Decimal(string: "1.08345")!,
+                        closePrice: Decimal(string: "1.08245")!, stopLoss: Decimal(string: "1.08245")!,
+                        takeProfit: Decimal(string: "1.08545")!, profit: -10)
+    let ohneStop = trade("5002", "SAP", "2025-05-06T10:00:00", netto: -4)
+    let karte = JournalExport.Playbookkarte(name: "Ausbruch", kriterien: [Kriterium(id: "a", text: "Trend H1"),
+                                                                         Kriterium(id: "b", text: "Volumen"),
+                                                                         Kriterium(id: "c", text: "News geprüft")],
+                                            stopRegel: "unter Ausbruchskerze")
+    let konto = JournalExport.Kontodaten(broker: "Kraken", kontonummer: "4242", waehrung: "EUR",
+                                         trades: [mitPlan, ohneStop],
+                                         journal: ["5001": Journalangaben(setup: "ausbruch ")],
+                                         checklisten: ["5001": ["c", "b"]])
+    let datei = JournalExport(konten: [konto], zeitzone: berlin, erstellt: zeit("2026-10-01T20:00:00"), playbook: [karte])
+    let gelesen = try JournalExport.lese(try datei.json())
+    #expect(gelesen.playbook == [karte] && gelesen.konten[0].checklisten == ["5001": ["b", "c"]])
+    #expect(gelesen.playbookkarte("AUSBRUCH")?.stopRegel == "unter Ausbruchskerze")
+
+    let text = Ausgabe.trades(try Anfrage.lies(["monat": "2025-05"], export: gelesen), auswahl: .chronologisch,
+                              muster: nil, anzahl: 10)
+    #expect(text.contains("| Ticket | Einstieg | Ausstieg | Stop | Ziel | Checkliste |"))
+    #expect(text.contains("| 5001 | 1,08345 | 1,08245 | 1,08245 | 1,08545 | 2 von 3, fehlt: „Trend H1“ |"))
+    #expect(text.contains("| 5002 | 100 | 96 | – | – | kein Setup |"))
+    #expect(text.contains("Fehlende Angaben (im Review offen nennen): Stop bei 1, Journaleintrag bei 1, "
+                          + "Kerzen für den Ausstieg bei 2 von 2 Trades."))
+
+    // Ältere Datei ohne Playbook und Checklisten: kein Urteil über die Checkliste.
+    let alt = JournalExport(konten: [JournalExport.Kontodaten(broker: "Kraken", kontonummer: "4242", waehrung: "EUR",
+                                                              trades: [mitPlan],
+                                                              journal: ["5001": Journalangaben(setup: "Ausbruch")])],
+                            zeitzone: berlin, erstellt: zeit("2026-10-01T20:00:00"))
+    let altJSON = String(decoding: try alt.json(), as: UTF8.self)
+    #expect(!altJSON.contains("playbook") && !altJSON.contains("checklisten"))
+    let altText = Ausgabe.trades(try Anfrage.lies(["monat": "2025-05"], export: alt), auswahl: .chronologisch,
+                                 muster: nil, anzahl: 10)
+    #expect(altText.contains("| 5001 | 1,08345 | 1,08245 | 1,08245 | 1,08545 | – |"))
 }
