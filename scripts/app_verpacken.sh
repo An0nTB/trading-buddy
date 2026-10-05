@@ -10,11 +10,15 @@
 #                         dann muss die Testerin die App einmal in den Systemeinstellungen freigeben.
 #   HENRY_NOTAR_PROFIL    Profil aus `xcrun notarytool store-credentials`. Leer: keine Notarisierung.
 #   HENRY_NOTAR_KEYCHAIN  Schlüsselbund mit dem Profil, nur wenn nicht der Anmelde-Schlüsselbund (CI).
-#   HENRY_VERSION         Versionsnummer der App (MARKETING_VERSION), sonst die aus project.yml.
-#   HENRY_BUILDNUMMER     Build-Nummer (CURRENT_PROJECT_VERSION), sonst die aus project.yml.
+#   HENRY_VERSION         Versionsnummer der App (MARKETING_VERSION), etwa 0.2.0. Pflicht, sobald signiert
+#                         wird, und nie kleiner als das höchste Tag v*: Tester ersetzen ihre App nur
+#                         durch eine neuere, und der Update-Hinweis vergleicht nur diese Nummer.
+#                         Ohne Signierung (Probebau) gilt die aus project.yml.
+#   HENRY_BUILDNUMMER     Build-Nummer (CURRENT_PROJECT_VERSION). Leer: Zahl der Commits auf HEAD
+#                         (git rev-list --count), die mit jedem Commit auf main steigt.
 #
 # Aufruf: scripts/app_verpacken.sh
-# Beispiel signiert: HENRY_SIGNIERUNG="Developer ID Application" HENRY_NOTAR_PROFIL=henry-notar scripts/app_verpacken.sh
+# Beispiel signiert: HENRY_VERSION=0.2.0 HENRY_SIGNIERUNG="Developer ID Application" HENRY_NOTAR_PROFIL=henry-notar scripts/app_verpacken.sh
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -27,6 +31,30 @@ ENTITLEMENTS=App/TradingBuddy-macOS.entitlements
 if [ "$(uname)" != "Darwin" ]; then echo "Läuft nur auf dem Mac."; exit 1; fi
 command -v xcodegen >/dev/null || { echo "XcodeGen fehlt: brew install xcodegen"; exit 1; }
 if [ -n "$PROFIL" ] && [ -z "$IDENT" ]; then echo "Notarisierung braucht eine Developer-ID-Signierung (HENRY_SIGNIERUNG)."; exit 1; fi
+
+# Version und Build-Nummer müssen bei jeder Fassung für Tester steigen (Doc 51, Abschnitt 6).
+VORGABE="${HENRY_VERSION:-}"
+if [ -n "$IDENT" ] && [ -z "$VORGABE" ]; then echo "Signierter Bau ohne HENRY_VERSION. Bitte eine neue Versionsnummer setzen, etwa HENRY_VERSION=0.2.0."; exit 1; fi
+if [ -n "$VORGABE" ]; then
+    [[ "$VORGABE" =~ ^[0-9]+(\.[0-9]+){1,2}$ ]] || { echo "HENRY_VERSION ${VORGABE} ist keine Nummer wie 0.2.0."; exit 1; }
+    # Als Zahl mit drei Stellen je Teil vergleichen (0.10.0 > 0.9.0); sort -V gibt es nicht überall.
+    zahl() { local a b c; IFS=. read -r a b c <<< "$1"; echo $(( 10#$a * 1000000 + 10#${b:-0} * 1000 + 10#${c:-0} )); }
+    HOECHSTE=""
+    while read -r tag; do
+        [[ "$tag" =~ ^[0-9]+(\.[0-9]+){1,2}$ ]] || continue
+        if [ -z "$HOECHSTE" ] || [ "$(zahl "$tag")" -gt "$(zahl "$HOECHSTE")" ]; then HOECHSTE="$tag"; fi
+    done < <(git tag -l 'v*' | sed 's/^v//')
+    if [ -n "$HOECHSTE" ] && [ "$(zahl "$VORGABE")" -lt "$(zahl "$HOECHSTE")" ]; then
+        echo "HENRY_VERSION ${VORGABE} ist kleiner als das höchste Tag v${HOECHSTE}. Tester können keine ältere Version über eine neuere installieren."
+        exit 1
+    fi
+fi
+BUILDNUMMER="${HENRY_BUILDNUMMER:-}"
+if [ -z "$BUILDNUMMER" ]; then
+    if [ "$(git rev-parse --is-shallow-repository)" = "true" ]; then echo "Flacher Klon: Die Build-Nummer aus der Commit-Zahl wäre falsch. Bitte mit voller Historie auschecken oder HENRY_BUILDNUMMER setzen."; exit 1; fi
+    BUILDNUMMER=$(git rev-list --count HEAD)
+fi
+[[ "$BUILDNUMMER" =~ ^[0-9]+$ ]] || { echo "Build-Nummer ${BUILDNUMMER} ist keine ganze Zahl."; exit 1; }
 
 if [ -n "$IDENT" ]; then
     echo "Signierung: Developer ID ($IDENT)"
@@ -61,8 +89,8 @@ mkdir -p "$ZIEL"
 # 1. App bauen, ohne Signierung durch Xcode; signiert wird unten einheitlich.
 xcodegen generate
 BAU=(-project TradingBuddy.xcodeproj -scheme TradingBuddy -configuration Release -destination 'generic/platform=macOS' -derivedDataPath "$ABLEITUNG" CODE_SIGNING_ALLOWED=NO)
-[ -n "${HENRY_VERSION:-}" ] && BAU+=("MARKETING_VERSION=$HENRY_VERSION")
-[ -n "${HENRY_BUILDNUMMER:-}" ] && BAU+=("CURRENT_PROJECT_VERSION=$HENRY_BUILDNUMMER")
+[ -n "$VORGABE" ] && BAU+=("MARKETING_VERSION=$VORGABE")
+BAU+=("CURRENT_PROJECT_VERSION=$BUILDNUMMER")
 xcodebuild "${BAU[@]}" build
 
 GEBAUT="$(find "$ABLEITUNG/Build/Products/Release" -maxdepth 1 -name '*.app' | head -1)"
