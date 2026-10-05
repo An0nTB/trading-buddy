@@ -30,8 +30,11 @@ struct FragBradBlatt: View {
 
     private var vorlagen: [FragBradVorlage] {
         FragBradVorlage.verfuegbar(mitTrade: anfrage.trade != nil, mitTag: anfrage.tag != nil,
-                                   mitSymbol: symbol != nil || !waehlbareSymbole.isEmpty)
+                                   mitSymbol: !istBeispiel && (symbol != nil || !waehlbareSymbole.isEmpty))
     }
+
+    /// Beim Beispielkonto keine Kursanalyse: Erfundene Trades gehören nicht neben echte Kurse (Doc 57, Doc 59 B2).
+    private var istBeispiel: Bool { modell.konto.map(Beispieldaten.istBeispiel) ?? false }
 
     private var ton: FragBradTon { tonWahl == .sachlich ? .sachlich : .henry }
 
@@ -68,8 +71,15 @@ struct FragBradBlatt: View {
                 }
             }
             #endif
-            Picker("Frage", selection: $vorlage) {
-                ForEach(vorlagen) { Text(verbatim: $0.titel.uebersetzt).tag($0) }
+            Group { // Group hält den ViewBuilder unter zehn Kindern
+                Picker("Frage", selection: $vorlage) {
+                    ForEach(vorlagen) { Text(verbatim: $0.titel.uebersetzt).tag($0) }
+                }
+                if istBeispiel {
+                    Text("Beispielkonto: keine Kursanalyse, weil die Beispiel-Trades erfundene Preise haben und nicht neben echte Kurse gehören.")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                }
             }
             if vorlage == .frei {
                 TextField("Deine Frage an Henry", text: $freieFrage, axis: .vertical)
@@ -103,6 +113,10 @@ struct FragBradBlatt: View {
 
     /// Analyse ohne Wert aus Anfrage oder Filter: ersten eigenen Wert vorwählen; ohne jeden Wert eine andere Vorlage.
     private func waehleStartwert() {
+        if !vorlagen.contains(vorlage), let erste = vorlagen.first {
+            vorlage = erste
+            return
+        }
         guard vorlage == .analyse, vorgegebenesSymbol == nil, gewaehltesSymbol == nil else { return }
         gewaehltesSymbol = waehlbareSymbole.first
         if gewaehltesSymbol == nil, let erste = vorlagen.first { vorlage = erste }
@@ -175,7 +189,8 @@ enum FragBradKontextAusModell {
         kontext.tag = tag
         if let trade {
             kontext.trade = FragBradTrade(symbol: trade.symbol, eroeffnet: trade.openTime,
-                                          geschlossen: trade.closeTime, nurDatum: trade.nurDatum)
+                                          geschlossen: trade.closeTime, nurDatum: trade.nurDatum,
+                                          ticket: trade.id) // eindeutig für hole_trades (Doc 59, B5)
         }
         return kontext
     }

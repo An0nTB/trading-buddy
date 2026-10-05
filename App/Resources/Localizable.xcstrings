@@ -414,6 +414,16 @@
         }
       }
     },
+    "Beispielkonto: keine Kursanalyse, weil die Beispiel-Trades erfundene Preise haben und nicht neben echte Kurse gehören." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sample account: no price analysis, because the sample trades have made-up prices and don't belong next to real prices."
+          }
+        }
+      }
+    },
     "Bestand am Ende der Daten" : {
       "localizations" : {
         "en" : {

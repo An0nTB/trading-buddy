@@ -199,3 +199,38 @@ let september = FragBradKontext(konto: "XTB …1234", von: zeit("2026-09-01 00:0
     #expect(text.utf16.count < 2_500)
     #expect(text.hasSuffix(FragBrad.tonHenry))
 }
+
+// MARK: Doc 59 (05.10.2026): B5 Ticket, B7 Kalenderwoche, B10 Rahmen
+
+@Test func tradeFrageNenntTicketFuerHoleTrades() throws {
+    var kontext = september
+    kontext.trade = FragBradTrade(symbol: "EURUSD", eroeffnet: zeit("2026-09-12 14:32"),
+                                  geschlossen: zeit("2026-09-12 15:05"), nurDatum: false, ticket: "48151623")
+    let text = try #require(FragBrad.text(.trade, kontext: kontext, ton: .sachlich, zeitzone: berlin))
+    #expect(text.hasPrefix("Ordne meinen Trade EURUSD (Ticket 48151623) ein, eröffnet 12.09.2026 um 14:32"))
+    #expect(text.contains("Zeitraum: 2026-09-12 bis 2026-09-12. Ticket: 48151623; hole_trades mit ticket=48151623."))
+    // Ohne Ticket wie bisher.
+    kontext.trade?.ticket = nil
+    let ohne = try #require(FragBrad.text(.trade, kontext: kontext, ton: .sachlich, zeitzone: berlin))
+    #expect(!ohne.contains("Ticket"))
+}
+
+@Test func wocheNenntDieKalenderwocheFuerHoleAuswertung() throws {
+    let text = try #require(FragBrad.text(.woche, kontext: september, ton: .sachlich, zeitzone: berlin,
+                                          heute: zeit("2026-10-05 12:00")))
+    #expect(text.hasPrefix("Werte die letzte abgeschlossene Kalenderwoche (KW 40/2026)"))
+    #expect(text.contains("hole_auswertung mit kw=2026-W40"))
+    #expect(!text.contains("Zeitraum:"))
+}
+
+@Test func kalenderwocheUeberDenJahreswechsel() {
+    // 05.01.2027: Vorwoche ist KW 53 des Jahres 2026 (ISO 8601, Woche gehört zum Jahr ihres Donnerstags).
+    let kw = FragBrad.letzteKalenderwoche(heute: zeit("2027-01-05 09:00"), zeitzone: berlin)
+    #expect(kw.jahr == 2026)
+    #expect(kw.woche == 53)
+}
+
+@Test func rahmenNenntDieDatenDerHenryWerkzeuge() {
+    #expect(FragBrad.rahmen.contains("nur aus den Daten der Henry-Werkzeuge"))
+    #expect(!FragBrad.rahmen.contains("Journaldaten"))
+}

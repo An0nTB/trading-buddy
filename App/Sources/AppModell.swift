@@ -232,7 +232,13 @@ final class AppModell {
         verlaufVersuch = jetzt
         let merkliste = nachrichten.aktiveEintraege.filter { $0.art == .symbol }.map(\.begriff)
         let symbole = alleTrades.map(\.symbol) + offenePositionen.map(\.symbol) + merkliste
-        Task { await kurse.ladeVerlaeufe(fuer: symbole) }
+        Task {
+            let vorher = kurse.verlaeufe
+            await kurse.ladeVerlaeufe(fuer: symbole)
+            // Neue Tageskerzen sofort in die Exportdatei, sonst sieht der Connector sie erst beim nächsten Anlass
+            // (Doc 59, B6).
+            if kurse.verlaeufe != vorher { exportiere() }
+        }
     }
 
     var konto: Konto? { konten.first { $0.id == kontoId } ?? konten.first }
