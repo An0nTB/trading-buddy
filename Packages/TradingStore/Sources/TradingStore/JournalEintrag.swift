@@ -19,11 +19,14 @@ public struct Journaleintrag: Codable, Sendable, Equatable, FetchableRecord, Per
     /// Nachgetragener Stop beim Einstieg, wenn der Export keinen oder einen später
     /// verschobenen Stop zeigt. Ersetzt für die Kennzahlen den Stop aus dem Export.
     public var stopEinstieg: Decimal?
+    /// Geplantes Risiko dieses Trades als Betrag in Kontowährung (v10). Geht vor dem Standard des Setups
+    /// und des Kontos (`Risikoquellen`).
+    public var risikoEinstieg: Decimal?
     public var geaendertAm: Date
 
     public init(kontoId: Int64, ticket: String, setup: String? = nil, regeltreue: Bool? = nil,
                 zustand: Int? = nil, marktumfeld: String? = nil, grund: String? = nil,
-                stopEinstieg: Decimal? = nil, geaendertAm: Date = Date()) {
+                stopEinstieg: Decimal? = nil, risikoEinstieg: Decimal? = nil, geaendertAm: Date = Date()) {
         self.kontoId = kontoId
         self.ticket = ticket
         self.setup = setup
@@ -32,6 +35,7 @@ public struct Journaleintrag: Codable, Sendable, Equatable, FetchableRecord, Per
         self.marktumfeld = marktumfeld
         self.grund = grund
         self.stopEinstieg = stopEinstieg
+        self.risikoEinstieg = risikoEinstieg
         self.geaendertAm = geaendertAm
     }
 }
@@ -50,6 +54,9 @@ extension Journal {
     public func speichereJournal(_ eintrag: Journaleintrag) throws {
         if let zustand = eintrag.zustand, !(1...5).contains(zustand) {
             throw SpeicherFehler.ungueltigerWert("Zustand \(zustand), erlaubt 1 bis 5")
+        }
+        if let risiko = eintrag.risikoEinstieg, risiko <= 0 {
+            throw SpeicherFehler.ungueltigerWert("Risiko \(risiko) muss größer als 0 sein")
         }
         try schreibe { db in
             guard try Konto.exists(db, key: eintrag.kontoId) else {
