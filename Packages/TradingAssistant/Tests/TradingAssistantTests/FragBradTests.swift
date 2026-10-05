@@ -17,7 +17,8 @@ let september = FragBradKontext(konto: "XTB …1234", von: zeit("2026-09-01 00:0
 @Test func monatMitZeitraumUndKonto() throws {
     let text = try #require(FragBrad.text(.monat, kontext: september, ton: .sachlich, zeitzone: berlin))
     #expect(text == """
-        Werte den genannten Zeitraum nach deinem Rezept für die Monatsauswertung aus.
+        Werte den genannten Zeitraum nach deinem Rezept für die Monatsauswertung aus. Gib dazu deine Einschätzung \
+        und konkrete Empfehlungen, was ich besser machen sollte.
 
         Konto: XTB …1234. Zeitraum: 2026-09-01 bis 2026-09-30.
 
@@ -52,7 +53,7 @@ let september = FragBradKontext(konto: "XTB …1234", von: zeit("2026-09-01 00:0
     for vorlage in FragBradVorlage.allCases {
         for ton in FragBradTon.allCases {
             let text = FragBrad.text(vorlage, kontext: kontext, freieFrage: "Was lief gut?", ton: ton, zeitzone: berlin)
-            #expect(text?.contains("ohne Kauf- oder Verkaufsempfehlungen und ohne Kursziele") == true, "\(vorlage)")
+            #expect(text?.contains("keine Anlageberatung und können falsch sein") == true, "\(vorlage)")
             #expect(text?.contains("Connectors Trading Buddy") == true, "\(vorlage)")
         }
     }
@@ -152,7 +153,8 @@ let september = FragBradKontext(konto: "XTB …1234", von: zeit("2026-09-01 00:0
     #expect(text == """
         Beschreibe den Wert BTCUSD über die letzten 12 Monate: Kursverlauf, Schwankung, Abstand zu Hoch und Tief, \
         größter Rückgang, Nachrichten der letzten 7 Tage und meine eigenen Trades in diesem Wert. Nutze dafür \
-        hole_kursanalyse und hole_nachrichten. Nur beschreiben, keine Prognose.
+        hole_kursanalyse und hole_nachrichten. Gib danach deine Einschätzung des Werts mit möglichen Szenarien und \
+        deiner Empfehlung.
 
         Konto: XTB …1234.
 
@@ -168,7 +170,8 @@ let september = FragBradKontext(konto: "XTB …1234", von: zeit("2026-09-01 00:0
     let text = try #require(FragBrad.text(.analyse, kontext: kontext, ton: .henry, zeitzone: berlin))
     #expect(text.hasPrefix("Beschreibe den Wert SAP über die letzten 12 Monate: Nachrichten der letzten 7 Tage"))
     #expect(!text.contains("Schwankung") && !text.contains("Hoch und Tief"))
-    #expect(text.contains("Nur beschreiben, keine Prognose."))
+    #expect(text.contains("mit möglichen Szenarien"))
+    #expect(!text.contains("keine Prognose"))
     #expect(text.hasSuffix(FragBrad.tonHenry))
 }
 
@@ -233,11 +236,11 @@ let september = FragBradKontext(konto: "XTB …1234", von: zeit("2026-09-01 00:0
 }
 
 @Test func rahmenNenntDieDatenDerHenryWerkzeuge() {
-    #expect(FragBrad.rahmen.contains("nur aus den Daten der Henry-Werkzeuge"))
+    #expect(FragBrad.rahmen.contains("auf die Daten der Henry-Werkzeuge"))
     #expect(!FragBrad.rahmen.contains("Journaldaten"))
 }
 
-@Test func tradeUndTagFragenEnthaltenReviewMitGrenze() throws {
+@Test func tradeUndTagFragenEnthaltenReviewUndEmpfehlung() throws {
     var kontext = september
     kontext.trade = FragBradTrade(symbol: "EURUSD", eroeffnet: zeit("2026-09-11 22:40"),
                                   geschlossen: zeit("2026-09-12 09:05"), nurDatum: false)
@@ -255,9 +258,16 @@ let september = FragBradKontext(konto: "XTB …1234", von: zeit("2026-09-01 00:0
         #expect(text.contains("Eine konkrete Regel je Fehlermuster"))
         #expect(text.contains("ohne Stop keine R-Bewertung, ohne Kursverlauf keine Ursache, ohne Journaleintrag "
                               + "keine Bewertung der Absicht"))
-        #expect(text.contains("keine Kauf- oder Verkaufsempfehlung, kein Kursziel, keine Marktprognose"))
+        #expect(text.contains("Gib dazu deine Einschätzung und konkrete Empfehlungen"))
+        #expect(!text.contains("keine Marktprognose"))
     }
     // Andere Vorlagen bleiben ohne Review
     let monat = try #require(FragBrad.text(.monat, kontext: kontext, ton: .sachlich, zeitzone: berlin))
     #expect(!monat.contains("Review"))
+}
+
+@Test func rahmenErlaubtEinschaetzungenMitHinweis() {
+    #expect(FragBrad.rahmen.contains("Kauf- oder Verkaufsempfehlungen, Kursziele und Szenarien sind erlaubt"))
+    #expect(FragBrad.rahmen.contains("Einschätzungen von Claude sind keine Anlageberatung und können falsch sein."))
+    #expect(FragBrad.empfehlungsbitte(.frei) == nil && FragBrad.empfehlungsbitte(.groesstesLeck) == nil)
 }
