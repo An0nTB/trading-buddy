@@ -28,5 +28,6 @@ Filter für die Kalender-Seite: `termine(von:bis:waehrungen:arten:regionen:minde
 
 Jährlich nachziehen: Fed, EZB, BoE, BoJ und SNB veröffentlichen das Folgejahr meist im Vorjahr,
 die BLS ihren Jahresplan zum Jahreswechsel; BEA, Census, ISM, EIA, Eurostat, Destatis, ONS und NBS ebenfalls
-gegen Jahresende. Termine nur von den Herausgebern, nie aus Kalendern wie Forex Factory oder Investing
+gegen Jahresende. Statistics Canada, ABS und das Statistics Bureau of Japan veröffentlichen nur einige Monate im
+Voraus und müssen laufend nachgezogen werden. Termine nur von den Herausgebern, nie aus Kalendern wie Forex Factory oder Investing
 (Nutzungsbedingungen). Details und Quellen in den Stand-Docs 25 und 63.

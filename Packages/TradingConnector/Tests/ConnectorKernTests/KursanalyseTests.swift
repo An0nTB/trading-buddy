@@ -60,7 +60,7 @@ private func export(mitKursen: Bool = true) -> JournalExport {
     #expect(text.contains("| Kraken …4242 | USD | 2 | 20,00 | 50,0 % | – |"))
     #expect(!text.contains("| Kraken …4242 | USD | 3 |"))
     #expect(text.contains("hole_nachrichten mit begriff=BTCUSD und tage=7"))
-    #expect(text.contains("## Rezept für die Kursanalyse (Henry)") && text.contains("keine Kauf- oder Verkaufssignale"))
+    #expect(text.contains("## Rezept für die Kursanalyse (Henry)") && text.contains(Rezept.hinweis))
     #expect(Ausgabe.kursanalyse(export(), symbol: "BTCUSD", monate: 0).contains("Kursanalyse BTCUSD (1 Monat)"))
     #expect(Ausgabe.datenstand(export()).contains("Kursverläufe (Tageskerzen) für 1 Werte: BTCUSD (hole_kursanalyse)."))
 }
