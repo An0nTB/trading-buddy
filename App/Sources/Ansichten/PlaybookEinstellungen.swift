@@ -18,6 +18,9 @@ struct PlaybookEinstellungen: View {
     @State private var meldung: String?
     @State private var meldungIstFehler = false
     @State private var loeschenBestaetigen = false
+    /// Standard-Risiko der Karte (Doc 02 Nr. 64); eigener Wert in der Datenbank, gespeichert mit der Karte.
+    @State private var risiko: Decimal?
+    @State private var risikoBasis: Decimal?
 
     var body: some View {
         Group {
@@ -47,6 +50,7 @@ struct PlaybookEinstellungen: View {
                 textfeld("Marktumfeld", optional(\.marktumfeld), prompt: "z. B. nur im Trend, nicht vor Zahlen")
                 textfeld("Notiz", optional(\.notiz), prompt: "Beispiele, Beobachtungen")
             }
+            risikoAbschnitt
             knopfzeile
         }
         .onAppear(perform: laden)
@@ -75,6 +79,25 @@ struct PlaybookEinstellungen: View {
             }
             Button("Kriterium hinzufügen") { entwurf.kriterien.append(Kriterium(text: "")) }
             hinweis("Jedes Kriterium wird im Inspektor ein Häkchen je Trade. Umformulieren ist unschädlich; Entfernen und neu Anlegen verliert die alten Häkchen dieses Kriteriums.")
+        }
+    }
+
+    private var risikoAbschnitt: some View {
+        Section("Geplantes Risiko") {
+            LabeledContent("Standard-Risiko je Trade") {
+                HStack {
+                    TextField("Standard-Risiko je Trade", value: $risiko, format: .number.precision(.fractionLength(0...2)),
+                              prompt: Text("kein Standard"))
+                        .textFieldStyle(.roundedBorder)
+                        .multilineTextAlignment(.trailing)
+                        .frame(maxWidth: 160)
+                        .labelsHidden()
+                    if let waehrung = modell.konto?.waehrung {
+                        Text(verbatim: waehrung).foregroundStyle(thema.textSchwach)
+                    }
+                }
+            }
+            hinweis("Gilt für Trades dieses Setups ohne Stop und ohne eigenes Risiko, in der Währung des jeweiligen Kontos; R ist dann als angenommen gekennzeichnet. Geht dem Standard des Kontos vor. Leer heißt kein Standard.")
         }
     }
 
@@ -108,7 +131,7 @@ struct PlaybookEinstellungen: View {
         }
     }
 
-    private var geaendert: Bool { entwurf != basis }
+    private var geaendert: Bool { entwurf != basis || risiko != risikoBasis }
 
     private var statusHinweis: String {
         let erklaerung = String(localized: "Test: in der Probephase, noch nicht fest im Plan. Aktiv: im Einsatz. Pausiert: ausgesetzt, Karte bleibt.")
@@ -157,6 +180,8 @@ struct PlaybookEinstellungen: View {
         let karte = modell.playbook.first { $0.id == auswahl } ?? Setup(name: "")
         entwurf = karte
         basis = karte
+        risiko = auswahl == nil ? nil : modell.risikoquellen.setups[karte.name]
+        risikoBasis = risiko
         meldung = nil
     }
 
@@ -177,6 +202,11 @@ struct PlaybookEinstellungen: View {
             let gespeichert = try modell.speichereSetup(karte)
             entwurf = gespeichert
             basis = gespeichert
+            if let id = gespeichert.id, risiko != risikoBasis {
+                try modell.setzeStandardRisiko(risiko.flatMap { $0 > 0 ? $0 : nil }, setupId: id)
+                risiko = modell.risikoquellen.setups[gespeichert.name]
+                risikoBasis = risiko
+            }
             if auswahl != gespeichert.id {
                 auswahl = gespeichert.id
             }

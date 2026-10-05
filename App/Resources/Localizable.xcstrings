@@ -309,6 +309,36 @@
         }
       }
     },
+    "angenommen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "assumed"
+          }
+        }
+      }
+    },
+    "angenommen, Standard des Kontos" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "assumed, account default"
+          }
+        }
+      }
+    },
+    "angenommen, Standard des Setups" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "assumed, setup default"
+          }
+        }
+      }
+    },
     "Anonymisierte Probe sichern" : {
       "localizations" : {
         "en" : {
@@ -366,6 +396,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "B3 usually shifts its trading hours with US daylight saving time; exchange_calendars uses 10:00 to 18:00 all year (not checked)."
+          }
+        }
+      }
+    },
+    "Basispreis" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strike"
+          }
+        }
+      }
+    },
+    "Basiswert" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Underlying"
           }
         }
       }
@@ -1083,12 +1133,52 @@
         }
       }
     },
+    "Geplanter Verlust bis zum Stop. Ohne Stop rechnet R damit, als angenommen gekennzeichnet; leer gilt der Standard des Setups oder Kontos (Einstellungen)." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Planned loss down to the stop. Without a stop, R uses this and is marked as assumed; if empty, the setup or account default applies (Settings)."
+          }
+        }
+      }
+    },
+    "Geplantes Risiko" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Planned risk"
+          }
+        }
+      }
+    },
     "Gewinn- zu Verlusttagen" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Winning to losing days"
+          }
+        }
+      }
+    },
+    "Gilt für Trades dieses Setups ohne Stop und ohne eigenes Risiko, in der Währung des jeweiligen Kontos; R ist dann als angenommen gekennzeichnet. Geht dem Standard des Kontos vor. Leer heißt kein Standard." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Applies to trades of this setup without a stop and without their own risk, in the currency of the respective account; R is then marked as assumed. Takes precedence over the account default. Empty means no default."
+          }
+        }
+      }
+    },
+    "Gilt für Trades ohne Stop und ohne eigenes Risiko; R ist dann als angenommen gekennzeichnet. Ein Standard der Setup-Karte geht vor, ein echter Stop immer." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Applies to trades without a stop and without their own risk; R is then marked as assumed. A setup card default takes precedence, and a real stop always does."
           }
         }
       }
@@ -1165,6 +1255,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Independence Movement Day (observed)"
+          }
+        }
+      }
+    },
+    "kein Standard" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no default"
+          }
+        }
+      }
+    },
+    "KO-Schwelle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Knock-out level"
           }
         }
       }
@@ -1370,6 +1480,16 @@
         }
       }
     },
+    "Noch keine Tags." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No tags yet."
+          }
+        }
+      }
+    },
     "Ohne Kurse: nur Nachrichten und eigene Trades" : {
       "localizations" : {
         "en" : {
@@ -1409,6 +1529,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Qingming Festival (observed)"
+          }
+        }
+      }
+    },
+    "Richtung Basiswert" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Direction of underlying"
+          }
+        }
+      }
+    },
+    "Risiko (%@)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Risk (%@)"
           }
         }
       }
@@ -1508,6 +1648,26 @@
         }
       }
     },
+    "Standard %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Default %@"
+          }
+        }
+      }
+    },
+    "Standard-Risiko je Trade" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Default risk per trade"
+          }
+        }
+      }
+    },
     "Tag der Republik" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1515,6 +1675,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Republic Day"
+          }
+        }
+      }
+    },
+    "Tag entfernen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove tag"
+          }
+        }
+      }
+    },
+    "Tag hinzufügen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add tag"
           }
         }
       }
@@ -1540,12 +1720,42 @@
         }
       }
     },
+    "Tage mit mehr als %lld Trades (eigene Regel)." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Days with more than %lld trades (your own rule)."
+          }
+        }
+      }
+    },
+    "Tage mit mehr als Median plus 2 Trades, ab zehn Handelstagen; darunter nur mit eigener Grenze." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Days with more than median plus 2 trades, from ten trading days on; below that only with your own limit."
+          }
+        }
+      }
+    },
     "Tage mit Trades: %lld" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Days with trades: %lld"
+          }
+        }
+      }
+    },
+    "Tags" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tags"
           }
         }
       }
