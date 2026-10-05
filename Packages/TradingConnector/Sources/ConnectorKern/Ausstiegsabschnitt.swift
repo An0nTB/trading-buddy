@@ -29,6 +29,7 @@ extension Anfrage {
         t.append("MAE: größter Abstand gegen den Trade, MFE: größter Abstand für den Trade, beide als Abstand in R "
             + "(nur Trades mit Stop). Median statt Mittelwert. Rückblick auf vergangene Kurse, keine Aussage über "
             + "künftige; die Summe ist kein erreichbarer Betrag, weil der beste Kurs erst hinterher feststeht.")
+        if let quellen = kerzenquellen(trades) { t.append(quellen) }
         if a.anzahlUnscharf > 0 {
             t.append("\(a.anzahlUnscharf) Trades mit Kerzen über Ein- oder Ausstieg hinaus (Stunden- oder Tageskerzen): "
                 + "MAE und MFE dort eher zu groß.")
@@ -54,7 +55,25 @@ extension Anfrage {
         guard !zeilen.isEmpty else { return [] }
         return ["\nAusstieg (aus Kerzen in der App; Rückblick, keine Aussage über künftige Kurse):",
                 Format.tabelle(["Ticket", "MAE", "MFE", "MFE erzielt", "Bis MFE offen", "Danach für", "Danach gegen",
-                                "Kerzen"], zeilen)]
+                                "Kerzen"], zeilen)] + (kerzenquellen(trades).map { [$0] } ?? [])
+    }
+
+    /// Herkunft der Kerzen hinter den Ausstiegsanalysen von `trades` mit Anzahl, dazu die Hinweise der App, etwa
+    /// Geldkurs (Bid) bei MetaTrader oder USDT statt USD bei Binance (Doc 59 B9); `nil` ohne Angaben (ältere App).
+    func kerzenquellen(_ trades: [Trade]) -> String? {
+        let jeTrade = konto.ausstiegJeTrade
+        let analysen = trades.compactMap { jeTrade[$0.id] }
+        var anzahl: [String: Int] = [:]
+        for a in analysen { if let q = a.quelle { anzahl[q, default: 0] += 1 } }
+        guard !anzahl.isEmpty else { return nil }
+        let teile = anzahl.keys.sorted().map { "\(Format.kurz($0, zeichen: 30)) \(anzahl[$0]!)" }
+        var text = "Kerzen der App: \(teile.joined(separator: ", ")) Trades."
+        var gesehen: Set<String> = []
+        for a in analysen {
+            guard let h = a.hinweis.map({ Format.kurz($0, zeichen: 200) }), gesehen.insert(h).inserted else { continue }
+            text += " " + (h.hasSuffix(".") ? h : h + ".")
+        }
+        return text
     }
 
     /// Zeile für „Datenlage“, wenn die App für dieses Konto Ausstiegsanalysen mitschreibt; sonst `nil`.

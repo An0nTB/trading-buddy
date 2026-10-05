@@ -62,10 +62,14 @@ public struct JournalExport: Sendable, Equatable, Codable {
         /// Ausstiegsanalysen der Trades mit Kerzen in der App, nach Trade-ID sortiert (Doc 39, B4).
         /// Fehlt ohne gespeicherte Kerzen und in Dateien älterer Apps.
         public var ausstieg: [Ausstieg]?
+        /// Das Beispielkonto der App mit erfundenen Trades (Doc 59 B2); fehlt sonst. Der Connector stellt seine
+        /// Trades nicht neben echte Kurse. Optional, Format bleibt 2.
+        public var beispiel: Bool?
 
         public init(broker: String, kontonummer: String, waehrung: String, trades: [Trade],
                     geloeschteOrders: [Date] = [], journal: [String: Journalangaben] = [:],
-                    ziele: [Reviewziel] = [], regeln: Handelsregeln? = nil, ausstieg: [Ausstieg] = []) {
+                    ziele: [Reviewziel] = [], regeln: Handelsregeln? = nil, ausstieg: [Ausstieg] = [],
+                    beispiel: Bool = false) {
             self.broker = broker
             self.kontonummer = kontonummer
             self.waehrung = waehrung
@@ -77,7 +81,11 @@ public struct JournalExport: Sendable, Equatable, Codable {
             let ids = Set(trades.map(\.id))
             let analysen = ausstieg.filter { ids.contains($0.tradeID) }.sorted { $0.tradeID < $1.tradeID }
             self.ausstieg = analysen.isEmpty ? nil : analysen
+            self.beispiel = beispiel ? true : nil
         }
+
+        /// Ob dies das Beispielkonto der App ist.
+        public var istBeispiel: Bool { beispiel == true }
 
         /// Ausstiegsanalysen nach Trade-ID.
         public var ausstiegJeTrade: [String: Ausstieg] {
@@ -85,7 +93,7 @@ public struct JournalExport: Sendable, Equatable, Codable {
         }
 
         private enum CodingKeys: String, CodingKey {
-            case broker, kontonummer, waehrung, trades, geloeschteOrders, journal, ziele, regeln, ausstieg
+            case broker, kontonummer, waehrung, trades, geloeschteOrders, journal, ziele, regeln, ausstieg, beispiel
         }
 
         public init(from decoder: any Decoder) throws {
@@ -100,7 +108,8 @@ public struct JournalExport: Sendable, Equatable, Codable {
                       // Ändert sich der Aufbau der Regeln später, fehlen nur sie, nicht das ganze Konto.
                       regeln: try? c.decodeIfPresent(Handelsregeln.self, forKey: .regeln),
                       // Ebenso die Ausstiegsanalysen.
-                      ausstieg: (try? c.decodeIfPresent([Ausstieg].self, forKey: .ausstieg)) ?? [])
+                      ausstieg: (try? c.decodeIfPresent([Ausstieg].self, forKey: .ausstieg)) ?? [],
+                      beispiel: (try? c.decodeIfPresent(Bool.self, forKey: .beispiel)) == true)
         }
 
         public init(broker: String, kontonummer: String, waehrung: String,

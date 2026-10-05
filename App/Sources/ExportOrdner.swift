@@ -40,8 +40,12 @@ enum ExportOrdner {
     /// von der Kontonummer nur die letzten vier Stellen, damit Claude die Konten unterscheiden kann
     /// (mehr nur, wenn zwei Konten desselben Brokers auf dieselben vier Stellen enden). `anzeigewaehrung` ist die
     /// Anzeigewährung der Einstellungen, damit Claude die Summen der App nennen kann (Vierter Gegencheck H21).
+    /// `kerzenquellen` nennt je Journal-Symbol die Herkunft der Minutenkerzen („MT4“, „Binance“); sie geht mit
+    /// einem Hinweis zu Bid oder USDT an jede Ausstiegsanalyse (Doc 59 B9). Das Beispielkonto trägt `beispiel`,
+    /// damit der Connector seine erfundenen Trades nicht neben echte Kurse stellt (Doc 59 B2).
     static func export(_ journal: Journal, zeitzone: TimeZone,
                        ausstieg: [String: [String: Ausstiegsanalyse]] = [:],
+                       kerzenquellen: [String: String] = [:],
                        anzeigewaehrung: String? = nil) throws -> JournalExport {
         let alle = try journal.konten()
         let konten = try alle.map { konto in
@@ -58,7 +62,14 @@ enum ExportOrdner {
                 journal: eintraege.mapValues(\.angaben),
                 ziele: try journal.ziele(konto: konto),
                 regeln: try journal.handelsregeln(konto: konto),
-                ausstieg: trades.compactMap { analysen[$0.id].map { JournalExport.Ausstieg($0) } })
+                ausstieg: trades.compactMap { t in
+                    analysen[t.id].map { a in
+                        let quelle = kerzenquellen[t.symbol]
+                        return JournalExport.Ausstieg(a, quelle: quelle,
+                                                      hinweis: quelle.flatMap { kerzenhinweis(symbol: t.symbol, quelle: $0) })
+                    }
+                },
+                beispiel: Beispieldaten.istBeispiel(konto))
         }
         // Tonfall aus den Einstellungen (AP11, `Ton`); ohne Wahl gilt in der App „bro“.
         let ton = Ton.aktuell.rawValue
@@ -83,6 +94,19 @@ enum ExportOrdner {
                                                 anzeigewaehrung: anzeigewaehrung)
     }
 
+    /// Was an den Minutenkerzen anders ist als an den Fills, wie die Seite „Ausstieg“ es nennt: MetaTrader liefert den
+    /// Geldkurs (Bid) des Brokers, Binance führt kein USD und rechnet in USDT (Doc 59 B9). `nil`, wenn nichts zu sagen ist.
+    static func kerzenhinweis(symbol: String, quelle: String) -> String? {
+        var teile: [String] = []
+        if quelle.contains("MT4") {
+            teile.append("MetaTrader-Kurse des eigenen Brokers, Geldkurs (Bid); Abweichung um den Spread möglich.")
+        }
+        if quelle.localizedCaseInsensitiveContains("binance"), let naeherung = Minutenlader.zuordnung(fuer: symbol)?.naeherung {
+            teile.append(naeherung)
+        }
+        return teile.isEmpty ? nil : teile.joined(separator: " ")
+    }
+
     /// Tageskerzen aus dem Zwischenspeicher der Kurse (TradingQuotes, A1) unter dem Journal-Symbol, für
     /// `hole_kursanalyse` im Connector. Die laufende Kerze kommt mit `laufend` mit. Ohne Speicher keine Reihen.
     private static func kursverlauf() -> [JournalExport.Kursreihe] {
@@ -95,7 +119,8 @@ enum ExportOrdner {
                         Kerze(tag: $0, open: k.eroeffnung, high: k.hoch, low: k.tief, close: k.schluss,
                               volumen: k.volumen, laufend: !k.abgeschlossen)
                     }
-                })
+                },
+                naeherung: v.naeherung)
         }
     }
 
@@ -146,7 +171,10 @@ enum ExportOrdner {
         defer { ordner.stopAccessingSecurityScopedResource() }
         do {
             let anzeige = UserDefaults.standard.string(forKey: AppModell.anzeigewaehrungSchluessel)
-            let daten = try export(journal, zeitzone: zeitzone, ausstieg: ausstieg, anzeigewaehrung: anzeige)
+            let quellen = Dictionary(Ausstiegsdienst.geteilt.bestand.map { ($0.symbol, $0.quellen.joined(separator: ", ")) },
+                                     uniquingKeysWith: { erste, _ in erste })
+            let daten = try export(journal, zeitzone: zeitzone, ausstieg: ausstieg, kerzenquellen: quellen,
+                                   anzeigewaehrung: anzeige)
             try daten.json().write(to: ordner.appending(path: JournalExport.dateiname), options: .atomic)
             let jeKonto = Dictionary(daten.konten.map { (ausstiegskonto($0.broker, $0.kontonummer), $0.trades) },
                                      uniquingKeysWith: { erste, _ in erste })
