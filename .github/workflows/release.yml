@@ -45,7 +45,10 @@ jobs:
     outputs:
       signierung: ${{ steps.signatur.outputs.art }}
     steps:
+      # Volle Historie: Die Build-Nummer ist die Zahl der Commits, die Versionsprüfung braucht die Tags.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Xcode-Version
         run: xcodebuild -version
       - name: XcodeGen installieren
@@ -114,8 +117,6 @@ jobs:
           echo "Version: ${VERSION:-aus project.yml}"
 
       - name: App und Connector verpacken
-        env:
-          HENRY_BUILDNUMMER: ${{ github.run_number }}
         run: scripts/app_verpacken.sh
 
       # Wie die Startprobe in ci.yml, aber mit der signierten Release-App samt Sandbox.
