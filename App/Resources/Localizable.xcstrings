@@ -172,6 +172,22 @@
         }
       }
     },
+    "%lld Trades, Netto %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld Trades, Netto %2$@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld trades, net %2$@"
+          }
+        }
+      }
+    },
     "%lld ohne Kurs nicht in den Summen, weil der EZB-Kurs noch nicht geladen ist; Henry lädt ihn beim Start aus dem Internet" : {
       "localizations" : {
         "en" : {
@@ -299,6 +315,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Save anonymised sample …"
+          }
+        }
+      }
+    },
+    "Ansicht" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View"
           }
         }
       }
@@ -450,6 +476,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Holdings at the end of the data"
+          }
+        }
+      }
+    },
+    "Bester Tag" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Best day"
           }
         }
       }
@@ -963,6 +999,16 @@
         }
       }
     },
+    "Ergebnis" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Results"
+          }
+        }
+      }
+    },
     "Erkannt: MetaTrader 5 Handelsbericht (HTML)" : {
       "localizations" : {
         "en" : {
@@ -1023,6 +1069,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Spring Festival"
+          }
+        }
+      }
+    },
+    "Gewinn- zu Verlusttagen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Winning to losing days"
           }
         }
       }
@@ -1146,6 +1202,26 @@
         }
       }
     },
+    "Monat danach" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next month"
+          }
+        }
+      }
+    },
+    "Monat davor" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Previous month"
+          }
+        }
+      }
+    },
     "Mondfest" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1223,6 +1299,26 @@
         }
       }
     },
+    "Netto je Tag nach Schlusstag · in %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Net per day by closing day · in %@"
+          }
+        }
+      }
+    },
+    "Netto nach Kosten, je Tag nach Schlusszeit. ⚠ Fehlermuster an diesem Tag, ● Wirtschaftstermin deiner Währungen. Ein Klick öffnet den Tag; die Tagesseite zeigt die an diesem Tag eröffneten Trades." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Net after costs, per day by closing time. ⚠ error pattern on this day, ● economic event for your currencies. A click opens the day; the day page shows the trades opened that day."
+          }
+        }
+      }
+    },
     "Neue Werte unter Kurschart › Wert hinzufügen." : {
       "localizations" : {
         "en" : {
@@ -1293,6 +1389,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Qingming Festival (observed)"
+          }
+        }
+      }
+    },
+    "Schlechtester Tag" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Worst day"
           }
         }
       }
@@ -1404,6 +1510,26 @@
         }
       }
     },
+    "Tag öffnen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open day"
+          }
+        }
+      }
+    },
+    "Tage mit Trades: %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Days with trades: %lld"
+          }
+        }
+      }
+    },
     "Taiwan Restoration Day (Ersatztag)" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1441,6 +1567,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Incomplete: %lld image files could not be brought back."
+          }
+        }
+      }
+    },
+    "Wirtschaftstermin" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Economic event"
+          }
+        }
+      }
+    },
+    "Woche" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Week"
           }
         }
       }
