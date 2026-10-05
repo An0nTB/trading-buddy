@@ -23,7 +23,8 @@ struct AlpacaMinuten: Minutenquelle {
                       URLQueryItem(name: "start", value: zeit(von)),
                       URLQueryItem(name: "end", value: zeit(bis)),
                       URLQueryItem(name: "feed", value: "iex"),
-                      URLQueryItem(name: "adjustment", value: "split"),
+                      // Ungesplittete Preise wie beim Trade: ein späterer Split verfälscht sonst MAE/MFE/R (Doc 59 B1).
+                      URLQueryItem(name: "adjustment", value: "raw"),
                       URLQueryItem(name: "limit", value: "10000")]
         if let seite { felder.append(URLQueryItem(name: "page_token", value: seite)) }
         teile.queryItems = felder
