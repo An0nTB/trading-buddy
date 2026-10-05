@@ -36,7 +36,8 @@ final class Boersenverwaltung {
         baue()
     }
 
-    /// Kennungen der angezeigten Börsen in Anzeigereihenfolge (leer gespeichert heißt: alle).
+    /// Kennungen der angezeigten Börsen in Anzeigereihenfolge (leer gespeichert heißt: Standardauswahl
+    /// des Pakets, seit TradingClock 0.5.0 ohne die Börsen in Asien-Pazifik, Paris, Zürich, Toronto und São Paulo).
     var angezeigt: [String] { uhr?.boersen.map(\.id) ?? [] }
 
     /// Börsen, die es gibt, aber die der Nutzer ausgeblendet hat.
@@ -106,7 +107,7 @@ final class Boersenverwaltung {
         aendere { $0.angezeigt = liste + [id] }
     }
 
-    /// Blendet eine Börse aus; die letzte bleibt, weil eine leere Liste „alle“ bedeutet.
+    /// Blendet eine Börse aus; die letzte bleibt, weil eine leere Liste die Standardauswahl bedeutet.
     func blendeAus(_ id: String) {
         let liste = angezeigt.filter { $0 != id }
         guard !liste.isEmpty else { return }

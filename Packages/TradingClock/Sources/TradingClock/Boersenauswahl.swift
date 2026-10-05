@@ -4,7 +4,8 @@ import Foundation
 /// eigene Handelszeiten für mitgelieferte Börsen und ganz eigene Börsen.
 /// Die App speichert die Auswahl als JSON (Codable) in ihren Einstellungen.
 public struct Boersenauswahl: Sendable, Hashable, Codable {
-    /// Kennungen der angezeigten Börsen in Anzeigereihenfolge. Leer heißt: alle in Standardreihenfolge.
+    /// Kennungen der angezeigten Börsen in Anzeigereihenfolge. Leer heißt: die mitgelieferten aus
+    /// `Boersenuhr.standardAngezeigt` und alle eigenen, in Standardreihenfolge (bis 0.4.0: alle).
     public var angezeigt: [String]
     /// Eigene Handelszeiten je Kennung. Feiertage der Börse gelten weiter.
     public var angepassteZeiten: [String: [Handelszeit]]
@@ -81,10 +82,14 @@ extension Boersenuhr {
 
     /// Die Uhr, wie der Nutzer sie gewählt hat: angepasste Zeiten angewandt, nur die angezeigten
     /// Börsen in seiner Reihenfolge. Unbekannte Kennungen in `angezeigt` werden übersprungen,
-    /// damit eine gelöschte eigene Börse die Uhr nicht lahmlegt.
+    /// damit eine gelöschte eigene Börse die Uhr nicht lahmlegt. Ohne Auswahl: `standardAngezeigt`
+    /// plus eigene Börsen; die übrigen mitgelieferten stehen nur in `verfuegbar`.
     public static func mit(_ auswahl: Boersenauswahl) throws -> Boersenuhr {
         let alle = try verfuegbar(auswahl)
-        guard !auswahl.angezeigt.isEmpty else { return alle }
+        guard !auswahl.angezeigt.isEmpty else {
+            let standard = Set(standardAngezeigt).union(auswahl.eigene.map(\.id))
+            return Boersenuhr(geordnet: alle.boersen.filter { standard.contains($0.id) })
+        }
         var gesehen = Set<String>()
         let gewaehlt = auswahl.angezeigt.filter { gesehen.insert($0).inserted }.compactMap { alle[$0] }
         return Boersenuhr(geordnet: gewaehlt)

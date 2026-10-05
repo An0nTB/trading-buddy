@@ -45,3 +45,20 @@ let nasdaq = try Boersenuhr.mit(auswahl)["nasdaq"]!
 nasdaq.verfuegbareSitzungsarten     // für die Schalter in den Einstellungen
 nasdaq.sitzungsart(bei: Date())     // .nacht, .kern … oder nil
 ```
+
+Weitere Börsen (0.5.0, Wunsch Tim 05.10.2026): Tokio (`xtks`), Hongkong (`xhkg`), Shanghai (`xshg`),
+Singapur (`xses`), Seoul (`xkrx`), Taipeh (`xtai`), Mumbai BSE (`xbom`), Sydney ASX (`xasx`), Euronext Paris
+(`xpar`), SIX Swiss Exchange (`xswx`), Toronto TSX (`xtse`) und São Paulo B3 (`bvmf`); Kennung ist der MIC
+in Kleinbuchstaben, damit sie nicht mit eigenen Börsen („tokio“) zusammenstößt. Handelszeiten, Feiertage und
+verkürzte Tage 2026 und 2027 aus exchange_calendars 4.13.2, nicht gegen die Börsenseiten nachgeprüft; Shanghai,
+Singapur und Mumbai führt die Bibliothek nur bis Ende 2026 (`datenGueltigBis` 2026-12-31). Mittagspausen
+(Tokio 11:30–12:30, Hongkong 12:00–13:00, Shanghai 11:30–13:00) stehen als zwei Handelszeiten am selben Tag;
+ein verkürzter Tag, der mit dem Vormittag endet, streicht den Nachmittag und trägt seinen Namen am Vormittag.
+Ohne eigene Auswahl zeigt die Uhr weiter nur `Boersenuhr.standardAngezeigt` (die sechs bisherigen) plus eigene
+Börsen; die neuen wählt der Nutzer in der Börsenauswahl dazu (`Boersenuhr.verfuegbar`).
+
+```swift
+let auswahl = Boersenauswahl(angezeigt: ["xetra", "xtks", "xhkg"])
+let tokio = try Boersenuhr.mit(auswahl)["xtks"]!
+tokio.status(Date())   // in der Mittagspause: offen == false, naechsterWechsel == 12:30 Tokio
+```

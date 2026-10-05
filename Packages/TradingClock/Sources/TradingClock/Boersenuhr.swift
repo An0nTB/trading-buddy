@@ -1,10 +1,17 @@
 import Foundation
 
-/// Sammlung der Börsen, die die Uhr kennt. Mitgeliefert sind Xetra, NYSE, Nasdaq, LSE,
-/// Forex und Krypto; eigene Börsen kommen als weitere JSON-Datei dazu (R1 Abschnitt 6).
+/// Sammlung der Börsen, die die Uhr kennt. Mitgeliefert sind Xetra, NYSE, Nasdaq, LSE, Forex und Krypto,
+/// seit 0.5.0 auch Tokio, Hongkong, Shanghai, Singapur, Seoul, Taipeh, Mumbai, Sydney, Euronext Paris,
+/// SIX, Toronto und São Paulo; eigene Börsen kommen als weitere JSON-Datei dazu (R1 Abschnitt 6).
 public struct Boersenuhr: Sendable {
     /// Reihenfolge der mitgelieferten Börsen in der Anzeige; unbekannte folgen nach Name.
-    public static let standardReihenfolge = ["xetra", "nyse", "nasdaq", "lse", "forex", "krypto"]
+    public static let standardReihenfolge = ["xetra", "nyse", "nasdaq", "lse", "forex", "krypto",
+                                             "xtks", "xhkg", "xshg", "xses", "xkrx", "xtai", "xbom", "xasx",
+                                             "xpar", "xswx", "xtse", "bvmf"]
+
+    /// Mitgelieferte Börsen, die ohne eigene Auswahl angezeigt werden (`Boersenauswahl.angezeigt` leer).
+    /// Die übrigen (seit 0.5.0) wählt der Nutzer selbst dazu, damit die Uhr nicht auf 18 Zeilen wächst.
+    public static let standardAngezeigt = ["xetra", "nyse", "nasdaq", "lse", "forex", "krypto"]
 
     public let boersen: [Boerse]
 

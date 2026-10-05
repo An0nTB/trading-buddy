@@ -67,7 +67,9 @@ extension Boerse {
                 if feiertagSet.contains(endTag) { continue }
                 var endUhrzeit = zeit.ende
                 var verkuerztName: String?
-                if let kurz = verkuerzt[endTag], kurz.ende < endUhrzeit {
+                // `<=`: Endet der verkürzte Tag genau mit der Vormittagssitzung (Hongkong 12:00), entfällt
+                // der Nachmittag und der Vormittag trägt den Namen, sonst fehlte er im Status.
+                if let kurz = verkuerzt[endTag], kurz.ende <= endUhrzeit {
                     endUhrzeit = kurz.ende
                     verkuerztName = kurz.name
                 }
