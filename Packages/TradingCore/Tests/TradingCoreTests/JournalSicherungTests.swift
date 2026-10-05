@@ -134,7 +134,7 @@ private let journalBeispiel = "JournalSicherung/journal-sicherung-beispiel.json"
 @Test func journalSicherungTradeOhneZeitauswertung() throws {
     let s = try JournalSicherung.lies(try journalDaten(journalBeispiel))
     let trades = s.positionen.map { Trade($0) }
-    #expect(trades.allSatisfy(\.nurDatum))
+    #expect(trades.allSatisfy { $0.nurDatum })
     // R aus dem Journal-Risiko: Long 50 € Risiko, 125 € Gewinn; Short-Schein 100 € Risiko, 125 € Gewinn.
     #expect(trades[0].risk == 50)
     #expect(trades[0].rMultiple == jsDez("2.5"))
