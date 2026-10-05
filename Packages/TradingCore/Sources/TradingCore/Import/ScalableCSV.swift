@@ -6,7 +6,7 @@ import Foundation
 /// (PP-Forum 2024, Ghostfolio-Exporter #272 2025). Deutsche Namen aus Acutic (2026) werden
 /// ebenfalls gelesen. Datum und Uhrzeit sind deutsche Ortszeit: Buchungen ohne Uhrzeit stehen
 /// als 01:00 oder 02:00, also Mitternacht UTC.
-/// Status: ungeprüft, bis eine echte Datei durchgelaufen ist.
+/// Format an einer echten Datei geprüft (Tim, 05.10.2026: 73 Ausführungen, Turbos, deutsches Zahlenformat).
 public enum ScalableCSV {
     static let pflichtspalten = ["date", "time", "status", "reference", "description", "assetType", "type",
                                  "isin", "shares", "price", "amount", "fee", "tax", "currency"]
@@ -70,7 +70,8 @@ public enum ScalableCSV {
 
             switch art {
             case .kauf, .verkauf:
-                // Produktart bleibt `unbekannt`: `assetType` sagt nur Security oder Cash.
+                // `assetType` sagt nur Security oder Cash; die Produktart bleibt `unbekannt`,
+                // außer der Name zeigt ein Hebelprodukt („… Short 8.000,00 Turbo Open End …“).
                 let preis = try zahl("price")
                 ergebnis.ausfuehrungen.append(Ausfuehrung(
                     id: feld("reference"), zeit: zeit, nurDatum: nurDatum, kennung: isin, name: feld("description"),
@@ -78,6 +79,7 @@ public enum ScalableCSV {
                     preis: preis != 0 || menge == 0 ? preis : abs(betrag) / menge, betrag: betrag,
                     gebuehr: gebuehr, steuer: try zahl("tax"), waehrung: feld("currency"),
                     sparplan: typ.lowercased().contains("sparplan") || typ.lowercased() == "savings plan",
+                    produktart: Hebelprodukt.erkenne(feld("description")) != nil ? .derivat : .unbekannt,
                     rohzeile: z))
             case .geld(let geldart):
                 ergebnis.geldbewegungen.append(Geldbewegung(
