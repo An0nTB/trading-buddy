@@ -13,6 +13,9 @@ public struct Trade: Sendable, Equatable, Identifiable {
     public var closePrice: Decimal
     /// Stop laut Export. Bei MetaTrader der letzte Stand, nicht zwingend der beim Einstieg.
     public var stopLoss: Decimal?
+    /// Geplantes Risiko (1 R) in Kontowährung, positiv, für Trades ohne brauchbaren Stop (Scalable,
+    /// Trade Republic). Ohne Angabe `nil`, kein init-Parameter; setzen per Kopie oder `mitGeplantemRisiko(_:)`.
+    public var geplantesRisiko: Decimal?
     public var takeProfit: Decimal?
     public var commission: Decimal
     public var swap: Decimal
@@ -82,11 +85,12 @@ public struct Trade: Sendable, Equatable, Identifiable {
         "\(symbol)|\(side)|\(openTime.timeIntervalSinceReferenceDate)"
     }
 
-    /// Geplantes Risiko (1 R) in Kontowährung: Abstand Einstieg bis Stop mal Wert je Kurspunkt.
+    /// Risiko (1 R) aus dem Stop in Kontowährung: Abstand Einstieg bis Stop mal Wert je Kurspunkt.
     /// Der Wert je Kurspunkt kommt aus dem Trade selbst (Kursergebnis ÷ Kursbewegung),
     /// so braucht es keine Kontraktgrößen je Instrument.
     /// `nil` ohne Stop, bei Stop auf der Gewinnseite (nachgezogen) oder ohne Kursbewegung.
-    public var risk: Decimal? {
+    /// Kennzahlen rechnen mit `risk`, das ohne solchen Wert auf `geplantesRisiko` zurückfällt.
+    public var stopRisiko: Decimal? {
         guard let stop = stopLoss else { return nil }
         let abstand = side == .buy ? openPrice - stop : stop - openPrice
         let bewegung = side == .buy ? closePrice - openPrice : openPrice - closePrice
