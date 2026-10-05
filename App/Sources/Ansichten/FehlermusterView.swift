@@ -27,7 +27,7 @@ struct FehlermusterView: View {
                 } else {
                     ForEach(befunde, id: \.muster) { befund in
                         Karte(verbatim: befund.muster.titel) {
-                            Text(verbatim: befund.muster.regel)
+                            Text(verbatim: modell.regeltext(befund.muster))
                                 .font(Schrift.fliesstext)
                                 .foregroundStyle(thema.textSchwach)
                             HStack(spacing: Abstand.kachelAbstand) {

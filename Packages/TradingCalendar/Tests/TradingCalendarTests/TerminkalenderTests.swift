@@ -16,12 +16,12 @@ private func datei(_ termine: String, jahr: Int = 2026) -> Data {
 @Test func mitgelieferteDateienVollstaendig() throws {
     let kalender = try Terminkalender.mitgeliefert()
     #expect(kalender.dateien.map(\.jahr) == [2025, 2026, 2027])
-    #expect(kalender.dateien.map(\.termine.count) == [101, 530, 167])
-    #expect(kalender.termine.count == 798)
+    #expect(kalender.dateien.map(\.termine.count) == [101, 650, 222])
+    #expect(kalender.termine.count == 973)
     #expect(zip(kalender.termine, kalender.termine.dropFirst()).allSatisfy { $0.beginn <= $1.beginn })
     // Vorläufig: nach Regel berechnet (Verfall, EIA-Mittwoche, Erstanträge, Index) oder vom Herausgeber so markiert.
     // Bankfeiertage und SNB 10.12.2026 sind seit 05.10.2026 gegen EZB, Cabinet Office und SNB geprüft (Stand-Doc 63).
-    #expect(kalender.termine.filter(\.vorlaeufig).count == 162)
+    #expect(kalender.termine.filter(\.vorlaeufig).count == 165)
     #expect(!kalender.termine.contains { $0.vorlaeufig && ($0.art == .feiertag || $0.art == .zinsentscheid && $0.institution != "pboc") })
     // Jede Art aus den Dateien kommt vor; Börsenfeiertage nie, die liefert die Börsenuhr.
     let arten = Set(kalender.termine.map(\.art))
@@ -50,25 +50,29 @@ private func datei(_ termine: String, jahr: Int = 2026) -> Data {
     let eurusd = kalender.termine(von: utc("2026-10-28T17:00:00Z"), bis: utc("2026-10-28T19:00:00Z"),
                                   waehrungen: Terminkalender.waehrungen(symbol: "EURUSD.m"))
     #expect(eurusd.map(\.id) == ["fed-2026-10-28"])
-    // USDJPY über Nacht: BoJ ganztägig in Tokio, EZB um 13:15 UTC liegt davor und betrifft weder USD noch JPY.
+    // USDJPY über Nacht: BoJ ganztägig und Tokio-Verbraucherpreise 08:30 in Tokio; EZB um 13:15 UTC liegt davor.
     let usdjpy = kalender.termine(von: utc("2026-10-29T15:00:00Z"), bis: utc("2026-10-30T10:00:00Z"),
                                   waehrungen: Terminkalender.waehrungen(symbol: "USDJPY"))
-    #expect(usdjpy.map(\.id) == ["boj-2026-10-30"])
+    #expect(usdjpy.map(\.id) == ["boj-2026-10-30", "statjp-tokio-2026-10-30"])
     // Grenzen gehören dazu; ganztägig endet ausschließlich.
     #expect(kalender.termine(von: utc("2026-10-28T18:00:00Z"), bis: utc("2026-10-28T18:00:00Z")).map(\.id) == ["fed-2026-10-28"])
     #expect(kalender.termine(von: utc("2026-10-30T15:00:00Z"), bis: utc("2026-10-30T16:00:00Z"),
                              waehrungen: ["JPY"]).isEmpty)
     // Ohne Filter alles im Fenster, mit Art-Filter nur Zinsentscheide.
     let woche = kalender.termine(von: utc("2026-10-28T00:00:00Z"), bis: utc("2026-10-30T23:59:00Z"))
-    #expect(woche.map(\.id) == ["rbnz-2026-10-28", "boc-2026-10-28", "eia-wpsr-2026-10-28", "fed-2026-10-28",
-                                "bea-gdp-2026-10-29", "bea-pce-2026-10-29", "dol-claims-2026-10-29", "ezb-2026-10-29",
-                                "boj-2026-10-30", "eurostat-bip-2026-10-30"])
+    #expect(woche.map(\.id) == ["abs-cpi-2026-10-28", "rbnz-2026-10-28", "boc-2026-10-28", "eia-wpsr-2026-10-28",
+                                "fed-2026-10-28", "bea-gdp-2026-10-29", "bea-pce-2026-10-29", "dol-claims-2026-10-29",
+                                "ezb-2026-10-29", "boj-2026-10-30", "eurostat-bip-2026-10-30", "statjp-tokio-2026-10-30"])
     let zinsen = kalender.termine(von: utc("2026-10-28T00:00:00Z"), bis: utc("2026-10-30T23:59:00Z"), arten: [.zinsentscheid])
     #expect(zinsen.map(\.id) == ["rbnz-2026-10-28", "boc-2026-10-28", "fed-2026-10-28", "ezb-2026-10-29", "boj-2026-10-30"])
     let daten = kalender.termine(von: utc("2026-10-01T00:00:00Z"), bis: utc("2026-10-31T00:00:00Z"), arten: [.arbeitsmarkt, .inflation],
                                  mindestens: .hoch)
-    #expect(daten.map(\.id) == ["eurostat-hvpi-2026-10-02", "bls-nfp-2026-10-02", "bls-cpi-2026-10-14", "ons-cpi-2026-10-21",
+    #expect(daten.map(\.id) == ["eurostat-hvpi-2026-10-02", "bls-nfp-2026-10-02", "statcan-lfs-2026-10-09",
+                                "bls-cpi-2026-10-14", "abs-lfs-2026-10-15", "statcan-cpi-2026-10-19",
+                                "ons-arbeitsmarkt-2026-10-20", "ons-cpi-2026-10-21", "abs-cpi-2026-10-28",
                                 "bea-pce-2026-10-29"])
+    // ABS-Verbraucherpreise: Produktseite und Release-Kalender widersprechen sich, deshalb vorläufig (Stand-Doc 63).
+    #expect(daten.first { $0.id == "abs-cpi-2026-10-28" }?.vorlaeufig == true)
 }
 
 @Test func waehrungenAusSymbol() {

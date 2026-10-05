@@ -45,6 +45,9 @@ public struct JournalExport: Sendable, Equatable, Codable {
     /// Anzeigewährung der App (Einstellungen, gilt für alle Konten), wenn der Nutzer eine gewählt hat; Übersicht
     /// und Kennzahlen der App summieren dann in ihr. Fehlt ohne Wahl und in älteren Dateien (Vierter Gegencheck H21).
     public var anzeigewaehrung: String?
+    /// Karten des Playbooks nach Name (Review „nach Plan oder eigener Fehler“, 05.10.2026); fehlt ohne Karten und in
+    /// älteren Dateien. Optional, Format bleibt 2.
+    public var playbook: [Playbookkarte]?
 
     public struct Kontodaten: Sendable, Equatable, Codable {
         public var broker: String
@@ -65,11 +68,14 @@ public struct JournalExport: Sendable, Equatable, Codable {
         /// Das Beispielkonto der App mit erfundenen Trades (Doc 59 B2); fehlt sonst. Der Connector stellt seine
         /// Trades nicht neben echte Kurse. Optional, Format bleibt 2.
         public var beispiel: Bool?
+        /// Abgehakte Kriterien der Playbook-Checkliste je Trade-ID (Kennungen aus `Playbookkarte.kriterien`), für
+        /// jeden Trade mit Setup im Journal, auch ohne Häkchen. Fehlt ohne solche Trades und in älteren Dateien.
+        public var checklisten: [String: [String]]?
 
         public init(broker: String, kontonummer: String, waehrung: String, trades: [Trade],
                     geloeschteOrders: [Date] = [], journal: [String: Journalangaben] = [:],
                     ziele: [Reviewziel] = [], regeln: Handelsregeln? = nil, ausstieg: [Ausstieg] = [],
-                    beispiel: Bool = false) {
+                    beispiel: Bool = false, checklisten: [String: [String]] = [:]) {
             self.broker = broker
             self.kontonummer = kontonummer
             self.waehrung = waehrung
@@ -82,6 +88,7 @@ public struct JournalExport: Sendable, Equatable, Codable {
             let analysen = ausstieg.filter { ids.contains($0.tradeID) }.sorted { $0.tradeID < $1.tradeID }
             self.ausstieg = analysen.isEmpty ? nil : analysen
             self.beispiel = beispiel ? true : nil
+            self.checklisten = checklisten.isEmpty ? nil : checklisten.mapValues { $0.sorted() }
         }
 
         /// Ob dies das Beispielkonto der App ist.
@@ -94,6 +101,7 @@ public struct JournalExport: Sendable, Equatable, Codable {
 
         private enum CodingKeys: String, CodingKey {
             case broker, kontonummer, waehrung, trades, geloeschteOrders, journal, ziele, regeln, ausstieg, beispiel
+            case checklisten
         }
 
         public init(from decoder: any Decoder) throws {
@@ -109,7 +117,8 @@ public struct JournalExport: Sendable, Equatable, Codable {
                       regeln: try? c.decodeIfPresent(Handelsregeln.self, forKey: .regeln),
                       // Ebenso die Ausstiegsanalysen.
                       ausstieg: (try? c.decodeIfPresent([Ausstieg].self, forKey: .ausstieg)) ?? [],
-                      beispiel: (try? c.decodeIfPresent(Bool.self, forKey: .beispiel)) == true)
+                      beispiel: (try? c.decodeIfPresent(Bool.self, forKey: .beispiel)) == true,
+                      checklisten: (try? c.decodeIfPresent([String: [String]].self, forKey: .checklisten)) ?? [:])
         }
 
         public init(broker: String, kontonummer: String, waehrung: String,
@@ -142,7 +151,8 @@ public struct JournalExport: Sendable, Equatable, Codable {
 
     public init(konten: [Kontodaten], zeitzone: TimeZone, erstellt: Date = .now, ton: String? = nil,
                 tagesnotizen: [Notiz] = [], verpassteTrades: [Verpasst] = [], nachrichten: [Meldung] = [],
-                kursverlauf: [Kursreihe] = [], referenzkurse: [Tageskurse] = [], anzeigewaehrung: String? = nil) {
+                kursverlauf: [Kursreihe] = [], referenzkurse: [Tageskurse] = [], anzeigewaehrung: String? = nil,
+                playbook: [Playbookkarte] = []) {
         format = Self.aktuellesFormat
         self.erstellt = erstellt
         rechenkern = TradingCore.version
@@ -160,6 +170,7 @@ public struct JournalExport: Sendable, Equatable, Codable {
         self.referenzkurse = referenzkurse.isEmpty ? nil : referenzkurse.sorted { $0.tag < $1.tag }
         let anzeige = anzeigewaehrung?.trimmingCharacters(in: .whitespaces).uppercased() ?? ""
         self.anzeigewaehrung = anzeige.isEmpty ? nil : anzeige
+        self.playbook = playbook.isEmpty ? nil : playbook.sorted { $0.name < $1.name }
     }
 
     /// Zeitzone des Nutzers; UTC, falls der Name unbekannt ist.
