@@ -11,7 +11,8 @@ public struct Handelsregeln: Codable, Sendable, Equatable {
     /// Nach so vielen Verlusten in Folge am selben Tag keine neuen Trades mehr an diesem Tag.
     /// Ein Gewinner oder ein neuer Tag setzt die Zählung zurück.
     public var stoppNachVerlusten: Int?
-    /// Höchstes Risiko je Trade (Abstand Einstieg bis Stop); auch ein Verlust darüber zählt als Verstoß.
+    /// Höchstes Risiko je Trade (Abstand Einstieg bis Stop, `Trade.stopRisiko`; ein geplantes Risiko zählt
+    /// nicht); auch ein Verlust darüber zählt als Verstoß.
     public var maxRisikoJeTrade: Decimal?
     /// Regeln einer Prop-Firm, wenn das Konto eine Challenge oder ein finanziertes Konto ist.
     public var propFirm: PropFirmRegeln?
