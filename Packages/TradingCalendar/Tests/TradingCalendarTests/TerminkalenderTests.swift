@@ -99,7 +99,8 @@ private func datei(_ termine: String, jahr: Int = 2026) -> Data {
     #expect(t["c"]?.wichtigkeit == .mittel && t["c"]?.region == "welt")
     let kalender = try Terminkalender([jahresdatei])
     let alles = (von: utc("2026-01-01T00:00:00Z"), bis: utc("2026-12-31T00:00:00Z"))
-    #expect(kalender.termine(von: alles.von, bis: alles.bis, mindestens: .hoch).map(\.id) == ["a", "b"])
+    // Nach Zeit: b um 09:30 Shanghai (01:30 UTC) liegt vor a (ganztägig New York, ab 05:00 UTC).
+    #expect(kalender.termine(von: alles.von, bis: alles.bis, mindestens: .hoch).map(\.id) == ["b", "a"])
     #expect(kalender.termine(von: alles.von, bis: alles.bis, regionen: ["cn", "welt"]).map(\.id) == ["b", "c"])
     #expect(kalender.termine(von: alles.von, bis: alles.bis, arten: [.verfall], mindestens: .mittel).map(\.id) == ["c"])
     #expect(throws: TerminkalenderFehler.unbekanntesFormat(3)) {
@@ -133,7 +134,9 @@ private func datei(_ termine: String, jahr: Int = 2026) -> Data {
     #expect(kalender.abgedeckt(jahr: 2027, art: .zinsentscheid))
     #expect(!kalender.abgedeckt(jahr: 2027, art: .arbeitsmarkt))
     #expect(!kalender.abgedeckt(jahr: 2024, art: .zinsentscheid))
+    // Ohne Angabe zählen die Kernarten; Konjunktur ist nie vollständig.
     #expect(kalender.abgedeckt(von: utc("2025-12-30T00:00:00Z"), bis: utc("2026-01-05T00:00:00Z")))
+    #expect(!kalender.abgedeckt(von: utc("2025-12-30T00:00:00Z"), bis: utc("2026-01-05T00:00:00Z"), arten: [.konjunktur]))
     #expect(!kalender.abgedeckt(von: utc("2026-12-30T00:00:00Z"), bis: utc("2027-01-05T00:00:00Z")))
     #expect(kalender.abgedeckt(von: utc("2026-12-30T00:00:00Z"), bis: utc("2027-01-05T00:00:00Z"), arten: [.zinsentscheid]))
 }

@@ -21,6 +21,9 @@ public enum Terminart: String, Sendable, Hashable, Codable, CaseIterable {
     case politik
     /// Börse geschlossen; kommt nicht aus den Jahresdateien, sondern aus den Kalendern der Börsenuhr (TradingClock).
     case boersenfeiertag
+
+    /// Kernarten, die je Jahr vollständig erfasst sein können (Feld `vollstaendig` der Jahresdateien).
+    public static let kern: Set<Terminart> = [.zinsentscheid, .arbeitsmarkt, .inflation, .feiertag]
 }
 
 /// Wie stark ein Termin die Märkte üblicherweise bewegt; Einschätzung nach den Kalendern der Trading-Szene (Stand-Doc 63).
