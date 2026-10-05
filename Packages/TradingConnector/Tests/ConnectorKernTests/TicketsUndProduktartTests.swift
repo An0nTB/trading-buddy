@@ -140,3 +140,18 @@ private func export(_ trades: [Trade] = alle, zone: TimeZone = berlin) -> Journa
     }
     #expect(gelesen.konten.first?.trades.first?.closeTime == zeit("2025-05-05T12:00:00"))
 }
+
+@Test func prozessFeedbackErlaubtEmpfehlungenZuWertenNicht() throws {
+    // Tim 05.10.2026: Trade-Analyse mit Review zum Fehlermuster und dem, was besser laufen kann; Wertanalyse bleibt
+    // beschreibend (Doc 02 Nr. 44/50).
+    #expect(Rezept.text.contains("6. Besser machen:") && Rezept.text.contains("8. Genau ein messbares Ziel"))
+    #expect(Rezept.text.contains("- Prozess-Feedback ist erwünscht") && Rezept.text.contains("Kursziele, Kursprognosen"))
+    let trades = Ausgabe.trades(try Anfrage.lies(["monat": "2025-05"], export: export()), auswahl: .chronologisch,
+                                muster: nil, anzahl: 10)
+    #expect(trades.contains("## Hinweis für die Antwort (Henry)") && trades.contains("Weiter ausgeschlossen: Kauf-"))
+    let leer = Ausgabe.trades(try Anfrage.lies(["monat": "2025-05"], export: export()),
+                              auswahl: .chronologisch, muster: nil, anzahl: 10, symbol: "XYZ")
+    #expect(leer.contains("Keine passenden Trades.") && !leer.contains("## Hinweis für die Antwort"))
+    #expect(!Rezept.kursanalyseText.contains("Prozess-Feedback") && Rezept.kursanalyseText.contains("keine Empfehlungen"))
+    #expect(!Rezept.nachrichtenText.contains("Prozess-Feedback"))
+}

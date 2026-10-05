@@ -126,7 +126,7 @@ extension Ausgabe {
         }
         t.append(contentsOf: anfrage.ausstiegstabelle(gezeigt))
         if liste.count > n { t.append("\(liste.count - n) weitere Trades nicht gezeigt.") }
-        if liste.isEmpty { t.append("Keine passenden Trades.") }
+        if liste.isEmpty { t.append("Keine passenden Trades.") } else { t.append("\n" + Rezept.prozessText) }
         return t.joined(separator: "\n")
     }
 
