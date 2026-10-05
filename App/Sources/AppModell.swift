@@ -35,6 +35,12 @@ final class AppModell {
     private(set) var positionsbildung = Positionsbildung.bilde([])
     /// Journaleinträge des gewählten Kontos, Schlüssel ist das Ticket.
     private(set) var journaleintraege: [String: Journaleintrag] = [:]
+    /// Geplantes Risiko des Kontos: Angabe am Trade, Standard je Setup und je Konto (Doc 02 Nr. 64, Store v10).
+    private(set) var risikoquellen = Risikoquellen()
+    /// Freie Tags je Ticket des Kontos (Doc 02 Nr. 65).
+    private(set) var tradeTags: [String: [String]] = [:]
+    /// Alle Tags des Kontos für Vorschläge, häufigste zuerst.
+    private(set) var tagVorschlaege: [String] = []
     /// Alle Trades des gewählten Kontos, vor Filtern; ein nachgetragener Stop ersetzt den aus dem Export.
     private(set) var alleTrades: [Trade] = []
     /// Alle gelöschten Pending Orders des gewählten Kontos, vor Filtern.
@@ -270,7 +276,8 @@ final class AppModell {
 
     /// IDs der Trades im Ergebnis-Kalender, bei denen ein Fehlermuster anschlägt (alle Monate, nicht nur der Zeitraum).
     var kalenderTradesMitMuster: Set<String> {
-        Set(Fehlermuster.pruefe(kalenderTrades, geloeschteOrders: geloeschteOrders, zeitzone: zeitzone).flatMap(\.trades))
+        Set(Fehlermuster.pruefe(kalenderTrades, geloeschteOrders: geloeschteOrders, zeitzone: zeitzone,
+                                schwellen: musterSchwellen).flatMap(\.trades))
     }
 
     /// Trades nach Zeitraum und Instrument in Kontowährung: Grundlage der Regel-Seite (Grenzen stehen in Kontowährung).
@@ -317,16 +324,27 @@ final class AppModell {
 
     private func gleicheWaehrungenAn() {
         let konto = waehrung.uppercased()
-        angleich = Waehrungsangleich(alleTrades, kontowaehrung: konto, kurse: ezb.kurse)
+        // Geplantes Risiko steht in Kontowährung (Kern, Hauptthread 05.10.2026): erst nach dem Angleich passt es zu
+        // Fremdwährungs-Trades, deshalb hier auf alle Trades, in `alleTrades` nur auf die in Kontowährung.
+        let quellen = risikoquellen
+        let basis = alleTrades.map { $0.mitGeplantemRisiko(quellen.wirksam(ticket: $0.id)?.betrag) }
+        angleich = Waehrungsangleich(basis, kontowaehrung: konto, kurse: ezb.kurse)
         let ziel = summenwaehrung
         guard ziel != konto else { anzeige = angleich; return }
         // Trades ohne eigene Währung stehen in Kontowährung; ausdrücklich setzen, sonst gälten sie als Zielwährung.
-        let mitWaehrung = alleTrades.map { trade in
+        let mitWaehrung = basis.map { trade in
             var t = trade
             t.waehrung = trade.waehrung(kontowaehrung: konto)
             return t
         }
-        anzeige = Waehrungsangleich(mitWaehrung, kontowaehrung: ziel, kurse: ezb.kurse)
+        var umgerechnet = Waehrungsangleich(mitWaehrung, kontowaehrung: ziel, kurse: ezb.kurse)
+        // Das geplante Risiko folgt dem Ergebnis in die Anzeigewährung; ohne Kurs entfällt es, R bleibt dann leer.
+        let satz = ezb.kurse ?? Referenzkurse(kurse: [:])
+        umgerechnet.trades = umgerechnet.trades.map { t in
+            guard let risiko = t.geplantesRisiko else { return t }
+            return t.mitGeplantemRisiko(satz.umrechnen(risiko, von: konto, nach: ziel, am: t.closeTime))
+        }
+        anzeige = umgerechnet
     }
 
     /// Was die Umrechnung im gewählten Zeitraum getan hat: Grundlage des Mischwährungshinweises.
@@ -368,7 +386,8 @@ final class AppModell {
     var kennzahlen: Kennzahlen { Kennzahlen(trades: angeglicheneTrades) }
     var kapitalverlauf: Kapitalverlauf { Kapitalverlauf(trades: angeglicheneTrades) }
     var befunde: [Befund] {
-        Fehlermuster.pruefe(angeglicheneTrades, geloeschteOrders: geloeschteOrders, zeitzone: zeitzone)
+        Fehlermuster.pruefe(angeglicheneTrades, geloeschteOrders: geloeschteOrders, zeitzone: zeitzone,
+                            schwellen: musterSchwellen)
     }
 
     /// Trades nach Schlusszeit, neueste zuerst.
@@ -437,6 +456,9 @@ final class AppModell {
                 regeln = try journal.handelsregeln(konto: konto)
                 checklisten = try journal.checklisten(konto: konto)
                 offenerAuszug = try journal.offenePositionenLetzterAuszug(konto: konto)
+                risikoquellen = try journal.risikoquellen(konto: konto)
+                tradeTags = try journal.tags(konto: konto)
+                tagVorschlaege = try journal.alleTags(konto: konto)
             } else {
                 positionen = []
                 kontobewegungen = Kontobewegungen()
@@ -446,6 +468,9 @@ final class AppModell {
                 regeln = Handelsregeln()
                 checklisten = [:]
                 offenerAuszug = nil
+                risikoquellen = Risikoquellen()
+                tradeTags = [:]
+                tagVorschlaege = []
             }
             playbook = try journal.playbook()
             positionsbildung = Positionsbildung.bilde(kontobewegungen.ausfuehrungen,
@@ -469,11 +494,78 @@ final class AppModell {
 
     /// Baut die Trades aus den Positionen (MetaTrader, XTB) und aus der Positionsbildung (Trade Republic,
     /// Scalable); ein Stop aus dem Journal ersetzt den aus dem Export (Entscheidung 8: der Export kennt
-    /// nur den letzten Stand), damit Risiko und R stimmen.
+    /// nur den letzten Stand), damit Risiko und R stimmen. Das wirksame geplante Risiko (Trade vor Setup vor
+    /// Konto) geht vor allen Auswertungen mit; ein echter Stop hat im Kern Vorrang (Doc 02 Nr. 64).
     private func aktualisiereTrades() {
-        alleTrades = (positionen.map(Trade.init) + positionsbildung.trades)
-            .map { $0.mitJournal(journaleintraege[$0.id]) }
+        let quellen = risikoquellen
+        let konto = waehrung.uppercased()
+        // Fremdwährungs-Trades bekommen das geplante Risiko (Kontowährung) erst im Angleich; roh gäbe es ein falsches R.
+        alleTrades = (positionen.map(Trade.init) + positionsbildung.trades).map { trade in
+            let mitJournal = trade.mitJournal(journaleintraege[trade.id])
+            guard mitJournal.waehrung(kontowaehrung: konto) == konto else { return mitJournal }
+            return mitJournal.mitGeplantemRisiko(quellen.wirksam(ticket: trade.id)?.betrag)
+        }
         gleicheWaehrungenAn()
+    }
+
+    /// Wirksames geplantes Risiko des Trades mit Herkunft, `nil` ohne Angabe.
+    func wirksamesRisiko(_ trade: Trade) -> WirksamesRisiko? {
+        risikoquellen.wirksam(ticket: trade.id)
+    }
+
+    /// Schwellen der Fehlermuster: Die eigene Grenze „Höchstens Trades je Tag“ gilt für „Überhandeln“.
+    var musterSchwellen: Fehlermuster.Schwellen {
+        var schwellen = Fehlermuster.Schwellen()
+        schwellen.maxTradesProTag = regeln.maxTradesJeTag
+        return schwellen
+    }
+
+    /// Regel eines Fehlermusters im Klartext; „Überhandeln“ nennt die eigene Grenze, wenn es eine gibt.
+    func regeltext(_ muster: Fehlermuster) -> String {
+        if muster == .ueberhandeln, let grenze = regeln.maxTradesJeTag {
+            return String(localized: "Tage mit mehr als \(grenze) Trades (eigene Regel).")
+        }
+        return muster.regel
+    }
+
+    // MARK: Geplantes Risiko und Tags (Doc 02 Nr. 64 und 65)
+
+    /// Setzt das Standard-Risiko des gewählten Kontos; `nil` entfernt es.
+    func setzeStandardRisiko(_ betrag: Decimal?) throws {
+        guard let journal, let konto else { return }
+        try journal.setzeStandardRisiko(betrag, konto: konto)
+        risikoNeuLesen()
+    }
+
+    /// Setzt das Standard-Risiko einer Setup-Karte; `nil` entfernt es.
+    func setzeStandardRisiko(_ betrag: Decimal?, setupId: Int64) throws {
+        guard let journal else { return }
+        try journal.setzeStandardRisiko(betrag, setupId: setupId)
+        risikoNeuLesen()
+    }
+
+    private func risikoNeuLesen() {
+        guard let journal, let konto else { return }
+        do {
+            risikoquellen = try journal.risikoquellen(konto: konto)
+            aktualisiereTrades()
+            exportiere()
+        } catch {
+            fehler = error.localizedDescription
+        }
+    }
+
+    /// Ersetzt die Tags eines Trades im gewählten Konto.
+    func setzeTags(_ tags: [String], trade: Trade) {
+        guard let journal, let konto else { return }
+        do {
+            try journal.setzeTags(tags, konto: konto, ticket: trade.id)
+            tradeTags = try journal.tags(konto: konto)
+            tagVorschlaege = try journal.alleTags(konto: konto)
+            exportiere()
+        } catch {
+            fehler = error.localizedDescription
+        }
     }
 
     /// Stop, wie er im Export steht, auch wenn im Journal ein anderer nachgetragen ist.
@@ -530,6 +622,8 @@ final class AppModell {
             // Die Checkliste hängt am Setup-Namen des Journals: nach Änderung oder Löschung neu lesen,
             // sonst rechnet die Playbook-Auswertung mit dem alten Setup (Gegencheck A1, Doc 36).
             checklisten = try journal.checklisten(konto: konto)
+            // Risiko am Trade und Setup-Name bestimmen das wirksame Risiko (Doc 02 Nr. 64).
+            risikoquellen = try journal.risikoquellen(konto: konto)
             aktualisiereTrades()
             // Der Connector bekommt Stop und Journalangaben im selben Stand wie die App.
             exportiere()
@@ -1005,6 +1099,7 @@ extension Journaleintrag {
     /// Kein Feld ausgefüllt: so ein Eintrag wird nicht gespeichert, ein vorhandener gelöscht.
     var ohneAngaben: Bool {
         setup == nil && regeltreue == nil && zustand == nil && marktumfeld == nil && grund == nil && stopEinstieg == nil
+            && risikoEinstieg == nil
     }
 
     /// Dieselben Angaben wie `andere` (ohne Zeitstempel); `nil` zählt wie ein Eintrag ohne Angaben.
@@ -1012,6 +1107,7 @@ extension Journaleintrag {
         guard let andere else { return ohneAngaben }
         return setup == andere.setup && regeltreue == andere.regeltreue && zustand == andere.zustand
             && marktumfeld == andere.marktumfeld && grund == andere.grund && stopEinstieg == andere.stopEinstieg
+            && risikoEinstieg == andere.risikoEinstieg
     }
 
     /// Leerraum an den Rändern weg, leere Texte werden `nil`.
@@ -1020,6 +1116,8 @@ extension Journaleintrag {
         kopie.setup = Self.text(setup)
         kopie.marktumfeld = Self.text(marktumfeld)
         kopie.grund = Self.text(grund)
+        // Die Speicherung lehnt 0 und negative Beträge ab; ein geleertes oder unsinniges Feld heißt „keine Angabe“.
+        if let risiko = risikoEinstieg, risiko <= 0 { kopie.risikoEinstieg = nil }
         return kopie
     }
 
@@ -1066,7 +1164,7 @@ extension Fehlermuster {
     var regel: String {
         switch self {
         case .revancheTrade: String(localized: "Eröffnet bis 15 Minuten nach einem Verlust, mit mehr Lots als üblich.")
-        case .ueberhandeln: String(localized: "Tage mit mehr als Median plus 2 Trades.")
+        case .ueberhandeln: String(localized: "Tage mit mehr als Median plus 2 Trades, ab zehn Handelstagen; darunter nur mit eigener Grenze.")
         case .stopNichtEingehalten: String(localized: "Verlust größer als 1,2 R.")
         case .gewinneZuFrueh: String(localized: "Gewinner, die weniger als die Hälfte des Wegs zum Ziel mitgenommen haben.")
         case .verliererLaufenLassen: String(localized: "Verlierer im Schnitt mehr als 1,5-mal so lange gehalten wie Gewinner.")
