@@ -49,18 +49,22 @@ extension Ausgabe {
 
     /// Ob eine Meldung zum Begriff passt: wörtlich wie bisher (Merkliste, Symbole, Teil der Überschrift), dazu über
     /// das Basis-Symbol wie die Merkliste der App (TradingNews `Zuordnung`): „AAPL.US“ findet AAPL, „BTC/EUR“ und
-    /// „BTCUSD“ finden BTC und Bitcoin (Doc 59 B4). Abgeleitete Wörter zählen in Überschrift und Anriss nur als
-    /// ganzes Wort, damit „SOL“ nicht „Solar“ trifft.
+    /// „BTCUSD“ finden BTC und Bitcoin (Doc 59 B4), Index-CFDs wie „DE40.c“ oder „US500“ den Indexnamen (DAX,
+    /// S&P 500). Abgeleitete Wörter zählen in Überschrift und Anriss nur als ganzes Wort oder ganze Wortfolge, damit
+    /// „SOL“ nicht „Solar“ trifft.
     static func passt(_ m: JournalExport.Meldung, _ wunsch: String) -> Bool {
         if m.merkliste.contains(where: { $0.lowercased() == wunsch }) || m.symbole.contains(where: { $0.lowercased() == wunsch })
             || m.titel.lowercased().contains(wunsch) { return true }
         let woerter = suchwoerter(wunsch)
         guard !woerter.isEmpty else { return false }
-        let basis = woerter[0]
-        if m.symbole.contains(where: { suchwoerter($0.lowercased()).first == basis }) { return true }
-        let text = Set((m.titel + " " + (m.anriss ?? "") + " " + m.merkliste.joined(separator: " ")).lowercased()
-            .split(whereSeparator: { !($0.isLetter || $0.isNumber) }).map(String.init))
-        return woerter.contains { $0.count >= 3 && text.contains($0) }
+        if m.symbole.contains(where: { !Set(suchwoerter($0.lowercased())).isDisjoint(with: woerter) }) { return true }
+        let text = " " + woertlich(m.titel + " " + (m.anriss ?? "") + " " + m.merkliste.joined(separator: " ")) + " "
+        return woerter.contains { $0.count >= 3 && text.contains(" \(woertlich($0)) ") }
+    }
+
+    /// Klein geschrieben, Satzzeichen als Leerzeichen, ein Leerzeichen zwischen den Wörtern: „S&P 500“ → „s p 500“.
+    static func woertlich(_ text: String) -> String {
+        text.lowercased().split(whereSeparator: { !($0.isLetter || $0.isNumber) }).joined(separator: " ")
     }
 
     /// Kryptowerte, die Meldungen meist beim Namen nennen.
@@ -68,12 +72,48 @@ extension Ausgabe {
                               "doge": "dogecoin", "ltc": "litecoin", "dot": "polkadot", "link": "chainlink",
                               "avax": "avalanche"]
 
-    /// Basis-Symbol und Name zu einem Begriff (klein geschrieben), leer, wenn er kein Symbol ist: „aapl.us“ → aapl,
-    /// „btc/eur“ und „btcusd“ → btc, bitcoin. Gegenwährungen USD, USDT, USDC und EUR fallen am Ende weg.
+    /// Indexnamen zu den CFD-Kürzeln der Broker (MT4/MT5): Meldungen schreiben „DAX“ oder „S&P 500“, nie „DE40“.
+    static let indexnamen: [String: [String]] = {
+        let gruppen: [([String], [String])] = [
+            (["de40", "ger40", "dax40", "deu40", "de30", "ger30", "dax30", "gdaxi", "dax"], ["dax"]),
+            (["us500", "spx500", "sp500", "spx", "usa500", "us500cash"], ["s&p 500", "s&p500", "sp500"]),
+            (["nas100", "ustec", "us100", "nasdaq100", "nsdq100", "ndx", "ustech100"], ["nasdaq 100", "nasdaq100", "nasdaq"]),
+            (["us30", "dj30", "dji", "dow30", "usa30", "wallstreet30"], ["dow jones", "dow"]),
+            (["uk100", "ftse100", "gbr100"], ["ftse 100", "ftse"]),
+            (["jp225", "jpn225", "nikkei225", "ni225", "jap225"], ["nikkei 225", "nikkei"]),
+            (["eu50", "eustx50", "stoxx50", "estx50", "euro50", "eustoxx50"], ["euro stoxx 50", "euro stoxx", "eurostoxx"]),
+            (["fra40", "f40", "cac40", "fr40"], ["cac 40", "cac"]),
+            (["us2000", "rus2000", "rty"], ["russell 2000", "russell"]),
+            (["aus200", "asx200"], ["asx 200", "asx"]),
+            (["hk50", "hsi", "hk33"], ["hang seng"]),
+            (["esp35", "spa35", "es35", "ibex35"], ["ibex 35", "ibex"])
+        ]
+        var namen: [String: [String]] = [:]
+        for (kuerzel, indexname) in gruppen {
+            for k in kuerzel { namen[k] = indexname }
+        }
+        return namen
+    }()
+
+    /// Index-Kürzel ohne angehängten Broker-Zusatz ohne Punkt („us500cash“, „de40c“, „spx500usd“), nur wenn danach ein
+    /// bekanntes Kürzel bleibt.
+    static func indexkuerzel(_ basis: String) -> String? {
+        if indexnamen[basis] != nil { return basis }
+        for zusatz in ["cash", "spot", "usd", "eur", "c", "m"] where basis.hasSuffix(zusatz) {
+            let rest = String(basis.dropLast(zusatz.count))
+            if indexnamen[rest] != nil { return rest }
+        }
+        return nil
+    }
+
+    /// Basis-Symbol und Namen zu einem Begriff (klein geschrieben), leer, wenn er kein Symbol ist: „aapl.us“ → aapl,
+    /// „btc/eur“ und „btcusd“ → btc, bitcoin, „de40.c“ und „#ger40_cash“ → de40/ger40, dax. Broker-Zusätze nach
+    /// Punkt, Schrägstrich, Unterstrich oder Bindestrich fallen weg, Gegenwährungen USD, USDT, USDC und EUR am Ende.
     static func suchwoerter(_ begriff: String) -> [String] {
-        var basis = begriff.split(separator: ".").first.map(String.init) ?? begriff
-        basis = basis.split(separator: "/").first.map(String.init) ?? basis
+        let ohnePraefix = begriff.drop(while: { $0 == "#" || $0 == "." })
+        var basis = ohnePraefix.split(whereSeparator: { ".:/_-".contains($0) }).first.map(String.init) ?? ""
         guard !basis.isEmpty, basis.allSatisfy({ $0.isLetter || $0.isNumber }) else { return [] }
+        if let index = indexkuerzel(basis) { return [index] + (indexnamen[index] ?? []) }
         for gegen in ["usdt", "usdc", "usd", "eur"]
         where basis.hasSuffix(gegen) && (2...5).contains(basis.count - gegen.count) {
             basis = String(basis.dropLast(gegen.count))

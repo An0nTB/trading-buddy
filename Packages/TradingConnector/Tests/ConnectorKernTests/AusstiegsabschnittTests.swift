@@ -53,7 +53,7 @@ private func datei() throws -> JournalExport {
     #expect(text.contains("| Bis zur MFE offen, Summe vor Kosten | 100,00 EUR |"))
     #expect(!text.contains("unscharf") && !text.contains("eher zu groß"))
     #expect(text.contains("- Ausstieg: 3 von 4 Trades mit Uhrzeit haben Kerzen in der App"))
-    #expect(Rezept.text.contains("keine Stop- oder Zielmarke vorschlagen"))
+    #expect(Rezept.text.contains("Stop- oder Zielabstände sind als Einschätzung erlaubt"))
 
     let liste = Ausgabe.trades(anfrage, auswahl: .chronologisch, muster: nil, anzahl: 10)
     #expect(liste.contains("| Ticket | MAE | MFE | MFE erzielt | Bis MFE offen | Danach für | Danach gegen | Kerzen |"))
