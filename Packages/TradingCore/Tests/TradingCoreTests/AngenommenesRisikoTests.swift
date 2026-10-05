@@ -202,3 +202,26 @@ private func angenommenOhneBewegung(stop: Decimal? = nil) -> Trade {
     let leer = BestExitAuswertung([], gleicheWaehrung: true)
     #expect(leer.anzahlRisikoAngenommen == 0)
 }
+
+// MARK: - Fremdwährung
+
+@Test func angenommenFremdwaehrungNachAngleich() {
+    // Kauf in USD zu 100, Schluss 85, Wert je Punkt 10 USD: −150 USD. Geplantes Risiko 100 EUR (Kontowährung).
+    // Referenzkurs 1 EUR = 1,25 USD am 02.03.2026: −120 EUR, R −1,2. Vor dem Angleich mischt R USD und EUR.
+    let schluss = ISO8601DateFormatter().date(from: "2026-03-02T10:10:00Z")!
+    let ohneStop = Trade(id: "fw1", symbol: "Musterwert", side: .buy, lots: 10,
+                         openTime: schluss.addingTimeInterval(-600), closeTime: schluss, openPrice: 100,
+                         closePrice: 85, profit: -150, produktart: .aktie, waehrung: "USD").mitGeplantemRisiko(100)
+    var mitStop = ohneStop
+    mitStop.id = "fw2"
+    mitStop.stopLoss = 95
+    let kurse = Referenzkurse(kurse: [Journaltag("2026-03-02")!: ["USD": angenommenDez("1.25")]])
+
+    #expect(ohneStop.rMultiple == angenommenDez("-1.5"))
+    let a = Waehrungsangleich([ohneStop, mitStop], kontowaehrung: "EUR", kurse: kurse)
+    #expect(a.trades.count == 2 && a.ohneKurs.isEmpty)
+    #expect(a.trades[0].netProfit == -120 && a.trades[0].geplantesRisiko == 100)
+    #expect(a.trades[0].risikoAngenommen && a.trades[0].rMultiple == angenommenDez("-1.2"))
+    // Mit Stop folgt das Risiko dem umgerechneten Wert je Punkt (8 EUR): 5 Punkte = 40 EUR, R bleibt −3.
+    #expect(a.trades[1].stopRisiko == 40 && a.trades[1].rMultiple == -3 && !a.trades[1].risikoAngenommen)
+}
