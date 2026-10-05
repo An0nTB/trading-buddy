@@ -11,36 +11,44 @@ public struct Terminkalender: Sendable {
     public let dateien: [Jahresdatei]
     public let termine: [Termin]
 
-    public init(_ dateien: [Jahresdatei]) throws {
+    /// `zusaetzlich`: Termine von außerhalb der Jahresdateien, etwa Börsenfeiertage aus der Börsenuhr.
+    public init(_ dateien: [Jahresdatei], zusaetzlich: [Termin] = []) throws {
+        let alle = dateien.flatMap(\.termine) + zusaetzlich
         var ids: Set<String> = []
-        for termin in dateien.flatMap(\.termine) {
+        for termin in alle {
             guard ids.insert(termin.id).inserted else { throw TerminkalenderFehler.doppelteID(termin.id) }
         }
         self.dateien = dateien.sorted { $0.jahr < $1.jahr }
-        termine = dateien.flatMap(\.termine).sorted { a, b in
+        termine = alle.sorted { a, b in
             a.beginn != b.beginn ? a.beginn < b.beginn : a.id < b.id
         }
     }
 
+    /// Derselbe Kalender mit weiteren Terminen, etwa Börsenfeiertagen; doppelte IDs werfen.
+    public func mit(_ zusaetzlich: [Termin]) throws -> Terminkalender {
+        let bisher = Set(dateien.flatMap(\.termine).map(\.id))
+        return try Terminkalender(dateien, zusaetzlich: termine.filter { !bisher.contains($0.id) } + zusaetzlich)
+    }
+
     /// Liest alle JSON-Dateien aus dem Ordner `Termine` im Paket.
-    public static func mitgeliefert() throws -> Terminkalender {
+    public static func mitgeliefert(zusaetzlich: [Termin] = []) throws -> Terminkalender {
         guard let ordner = Bundle.module.url(forResource: "Termine", withExtension: nil) else {
             throw TerminkalenderFehler.mitgelieferteDatenFehlen
         }
         let dateien = try FileManager.default.contentsOfDirectory(at: ordner, includingPropertiesForKeys: nil)
             .filter { $0.pathExtension == "json" }
             .sorted { $0.lastPathComponent < $1.lastPathComponent }
-        return try Terminkalender(dateien.map { try Jahresdatei.lade(json: Data(contentsOf: $0)) })
+        return try Terminkalender(dateien.map { try Jahresdatei.lade(json: Data(contentsOf: $0)) }, zusaetzlich: zusaetzlich)
     }
 
     /// Termine, die ganz oder teilweise in [von, bis] liegen; mit `waehrungen` nur solche,
     /// die mindestens eine davon betreffen. Für „über Termin gehalten“ (Doc 18 F9):
-    /// `von` = Eröffnung, `bis` = Schließung des Trades.
-    public func termine(von: Date, bis: Date, waehrungen: Set<String>? = nil, arten: Set<Terminart>? = nil) -> [Termin] {
+    /// `von` = Eröffnung, `bis` = Schließung des Trades. `regionen` und `mindestens` filtern für die Kalender-Seite.
+    public func termine(von: Date, bis: Date, waehrungen: Set<String>? = nil, arten: Set<Terminart>? = nil,
+                        regionen: Set<String>? = nil, mindestens: Wichtigkeit? = nil) -> [Termin] {
         termine.filter { t in
-            t.liegt(zwischen: von, und: bis)
-                && (waehrungen.map { !t.waehrungen.isDisjoint(with: $0) } ?? true)
-                && (arten.map { $0.contains(t.art) } ?? true)
+            t.liegt(zwischen: von, und: bis) && t.passt(waehrungen: waehrungen, arten: arten,
+                                                       regionen: regionen, mindestens: mindestens)
         }
     }
 
@@ -50,7 +58,8 @@ public struct Terminkalender: Sendable {
     }
 
     /// Ist [von, bis] für alle `arten` vollständig erfasst (Jahre in UTC gezählt, Einschätzung genügt)?
-    public func abgedeckt(von: Date, bis: Date, arten: Set<Terminart> = Set(Terminart.allCases)) -> Bool {
+    /// Standard sind die Kernarten; Konjunktur, Index und Co. gelten nie als vollständig.
+    public func abgedeckt(von: Date, bis: Date, arten: Set<Terminart> = Terminart.kern) -> Bool {
         var kalender = Calendar(identifier: .gregorian)
         kalender.timeZone = TimeZone(secondsFromGMT: 0)!
         let jahre = kalender.component(.year, from: von)...kalender.component(.year, from: max(von, bis))
