@@ -58,7 +58,8 @@ public struct Terminkalender: Sendable {
     }
 
     /// Ist [von, bis] für alle `arten` vollständig erfasst (Jahre in UTC gezählt, Einschätzung genügt)?
-    public func abgedeckt(von: Date, bis: Date, arten: Set<Terminart> = Set(Terminart.allCases)) -> Bool {
+    /// Standard sind die Kernarten; Konjunktur, Index und Co. gelten nie als vollständig.
+    public func abgedeckt(von: Date, bis: Date, arten: Set<Terminart> = Terminart.kern) -> Bool {
         var kalender = Calendar(identifier: .gregorian)
         kalender.timeZone = TimeZone(secondsFromGMT: 0)!
         let jahre = kalender.component(.year, from: von)...kalender.component(.year, from: max(von, bis))
