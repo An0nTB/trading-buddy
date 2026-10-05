@@ -81,6 +81,9 @@ struct TagSeite: View {
             .padding(Abstand.seitenrand)
         }
         .task(id: tagModell.aenderungen) { await exportiereNachPause() }
+        // Sprung aus dem Ergebnis-Kalender: den gewählten Tag zeigen und den Wunsch abräumen.
+        .onAppear { springe(zu: modell.tagSprung) }
+        .onChange(of: modell.tagSprung) { _, neu in springe(zu: neu) }
         .onDisappear {
             tagModell.sichere()
             exportiereGeaendert()
@@ -137,6 +140,12 @@ struct TagSeite: View {
 
     private var fehlerSichtbar: Binding<Bool> {
         Binding(get: { tagModell.fehler != nil }, set: { if !$0 { tagModell.fehler = nil } })
+    }
+
+    private func springe(zu tag: Journaltag?) {
+        guard let tag else { return }
+        modell.tagSprung = nil
+        tagModell.wechsle(zu: tag)
     }
 
     /// Schreibt den Export erst nach einer Pause, damit nicht jedes automatische Sichern ihn neu schreibt.
