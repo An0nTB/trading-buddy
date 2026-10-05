@@ -953,6 +953,16 @@
         }
       }
     },
+    "Empfehlungen und Einschätzungen erlauben" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow recommendations and assessments"
+          }
+        }
+      }
+    },
     "Entfernt das Beispielkonto und seine Tagesnotiz; eigene Konten bleiben unverändert." : {
       "localizations" : {
         "en" : {
@@ -1077,6 +1087,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hangul Proclamation Day (observed)"
+          }
+        }
+      }
+    },
+    "Henry ist keine Anlageberatung. Einschätzungen von Claude können falsch sein." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Henry is not investment advice. Assessments by Claude can be wrong."
           }
         }
       }
