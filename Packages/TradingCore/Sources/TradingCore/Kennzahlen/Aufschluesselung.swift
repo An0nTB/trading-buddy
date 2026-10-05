@@ -66,7 +66,7 @@ extension Kennzahlen {
         case .symbol:
             return trades.map(\.symbol)
         case .richtung:
-            return trades.map(\.side.rawValue)
+            return trades.map(\.richtung.rawValue)
         case .wochentag:
             // Calendar zählt Sonntag als 1; umgerechnet auf ISO mit Montag = 1.
             // Eröffnungstag statt Rohzeit: Buchungen nur mit Datum fielen westlich von UTC auf den Vortag (M3).
