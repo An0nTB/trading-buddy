@@ -236,3 +236,23 @@ let september = FragBradKontext(konto: "XTB …1234", von: zeit("2026-09-01 00:0
     #expect(FragBrad.rahmen.contains("nur aus den Daten der Henry-Werkzeuge"))
     #expect(!FragBrad.rahmen.contains("Journaldaten"))
 }
+
+@Test func tradeUndTagFragenEnthaltenReviewMitGrenze() throws {
+    var kontext = september
+    kontext.trade = FragBradTrade(symbol: "EURUSD", eroeffnet: zeit("2026-09-11 22:40"),
+                                  geschlossen: zeit("2026-09-12 09:05"), nurDatum: false)
+    kontext.tag = zeit("2026-09-17 15:00")
+    let trade = try #require(FragBrad.text(.trade, kontext: kontext, ton: .sachlich, zeitzone: berlin))
+    let tag = try #require(FragBrad.text(.tag, kontext: kontext, ton: .sachlich, zeitzone: berlin))
+    #expect(trade.contains("Welches Fehlermuster zeigt der Trade, und woran sieht man das?"))
+    #expect(trade.contains("beim nächsten ähnlichen Setup"))
+    #expect(tag.contains("Welche Fehlermuster zeigt der Tag, und woran sieht man das?"))
+    #expect(tag.contains("am nächsten Handelstag"))
+    for text in [trade, tag] {
+        #expect(text.contains("meinen Regeln, meinem Playbook, Plan und Stop und meinem Journal"))
+        #expect(text.contains("keine Kauf- oder Verkaufsempfehlung, kein Kursziel, keine Marktprognose"))
+    }
+    // Andere Vorlagen bleiben ohne Review
+    let monat = try #require(FragBrad.text(.monat, kontext: kontext, ton: .sachlich, zeitzone: berlin))
+    #expect(!monat.contains("Review"))
+}
