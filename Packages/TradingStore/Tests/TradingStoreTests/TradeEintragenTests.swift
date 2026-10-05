@@ -214,8 +214,8 @@ private func sicherung(notiz: String = "erste Notiz", exit2: String = "21", mitT
     #expect(try journal.geschlossenePositionen(konto: konto).count == 2)
 
     // Importierte Trades bleiben unberührt.
-    try journal.importiereJournalSicherung(datei: sicherung(), dateiname: "a.json", broker: "Beispiel Broker",
-                                           kontonummer: "Hand 1", jetzt: zeit)
+    try journal.importiereJournalSicherung(datei: sicherung(), dateiname: "a.json", kontonummer: "Hand 1",
+                                           broker: "Beispiel Broker", jetzt: zeit)
     #expect(throws: SpeicherFehler.ungueltigerWert("Trade js-t1 stammt aus einem Import")) {
         try journal.speichereManuellenTrade(aktie, konto: konto, ticket: "js-t1", jetzt: zeit)
     }
