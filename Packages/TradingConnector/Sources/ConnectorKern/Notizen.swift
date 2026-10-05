@@ -96,6 +96,7 @@ extension Ausgabe {
                                     verpasst.prefix(50).map { verpasstzeile($0, zone) }))
             if verpasst.count > 50 { t.append("\(verpasst.count - 50) weitere nicht gezeigt.") }
         }
+        if !notizen.isEmpty || !verpasst.isEmpty { t.append("\n" + Rezept.prozessText) }
         return t.joined(separator: "\n")
     }
 

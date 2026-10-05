@@ -33,7 +33,7 @@ enum Katalog {
                  pflicht: ["dimension"]),
              annotations: nurLesen),
         Tool(name: "hole_trades",
-             description: "Einzelne Trades eines Zeitraums mit Journalangaben (Setup, Regeltreue, Zustand, Grund), Produktart und, wenn die App Kerzen hat, MAE und MFE, wahlweise nur bestimmte Tickets, ein Symbol oder die Trades eines Fehlermusters, sortiert nach bestem oder schlechtestem Ergebnis.",
+             description: "Einzelne Trades eines Zeitraums mit Journalangaben (Setup, Regeltreue, Zustand, Grund), Produktart, Einstieg, Ausstieg, Stop, Ziel, Playbook-Checkliste und, wenn die App Kerzen hat, MAE und MFE, für den Review nach Plan oder eigener Fehler; wahlweise nur bestimmte Tickets, ein Symbol oder die Trades eines Fehlermusters, sortiert nach bestem oder schlechtestem Ergebnis.",
              inputSchema: schema(zeitraum.merging([
                  "auswahl": text("Sortierung, Vorgabe chronologisch", werte: Tradeauswahl.allCases.map(\.rawValue)),
                  "muster": text("Nur Trades dieses Fehlermusters", werte: Fehlermuster.allCases.map(\.rawValue)),
@@ -51,11 +51,11 @@ enum Katalog {
              inputSchema: schema([
                  "tage": .object(["type": .string("integer"),
                                   "description": .string("Wie viele Tage zurück, 1 bis 7, Vorgabe 1")]),
-                 "begriff": text("Nur Meldungen zu diesem Begriff der Merkliste oder Symbol; Symbole wie im Journal (AAPL.US, BTC/EUR, BTCUSD) finden auch das Basis-Symbol und bei Krypto den Namen")
+                 "begriff": text("Nur Meldungen zu diesem Begriff der Merkliste oder Symbol; Symbole wie im Journal (AAPL.US, BTC/EUR, BTCUSD) finden auch das Basis-Symbol und bei Krypto den Namen; Index-CFDs (DE40.c, US500, NAS100, US30, UK100, JP225, EU50, FRA40) finden den Indexnamen")
              ]),
              annotations: nurLesen),
         Tool(name: "hole_kursanalyse",
-             description: "Beschreibende Kursanalyse eines Werts aus den Tageskerzen der App: Veränderung über Woche, Monat, Quartal und Jahr, Schwankung, Tagesspanne, Abstand zum 52-Wochen-Hoch und -Tief, größter Rückgang, dazu die eigenen Trades im Wert und das Rezept. Keine Prognose.",
+             description: "Kursanalyse eines Werts aus den Tageskerzen der App: Veränderung über Woche, Monat, Quartal und Jahr, Schwankung, Tagesspanne, Abstand zum 52-Wochen-Hoch und -Tief, größter Rückgang, dazu die eigenen Trades im Wert und das Rezept, als Grundlage für Einschätzungen und Szenarien.",
              inputSchema: schema([
                  "symbol": text("Symbol wie im Journal, z. B. BTCUSD oder AAPL"),
                  "monate": .object(["type": .string("integer"),
