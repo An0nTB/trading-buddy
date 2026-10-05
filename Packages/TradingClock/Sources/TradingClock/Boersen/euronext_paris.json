@@ -1,0 +1,88 @@
+{
+  "format": 1,
+  "id": "xpar",
+  "name": "Euronext Paris",
+  "mic": "XPAR",
+  "zeitzone": "Europe/Paris",
+  "handelszeiten": [
+    {
+      "tage": [
+        "Mo",
+        "Di",
+        "Mi",
+        "Do",
+        "Fr"
+      ],
+      "beginn": "09:00",
+      "ende": "17:30"
+    }
+  ],
+  "feiertage": [
+    {
+      "datum": "2026-01-01",
+      "name": "New Year's Day"
+    },
+    {
+      "datum": "2026-04-03",
+      "name": "Good Friday"
+    },
+    {
+      "datum": "2026-04-06",
+      "name": "Easter Monday"
+    },
+    {
+      "datum": "2026-05-01",
+      "name": "Labour Day"
+    },
+    {
+      "datum": "2026-12-25",
+      "name": "Christmas Day"
+    },
+    {
+      "datum": "2027-01-01",
+      "name": "New Year's Day"
+    },
+    {
+      "datum": "2027-03-26",
+      "name": "Good Friday"
+    },
+    {
+      "datum": "2027-03-29",
+      "name": "Easter Monday"
+    }
+  ],
+  "verkuerzteTage": [
+    {
+      "datum": "2026-12-24",
+      "ende": "14:05",
+      "name": "Christmas Eve"
+    },
+    {
+      "datum": "2026-12-31",
+      "ende": "14:05",
+      "name": "New Year's Eve"
+    },
+    {
+      "datum": "2027-12-24",
+      "ende": "14:05",
+      "name": "Christmas Eve"
+    },
+    {
+      "datum": "2027-12-31",
+      "ende": "14:05",
+      "name": "New Year's Eve"
+    }
+  ],
+  "datenGueltigBis": "2027-12-31",
+  "stand": "2026-10-05",
+  "quellen": [
+    {
+      "titel": "exchange_calendars 4.13.2 (Python-Bibliothek), Kalender XPAR",
+      "url": "https://github.com/gerrymanoim/exchange_calendars",
+      "abgerufen": "2026-10-05"
+    }
+  ],
+  "hinweise": [
+    "Handelszeiten, Feiertage und verkürzte Tage 2026 und 2027 aus exchange_calendars 4.13.2, erzeugt am 05.10.2026; nicht gegen die Seiten der Börse nachgeprüft."
+  ]
+}

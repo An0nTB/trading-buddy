@@ -1,0 +1,100 @@
+{
+  "format": 1,
+  "id": "xbom",
+  "name": "Mumbai (BSE)",
+  "mic": "XBOM",
+  "zeitzone": "Asia/Kolkata",
+  "handelszeiten": [
+    {
+      "tage": [
+        "Mo",
+        "Di",
+        "Mi",
+        "Do",
+        "Fr"
+      ],
+      "beginn": "09:15",
+      "ende": "15:30"
+    }
+  ],
+  "feiertage": [
+    {
+      "datum": "2026-01-15",
+      "name": "Börsenfeiertag"
+    },
+    {
+      "datum": "2026-01-26",
+      "name": "Tag der Republik"
+    },
+    {
+      "datum": "2026-03-03",
+      "name": "Holi"
+    },
+    {
+      "datum": "2026-03-26",
+      "name": "Ram Navami"
+    },
+    {
+      "datum": "2026-03-31",
+      "name": "Mahavir Jayanti"
+    },
+    {
+      "datum": "2026-04-03",
+      "name": "Karfreitag"
+    },
+    {
+      "datum": "2026-04-14",
+      "name": "Ambedkar Jayanti"
+    },
+    {
+      "datum": "2026-05-01",
+      "name": "Maharashtra-Tag"
+    },
+    {
+      "datum": "2026-05-28",
+      "name": "Bakri Id"
+    },
+    {
+      "datum": "2026-06-26",
+      "name": "Muharram"
+    },
+    {
+      "datum": "2026-09-14",
+      "name": "Ganesh Chaturthi"
+    },
+    {
+      "datum": "2026-10-02",
+      "name": "Gandhi Jayanti"
+    },
+    {
+      "datum": "2026-10-20",
+      "name": "Dussehra"
+    },
+    {
+      "datum": "2026-11-10",
+      "name": "Diwali Balipratipada"
+    },
+    {
+      "datum": "2026-11-24",
+      "name": "Guru Nanak Jayanti"
+    },
+    {
+      "datum": "2026-12-25",
+      "name": "1. Weihnachtstag"
+    }
+  ],
+  "verkuerzteTage": [],
+  "datenGueltigBis": "2026-12-31",
+  "stand": "2026-10-05",
+  "quellen": [
+    {
+      "titel": "exchange_calendars 4.13.2 (Python-Bibliothek), Kalender XBOM",
+      "url": "https://github.com/gerrymanoim/exchange_calendars",
+      "abgerufen": "2026-10-05"
+    }
+  ],
+  "hinweise": [
+    "Handelszeiten, Feiertage und verkürzte Tage 2026 aus exchange_calendars 4.13.2, erzeugt am 05.10.2026; nicht gegen die Seiten der Börse nachgeprüft. Die Bibliothek führt die Feiertage dieser Börse nur bis Ende 2026, danach warnt die Uhr.",
+    "Muhurat-Handel am Diwali-Abend ist nicht abgebildet."
+  ]
+}
