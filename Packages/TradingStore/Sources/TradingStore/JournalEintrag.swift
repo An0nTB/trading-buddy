@@ -22,11 +22,14 @@ public struct Journaleintrag: Codable, Sendable, Equatable, FetchableRecord, Per
     /// Geplantes Risiko dieses Trades als Betrag in Kontowährung (v10). Geht vor dem Standard des Setups
     /// und des Kontos (`Risikoquellen`).
     public var risikoEinstieg: Decimal?
+    /// Zeiteinheit des Charts, etwa „M15“ (v11).
+    public var zeiteinheit: String?
     public var geaendertAm: Date
 
     public init(kontoId: Int64, ticket: String, setup: String? = nil, regeltreue: Bool? = nil,
                 zustand: Int? = nil, marktumfeld: String? = nil, grund: String? = nil,
-                stopEinstieg: Decimal? = nil, risikoEinstieg: Decimal? = nil, geaendertAm: Date = Date()) {
+                stopEinstieg: Decimal? = nil, risikoEinstieg: Decimal? = nil, zeiteinheit: String? = nil,
+                geaendertAm: Date = Date()) {
         self.kontoId = kontoId
         self.ticket = ticket
         self.setup = setup
@@ -36,6 +39,7 @@ public struct Journaleintrag: Codable, Sendable, Equatable, FetchableRecord, Per
         self.grund = grund
         self.stopEinstieg = stopEinstieg
         self.risikoEinstieg = risikoEinstieg
+        self.zeiteinheit = zeiteinheit
         self.geaendertAm = geaendertAm
     }
 }

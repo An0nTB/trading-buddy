@@ -18,7 +18,7 @@ extension Journal {
     /// (Konto + Ticket `js-<id>`) nicht neu angelegt. Verglichen werden alle Werte außer der Rohzeile, dazu
     /// Markterwartung und Schein; weicht einer ab (im Browser nachträglich geändert), bricht der ganze Import ab.
     ///
-    /// Journaleinträge (Setup, Regeltreue, Notiz als `grund`, Risiko als `risikoEinstieg`) entstehen nur für
+    /// Journaleinträge (Setup, Zeiteinheit, Regeltreue, Notiz als `grund`, Risiko als `risikoEinstieg`) nur für
     /// Tickets ohne Eintrag; was in Henry schon steht, bleibt. Setup-Namen ohne Karte bekommen eine neue Karte
     /// (Status „test“). Trades ohne Exit zählen in `ohneAusstieg`, unlesbare Zeilen als Importhinweis.
     /// - Parameters:
@@ -107,10 +107,12 @@ extension Journal {
     /// mitbringt. `true`, wenn einer angelegt wurde.
     static func legeEintragAn(_ db: Database, _ e: JournalSicherung.Eintrag, kontoId: Int64,
                               jetzt: Date) throws -> Bool {
-        guard e.setup != nil || e.regeltreue != nil || e.notiz != nil || e.risiko != nil else { return false }
+        guard e.setup != nil || e.regeltreue != nil || e.notiz != nil || e.risiko != nil || e.zeiteinheit != nil
+        else { return false }
         guard try !Journaleintrag.exists(db, key: ["kontoId": kontoId, "ticket": e.ticket]) else { return false }
         let eintrag = Journaleintrag(kontoId: kontoId, ticket: e.ticket, setup: e.setup, regeltreue: e.regeltreue,
-                                     grund: e.notiz, risikoEinstieg: e.risiko.map { abs($0) }, geaendertAm: jetzt)
+                                     grund: e.notiz, risikoEinstieg: e.risiko.map { abs($0) },
+                                     zeiteinheit: e.zeiteinheit, geaendertAm: jetzt)
         try eintrag.insert(db)
         return true
     }
