@@ -6,7 +6,7 @@ import TradingStore
 
 /// Formular „Trade eintragen“ und Vorschau der Journal-Sicherung ohne Ansicht (Doc 02 Nr. 63 und 64).
 /// Alle Daten erfunden.
-@Suite struct TradeEintragenTests {
+@Suite struct TradeEintragenAppTests {
     private typealias T = AppTestdaten
 
     /// Ausgefüllter Entwurf: Long, 10 Stück, 100 → 112,50, Gebühren 2,50, neues Konto „Test“.
