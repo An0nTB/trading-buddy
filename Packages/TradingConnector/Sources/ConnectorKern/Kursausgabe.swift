@@ -2,7 +2,7 @@ import Foundation
 import TradingCore
 
 /// Kursanalyse eines Werts für „Frag Henry“ (Doc 38, Paket A3): Kennzahlen aus den Tageskerzen der App
-/// (`Kursanalyse` im Rechenkern) und die eigenen Trades im Wert. Nur beschreibend, keine Prognose.
+/// (`Kursanalyse` im Rechenkern) und die eigenen Trades im Wert. Einschätzungen darauf erlaubt (Doc 02 Nr. 62).
 extension Ausgabe {
     /// Werkzeug `hole_kursanalyse`. Die Kennzahlen gelten immer für die letzten 12 Monate, wie ihre Namen sagen
     /// (52-Wochen-Hoch, Schwankung aufs Jahr); `monate` 1 bis 12 begrenzt die eigenen Trades und ergänzt bei weniger
@@ -20,8 +20,8 @@ extension Ausgabe {
         let reihe = reihen.first { symbolschluessel($0.symbol) == wunsch }
         let name = Format.kurz(reihe?.symbol ?? symbol, zeichen: 30)
         var t = ["# Henry · Kursanalyse \(name) (\(monate) \(monate == 1 ? "Monat" : "Monate"))",
-                 "Export vom \(Format.datum(export.erstellt, zone)), Zeitzone \(export.zeitzone). Nur beschreibend: "
-                     + "Kennzahlen vergangener Kurse, keine Prognose, kein Signal."]
+                 "Export vom \(Format.datum(export.erstellt, zone)), Zeitzone \(export.zeitzone). Kennzahlen "
+                     + "vergangener Kurse; \(Rezept.hinweis)"]
 
         if let reihe, let analyse = analyse(reihe, monate: 12) {
             t.append("Kurse: Tageskerzen von \(Format.kurz(reihe.quelle, zeichen: 20)) in \(reihe.waehrung), "
