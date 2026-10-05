@@ -25,7 +25,7 @@ enum Bereich: String, Identifiable, Hashable {
         switch self {
         case .uebersicht: "Übersicht"
         case .trades: "Trades"
-        case .kennzahlen: "Kennzahlen"
+        case .kennzahlen: "Auswertung"
         case .fehlermuster: "Fehlermuster"
         case .ziele: "Ziele"
         case .ausstieg: "Ausstieg"
