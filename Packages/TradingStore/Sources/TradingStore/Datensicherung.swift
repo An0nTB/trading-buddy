@@ -54,6 +54,12 @@ extension Journal {
     /// die Datenbank während der Sicherung ist erlaubt; ob es in der Kopie landet, ist offen.
     @discardableResult
     public func sichere(nach ziel: URL) throws -> Sicherungspruefung {
+        try kopiere(nach: ziel, erwartet: .aktuell)
+    }
+
+    /// Wie `sichere(nach:)`, die Kopie muss aber den Stand `erwartet` haben (vor einer Migration: `.aelter`).
+    @discardableResult
+    func kopiere(nach ziel: URL, erwartet: Sicherungspruefung.Zustand) throws -> Sicherungspruefung {
         let fm = FileManager.default
         guard !fm.fileExists(atPath: ziel.path) else {
             throw SpeicherFehler.ungueltigerWert("\(ziel.lastPathComponent) gibt es schon")
@@ -67,7 +73,7 @@ extension Journal {
             try kopie.close()
         }
         let pruefung = Self.pruefeSicherung(teil)
-        guard pruefung.zustand == .aktuell else {
+        guard pruefung.zustand == erwartet else {
             throw SpeicherFehler.ungueltigerWert("Sicherung fehlerhaft: \(pruefung.hinweis)")
         }
         // rename legt die fertige Datei in einem Schritt ab (gleicher Ordner, POSIX).

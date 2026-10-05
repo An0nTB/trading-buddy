@@ -54,8 +54,13 @@ public final class Journal: Sendable {
     /// Vorher prüft es die Datei (`PRAGMA quick_check`) und ihren Migrationsstand. Eine beschädigte Datei
     /// oder eine aus einer neueren App-Version wird nicht verändert; es kommt `JournalFehler.beschaedigt`
     /// bzw. `.ausNeuererVersion`. Weiter geht es mit `legeBeiseite` oder `oeffneAusSicherung` (Doc 11).
-    public convenience init(pfad: String) throws {
-        try self.init(writer: Self.gemeldet { try DatabaseQueue(path: pfad) })
+    ///
+    /// Fehlen einer vorhandenen Datei Migrationen (App-Update), legt es vorher eine geprüfte Kopie daneben
+    /// an (`journal.vor-v<N>-JJJJ-MM-TT-HHMMSS.sqlite`, Ortszeit `zeitzone`, die letzten drei bleiben).
+    /// Misslingt die Kopie, wird nicht migriert und es kommt ein `JournalFehler`.
+    public convenience init(pfad: String, jetzt: Date = Date(), zeitzone: TimeZone = .current) throws {
+        try self.init(writer: Self.gemeldet { try DatabaseQueue(path: pfad) },
+                      vorMigration: KopieVorMigration(pfad: pfad, jetzt: jetzt, zeitzone: zeitzone))
     }
 
     /// Datenbank nur im Arbeitsspeicher, für Tests.
@@ -63,22 +68,28 @@ public final class Journal: Sendable {
         try Journal(writer: DatabaseQueue())
     }
 
-    private init(writer: any DatabaseWriter) throws {
+    private init(writer: any DatabaseWriter, vorMigration: KopieVorMigration? = nil) throws {
         db = writer
-        try Self.gemeldet {
-            try writer.read { db in
+        let angewandt = try Self.gemeldet {
+            try writer.read { db -> [String] in
                 let pruefung = try String.fetchAll(db, sql: "PRAGMA quick_check")
                 guard pruefung == ["ok"] else {
                     throw JournalFehler.beschaedigt(pruefung.prefix(3).joined(separator: "; "))
                 }
-                guard try db.tableExists("grdb_migrations") else { return }
+                guard try db.tableExists("grdb_migrations") else { return [] }
+                let gelaufen = try String.fetchAll(db, sql: "SELECT identifier FROM grdb_migrations")
                 let bekannt = Schema.migrator.migrations
-                let unbekannt = try String.fetchAll(db, sql: "SELECT identifier FROM grdb_migrations")
-                    .filter { !bekannt.contains($0) }
+                let unbekannt = gelaufen.filter { !bekannt.contains($0) }
                 guard unbekannt.isEmpty else { throw JournalFehler.ausNeuererVersion(unbekannt) }
+                return gelaufen
             }
-            try Schema.migrator.migrate(writer)
         }
+        // Neue oder leere Datei: nichts zu sichern.
+        if let vorMigration, !angewandt.isEmpty,
+           let erste = Schema.migrator.migrations.first(where: { !angewandt.contains($0) }) {
+            try sichereVorMigration(vorMigration, vor: erste)
+        }
+        try Self.gemeldet { try Schema.migrator.migrate(writer) }
     }
 
     func lies<T>(_ arbeit: (Database) throws -> T) throws -> T { try Self.gemeldet { try db.read(arbeit) } }
