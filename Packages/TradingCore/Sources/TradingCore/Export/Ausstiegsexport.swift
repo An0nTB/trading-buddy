@@ -25,8 +25,18 @@ extension JournalExport {
         public var zeitMFE: Date?
         public var nachAusstiegFuer: Decimal?
         public var nachAusstiegGegen: Decimal?
+        /// Herkunft der Kerzen in der App, etwa „MT4“, „Binance“, „Alpaca“ (Doc 59 B9). Fehlt in älteren Dateien.
+        public var quelle: String?
+        /// Was an diesen Kerzen anders ist als an den Fills, etwa Geldkurs (Bid) bei MetaTrader oder USDT statt USD
+        /// bei Binance. Fehlt, wenn nichts zu sagen ist.
+        public var hinweis: String?
 
-        public init(_ a: Ausstiegsanalyse) {
+        /// - Parameters:
+        ///   - quelle: Herkunft der Kerzen, wie die App sie anzeigt.
+        ///   - hinweis: Abweichung der Kerzen von den Fills, für Claude.
+        public init(_ a: Ausstiegsanalyse, quelle: String? = nil, hinweis: String? = nil) {
+            self.quelle = quelle.flatMap { $0.isEmpty ? nil : $0 }
+            self.hinweis = hinweis.flatMap { $0.isEmpty ? nil : $0 }
             tradeID = a.tradeID
             kerzenDauer = a.kerzenDauer
             anzahlKerzen = a.anzahlKerzen
@@ -55,7 +65,7 @@ extension JournalExport {
 
         private enum CodingKeys: String, CodingKey {
             case tradeID, kerzenDauer, anzahlKerzen, abdeckung, unscharf, mae, mfe, erzielt, maeAnteil, mfeAnteil
-            case maeR, mfeR, effizienz, zeitMAE, zeitMFE, nachAusstiegFuer, nachAusstiegGegen
+            case maeR, mfeR, effizienz, zeitMAE, zeitMFE, nachAusstiegFuer, nachAusstiegGegen, quelle, hinweis
         }
 
         public init(from decoder: any Decoder) throws {
@@ -90,6 +100,8 @@ extension JournalExport {
             zeitMFE = try c.decodeIfPresent(Date.self, forKey: .zeitMFE)
             nachAusstiegFuer = try zahl(.nachAusstiegFuer)
             nachAusstiegGegen = try zahl(.nachAusstiegGegen)
+            quelle = try? c.decodeIfPresent(String.self, forKey: .quelle)
+            hinweis = try? c.decodeIfPresent(String.self, forKey: .hinweis)
         }
 
         public func encode(to encoder: any Encoder) throws {
@@ -111,6 +123,8 @@ extension JournalExport {
             try c.encodeIfPresent(zeitMFE, forKey: .zeitMFE)
             try c.encodeIfPresent(nachAusstiegFuer?.description, forKey: .nachAusstiegFuer)
             try c.encodeIfPresent(nachAusstiegGegen?.description, forKey: .nachAusstiegGegen)
+            try c.encodeIfPresent(quelle, forKey: .quelle)
+            try c.encodeIfPresent(hinweis, forKey: .hinweis)
         }
     }
 }

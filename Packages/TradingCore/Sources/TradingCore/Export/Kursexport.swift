@@ -14,19 +14,24 @@ extension JournalExport {
         public var stand: Date
         /// Nach Tag sortiert, höchstens `kerzenHoechstens`; eine laufende Kerze steht zuletzt.
         public var kerzen: [Kerze]
+        /// Hinweis der Kurszuordnung, wenn die Kerzen nur eine Näherung an den gehandelten Wert sind, etwa
+        /// „Krypto-CFD des Brokers, Kurs von Kraken als Näherung“ (Doc 59 B8). Fehlt sonst und in älteren Dateien.
+        public var naeherung: String?
 
-        public init(symbol: String, quelle: String, waehrung: String, stand: Date, kerzen: [Kerze]) {
+        public init(symbol: String, quelle: String, waehrung: String, stand: Date, kerzen: [Kerze],
+                    naeherung: String? = nil) {
             self.symbol = symbol
             self.quelle = quelle
             self.waehrung = waehrung.uppercased()
             self.stand = stand
+            self.naeherung = naeherung.flatMap { $0.isEmpty ? nil : $0 }
             var jeTag: [Journaltag: Kerze] = [:]
             for k in kerzen { jeTag[k.tag] = k }
             self.kerzen = Array(jeTag.values.sorted { $0.tag < $1.tag }.suffix(JournalExport.kerzenHoechstens))
         }
 
         private enum CodingKeys: String, CodingKey {
-            case symbol, quelle, waehrung, stand, kerzen
+            case symbol, quelle, waehrung, stand, kerzen, naeherung
         }
 
         /// Eine unlesbare Kerze kostet nur die Kerzen dieser Reihe, nicht die ganze Datei.
@@ -37,6 +42,7 @@ extension JournalExport {
             waehrung = try c.decode(String.self, forKey: .waehrung)
             stand = try c.decode(Date.self, forKey: .stand)
             kerzen = (try? c.decodeIfPresent([Kerze].self, forKey: .kerzen)) ?? []
+            naeherung = try? c.decodeIfPresent(String.self, forKey: .naeherung)
         }
     }
 
