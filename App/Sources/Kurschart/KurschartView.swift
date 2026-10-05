@@ -8,6 +8,7 @@ import TradingQuotes
 struct KurschartView: View {
     @Environment(AppModell.self) private var modell
     @Environment(\.thema) private var thema
+    @Environment(FragBradZustand.self) private var fragBrad: FragBradZustand?
     @State private var symbol: String?
     @State private var zeitraum = Chartzeitraum.quartal
     @State private var gewaehlterTag: Date?
@@ -26,6 +27,11 @@ struct KurschartView: View {
                             ForEach(symbole, id: \.self) { Text(verbatim: $0).tag($0) }
                         }
                     }
+                    // Analyse des gewählten Werts in Frag Henry, wie Menü Analyse › Wert analysieren (Tim 05.10.2026).
+                    Button("Wert analysieren …", systemImage: "chart.xyaxis.line") {
+                        fragBrad?.frage(.analyse, symbol: aktuell)
+                    }
+                    .disabled(fragBrad == nil || aktuell == nil)
                     Button("Wert hinzufügen", systemImage: "plus") { werteZeigen = true }
                 }
                 inhalt(aktuell, kurse: kurse, symbole: symbole)
