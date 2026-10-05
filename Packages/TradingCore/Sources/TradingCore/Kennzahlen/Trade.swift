@@ -58,7 +58,7 @@ public struct Trade: Sendable, Equatable, Identifiable {
         self.init(id: p.ticket, symbol: p.symbol, side: p.side, lots: p.lots, openTime: p.openTime,
                   closeTime: p.closeTime, openPrice: p.openPrice, closePrice: p.closePrice,
                   stopLoss: p.stopLoss, takeProfit: p.takeProfit, commission: p.commission,
-                  swap: p.swap, profit: p.profit, produktart: p.produktart)
+                  swap: p.swap, profit: p.profit, produktart: p.produktart, nurDatum: !p.ausstiegszeitBekannt)
     }
 
     /// Kosten (Kommission, Swap und Steuern), meist negativ.
