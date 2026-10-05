@@ -76,6 +76,16 @@
         }
       }
     },
+    "%@ (ohne Kurse)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ (no prices)"
+          }
+        }
+      }
+    },
     "%@ und %lld weitere" : {
       "localizations" : {
         "en" : {
@@ -1260,6 +1270,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No own values yet."
+          }
+        }
+      }
+    },
+    "Ohne Kurse: nur Nachrichten und eigene Trades" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No prices: only news and own trades"
           }
         }
       }

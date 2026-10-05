@@ -197,11 +197,11 @@ public enum FragBrad {
             guard let trade = kontext.trade else { return nil }
             let nummer = trade.ticket.map { " (Ticket \($0))" } ?? ""
             return "Ordne meinen Trade \(trade.symbol)\(nummer) ein, \(tradezeit(trade, zeitzone: zeitzone)): "
-                + "Plan, Stop, Regeltreue und Fehlermuster."
+                + "Plan, Stop, Regeltreue und Fehlermuster. " + review(.trade)
         case .tag:
             guard let tag = kontext.tag else { return nil }
             return "Ordne meinen Handelstag am \(deutscherTag(tag, zeitzone: zeitzone)) ein: Ergebnis, Regeltreue "
-                + "und Fehlermuster."
+                + "und Fehlermuster. " + review(.tag)
         case .ziel:
             return "Wie stehe ich beim Ziel aus meinem letzten Review?"
         case .analyse:
@@ -219,6 +219,29 @@ public enum FragBrad {
             let text = bereinigt(freieFrage)
             return text.isEmpty ? nil : text
         }
+    }
+
+    /// Review-Teil für Trade- und Tagesfrage (Tim 05.10.2026, Lesart 2): drei Antworten (Ursache, eigener Fehler
+    /// oder Marktrisiko, Regel fürs nächste Mal), fehlende Quellen offen benannt. Nur Verhalten und Prozess; die
+    /// Grenze steht ausdrücklich im Text (Doc 02 Nr. 44 und 50).
+    static func review(_ vorlage: FragBradVorlage) -> String {
+        let tag = vorlage == .tag
+        let ursache = tag
+            ? "1. Woran lag das Ergebnis des Tages? Ursache je Trade"
+            : "1. Woran ist der Trade gescheitert, oder was hat ihn getragen? Ursache"
+        let fehler = tag
+            ? "2. Waren es meine Fehler? Plan, Setup und Regeln eingehalten und trotzdem Verlust ist Marktrisiko, kein "
+                + "Fehler; Plan verletzt oder ein Fehlermuster getroffen ist ein eigener Fehler, dann benenne welcher "
+                + "und bei welchem Trade."
+            : "2. War es mein Fehler? Plan, Setup und Regeln eingehalten und trotzdem Verlust ist Marktrisiko, kein "
+                + "Fehler; Plan verletzt oder ein Fehlermuster getroffen ist ein eigener Fehler, dann benenne welcher."
+        let naechstes = tag ? "am nächsten Handelstag" : "beim nächsten ähnlichen Setup"
+        return "Danach ein Review in drei Antworten. \(ursache) aus Kursverlauf und Ausstiegsanalyse (MAE/MFE), falls "
+            + "vorhanden, sonst aus den Importdaten. \(fehler) 3. Was mache ich \(naechstes) besser? Eine konkrete "
+            + "Regel je Fehlermuster, gemessen an meinen Regeln, meinem Playbook, Plan und Stop und meinem Journal. "
+            + "Fehlt eine Quelle, sag es offen: ohne Stop keine R-Bewertung, ohne Kursverlauf keine Ursache, ohne "
+            + "Journaleintrag keine Bewertung der Absicht. Nur Verhalten und Prozess, keine Kauf- oder "
+            + "Verkaufsempfehlung, kein Kursziel, keine Marktprognose."
     }
 
     /// „Konto: XTB …1234. Zeitraum: 2026-09-01 bis 2026-09-30.“ Tage im Format der Connector-Werkzeuge.

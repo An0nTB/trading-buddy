@@ -13,6 +13,13 @@ import Testing
         #expect(AnalyseWerte.liste(trades: [], positionen: [], merkliste: [], chartwerte: []).isEmpty)
     }
 
+    @Test func werteMitKursverlaufStehenVorn() {
+        let werte = ["AAPL", "BTCUSDT", "DE40.c", "EURUSD"]
+        #expect(AnalyseWerte.sortiert(werte, mitKurs: ["BTCUSDT", "AAPL"]) == ["AAPL", "BTCUSDT", "DE40.c", "EURUSD"])
+        #expect(AnalyseWerte.sortiert(werte, mitKurs: ["EURUSD"]) == ["EURUSD", "AAPL", "BTCUSDT", "DE40.c"])
+        #expect(AnalyseWerte.sortiert(werte, mitKurs: []) == werte)
+    }
+
     @Test func analyseStehtUnterMarktNachKurschart() {
         let markt = Bereich.markt
         let kurschart = markt.firstIndex(of: .kurschart)
