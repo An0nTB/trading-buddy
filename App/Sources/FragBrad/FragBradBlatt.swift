@@ -53,7 +53,8 @@ struct FragBradBlatt: View {
     }
 
     private var text: String? {
-        FragBrad.text(vorlage, kontext: kontext, freieFrage: freieFrage, ton: ton, zeitzone: modell.zeitzone)
+        FragBrad.text(vorlage, kontext: kontext, freieFrage: freieFrage, ton: ton, zeitzone: modell.zeitzone,
+                      empfehlungen: modell.empfehlungenErlaubt)
     }
 
     var body: some View {

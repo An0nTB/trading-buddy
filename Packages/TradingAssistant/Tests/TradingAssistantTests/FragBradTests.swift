@@ -256,3 +256,30 @@ let september = FragBradKontext(konto: "XTB …1234", von: zeit("2026-09-01 00:0
     let monat = try #require(FragBrad.text(.monat, kontext: kontext, ton: .sachlich, zeitzone: berlin))
     #expect(!monat.contains("Review"))
 }
+
+@Test func empfehlungenAnFragenNachEinschaetzungOhneGrenze() throws {
+    var kontext = september
+    kontext.trade = FragBradTrade(symbol: "EURUSD", eroeffnet: zeit("2026-09-11 22:40"),
+                                  geschlossen: zeit("2026-09-12 09:05"), nurDatum: false)
+    kontext.tag = zeit("2026-09-17 15:00")
+    kontext.symbol = "AAPL"
+    let heute = zeit("2026-10-05 12:00")
+    for vorlage in [FragBradVorlage.trade, .tag, .woche, .monat, .analyse] {
+        let an = try #require(FragBrad.text(vorlage, kontext: kontext, ton: .sachlich, zeitzone: berlin, heute: heute,
+                                            empfehlungen: true))
+        let aus = try #require(FragBrad.text(vorlage, kontext: kontext, ton: .sachlich, zeitzone: berlin, heute: heute))
+        #expect(an.contains("Einschätzung"), "\(vorlage)")
+        #expect(an.contains(FragBrad.rahmenMitEmpfehlungen), "\(vorlage)")
+        #expect(!an.contains("keine Prognose") && !an.contains("keine Marktprognose"), "\(vorlage)")
+        #expect(!an.contains("ohne Kauf- oder Verkaufsempfehlungen"), "\(vorlage)")
+        #expect(aus.contains(FragBrad.rahmen), "\(vorlage)")
+        #expect(!aus.contains("Einschätzung"), "\(vorlage)")
+    }
+    let analyse = try #require(FragBrad.text(.analyse, kontext: kontext, ton: .sachlich, zeitzone: berlin,
+                                             empfehlungen: true))
+    #expect(analyse.contains("möglichen Szenarien"))
+    // Eigene Frage bleibt wörtlich, nur der Rahmen wechselt
+    let frei = try #require(FragBrad.text(.frei, kontext: kontext, freieFrage: "Was lief gut?", ton: .sachlich,
+                                          zeitzone: berlin, empfehlungen: true))
+    #expect(frei.hasPrefix("Was lief gut?\n\n"))
+}
