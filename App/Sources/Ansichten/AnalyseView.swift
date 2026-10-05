@@ -1,4 +1,5 @@
 import SwiftUI
+import TradingAssistant
 import TradingCore
 import TradingStore
 
@@ -15,12 +16,14 @@ struct AnalyseView: View {
             positionen: modell.offenePositionen.map(\.symbol),
             merkliste: modell.nachrichten.aktiveEintraege.filter { $0.art == .symbol }.map(\.begriff),
             chartwerte: modell.kurse.chartwerte)
-        let aktuell = symbol.flatMap { symbole.contains($0) ? $0 : nil } ?? symbole.first
+        let mitKurs = Set(modell.kurse.verlaeufe.verlaeufe.keys)
+        let werte = AnalyseWerte.sortiert(symbole, mitKurs: mitKurs)
+        let aktuell = symbol.flatMap { werte.contains($0) ? $0 : nil } ?? werte.first
         ScrollView {
             VStack(alignment: .leading, spacing: Abstand.kachelAbstand) {
-                Kopfzeile("Analyse", untertitel: aktuell)
+                Kopfzeile("Analyse", untertitel: aktuell.map { untertitel($0, mitKurs: mitKurs) })
                 if let aktuell {
-                    wertKarte(aktuell, symbole: symbole)
+                    wertKarte(aktuell, werte: werte, mitKurs: mitKurs)
                 } else {
                     Platzhalter(titel: "Noch kein Wert", symbol: Bereich.analyse.symbol,
                                 text: "Werte kommen aus eigenen Trades, offenen Positionen, der Merkliste und dem Kurschart.")
@@ -35,17 +38,35 @@ struct AnalyseView: View {
             }
             .padding(Abstand.seitenrand)
         }
+        // Wie im Kurschart: Tageskerzen für Werte mit freier Quelle holen, damit die Kennzeichnung stimmt.
+        .task(id: symbole) { await modell.kurse.ladeVerlaeufe(fuer: symbole) }
     }
 
-    private func wertKarte(_ aktuell: String, symbole: [String]) -> some View {
+    /// Werte ohne Kursverlauf sagen es schon im Kopf (Tim 05.10.2026, de40.c ohne Kurse).
+    private func untertitel(_ wert: String, mitKurs: Set<String>) -> String {
+        mitKurs.contains(wert) ? wert : "\(wert) · \(String(localized: "Ohne Kurse: nur Nachrichten und eigene Trades"))"
+    }
+
+    private func wertKarte(_ aktuell: String, werte: [String], mitKurs: Set<String>) -> some View {
         Karte("Wert") {
             VStack(alignment: .leading, spacing: Abstand.kachelAbstand) {
                 Auswahlknopf("Wert", anzeige: aktuell, auswahl: Binding(get: { aktuell }, set: { symbol = $0 })) {
-                    ForEach(symbole, id: \.self) { Text(verbatim: $0).tag($0) }
+                    ForEach(werte, id: \.self) { wert in
+                        if mitKurs.contains(wert) {
+                            Text(verbatim: wert).tag(wert)
+                        } else {
+                            Text("\(wert) (ohne Kurse)").tag(wert)
+                        }
+                    }
                 }
                 Text("Bereitet eine Frage zu diesem Wert für Claude vor. Gesendet wird erst in Claude.")
                     .font(.callout)
                     .foregroundStyle(.secondary)
+                if !mitKurs.contains(aktuell) {
+                    // Vor dem Absprung sagen, was die Analyse ohne Kurse leisten kann (Tim 05.10.2026)
+                    Text(verbatim: FragBrad.ohneKursverlaufHinweis.uebersetzt)
+                        .font(.callout)
+                }
                 if istBeispiel {
                     // Gleiche Regel wie im Blatt Frag Henry (Doc 57, Doc 59 B2)
                     Text("Beispielkonto: keine Kursanalyse, weil die Beispiel-Trades erfundene Preise haben und nicht neben echte Kurse gehören.")
@@ -70,5 +91,10 @@ enum AnalyseWerte {
         let alle = trades + positionen + merkliste + chartwerte
         let bereinigt = alle.map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
         return Set(bereinigt).sorted()
+    }
+
+    /// Werte mit Kursverlauf zuerst, innerhalb beider Gruppen alphabetisch.
+    static func sortiert(_ werte: [String], mitKurs: Set<String>) -> [String] {
+        werte.filter { mitKurs.contains($0) } + werte.filter { !mitKurs.contains($0) }
     }
 }
