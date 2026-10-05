@@ -19,6 +19,14 @@ enum Format {
         wert.map { zahl($0, stellen: stellen) } ?? "–"
     }
 
+    /// Preis mit den Stellen aus dem Export (Devisen brauchen fünf), höchstens sechs; „–“ ohne Wert.
+    static func preis(_ wert: Decimal?) -> String {
+        guard let wert else { return "–" }
+        let text = "\(wert)"
+        let stellen = text.split(separator: ".").dropFirst().first?.count ?? 0
+        return stellen > 6 ? zahl(wert, stellen: 6) : text.replacingOccurrences(of: ".", with: ",")
+    }
+
     static func prozent(_ anteil: Decimal?) -> String {
         anteil.map { zahl($0 * 100, stellen: 1) + " %" } ?? "–"
     }
