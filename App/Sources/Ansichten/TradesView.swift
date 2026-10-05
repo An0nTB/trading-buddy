@@ -342,7 +342,7 @@ struct TradeInspektor: View {
                         zeile("Stop beim Einstieg", Format.kurs(stop), fett: true)
                     }
                     zeile("Ziel", trade.takeProfit.map(Format.kurs) ?? "–")
-                    zeile("Risiko (1 R)", trade.risk.map { Format.betrag($0, waehrung) } ?? "–")
+                    zeile("Risiko (1 R)", risikoText)
                 }
                 Group {
                     zeile("Brutto", Format.geld(trade.profit, waehrung), farbe: thema.vorzeichen(trade.profit))
@@ -351,6 +351,17 @@ struct TradeInspektor: View {
                     zeile("Netto", Format.geld(trade.netProfit, waehrung), farbe: thema.vorzeichen(trade.netProfit), fett: true)
                     zeile("R", Format.r(trade.rMultiple), farbe: trade.rMultiple.map(thema.vorzeichen))
                     zeile("Termine", terminText)
+                }
+                if let hebel = Hebelprodukt.erkenne(trade.symbol) {
+                    // Scalable und Trade Republic nennen Basiswert, Richtung und Schwelle nur im Namen (Kern 0.25.0).
+                    Group {
+                        zeile("Basiswert", hebel.basiswert)
+                        zeile("Richtung Basiswert", hebel.markterwartung == .buy ? "Long" : "Short")
+                        if let schwelle = hebel.schwelle {
+                            zeile(hebel.art == .knockout ? "KO-Schwelle" : "Basispreis",
+                                  [Format.kurs(schwelle), hebel.schwellenwaehrung].compactMap { $0 }.joined(separator: " "))
+                        }
+                    }
                 }
             }
             if trade.produktart == .unbekannt {
@@ -365,13 +376,14 @@ struct TradeInspektor: View {
             #else
             JournalAnzeige(trade: trade, eintrag: eintrag)
             #endif
+            TradeTagsKarte(trade: trade) // freie Tags (Doc 02 Nr. 65)
             TradeBilderKarte(trade: trade) // Screenshots zum Trade (Tagesseite-Thread, Doc 28)
             if !muster.isEmpty {
                 Karte("Fehlermuster") {
                     ForEach(muster, id: \.self) { befundMuster in
                         VStack(alignment: .leading, spacing: Abstand.raster) {
                             MusterChip(muster: befundMuster, kurz: false)
-                            Text(verbatim: befundMuster.regel)
+                            Text(verbatim: modell.regeltext(befundMuster))
                                 .font(Schrift.beschriftung)
                                 .foregroundStyle(thema.textSchwach)
                         }
@@ -379,6 +391,19 @@ struct TradeInspektor: View {
                 }
             }
         }
+    }
+
+    /// Risiko mit Kennzeichnung, wenn es nicht aus dem Stop stammt (Doc 02 Nr. 64): R ist dann angenommen.
+    private var risikoText: String {
+        guard let risiko = trade.risk else { return "–" }
+        let betrag = Format.betrag(risiko, waehrung)
+        guard trade.risikoAngenommen else { return betrag }
+        let herkunft = switch modell.wirksamesRisiko(trade)?.herkunft {
+        case .setup: String(localized: "angenommen, Standard des Setups")
+        case .konto: String(localized: "angenommen, Standard des Kontos")
+        default: String(localized: "angenommen")
+        }
+        return "\(betrag) · \(herkunft)"
     }
 
     /// Termine der Währungen des Symbols in der Haltezeit (Doc 18 F9), sonst warum keiner steht.
@@ -423,7 +448,7 @@ struct JournalEingabe: View {
     @FocusState private var fokus: Feld?
 
     private enum Feld: Hashable {
-        case stop, setup, marktumfeld, grund
+        case stop, risiko, setup, marktumfeld, grund
     }
 
     init(trade: Trade, eintrag: Journaleintrag) {
@@ -443,6 +468,17 @@ struct JournalEingabe: View {
                         .focused($fokus, equals: .stop)
                 }
                 Text(stopHinweis)
+                    .font(Schrift.beschriftung)
+                    .foregroundStyle(thema.textSchwach)
+                LabeledContent("Risiko (\(modell.waehrung))") {
+                    TextField(risikoVorgabe, value: $eintrag.risikoEinstieg,
+                              format: .number.precision(.fractionLength(0...2)))
+                        .textFieldStyle(.roundedBorder)
+                        .multilineTextAlignment(.trailing)
+                        .frame(width: 120)
+                        .focused($fokus, equals: .risiko)
+                }
+                Text("Geplanter Verlust bis zum Stop. Ohne Stop rechnet R damit, als angenommen gekennzeichnet; leer gilt der Standard des Setups oder Kontos (Einstellungen).")
                     .font(Schrift.beschriftung)
                     .foregroundStyle(thema.textSchwach)
             }
@@ -530,6 +566,14 @@ struct JournalEingabe: View {
             return "Im Export steht kein Stop. Trage den Stop vom Einstieg ein, dann rechnen Risiko und R."
         }
         return "Der Export zeigt nur den letzten Stop. War er beim Einstieg anders, trage ihn hier ein; Risiko und R rechnen damit."
+    }
+
+    /// Platzhalter im Risikofeld: der Standard, der ohne Angabe gilt.
+    private var risikoVorgabe: String {
+        let quellen = modell.risikoquellen
+        let setup = eintrag.bereinigt.setup.flatMap { quellen.setups[$0] }
+        guard let standard = setup ?? quellen.konto else { return String(localized: "kein Standard") }
+        return String(localized: "Standard \(Format.betrag(standard, modell.waehrung))")
     }
 
     /// Textfeld auf ein freiwilliges Feld: leer heißt `nil`.
