@@ -75,3 +75,26 @@ private func datei() throws -> JournalExport {
     #expect(!leer.contains("## Ausstieg") && !leer.contains("- Ausstieg:"))
     #expect(!Ausgabe.trades(anfrage, auswahl: .chronologisch, muster: nil, anzahl: 10).contains("MFE erzielt"))
 }
+
+@Test func quelleUndHinweisDerKerzen() throws {
+    // Doc 59 B9: Herkunft und Eigenheit der Minutenkerzen stehen im Export und in der Ausgabe.
+    var original = try datei()
+    var analysen = original.konten[0].ausstieg ?? []
+    analysen[0].quelle = "MT4"
+    analysen[0].hinweis = "MetaTrader-Kurse des eigenen Brokers, Geldkurs (Bid); Abweichung um den Spread möglich."
+    analysen[1].quelle = "MT4"
+    analysen[1].hinweis = analysen[0].hinweis
+    analysen[2].quelle = "Binance"
+    analysen[2].hinweis = "Kurs in USDT statt USD (Binance führt kein USD)."
+    original.konten[0].ausstieg = analysen
+    let gelesen = try JournalExport.lese(try original.json())
+    #expect(gelesen.konten[0].ausstieg == analysen)
+    let anfrage = try Anfrage.lies(["monat": "2025-05"], export: gelesen)
+    let erwartet = "Kerzen der App: Binance 1, MT4 2 Trades. MetaTrader-Kurse des eigenen Brokers, Geldkurs (Bid); "
+        + "Abweichung um den Spread möglich. Kurs in USDT statt USD (Binance führt kein USD)."
+    #expect(Ausgabe.auswertung(anfrage).contains(erwartet))
+    #expect(Ausgabe.trades(anfrage, auswahl: .chronologisch, muster: nil, anzahl: 10).contains(erwartet))
+    // Ältere Datei ohne Quelle: kein Satz.
+    #expect(anfrage.kerzenquellen([]) == nil)
+    #expect(!Ausgabe.auswertung(try Anfrage.lies(["monat": "2025-05"], export: try datei())).contains("Kerzen der App:"))
+}

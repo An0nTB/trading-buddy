@@ -54,12 +54,12 @@ private func export(mitKursen: Bool = true) -> JournalExport {
     #expect(text.contains("| Aktueller Kurs (laufender Tag, kein Schluss) | 130,00 USD |"))
     #expect(text.contains("| Veränderung 1 Woche | \(Format.prozent(erwartet.veraenderung[.woche])) |"))
     #expect(text.contains("| Veränderung 12 Monate | – |"))
-    #expect(text.contains("| Schwankung aufs Jahr | \(Format.prozent(erwartet.schwankungJahr)) |"))
+    #expect(text.contains("| Schwankung aufs Jahr (12 Monate) | \(Format.prozent(erwartet.schwankungJahr)) |"))
     #expect(text.contains("| Durchschnittliche Tagesspanne (ATR 14) | \(Format.zahl(erwartet.atr14!)) USD ("))
-    #expect(text.contains("| Größter Rückgang vom Hoch im Zeitraum | 0,0 % |"))
+    #expect(text.contains("| Größter Rückgang vom Hoch (12 Monate) | 0,0 % |") && !text.contains("(letzte 12 Monate)"))
     #expect(text.contains("| Kraken …4242 | USD | 2 | 20,00 | 50,0 % | – |"))
     #expect(!text.contains("| Kraken …4242 | USD | 3 |"))
-    #expect(text.contains("hole_nachrichten mit begriff=BTCUSD"))
+    #expect(text.contains("hole_nachrichten mit begriff=BTCUSD und tage=7"))
     #expect(text.contains("## Rezept für die Kursanalyse (Henry)") && text.contains("keine Kauf- oder Verkaufssignale"))
     #expect(Ausgabe.kursanalyse(export(), symbol: "BTCUSD", monate: 0).contains("Kursanalyse BTCUSD (1 Monat)"))
     #expect(Ausgabe.datenstand(export()).contains("Kursverläufe (Tageskerzen) für 1 Werte: BTCUSD (hole_kursanalyse)."))
@@ -128,4 +128,40 @@ private func langeReihe(bis ende: String, wochenende: Bool, laufend: Bool) -> Jo
                                                    kursverlauf: [langeReihe(bis: "2026-10-01", wochenende: true,
                                                                             laufend: true)]), symbol: "X")
     #expect(!krypto.contains("| Veränderung 12 Monate | – |") && !krypto.contains("| Veränderung 1 Monat | – |"))
+}
+
+@Test func kennzahlenImmerUeberZwoelfMonate() throws {
+    // Doc 59 B3: Bei monate unter 12 galten 52-Wochen-Abstände, Schwankung und Rückgang nur fürs Fenster.
+    let reihe = langeReihe(bis: "2026-10-01", wochenende: true, laufend: false)
+    let datei = JournalExport(konten: [], zeitzone: utc, erstellt: zeit("2026-10-02T12:00:00"), kursverlauf: [reihe])
+    let voll = Ausgabe.kursanalyse(datei, symbol: "X")
+    let kurz = Ausgabe.kursanalyse(datei, symbol: "X", monate: 3)
+    let jahr = try #require(Ausgabe.analyse(reihe, monate: 12))
+    for zeile in ["| Abstand zum 52-Wochen-Tief | \(Format.prozent(jahr.abstandTief52W)) |",
+                  "| Schwankung aufs Jahr (12 Monate) | \(Format.prozent(jahr.schwankungJahr)) |",
+                  "| Veränderung 12 Monate | \(Format.prozent(jahr.veraenderung[.jahr])) |"] {
+        #expect(voll.contains(zeile) && kurz.contains(zeile), "\(zeile)")
+    }
+    #expect(kurz.contains("| Größter Rückgang vom Hoch (letzte 3 Monate) |") && !voll.contains("(letzte "))
+    #expect(kurz.contains("\(jahr.anzahlKerzen) abgeschlossene Tage"))
+}
+
+@Test func beispielkontoUndNaeherungInDerKursanalyse() throws {
+    // Doc 59 B2: erfundene Trades des Beispielkontos nicht neben echte Kurse. B8: Näherung der Kursreihe nennen.
+    var datei = export()
+    datei.konten.append(.init(broker: "Kraken", kontonummer: "0001", waehrung: "EUR",
+                              trades: [trade("x", "BTC/USD", netto: 99)], beispiel: true))
+    datei.kursverlauf?[0].naeherung = "Krypto-CFD des Brokers, Kurs von Kraken als Näherung"
+    let gelesen = try JournalExport.lese(try datei.json())
+    #expect(gelesen.konten.map(\.istBeispiel) == [false, true] && gelesen.kursverlauf == datei.kursverlauf)
+    let text = Ausgabe.kursanalyse(gelesen, symbol: "BTCUSD")
+    #expect(text.contains("| Kraken …4242 | USD | 2 | 20,00 |") && !text.contains("…0001"))
+    #expect(text.contains("1 Trades des Beispielkontos der App sind erfunden und hier weggelassen"))
+    #expect(text.contains("Näherung: Krypto-CFD des Brokers, Kurs von Kraken als Näherung. Die Kennzahlen beschreiben "
+        + "diesen Kurs, nicht den gehandelten Wert selbst."))
+    // Ohne die Felder (ältere App) wie bisher.
+    let alt = Ausgabe.kursanalyse(export(), symbol: "BTCUSD")
+    #expect(!alt.contains("Beispielkontos") && !alt.contains("Näherung:"))
+    let altJSON = String(decoding: try export().json(), as: UTF8.self)
+    #expect(!altJSON.contains("beispiel") && !altJSON.contains("naeherung"))
 }

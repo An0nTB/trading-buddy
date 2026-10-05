@@ -51,7 +51,7 @@ enum Katalog {
              inputSchema: schema([
                  "tage": .object(["type": .string("integer"),
                                   "description": .string("Wie viele Tage zurück, 1 bis 7, Vorgabe 1")]),
-                 "begriff": text("Nur Meldungen zu diesem Begriff der Merkliste oder Symbol")
+                 "begriff": text("Nur Meldungen zu diesem Begriff der Merkliste oder Symbol; Symbole wie im Journal (AAPL.US, BTC/EUR, BTCUSD) finden auch das Basis-Symbol und bei Krypto den Namen")
              ]),
              annotations: nurLesen),
         Tool(name: "hole_kursanalyse",
@@ -59,7 +59,7 @@ enum Katalog {
              inputSchema: schema([
                  "symbol": text("Symbol wie im Journal, z. B. BTCUSD oder AAPL"),
                  "monate": .object(["type": .string("integer"),
-                                    "description": .string("Zeitraum in Monaten, 1 bis 12, Vorgabe 12")])
+                                    "description": .string("Zeitraum der eigenen Trades in Monaten, 1 bis 12, Vorgabe 12; die Kennzahlen gelten immer für 12 Monate")])
              ], pflicht: ["symbol"]),
              annotations: nurLesen)
     ]

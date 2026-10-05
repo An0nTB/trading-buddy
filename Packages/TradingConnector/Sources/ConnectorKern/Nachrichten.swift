@@ -11,10 +11,7 @@ extension Ausgabe {
         let seit = jetzt.addingTimeInterval(-Double(tage) * 86_400)
         let wunsch = begriff?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() ?? ""
         let alle = (export.nachrichten ?? []).filter { $0.zeit >= seit && $0.zeit <= jetzt.addingTimeInterval(3600) }
-        let meldungen = wunsch.isEmpty ? alle : alle.filter { m in
-            m.merkliste.contains { $0.lowercased() == wunsch } || m.symbole.contains { $0.lowercased() == wunsch }
-                || m.titel.lowercased().contains(wunsch)
-        }
+        let meldungen = wunsch.isEmpty ? alle : alle.filter { passt($0, wunsch) }
         var t = ["# Henry · Nachrichten der letzten \(tage == 1 ? "24 Stunden" : "\(tage) Tage")"
                      + (wunsch.isEmpty ? "" : " · \(Format.kurz(begriff, zeichen: 40))"),
                  "Stand der App: Export vom \(Format.datum(export.erstellt, zone)), Zeitzone \(export.zeitzone). "
@@ -48,6 +45,41 @@ extension Ausgabe {
         t.append("\n" + Rezept.nachrichtenText)
         if export.personaTon { t.append(Rezept.personaRegel) }
         return t.joined(separator: "\n")
+    }
+
+    /// Ob eine Meldung zum Begriff passt: wörtlich wie bisher (Merkliste, Symbole, Teil der Überschrift), dazu über
+    /// das Basis-Symbol wie die Merkliste der App (TradingNews `Zuordnung`): „AAPL.US“ findet AAPL, „BTC/EUR“ und
+    /// „BTCUSD“ finden BTC und Bitcoin (Doc 59 B4). Abgeleitete Wörter zählen in Überschrift und Anriss nur als
+    /// ganzes Wort, damit „SOL“ nicht „Solar“ trifft.
+    static func passt(_ m: JournalExport.Meldung, _ wunsch: String) -> Bool {
+        if m.merkliste.contains(where: { $0.lowercased() == wunsch }) || m.symbole.contains(where: { $0.lowercased() == wunsch })
+            || m.titel.lowercased().contains(wunsch) { return true }
+        let woerter = suchwoerter(wunsch)
+        guard !woerter.isEmpty else { return false }
+        let basis = woerter[0]
+        if m.symbole.contains(where: { suchwoerter($0.lowercased()).first == basis }) { return true }
+        let text = Set((m.titel + " " + (m.anriss ?? "") + " " + m.merkliste.joined(separator: " ")).lowercased()
+            .split(whereSeparator: { !($0.isLetter || $0.isNumber) }).map(String.init))
+        return woerter.contains { $0.count >= 3 && text.contains($0) }
+    }
+
+    /// Kryptowerte, die Meldungen meist beim Namen nennen.
+    static let kryptonamen = ["btc": "bitcoin", "xbt": "bitcoin", "eth": "ethereum", "sol": "solana", "ada": "cardano",
+                              "doge": "dogecoin", "ltc": "litecoin", "dot": "polkadot", "link": "chainlink",
+                              "avax": "avalanche"]
+
+    /// Basis-Symbol und Name zu einem Begriff (klein geschrieben), leer, wenn er kein Symbol ist: „aapl.us“ → aapl,
+    /// „btc/eur“ und „btcusd“ → btc, bitcoin. Gegenwährungen USD, USDT, USDC und EUR fallen am Ende weg.
+    static func suchwoerter(_ begriff: String) -> [String] {
+        var basis = begriff.split(separator: ".").first.map(String.init) ?? begriff
+        basis = basis.split(separator: "/").first.map(String.init) ?? basis
+        guard !basis.isEmpty, basis.allSatisfy({ $0.isLetter || $0.isNumber }) else { return [] }
+        for gegen in ["usdt", "usdc", "usd", "eur"]
+        where basis.hasSuffix(gegen) && (2...5).contains(basis.count - gegen.count) {
+            basis = String(basis.dropLast(gegen.count))
+            break
+        }
+        return [basis] + (kryptonamen[basis].map { [$0] } ?? [])
     }
 
     static func zeile(_ m: JournalExport.Meldung, _ zone: TimeZone) -> String {
