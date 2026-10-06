@@ -225,21 +225,21 @@ extension Ausgabe {
 }
 
 extension Anfrage {
-    /// Best-Exit der Trades mit Stop (`BestExitAuswertung`) aus den Analysen der App; leer, wenn die App für keinen
-    /// Trade des Zeitraums Minutenkerzen hat.
+    /// Best-Exit der Trades mit R (`BestExitAuswertung`) aus den Analysen der App, auch mit angenommenem Risiko
+    /// (Kern 0.26.0); leer, wenn die App für keinen Trade des Zeitraums Minutenkerzen hat.
     func bestExitAbschnitt(_ trades: [Trade]) -> [String] {
         guard konto.ausstieg != nil else { return [] }
         let jeTrade = konto.ausstiegJeTrade
-        let mitStop = trades.filter { $0.stopRisiko != nil }
-        let einzeln = mitStop.compactMap { t in jeTrade[t.id]?.bestExit?.bestExit(tradeID: t.id) }
+        let mitR = trades.filter { $0.risk != nil }
+        let einzeln = mitR.compactMap { t in jeTrade[t.id]?.bestExit?.bestExit(tradeID: t.id) }
         guard !einzeln.isEmpty else { return [] }
         // Beträge nur, wenn alle analysierten Trades in Kontowährung lauten (1 R in der Währung des Trades).
         let original = Dictionary(alleTrades.map { ($0.id, $0.waehrung(kontowaehrung: kontowaehrung)) },
                                   uniquingKeysWith: { erste, _ in erste })
         let ids = Set(einzeln.map(\.tradeID))
         let gleich = !kontowaehrung.isEmpty && ids.allSatisfy { original[$0] == kontowaehrung }
-        let b = BestExitAuswertung(einzeln, ohneRisiko: trades.count - mitStop.count,
-                                   ohneKerzen: mitStop.count - einzeln.count, gleicheWaehrung: gleich)
+        let b = BestExitAuswertung(einzeln, ohneRisiko: trades.count - mitR.count,
+                                   ohneKerzen: mitR.count - einzeln.count, gleicheWaehrung: gleich)
         var t = ["\n## Best-Exit (feste Ziele in R gegen den tatsächlichen Ausstieg)"]
         func zeile(_ s: BestExitAuswertung.Stufe) -> [String] {
             var differenz = Format.r(s.differenzR)
@@ -254,11 +254,15 @@ extension Anfrage {
             + "aus \(b.anzahl) Trades" + (b.besteStufe.map { "; höchste Summe bei \(Format.r($0))" } ?? "") + ". "
             + "Ausstieg jeweils am besten Kurs (nicht planbar, nur Obergrenze): Summe "
             + "\(Format.r(b.summeTheoretischesMaximumR)).")
-        var lage = "Ausgelassen: \(b.ohneRisiko) ohne brauchbaren Stop, \(b.ohneKerzen) ohne Minutenkerzen."
+        var lage = "Ausgelassen: \(b.ohneRisiko) ohne R, \(b.ohneKerzen) ohne Minutenkerzen."
         let unscharf = b.stufen.map(\.anzahlUnscharf).reduce(0, +)
         if unscharf > 0 { lage += " \(unscharf) Fälle mit Stop und Ziel in derselben Kerze, als Stop gezählt." }
         if b.anzahlKerzenUnscharf > 0 {
             lage += " Bei \(b.anzahlKerzenUnscharf) Trades reichen die Kerzen über Ein- oder Ausstieg hinaus."
+        }
+        if b.anzahlRisikoAngenommen > 0 {
+            lage += " \(b.anzahlRisikoAngenommen) Trades mit angenommenem Risiko: 1 R ist dort der Kursabstand, der dem "
+                + "geplanten Risiko entspricht, kein echter Stop."
         }
         t.append(lage + " Ausführung genau am Kurs, ohne Schlupf; 1 R ist der Abstand zum Stop wie beim Ergebnis in R.")
         return t
