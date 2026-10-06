@@ -37,6 +37,9 @@ public struct Trade: Sendable, Equatable, Identifiable {
     /// Markterwartung eines Hebelprodukts: `.sell` bei Short und Put. `side` bleibt `.buy`, weil der Schein
     /// gekauft wird und das Ergebnis so stimmt. `nil` bei allem anderen.
     public var markterwartung: Side?
+    /// Marktrichtung für Long/Short-Auswertungen: die Markterwartung eines Hebelprodukts, sonst `side`.
+    /// Ein gekaufter Short-Schein zählt so als Short. Für Kursbewegung und Ergebnis bleibt `side` maßgeblich.
+    public var richtung: Side { markterwartung ?? side }
 
     public init(id: String, symbol: String, side: Side, lots: Decimal, openTime: Date, closeTime: Date,
                 openPrice: Decimal, closePrice: Decimal, stopLoss: Decimal? = nil, takeProfit: Decimal? = nil,
