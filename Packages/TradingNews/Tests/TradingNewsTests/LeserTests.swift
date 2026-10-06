@@ -155,6 +155,16 @@ import Testing
     #expect(Marketaux.anfrage(fuer: Merkbegriff(art: .symbol, text: "  "), token: "t", seit: nil) == nil)
 }
 
+@Test func marketauxSuchtIndexCFDsUeberDenNamen() throws {
+    let anfrage = try #require(Marketaux.anfrage(fuer: Merkbegriff(art: .symbol, text: "US500.cash"), token: "t", seit: nil))
+    let p = parameter(anfrage)
+    #expect(p["search"] == "\"s&p 500\"")
+    #expect(p["symbols"] == nil)
+    #expect(p["filter_entities"] == nil)
+    let roh = URLComponents(url: anfrage.url, resolvingAgainstBaseURL: false)?.percentEncodedQuery ?? ""
+    #expect(roh.contains("%26"))
+}
+
 @Test func marketauxAntwortAusDerDoku() throws {
     let meldungen = try Marketaux.lies(Data(Beispiel.marketaux.utf8), jetzt: jetzt)
     let m = try #require(meldungen.first)
