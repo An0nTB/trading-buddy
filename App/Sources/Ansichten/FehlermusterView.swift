@@ -79,7 +79,7 @@ struct BefundTrades: View {
                                 .font(Schrift.tabelle)
                                 .foregroundStyle(thema.textSchwach)
                                 .frame(width: 100, alignment: .leading)
-                            Text(verbatim: "\(trade.symbol) · \(Format.richtung(trade.side)) · \(Format.lots(trade.lots)) Lots")
+                            Text(verbatim: "\(trade.symbol) · \(Format.richtung(trade)) · \(Format.lots(trade.lots)) Lots")
                                 .foregroundStyle(thema.text)
                             Spacer()
                             if trade.rMultiple != nil {

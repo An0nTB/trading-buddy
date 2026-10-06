@@ -234,7 +234,7 @@ struct LetzteTradesKarte: View {
         Karte("Letzte Trades", aktion: { modell.bereich = .trades }) {
             ForEach(letzte) { trade in
                 HStack(spacing: Abstand.raster * 2) {
-                    Text(verbatim: "\(trade.symbol) \(Format.richtung(trade.side))")
+                    Text(verbatim: "\(trade.symbol) \(Format.richtung(trade))")
                         .foregroundStyle(thema.text)
                     Text(verbatim: Format.zeit(trade.closeTime))
                         .font(Schrift.beschriftung)

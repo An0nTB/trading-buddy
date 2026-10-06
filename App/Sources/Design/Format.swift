@@ -68,6 +68,12 @@ enum Format {
         side == .buy ? String(localized: "Long") : String(localized: "Short")
     }
 
+    /// Marktrichtung eines Trades: bei Hebelprodukten die Erwartung an den Basiswert (gekaufter Short-Schein ist
+    /// Short), sonst die Seite (Kern 0.26.1 `Trade.richtung`).
+    static func richtung(_ trade: Trade) -> String {
+        richtung(trade.richtung)
+    }
+
     static func double(_ wert: Decimal) -> Double {
         NSDecimalNumber(decimal: wert).doubleValue
     }

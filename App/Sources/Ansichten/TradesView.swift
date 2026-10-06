@@ -197,7 +197,7 @@ struct TradesView: View {
             .width(min: 90, ideal: 100)
             .customizationID("instrument")
             TableColumn("Richtung", value: \.trade.side.rawValue) { zeile in
-                Text(verbatim: Format.richtung(zeile.trade.side))
+                Text(verbatim: Format.richtung(zeile.trade))
             }
             .width(min: 70, ideal: 80)
             .customizationID("richtung")
@@ -322,7 +322,7 @@ struct TradeInspektor: View {
         let eintrag = modell.journaleintrag(trade)
         VStack(alignment: .leading, spacing: Abstand.kachelAbstand) {
             VStack(alignment: .leading, spacing: Abstand.raster) {
-                Text(verbatim: "\(trade.symbol) · \(Format.richtung(trade.side))")
+                Text(verbatim: "\(trade.symbol) · \(Format.richtung(trade))")
                     .font(Schrift.titel)
                     .foregroundStyle(thema.text)
                 Text(verbatim: untertitel)
@@ -751,7 +751,7 @@ struct TradeZeile: View {
     var body: some View {
         HStack(alignment: .top, spacing: Abstand.kachelAbstand) {
             VStack(alignment: .leading, spacing: Abstand.raster) {
-                Text(verbatim: "\(trade.symbol) · \(Format.richtung(trade.side))")
+                Text(verbatim: "\(trade.symbol) · \(Format.richtung(trade))")
                     .font(Schrift.fliesstext.weight(.semibold))
                     .foregroundStyle(thema.text)
                 Text(verbatim: zweiteZeile)
