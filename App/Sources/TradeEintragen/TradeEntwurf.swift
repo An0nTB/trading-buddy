@@ -1,9 +1,11 @@
 import Foundation
 import TradingCore
+import TradingStore
 
 /// Formular „Trade eintragen“ ohne Ansicht (Doc 02 Nr. 63, Vorlage: Browser-Journal): Felder, Prüfung und
 /// Vorschau des Ergebnisses. Gerechnet wird nur über `ManuellerTrade`, damit Formular und Import der
-/// Journal-Sicherung gleich rechnen. Nur geschlossene Trades; offene kommen später.
+/// Journal-Sicherung gleich rechnen. Nur geschlossene Trades; offene kommen später. Mit `ticket` bearbeitet
+/// der Entwurf einen von Hand eingetragenen Trade, Speichern ersetzt ihn.
 struct TradeEntwurf: Equatable {
     /// Stop als Kurs oder als geplantes Risiko in Kontowährung (Vorlage: nur Risiko).
     enum StopArt: String, CaseIterable, Identifiable {
@@ -46,12 +48,56 @@ struct TradeEntwurf: Equatable {
     var kontowahl: Kontowahl = .neu
     var neuerKontoname = ""
     var neueWaehrung = "EUR"
+    /// Ticket des bearbeiteten Trades; `nil` bei einem neuen.
+    var ticket: String?
+    /// Ziel hat das Formular nicht; beim Bearbeiten bleibt ein gespeichertes erhalten.
+    var ziel: Decimal?
+    /// Geplantes Risiko aus dem Journal, das beim Bearbeiten mit Stop als Kurs stehen bleibt.
+    var bisherigesRisiko: Decimal?
 
     /// Einstieg jetzt, Ausstieg zur selben Zeit; die Uhrzeit stellt der Nutzer ein.
     init(jetzt: Date = Date()) {
         einstieg = jetzt
         ausstieg = jetzt
     }
+
+    /// Entwurf aus einem gespeicherten Hand-Trade und seinem Journaleintrag, zum Bearbeiten im selben Konto.
+    /// Stop als Risiko, wenn das Journal ein Risiko hat und der gespeicherte Stop dazu passt (oder fehlt);
+    /// sonst als Kurs, und das Risiko aus dem Journal bleibt beim Speichern stehen.
+    init(bearbeite trade: ManuellerTrade, eintrag: Journaleintrag?, kontoId: Int64, ticket: String) {
+        einstieg = trade.einstieg
+        ausstiegBekannt = trade.ausstieg != nil
+        ausstieg = trade.ausstieg ?? trade.einstieg
+        symbol = trade.symbol
+        produktart = trade.schein ? .unbekannt : trade.produktart
+        markterwartung = trade.markterwartung
+        schein = trade.schein
+        groesse = trade.groesse
+        einstiegskurs = trade.einstiegskurs
+        ausstiegskurs = trade.ausstiegskurs
+        gebuehren = trade.gebuehren == 0 ? nil : abs(trade.gebuehren)
+        ziel = trade.ziel
+        setup = eintrag?.setup ?? ""
+        zeiteinheit = eintrag?.zeiteinheit ?? ""
+        planEingehalten = eintrag?.regeltreue ?? true
+        gedanken = eintrag?.grund ?? ""
+        kontowahl = .bestehend(kontoId)
+        self.ticket = ticket
+        stopKurs = trade.stopKurs
+        let risiko = eintrag?.risikoEinstieg
+        var ausRisiko = trade
+        ausRisiko.stopKurs = nil
+        ausRisiko.risiko = risiko
+        if let risiko, risiko != 0, trade.stopKurs == nil || ausRisiko.stop == trade.stopKurs {
+            stopArt = .risiko
+            self.risiko = abs(risiko)
+        } else {
+            stopArt = trade.stopKurs == nil ? .risiko : .kurs
+            bisherigesRisiko = risiko
+        }
+    }
+
+    var bearbeitet: Bool { ticket != nil }
 
     /// Fehlende Pflichtangaben vor der fachlichen Prüfung.
     enum Luecke: Equatable {
@@ -79,7 +125,7 @@ struct TradeEntwurf: Equatable {
                               einstiegskurs: einstiegskurs, ausstiegskurs: ausstiegskurs,
                               stopKurs: stopArt == .kurs ? stopKurs : nil,
                               risiko: stopArt == .risiko ? risiko.flatMap { $0 == 0 ? nil : abs($0) } : nil,
-                              gebuehren: abs(gebuehren ?? 0),
+                              ziel: ziel, gebuehren: abs(gebuehren ?? 0),
                               produktart: schein ? .derivat : produktart)
     }
 
@@ -91,7 +137,12 @@ struct TradeEntwurf: Equatable {
     /// Angaben, die keine Spalte der Position sind; leere Texte werden `nil`.
     var angaben: TradeAngaben {
         TradeAngaben(setup: Self.ohneLeere(setup), zeiteinheit: Self.ohneLeere(zeiteinheit),
-                     regeltreue: planEingehalten, notiz: Self.ohneLeere(gedanken))
+                     regeltreue: planEingehalten, notiz: Self.ohneLeere(gedanken), risikoEinstieg: risikoEinstieg)
+    }
+
+    /// Geplantes Risiko für den Journaleintrag: das eingegebene, bei Stop als Kurs das bisherige.
+    var risikoEinstieg: Decimal? {
+        stopArt == .risiko ? trade?.risiko : bisherigesRisiko
     }
 
     /// Ergebnis nach Gebühren in Kontowährung; `nil`, solange Größe oder Kurse fehlen.
@@ -162,4 +213,6 @@ struct TradeAngaben: Equatable {
     var zeiteinheit: String?
     var regeltreue: Bool?
     var notiz: String?
+    /// Geplantes Risiko in Kontowährung, positiv; `nil` ohne.
+    var risikoEinstieg: Decimal?
 }

@@ -9,10 +9,12 @@ extension AppModell {
     static let handBroker = "Von Hand"
 
     /// Speichert den Trade samt Angaben im gewählten oder in einem neuen Konto für Handeinträge,
-    /// lädt neu und wechselt zum Konto des Trades. Gibt das Ticket zurück.
+    /// lädt neu und wechselt zum Konto des Trades. Mit `ticket` ersetzt er den von Hand eingetragenen Trade
+    /// dieses Tickets; übrige Felder seines Journaleintrags (Zustand, Stop beim Einstieg …) bleiben.
+    /// Gibt das Ticket zurück.
     @discardableResult
     func speichereManuellenTrade(_ trade: ManuellerTrade, angaben: TradeAngaben, kontowahl: TradeEntwurf.Kontowahl,
-                                 neuerKontoname: String, waehrung: String) throws -> String {
+                                 neuerKontoname: String, waehrung: String, ticket: String? = nil) throws -> String {
         guard let journal else { throw TradeEintragenFehler.keinJournal }
         let konto: Konto
         switch kontowahl {
@@ -26,13 +28,47 @@ extension AppModell {
         }
         guard let kontoId = konto.id else { throw TradeEintragenFehler.kontoFehlt }
         // Konto und Ticket setzt die Speicherung; der Stop steht in der Position, das Risiko im Eintrag.
-        let eintrag = Journaleintrag(kontoId: kontoId, ticket: "", setup: angaben.setup,
-                                     regeltreue: angaben.regeltreue, grund: angaben.notiz,
-                                     risikoEinstieg: trade.risiko.map { abs($0) },
-                                     zeiteinheit: angaben.zeiteinheit)
-        let position = try journal.speichereManuellenTrade(trade, konto: konto, eintrag: eintrag)
+        var eintrag = ticket.flatMap { bisherigerEintrag(konto: konto, ticket: $0) }
+            ?? Journaleintrag(kontoId: kontoId, ticket: "")
+        eintrag.setup = angaben.setup
+        eintrag.regeltreue = angaben.regeltreue
+        eintrag.grund = angaben.notiz
+        eintrag.risikoEinstieg = angaben.risikoEinstieg.map { abs($0) }
+        eintrag.zeiteinheit = angaben.zeiteinheit
+        eintrag.geaendertAm = Date()
+        let position = try journal.speichereManuellenTrade(trade, konto: konto, ticket: ticket, eintrag: eintrag)
         nachHandeintrag(kontoId: kontoId)
         return position.ticket
+    }
+
+    /// Journaleintrag eines Tickets: aus dem geladenen Konto, sonst aus der Speicherung.
+    private func bisherigerEintrag(konto: Konto, ticket: String) -> Journaleintrag? {
+        if konto.id == self.konto?.id, let eintrag = journaleintraege[ticket] { return eintrag }
+        return (try? journal?.journaleintraege(konto: konto))?[ticket]
+    }
+
+    /// Ob der Trade im gewählten Konto von Hand eingetragen ist (nur solche lassen sich bearbeiten und löschen).
+    func istHandtrade(_ trade: Trade) -> Bool {
+        guard let journal, let konto else { return false }
+        return (try? journal.manuelleTickets(konto: konto))?.contains(trade.id) ?? false
+    }
+
+    /// Entwurf zum Bearbeiten eines von Hand eingetragenen Trades im gewählten Konto; `nil` bei importierten.
+    func handEntwurf(_ trade: Trade) -> TradeEntwurf? {
+        guard let journal, let konto, let kontoId = konto.id,
+              let gespeichert = try? journal.manuellerTrade(konto: konto, ticket: trade.id)
+        else { return nil }
+        return TradeEntwurf(bearbeite: gespeichert, eintrag: journaleintraege[trade.id], kontoId: kontoId,
+                            ticket: trade.id)
+    }
+
+    /// Löscht einen von Hand eingetragenen Trade samt Journaleintrag, Tags und Bildern.
+    func loescheHandtrade(_ trade: Trade) throws {
+        guard let journal else { throw TradeEintragenFehler.keinJournal }
+        guard let konto else { throw TradeEintragenFehler.kontoFehlt }
+        let bilder = try journal.loescheManuellenTrade(konto: konto, ticket: trade.id)
+        bilder.forEach(Bilderordner.loesche)
+        nachHandeintrag(kontoId: konto.id)
     }
 
     /// Liest und speichert eine Journal-Sicherung in ein Euro-Konto mit dieser Bezeichnung.
