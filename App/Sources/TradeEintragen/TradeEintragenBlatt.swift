@@ -2,14 +2,38 @@ import SwiftUI
 import TradingCore
 import TradingStore
 
-/// Knopf „Trade eintragen“ mit eigenem Blatt, für die Kopfzeile der Trades.
+/// Knopf „Trade eintragen“ mit eigenem Blatt, für die Kopfzeile der Trades. Gibt es offene Hand-Trades, öffnet
+/// das Menü daneben einen davon zum Bearbeiten oder Schließen.
 struct TradeEintragenKnopf: View {
-    @State private var offen = false
+    @Environment(AppModell.self) private var modell
+    @State private var neu = false
+    @State private var bearbeitung: TradeEntwurf?
 
     var body: some View {
-        Button("Trade eintragen") { offen = true }
-            .buttonStyle(.borderedProminent)
-            .sheet(isPresented: $offen) { TradeEintragenBlatt() }
+        let offene = modell.offeneHandtrades
+        Group {
+            if offene.isEmpty {
+                Button("Trade eintragen") { neu = true }
+            } else {
+                Menu("Trade eintragen") {
+                    Section("Offene Trades schließen") {
+                        ForEach(offene, id: \.ticket) { offen in
+                            Button(Self.titel(offen.trade)) { bearbeitung = modell.handEntwurf(ticket: offen.ticket) }
+                        }
+                    }
+                } primaryAction: {
+                    neu = true
+                }
+                .fixedSize()
+            }
+        }
+        .buttonStyle(.borderedProminent)
+        .sheet(isPresented: $neu) { TradeEintragenBlatt() }
+        .sheet(item: $bearbeitung) { entwurf in TradeEintragenBlatt(bearbeite: entwurf) }
+    }
+
+    static func titel(_ trade: ManuellerTrade) -> String {
+        "\(trade.symbol) · \(Format.richtung(trade.markterwartung)) · \(Format.datum(trade.einstieg))"
     }
 }
 
@@ -25,6 +49,7 @@ struct TradeEintragenBlatt: View {
     @State private var hebelprodukt: Hebelprodukt?
     @State private var fehler: String?
     @State private var vorbelegt = false
+    @State private var loeschfrage = false
 
     init(bearbeite entwurf: TradeEntwurf? = nil) {
         _entwurf = State(initialValue: entwurf ?? TradeEntwurf())
@@ -67,13 +92,22 @@ struct TradeEintragenBlatt: View {
     private var zeitAbschnitt: some View {
         Section("Zeit") {
             DatePicker("Einstieg", selection: $entwurf.einstieg, displayedComponents: [.date, .hourAndMinute])
-            Toggle("Ausstiegszeit bekannt", isOn: $entwurf.ausstiegBekannt)
-            if entwurf.ausstiegBekannt {
-                DatePicker("Ausstieg", selection: $entwurf.ausstieg, in: entwurf.einstieg...,
-                           displayedComponents: [.date, .hourAndMinute])
+            Toggle("Trade noch offen", isOn: $entwurf.offen)
+            if entwurf.offen {
+                hinweis("Ohne Exit. Zum Schließen später über das Menü an „Trade eintragen“ öffnen, den Schalter ausschalten und den Exit eintragen.")
             } else {
-                hinweis("Ohne Ausstiegszeit zählt der Trade nur mit Datum; Uhrzeit- und Haltedauer-Auswertungen lassen ihn aus.")
+                ausstiegZeilen
             }
+        }
+    }
+
+    @ViewBuilder private var ausstiegZeilen: some View {
+        Toggle("Ausstiegszeit bekannt", isOn: $entwurf.ausstiegBekannt)
+        if entwurf.ausstiegBekannt {
+            DatePicker("Ausstieg", selection: $entwurf.ausstieg, in: entwurf.einstieg...,
+                       displayedComponents: [.date, .hourAndMinute])
+        } else {
+            hinweis("Ohne Ausstiegszeit zählt der Trade nur mit Datum; Uhrzeit- und Haltedauer-Auswertungen lassen ihn aus.")
         }
     }
 
@@ -147,8 +181,10 @@ struct TradeEintragenBlatt: View {
         Section("Ausführung") {
             zahlFeld("Größe", hilfe: "Stück bzw. € je Punkt", $entwurf.groesse)
             zahlFeld("Entry", hilfe: entwurf.schein ? "Kaufkurs des Scheins" : "Einstiegskurs", $entwurf.einstiegskurs)
-            zahlFeld("Exit", hilfe: entwurf.schein ? "Verkaufskurs des Scheins, 0 bei Knock-out" : "Ausstiegskurs",
-                     $entwurf.ausstiegskurs)
+            if !entwurf.offen {
+                zahlFeld("Exit", hilfe: entwurf.schein ? "Verkaufskurs des Scheins, 0 bei Knock-out" : "Ausstiegskurs",
+                         $entwurf.ausstiegskurs)
+            }
             zahlFeld("Gebühren", hilfe: "Summe aller Gebühren, positiv", $entwurf.gebuehren)
         }
     }
@@ -223,6 +259,8 @@ struct TradeEintragenBlatt: View {
                         .foregroundStyle(netto < 0 ? thema.verlust : thema.text)
                 }
                 LabeledContent("Ergebnis in R", value: rText)
+            } else if entwurf.offen {
+                hinweis("Offen: Das Ergebnis steht nach dem Schließen.")
             } else {
                 hinweis("Ergebnis erscheint, sobald Größe, Entry und Exit stehen.")
             }
@@ -235,6 +273,15 @@ struct TradeEintragenBlatt: View {
                 Text(verbatim: fehler)
                     .font(Schrift.beschriftung)
                     .foregroundStyle(thema.verlust)
+            }
+            if entwurf.bearbeitet {
+                Button("Trade löschen", role: .destructive) { loeschfrage = true }
+                    .confirmationDialog("Diesen Trade löschen?", isPresented: $loeschfrage, titleVisibility: .visible) {
+                        Button("Trade löschen", role: .destructive) { loesche() }
+                        Button("Abbrechen", role: .cancel) {}
+                    } message: {
+                        Text("Der von Hand eingetragene Trade verschwindet samt Journal, Tags und Bildern. Das lässt sich nicht rückgängig machen.")
+                    }
             }
         }
     }
@@ -324,6 +371,16 @@ struct TradeEintragenBlatt: View {
         vorbelegt = true
         guard !entwurf.bearbeitet else { return }
         if let id = modell.konto?.id { entwurf.kontowahl = .bestehend(id) }
+    }
+
+    private func loesche() {
+        guard let ticket = entwurf.ticket else { return }
+        do {
+            try modell.loescheHandtrade(ticket: ticket)
+            schliessen()
+        } catch {
+            fehler = Importlesung.fehlertext(error)
+        }
     }
 
     private func pruefeHebelprodukt() {
