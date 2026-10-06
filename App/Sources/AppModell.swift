@@ -39,6 +39,8 @@ final class AppModell {
     private(set) var risikoquellen = Risikoquellen()
     /// Freie Tags je Ticket des Kontos (Doc 02 Nr. 65).
     private(set) var tradeTags: [String: [String]] = [:]
+    /// Markterwartung je Ticket aus dem Journal (v11): gekaufter Short-Schein ist side buy, Erwartung sell.
+    private(set) var markterwartungen: [String: Side] = [:]
     /// Alle Tags des Kontos für Vorschläge, häufigste zuerst.
     private(set) var tagVorschlaege: [String] = []
     /// Alle Trades des gewählten Kontos, vor Filtern; ein nachgetragener Stop ersetzt den aus dem Export.
@@ -459,6 +461,7 @@ final class AppModell {
                 risikoquellen = try journal.risikoquellen(konto: konto)
                 tradeTags = try journal.tags(konto: konto)
                 tagVorschlaege = try journal.alleTags(konto: konto)
+                markterwartungen = try journal.markterwartungen(konto: konto)
             } else {
                 positionen = []
                 kontobewegungen = Kontobewegungen()
@@ -471,6 +474,7 @@ final class AppModell {
                 risikoquellen = Risikoquellen()
                 tradeTags = [:]
                 tagVorschlaege = []
+                markterwartungen = [:]
             }
             playbook = try journal.playbook()
             positionsbildung = Positionsbildung.bilde(kontobewegungen.ausfuehrungen,
@@ -498,10 +502,12 @@ final class AppModell {
     /// Konto) geht vor allen Auswertungen mit; ein echter Stop hat im Kern Vorrang (Doc 02 Nr. 64).
     private func aktualisiereTrades() {
         let quellen = risikoquellen
+        let erwartungen = markterwartungen
         let konto = waehrung.uppercased()
         // Fremdwährungs-Trades bekommen das geplante Risiko (Kontowährung) erst im Angleich; roh gäbe es ein falsches R.
         alleTrades = (positionen.map(Trade.init) + positionsbildung.trades).map { trade in
-            let mitJournal = trade.mitJournal(journaleintraege[trade.id])
+            var mitJournal = trade.mitJournal(journaleintraege[trade.id])
+            if mitJournal.markterwartung == nil { mitJournal.markterwartung = erwartungen[trade.id] }
             guard mitJournal.waehrung(kontowaehrung: konto) == konto else { return mitJournal }
             return mitJournal.mitGeplantemRisiko(quellen.wirksam(ticket: trade.id)?.betrag)
         }
@@ -1099,7 +1105,7 @@ extension Journaleintrag {
     /// Kein Feld ausgefüllt: so ein Eintrag wird nicht gespeichert, ein vorhandener gelöscht.
     var ohneAngaben: Bool {
         setup == nil && regeltreue == nil && zustand == nil && marktumfeld == nil && grund == nil && stopEinstieg == nil
-            && risikoEinstieg == nil
+            && risikoEinstieg == nil && zeiteinheit == nil
     }
 
     /// Dieselben Angaben wie `andere` (ohne Zeitstempel); `nil` zählt wie ein Eintrag ohne Angaben.
@@ -1107,7 +1113,7 @@ extension Journaleintrag {
         guard let andere else { return ohneAngaben }
         return setup == andere.setup && regeltreue == andere.regeltreue && zustand == andere.zustand
             && marktumfeld == andere.marktumfeld && grund == andere.grund && stopEinstieg == andere.stopEinstieg
-            && risikoEinstieg == andere.risikoEinstieg
+            && risikoEinstieg == andere.risikoEinstieg && zeiteinheit == andere.zeiteinheit
     }
 
     /// Leerraum an den Rändern weg, leere Texte werden `nil`.
@@ -1116,6 +1122,7 @@ extension Journaleintrag {
         kopie.setup = Self.text(setup)
         kopie.marktumfeld = Self.text(marktumfeld)
         kopie.grund = Self.text(grund)
+        kopie.zeiteinheit = Self.text(zeiteinheit)
         // Die Speicherung lehnt 0 und negative Beträge ab; ein geleertes oder unsinniges Feld heißt „keine Angabe“.
         if let risiko = risikoEinstieg, risiko <= 0 { kopie.risikoEinstieg = nil }
         return kopie
