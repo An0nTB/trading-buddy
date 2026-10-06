@@ -185,10 +185,11 @@ extension Tiefenanalyse {
     }
 
     /// Long („buy“) und Short („sell“) nach Anzahl, immer in dieser Reihenfolge; leer ohne Trades.
+    /// Hebelprodukte zählen nach ihrer Markterwartung (`Trade.richtung`).
     public static func anteileRichtung(_ trades: [Trade]) -> [Anteil] {
         let sortiert = nachSchluss(trades)
-        let kauf = sortiert.filter { $0.side == .buy }.map(\.id)
-        let verkauf = sortiert.filter { $0.side == .sell }.map(\.id)
+        let kauf = sortiert.filter { $0.richtung == .buy }.map(\.id)
+        let verkauf = sortiert.filter { $0.richtung == .sell }.map(\.id)
         return anteile([eintrag(Side.buy.rawValue, kauf), eintrag(Side.sell.rawValue, verkauf)])
     }
 
