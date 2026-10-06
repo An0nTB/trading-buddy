@@ -36,6 +36,21 @@ import TradingStore
         #expect(position.commission == T.d("-2.5"))
     }
 
+    @Test func offenerEntwurfBrauchtKeinenExit() throws {
+        var e = entwurf()
+        e.ausstiegskurs = nil
+        #expect(e.luecken() == [.ausstiegskurs])
+        e.offen = true
+        #expect(e.luecken().isEmpty)
+        #expect(e.speicherbar)
+        let trade = try #require(e.trade)
+        #expect(trade.offen && trade.ausstieg == nil && trade.ausstiegskurs == nil)
+        #expect(e.netto == nil)
+        // Ein Exit aus früherer Eingabe zählt nicht, solange der Trade offen ist.
+        e.ausstiegskurs = 120
+        #expect(try #require(e.trade).offen)
+    }
+
     @Test func fehlendeAngabenSperrenDasSpeichern() {
         var e = TradeEntwurf(jetzt: T.zeit(2026, 3, 2))
         #expect(!e.speicherbar)

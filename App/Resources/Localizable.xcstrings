@@ -803,6 +803,16 @@
         }
       }
     },
+    "Exit fehlt; ein offener Trade braucht „Trade noch offen“." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exit is missing; an open trade needs “Trade still open”."
+          }
+        }
+      }
+    },
     "Exit fehlt; offene Trades kommen später." : {
       "localizations" : {
         "en" : {
@@ -1101,6 +1111,26 @@
         }
       }
     },
+    "Offen: Das Ergebnis steht nach dem Schließen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open: the result is shown once the trade is closed."
+          }
+        }
+      }
+    },
+    "Offene Trades schließen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close open trades"
+          }
+        }
+      }
+    },
     "Ohne" : {
       "localizations" : {
         "en" : {
@@ -1127,6 +1157,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Without an exit time the trade counts by date only; time-of-day and holding-time analyses leave it out."
+          }
+        }
+      }
+    },
+    "Ohne Exit. Zum Schließen später über das Menü an „Trade eintragen“ öffnen, den Schalter ausschalten und den Exit eintragen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No exit yet. To close it later, open it from the menu on “Add trade”, switch this off and enter the exit."
           }
         }
       }
@@ -1352,6 +1392,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Delete trade"
+          }
+        }
+      }
+    },
+    "Trade noch offen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trade still open"
           }
         }
       }
