@@ -92,4 +92,81 @@ import TradingStore
                                                       kontoname: "Browser-Journal")
         #expect(erneut.status == .dateiBereitsImportiert)
     }
+
+    // MARK: Bearbeiten und Löschen (Paket 1a)
+
+    @Test func bearbeitenErsetztDenTradeUndBehaeltDasJournal() throws {
+        let m = try modell()
+        let e = entwurf()
+        let ticket = try m.speichereManuellenTrade(try #require(e.trade), angaben: e.angaben, kontowahl: .neu,
+                                                   neuerKontoname: e.neuerKontoname, waehrung: "EUR")
+        var zustand = try #require(m.journaleintraege[ticket])
+        zustand.zustand = 4
+        m.speichereJournal(zustand)
+        let trade = try #require(m.alleTrades.first)
+        #expect(m.istHandtrade(trade))
+        var bearbeitung = try #require(m.handEntwurf(trade))
+        #expect(bearbeitung.ticket == ticket)
+        #expect(bearbeitung.stopArt == .risiko)
+        #expect(bearbeitung.risiko == 50)
+        #expect(bearbeitung.setup == "Ausbruch")
+        #expect(bearbeitung.gedanken == "erfunden")
+        #expect(bearbeitung.gebuehren == T.d("2.5"))
+        bearbeitung.ausstiegskurs = 90
+        bearbeitung.gedanken = "geändert"
+        let neuesTicket = try m.speichereManuellenTrade(try #require(bearbeitung.trade), angaben: bearbeitung.angaben,
+                                                        kontowahl: bearbeitung.kontowahl, neuerKontoname: "",
+                                                        waehrung: "EUR", ticket: bearbeitung.ticket)
+        #expect(neuesTicket == ticket)
+        let gespeichert = try positionen(m)
+        #expect(gespeichert.count == 1)
+        #expect(gespeichert.first?.profit == -100)
+        let eintrag = try #require(m.journaleintraege[ticket])
+        #expect(eintrag.grund == "geändert")
+        #expect(eintrag.zustand == 4)
+        #expect(eintrag.risikoEinstieg == 50)
+    }
+
+    @Test func stopAlsKursBehaeltDasBisherigeRisiko() throws {
+        let m = try modell()
+        var e = entwurf()
+        e.stopArt = .kurs
+        e.stopKurs = 97
+        e.risiko = nil
+        let ticket = try m.speichereManuellenTrade(try #require(e.trade), angaben: e.angaben, kontowahl: .neu,
+                                                   neuerKontoname: e.neuerKontoname, waehrung: "EUR")
+        var mitRisiko = try #require(m.journaleintraege[ticket])
+        mitRisiko.risikoEinstieg = 80
+        m.speichereJournal(mitRisiko)
+        let trade = try #require(m.alleTrades.first)
+        let bearbeitung = try #require(m.handEntwurf(trade))
+        #expect(bearbeitung.stopArt == .kurs)
+        #expect(bearbeitung.stopKurs == 97)
+        #expect(bearbeitung.angaben.risikoEinstieg == 80)
+    }
+
+    @Test func loeschenEntferntTradeUndJournal() throws {
+        let m = try modell()
+        let e = entwurf()
+        let ticket = try m.speichereManuellenTrade(try #require(e.trade), angaben: e.angaben, kontowahl: .neu,
+                                                   neuerKontoname: e.neuerKontoname, waehrung: "EUR")
+        try m.loescheHandtrade(try #require(m.alleTrades.first))
+        let uebrig = try positionen(m)
+        #expect(uebrig.isEmpty)
+        #expect(m.journaleintraege[ticket] == nil)
+    }
+
+    @Test func importierterTradeIstKeinHandtrade() throws {
+        let m = try modell()
+        let json = """
+        {"trades": [{"id": "b1", "datum": "2026-03-02", "uhrzeit": "10:00", "asset": "Testwert AG",
+                     "groesse": "10", "entry": "100", "exit": "110"}]}
+        """
+        _ = try m.importiereJournalSicherung(daten: Data(json.utf8), dateiname: "journal-sicherung-b.json",
+                                             kontoname: "Browser-Journal")
+        let trade = try #require(m.alleTrades.first)
+        #expect(!m.istHandtrade(trade))
+        #expect(m.handEntwurf(trade) == nil)
+        #expect(throws: (any Error).self) { try m.loescheHandtrade(trade) }
+    }
 }
