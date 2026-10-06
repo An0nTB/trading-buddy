@@ -237,7 +237,7 @@ private struct TradeListeKarte: View {
                 ForEach(zeilen) { zeile in
                     GridRow {
                         VStack(alignment: .leading, spacing: 0) {
-                            Text(verbatim: "\(zeile.trade.symbol) · \(Format.richtung(zeile.trade.side))")
+                            Text(verbatim: "\(zeile.trade.symbol) · \(Format.richtung(zeile.trade.richtung))")
                                 .foregroundStyle(thema.text)
                             Text(verbatim: Format.zeit(zeile.trade.closeTime) + (zeile.analyse.unscharf ? " · ≈" : ""))
                                 .font(Schrift.beschriftung)
