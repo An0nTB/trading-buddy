@@ -8,8 +8,11 @@ import TradingCalendar
     @Test func feiertageSindGanztaegigUndEindeutig() {
         let termine = Termindienst.boersenfeiertage()
         #expect(!termine.isEmpty)
-        #expect(termine.allSatisfy(\.ganztaegig))
-        #expect(Set(termine.map(\.id)).count == termine.count)
+        // Außerhalb von #expect gerechnet: Schlüsselpfade in rethrows-Aufrufen bricht das Makro.
+        let alleGanztaegig = termine.allSatisfy { $0.ganztaegig }
+        let ids = termine.map { $0.id }
+        #expect(alleGanztaegig)
+        #expect(Set(ids).count == termine.count)
     }
 
     /// Ein Nasdaq-Feiertag, den die NYSE auch hat, steht nur einmal im Kalender.
@@ -19,6 +22,7 @@ import TradingCalendar
         let tage = { (boerse: String) in
             Set(termine.map(\.id).filter { $0.hasPrefix("boerse-\(boerse)-") }.map { $0.dropFirst("boerse-\(boerse)-".count) })
         }
-        #expect(tage("nasdaq").isDisjoint(with: tage("nyse")))
+        let nasdaq = tage("nasdaq"), nyse = tage("nyse")
+        #expect(nasdaq.isDisjoint(with: nyse))
     }
 }
