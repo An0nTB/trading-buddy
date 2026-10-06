@@ -26,6 +26,7 @@ public struct Merkbegriff: Codable, Hashable, Sendable {
 /// Ordnet Meldungen der Merkliste zu.
 /// Symbole: Treffer in den Symbolen der Meldung (Alpaca, Marketaux), sonst als ganzes Wort in Großschreibung
 /// in Überschrift oder Anriss, aber nur ab drei Zeichen (sonst zu viele Zufallstreffer wie „A“ oder „T“).
+/// Index-CFDs („DE40.c“, „US500“) zusätzlich über den Indexnamen (`Indizes`).
 /// Name und Stichwort: ganze Wörter, Groß- und Kleinschreibung egal. Die Trefferquote für DE-Werte ist
 /// unbekannt und wird im Test gemessen (R6 Abschnitt 7).
 public enum Zuordnung {
@@ -37,6 +38,11 @@ public enum Zuordnung {
             guard !gesucht.isEmpty else { return false }
             let basis = basisSymbol(gesucht)
             if meldung.symbole.contains(where: { $0.uppercased() == gesucht || basisSymbol($0.uppercased()) == basis }) {
+                return true
+            }
+            // Index-CFDs: Meldungen nennen den Index beim Namen, als ganze Wortfolge („S&P 500“, nicht „Dowdy“).
+            if let namen = Indizes.namen(fuer: gesucht),
+               namen.contains(where: { enthaeltFolge(woerter(text), woerter($0)) }) {
                 return true
             }
             guard basis.count >= 3 else { return false }
