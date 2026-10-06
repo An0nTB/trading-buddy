@@ -71,7 +71,7 @@ struct DrilldownZeile: View {
             Text(verbatim: trade.symbol)
                 .foregroundStyle(thema.text)
                 .lineLimit(1)
-            Text(verbatim: Format.richtung(trade.side))
+            Text(verbatim: Format.richtung(trade.richtung))
                 .font(Schrift.beschriftung)
                 .foregroundStyle(thema.textSchwach)
             Spacer()
