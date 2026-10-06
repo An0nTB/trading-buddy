@@ -194,9 +194,14 @@ struct OffenZeile: Codable, FetchableRecord, PersistableRecord {
     var swap: Decimal
     var profit: Decimal
     var produktart: String
+    /// `Side.rawValue`; nur bei offenen Trades von Hand gesetzt (v12).
+    var markterwartung: String?
+    var schein: Bool
 
-    init(importlaufId: Int64, _ p: OpenPosition) {
+    init(importlaufId: Int64, _ p: OpenPosition, markterwartung: Side? = nil, schein: Bool = false) {
         self.importlaufId = importlaufId
+        self.markterwartung = markterwartung?.rawValue
+        self.schein = schein
         ticket = p.ticket
         rohzeile = p.rohzeile
         side = p.side.rawValue
@@ -218,6 +223,11 @@ struct OffenZeile: Codable, FetchableRecord, PersistableRecord {
                      openTime: openTime, openPrice: openPrice, stopLoss: stopLoss,
                      takeProfit: takeProfit, currentPrice: currentPrice,
                      commission: commission, swap: swap, profit: profit, produktart: try art(produktart))
+    }
+
+    /// Erwartete Marktrichtung: gespeichert oder, ohne Angabe, die Handelsseite.
+    func erwartung() throws -> Side {
+        try seite(markterwartung ?? side)
     }
 }
 

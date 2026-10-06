@@ -97,3 +97,26 @@ import Testing
     #expect(Set(adressen).count == adressen.count)
     #expect(Set(Feedliste.standard.map(\.bereich)) == Set(Feed.Bereich.allCases))
 }
+
+// MARK: Index-CFDs (gleiche Tabelle wie der Connector 0.16.1)
+
+@Test func indexCFDUeberDenIndexnamen() {
+    #expect(Zuordnung.trifft(meldung("DAX schließt fester"), Merkbegriff(art: .symbol, text: "DE40.c")))
+    #expect(Zuordnung.trifft(meldung("Wall Street", anriss: "Der S&P 500 legte 0,4 % zu"),
+                             Merkbegriff(art: .symbol, text: "US500")))
+    #expect(Zuordnung.trifft(meldung("Nasdaq 100 auf Rekord"), Merkbegriff(art: .symbol, text: "#NAS100_cash")))
+    #expect(Zuordnung.trifft(meldung("Dow Jones im Minus"), Merkbegriff(art: .symbol, text: "US30cash")))
+    // Nur als ganze Wortfolge; ein anderer Index trifft nicht.
+    #expect(!Zuordnung.trifft(meldung("Daxenbach eröffnet Filiale"), Merkbegriff(art: .symbol, text: "GER40")))
+    #expect(!Zuordnung.trifft(meldung("S&P Global senkt Rating"), Merkbegriff(art: .symbol, text: "US500")))
+    #expect(!Zuordnung.trifft(meldung("DAX schließt fester"), Merkbegriff(art: .symbol, text: "US500")))
+}
+
+@Test func indexnamenNurFuerBekannteKuerzel() {
+    #expect(Indizes.namen(fuer: "DE40.c") == ["dax"])
+    #expect(Indizes.namen(fuer: "spx500usd")?.first == "s&p 500")
+    #expect(Indizes.namen(fuer: "JP225m")?.first == "nikkei 225")
+    #expect(Indizes.namen(fuer: "AAPL") == nil)
+    #expect(Indizes.namen(fuer: "SAP.DE") == nil)
+    #expect(Indizes.namen(fuer: "") == nil)
+}
