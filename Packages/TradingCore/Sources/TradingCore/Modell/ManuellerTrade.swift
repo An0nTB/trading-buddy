@@ -1,6 +1,6 @@
 import Foundation
 
-/// Von Hand eingetragener, geschlossener Trade (Formular „Trade eintragen“, Import der Journal-Sicherung).
+/// Von Hand eingetragener Trade (Formular „Trade eintragen“, Import der Journal-Sicherung), geschlossen oder offen.
 /// Eine Stelle für Ergebnis und Stop, damit Formular und Import gleich rechnen.
 /// Beträge in Kontowährung; die Journal-Sicherung kennt nur Euro.
 public struct ManuellerTrade: Sendable, Equatable {
@@ -24,7 +24,8 @@ public struct ManuellerTrade: Sendable, Equatable {
     public var schein: Bool
     public var groesse: Decimal
     public var einstiegskurs: Decimal
-    public var ausstiegskurs: Decimal
+    /// `nil`: Trade noch offen (`offen`); dann gilt `offenePosition(ticket:)` statt `position(ticket:)`.
+    public var ausstiegskurs: Decimal?
     /// Stop als Kurs; hat Vorrang vor `risiko`.
     public var stopKurs: Decimal?
     /// Geplantes Risiko in Kontowährung; ergibt den Stop, wenn `stopKurs` fehlt.
@@ -35,7 +36,7 @@ public struct ManuellerTrade: Sendable, Equatable {
     public var produktart: Produktart
 
     public init(symbol: String, einstieg: Date, ausstieg: Date? = nil, markterwartung: Side, schein: Bool = false,
-                groesse: Decimal, einstiegskurs: Decimal, ausstiegskurs: Decimal, stopKurs: Decimal? = nil,
+                groesse: Decimal, einstiegskurs: Decimal, ausstiegskurs: Decimal?, stopKurs: Decimal? = nil,
                 risiko: Decimal? = nil, ziel: Decimal? = nil, gebuehren: Decimal = 0,
                 produktart: Produktart = .unbekannt) {
         self.symbol = symbol
@@ -53,13 +54,17 @@ public struct ManuellerTrade: Sendable, Equatable {
         self.produktart = produktart
     }
 
+    /// Noch ohne Ausstiegskurs.
+    public var offen: Bool { ausstiegskurs == nil }
+
     /// Scheine werden immer gekauft; sonst handelt man in Richtung der Erwartung.
     public var handelsseite: Side { schein ? .buy : markterwartung }
 
     /// Kursergebnis ohne Gebühren: (Ausstieg − Einstieg) × Größe, bei Verkauf mit umgekehrtem Vorzeichen.
     /// Kaufmännisch auf 2 Stellen gerundet, halbe Cent vom Betrag weg. Rundet das Journal mit Math.round,
-    /// weicht es nur bei genau −x,5 Cent ab (dort zur Null hin).
+    /// weicht es nur bei genau −x,5 Cent ab (dort zur Null hin). Offen: 0.
     public var ergebnis: Decimal {
+        guard let ausstiegskurs else { return 0 }
         let faktor: Decimal = handelsseite == .buy ? 1 : -1
         return ((ausstiegskurs - einstiegskurs) * groesse * faktor).gerundet(2)
     }
@@ -74,14 +79,14 @@ public struct ManuellerTrade: Sendable, Equatable {
     }
 
     /// Eingabefehler in fester Reihenfolge; leer, wenn der Trade gespeichert werden kann.
-    /// Ein Schein darf mit 0 schließen (Knock-out ausgeknockt).
+    /// Ein Schein darf mit 0 schließen (Knock-out ausgeknockt). Offen: Ausstiegskurs und -zeit zählen nicht.
     public func pruefe() -> [Problem] {
         var probleme: [Problem] = []
         if symbol.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { probleme.append(.symbolLeer) }
         if groesse <= 0 { probleme.append(.groesseNichtPositiv) }
-        let ausstiegOk = schein ? ausstiegskurs >= 0 : ausstiegskurs > 0
+        let ausstiegOk = ausstiegskurs.map { schein ? $0 >= 0 : $0 > 0 } ?? true
         if einstiegskurs <= 0 || !ausstiegOk { probleme.append(.kursNichtPositiv) }
-        if let ausstieg, ausstieg < einstieg { probleme.append(.ausstiegVorEinstieg) }
+        if !offen, let ausstieg, ausstieg < einstieg { probleme.append(.ausstiegVorEinstieg) }
         if let stop {
             let falsch = handelsseite == .buy ? stop >= einstiegskurs : stop <= einstiegskurs
             if falsch { probleme.append(.stopAufFalscherSeite) }
@@ -91,11 +96,22 @@ public struct ManuellerTrade: Sendable, Equatable {
 
     /// Geschlossene Position mit leerer Rohzeile; der Import setzt sie selbst.
     /// Ohne Ausstiegszeit schließt sie zur Einstiegszeit und trägt `ausstiegszeitBekannt` false.
+    /// Nur für geschlossene Trades; offene gehen über `offenePosition(ticket:)`.
     public func position(ticket: String) -> ClosedPosition {
-        ClosedPosition(ticket: ticket, rohzeile: [], side: handelsseite, lots: groesse,
+        precondition(!offen, "position(ticket:) nur für geschlossene Trades, offen: offenePosition(ticket:)")
+        return ClosedPosition(ticket: ticket, rohzeile: [], side: handelsseite, lots: groesse,
                        symbol: symbol.trimmingCharacters(in: .whitespacesAndNewlines), openTime: einstieg,
                        openPrice: einstiegskurs, stopLoss: stop, takeProfit: ziel, closeTime: ausstieg ?? einstieg,
-                       closePrice: ausstiegskurs, commission: gebuehren == 0 ? 0 : -abs(gebuehren), swap: 0,
+                       closePrice: ausstiegskurs ?? einstiegskurs, commission: gebuehren == 0 ? 0 : -abs(gebuehren), swap: 0,
                        profit: ergebnis, produktart: produktart, ausstiegszeitBekannt: ausstieg != nil)
+    }
+
+    /// Offene Position mit leerer Rohzeile. Ohne Kursabruf steht der aktuelle Kurs auf dem Einstieg, das Ergebnis auf 0;
+    /// Gebühren wie bei `position(ticket:)` als negative Kommission. Die Ausstiegszeit spielt keine Rolle.
+    public func offenePosition(ticket: String) -> OpenPosition {
+        OpenPosition(ticket: ticket, rohzeile: [], side: handelsseite, lots: groesse,
+                     symbol: symbol.trimmingCharacters(in: .whitespacesAndNewlines), openTime: einstieg,
+                     openPrice: einstiegskurs, stopLoss: stop, takeProfit: ziel, currentPrice: einstiegskurs,
+                     commission: gebuehren == 0 ? 0 : -abs(gebuehren), swap: 0, profit: 0, produktart: produktart)
     }
 }

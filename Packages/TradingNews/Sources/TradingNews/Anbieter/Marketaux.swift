@@ -26,6 +26,11 @@ public enum Marketaux {
         ]
         switch begriff.art {
         case .symbol:
+            // Index-CFDs kennt Marketaux nicht als Symbol; Suche nach dem Indexnamen als Wortfolge.
+            if let name = Indizes.namen(fuer: begriff.text)?.first {
+                parameter.append(URLQueryItem(name: "search", value: "\"\(name)\""))
+                break
+            }
             parameter.append(URLQueryItem(name: "symbols", value: begriff.text.uppercased()))
             parameter.append(URLQueryItem(name: "filter_entities", value: "true"))
         case .name:
