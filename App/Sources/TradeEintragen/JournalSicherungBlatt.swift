@@ -208,7 +208,7 @@ struct JournalSicherungBlatt: View {
         }
     }
 
-    static func lesefehlerText(_ error: any Error) -> String {
+    nonisolated static func lesefehlerText(_ error: any Error) -> String {
         switch error as? JournalSicherungFehler {
         case .keinJSON?: String(localized: "Die Datei ist kein gültiges JSON.")
         case .keineTradesListe?: String(localized: "JSON ohne Liste „trades“: keine Sicherung des Browser-Journals.")
