@@ -192,7 +192,7 @@ extension Fehlermuster {
         case .ueberhandeln:
             "Positionen eines Tages über dem üblichen Maß (Median der Positionen je Tag plus 2), "
                 + "geprüft erst ab \(Fehlermuster.Schwellen().ueberhandelnMindestTage) Tagen mit Trades"
-        case .stopNichtEingehalten: "Verlust größer als 1,2 R"
+        case .stopNichtEingehalten: "Verlust größer als 1,2 R, nur Trades mit R aus dem Stop"
         case .gewinneZuFrueh: "Gewinner, die weniger als die Hälfte des Wegs zum Ziel mitgenommen haben"
         case .verliererLaufenLassen: "Verlierer im Schnitt mehr als 1,5-mal so lange gehalten wie Gewinner"
         case .verbilligen: "Nachkauf in gleicher Richtung zu schlechterem Kurs, während die erste Position offen ist"
