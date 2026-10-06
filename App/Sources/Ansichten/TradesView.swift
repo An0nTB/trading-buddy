@@ -330,6 +330,7 @@ struct TradeInspektor: View {
                     .foregroundStyle(thema.textSchwach)
                 FragBradMenuePunkt(trade: trade) // auch ohne Rechtsklick erreichbar (Doc 55 J19)
                     .buttonStyle(.borderless)
+                HandTradeKnoepfe(trade: trade) // nur bei Trades von Hand (Trade eintragen, Doc 66)
             }
             Grid(alignment: .leading, horizontalSpacing: Abstand.kachelAbstand, verticalSpacing: Abstand.raster * 2) {
                 Group {
