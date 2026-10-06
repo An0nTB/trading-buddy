@@ -138,7 +138,8 @@ import TradingStore
         var mitRisiko = try #require(m.journaleintraege[ticket])
         mitRisiko.risikoEinstieg = 80
         m.speichereJournal(mitRisiko)
-        let bearbeitung = try #require(m.handEntwurf(try #require(m.alleTrades.first)))
+        let trade = try #require(m.alleTrades.first)
+        let bearbeitung = try #require(m.handEntwurf(trade))
         #expect(bearbeitung.stopArt == .kurs)
         #expect(bearbeitung.stopKurs == 97)
         #expect(bearbeitung.angaben.risikoEinstieg == 80)
