@@ -27,6 +27,16 @@ import TradingCore
         #expect(Format.geld(trade.netProfit, "EUR").contains("€"))
     }
 
+    /// Ein gekaufter Short-Schein zeigt die Richtung des Basiswerts, nicht die Seite (Kern 0.26.1).
+    @Test func richtungFolgtDerMarkterwartung() {
+        let schein = Trade(id: "APPT-2", symbol: "Turbo Short DAX", side: .buy, lots: 100, openTime: T.zeit(2026, 4, 1),
+                           closeTime: T.zeit(2026, 4, 2), openPrice: 2, closePrice: 3, profit: 100, markterwartung: .sell)
+        #expect(Format.richtung(schein) == Format.richtung(Side.sell))
+        var ohne = schein
+        ohne.markterwartung = nil
+        #expect(Format.richtung(ohne) == Format.richtung(Side.buy))
+    }
+
     @Test func fehlendeWerteZeigenEinenStrich() {
         #expect(Format.prozent(nil) == "–")
         #expect(Format.zahl(nil) == "–")
