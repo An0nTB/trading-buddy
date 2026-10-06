@@ -15,15 +15,20 @@ struct TradeEintragenKnopf: View {
 
 /// Formular „Trade eintragen“ nach der Vorlage des Browser-Journals (Doc 02 Nr. 63): Zeit, Asset, Markterwartung,
 /// Abrechnung (Schein oder direkt), Setup, Zeiteinheit, Größe und Kurse, Stop als Kurs oder Risiko, Gebühren, Konto,
-/// Plan eingehalten, Gedanken. Kein Chart-Link; nur geschlossene Trades.
+/// Plan eingehalten, Gedanken. Kein Chart-Link; nur geschlossene Trades. Mit einem Entwurf aus
+/// `AppModell.handEntwurf` bearbeitet es einen von Hand eingetragenen Trade im selben Konto.
 struct TradeEintragenBlatt: View {
     @Environment(AppModell.self) private var modell
     @Environment(\.thema) private var thema
     @Environment(\.dismiss) private var schliessen
-    @State private var entwurf = TradeEntwurf()
+    @State private var entwurf: TradeEntwurf
     @State private var hebelprodukt: Hebelprodukt?
     @State private var fehler: String?
     @State private var vorbelegt = false
+
+    init(bearbeite entwurf: TradeEntwurf? = nil) {
+        _entwurf = State(initialValue: entwurf ?? TradeEntwurf())
+    }
 
     var body: some View {
         NavigationStack {
@@ -38,14 +43,16 @@ struct TradeEintragenBlatt: View {
                 ergebnisAbschnitt
             }
             .formStyle(.grouped)
-            .navigationTitle("Neuer Trade")
+            .navigationTitle(entwurf.bearbeitet ? LocalizedStringKey("Trade bearbeiten") : LocalizedStringKey("Neuer Trade"))
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Abbrechen") { schliessen() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Trade sichern") { sichern() }
-                        .disabled(!entwurf.speicherbar)
+                    Button(entwurf.bearbeitet ? LocalizedStringKey("Änderungen sichern") : LocalizedStringKey("Trade sichern")) {
+                        sichern()
+                    }
+                    .disabled(!entwurf.speicherbar)
                 }
             }
         }
@@ -167,25 +174,34 @@ struct TradeEintragenBlatt: View {
 
     private var kontoAbschnitt: some View {
         Section("Konto") {
-            Picker("Konto", selection: $entwurf.kontowahl) {
-                ForEach(modell.konten, id: \.id) { konto in
-                    if let id = konto.id {
-                        Text(verbatim: "\(konto.broker) · \(konto.kontoname)").tag(TradeEntwurf.Kontowahl.bestehend(id))
-                    }
-                }
-                Text("Neues Konto für Handeinträge").tag(TradeEntwurf.Kontowahl.neu)
-            }
-            if entwurf.kontowahl == .neu {
-                TextField("Name des Kontos", text: $entwurf.neuerKontoname, prompt: Text("z. B. Comdirect Depot"))
-                Picker("Währung", selection: $entwurf.neueWaehrung) {
-                    ForEach(TradeEntwurf.waehrungen, id: \.self) { code in
-                        Text(verbatim: code).tag(code)
-                    }
-                }
+            if entwurf.bearbeitet {
+                // Das Konto bleibt beim Bearbeiten; ein anderes hieße löschen und neu eintragen.
+                LabeledContent("Konto", value: kontoText)
             } else {
-                LabeledContent("Währung", value: waehrung)
+                kontoWahl
             }
             hinweis("Beträge in der Währung des Kontos.")
+        }
+    }
+
+    @ViewBuilder private var kontoWahl: some View {
+        Picker("Konto", selection: $entwurf.kontowahl) {
+            ForEach(modell.konten, id: \.id) { konto in
+                if let id = konto.id {
+                    Text(verbatim: "\(konto.broker) · \(konto.kontoname)").tag(TradeEntwurf.Kontowahl.bestehend(id))
+                }
+            }
+            Text("Neues Konto für Handeinträge").tag(TradeEntwurf.Kontowahl.neu)
+        }
+        if entwurf.kontowahl == .neu {
+            TextField("Name des Kontos", text: $entwurf.neuerKontoname, prompt: Text("z. B. Comdirect Depot"))
+            Picker("Währung", selection: $entwurf.neueWaehrung) {
+                ForEach(TradeEntwurf.waehrungen, id: \.self) { code in
+                    Text(verbatim: code).tag(code)
+                }
+            }
+        } else {
+            LabeledContent("Währung", value: waehrung)
         }
     }
 
@@ -261,6 +277,12 @@ struct TradeEintragenBlatt: View {
         return namen
     }
 
+    private var kontoText: String {
+        guard case .bestehend(let id) = entwurf.kontowahl, let konto = modell.konten.first(where: { $0.id == id })
+        else { return "–" }
+        return "\(konto.broker) · \(konto.kontoname) · \(konto.waehrung)"
+    }
+
     /// Währung des gewählten Kontos, bei neuem Konto die gewählte.
     private var waehrung: String {
         if case .bestehend(let id) = entwurf.kontowahl, let konto = modell.konten.first(where: { $0.id == id }) {
@@ -300,6 +322,7 @@ struct TradeEintragenBlatt: View {
     private func vorbelegen() {
         guard !vorbelegt else { return }
         vorbelegt = true
+        guard !entwurf.bearbeitet else { return }
         if let id = modell.konto?.id { entwurf.kontowahl = .bestehend(id) }
     }
 
@@ -311,7 +334,8 @@ struct TradeEintragenBlatt: View {
         guard let trade = entwurf.trade, entwurf.speicherbar else { return }
         do {
             try modell.speichereManuellenTrade(trade, angaben: entwurf.angaben, kontowahl: entwurf.kontowahl,
-                                               neuerKontoname: entwurf.neuerKontoname, waehrung: entwurf.neueWaehrung)
+                                               neuerKontoname: entwurf.neuerKontoname, waehrung: entwurf.neueWaehrung,
+                                               ticket: entwurf.ticket)
             schliessen()
         } catch {
             fehler = Importlesung.fehlertext(error)
