@@ -3,7 +3,9 @@ import GRDB
 import TradingCore
 
 // Von Hand eingetragene Trades (Formular „Trade eintragen“, Doc 02 Nr. 63). Sie stehen wie importierte in
-// `geschlossenePosition` und hängen an einem Importlauf „Von Hand“ je Konto (ohne Datei).
+// `geschlossenePosition` und hängen an einem Importlauf „Von Hand“ je Konto (ohne Datei). Offene Trades von Hand
+// stehen am selben Lauf in `offenePosition` (v12); Schließen ersetzt die offene Zeile durch eine geschlossene unter
+// demselben Ticket, Journaleintrag, Tags und Bilder bleiben.
 
 extension Journal {
     /// Name in `Importlauf.importer` für von Hand eingetragene Trades.
@@ -33,17 +35,36 @@ extension Journal {
         }
     }
 
-    /// Speichert einen von Hand eingetragenen Trade als geschlossene Position.
+    /// Speichert einen geschlossenen, von Hand eingetragenen Trade als geschlossene Position (Regeln wie
+    /// `speichereHandtrade`); ein offener Trade bricht ab.
+    /// - Returns: die gespeicherte Position mit ihrem Ticket.
+    @discardableResult
+    public func speichereManuellenTrade(_ trade: ManuellerTrade, konto: Konto, ticket: String? = nil,
+                                        eintrag: Journaleintrag? = nil, jetzt: Date = Date()) throws -> ClosedPosition {
+        guard !trade.offen else { throw SpeicherFehler.ungueltigerWert("Trade ist offen") }
+        let ticket = try speichereHandtrade(trade, konto: konto, ticket: ticket, eintrag: eintrag, jetzt: jetzt)
+        return try lies { db in
+            guard let zeile = try GeschlossenZeile
+                .filter(Column("kontoId") == konto.id! && Column("ticket") == ticket).fetchOne(db)
+            else { throw SpeicherFehler.ungueltigerWert("Trade \(ticket) wurde nicht gespeichert") }
+            return try zeile.modell()
+        }
+    }
+
+    /// Speichert einen von Hand eingetragenen Trade: geschlossen als geschlossene Position, offen
+    /// (`trade.offen`) als offene Position am Lauf „Von Hand“.
     ///
     /// Ohne `ticket` entsteht ein neuer Trade mit Ticket `hand-<UUID>`. Mit `ticket` wird der von Hand
     /// eingetragene Trade dieses Tickets ersetzt (oder unter diesem Ticket angelegt); ein importierter Trade
     /// lässt sich so nicht ändern. `eintrag` (Setup, Regeltreue, Notiz, Risiko …) wird in derselben Transaktion
     /// gespeichert, Konto und Ticket setzt die Speicherung; ohne `eintrag` bleibt ein vorhandener Eintrag.
-    /// Abgelehnt wird ein Trade, dessen `pruefe()` nicht leer ist.
-    /// - Returns: die gespeicherte Position mit ihrem Ticket.
+    /// Abgelehnt wird ein Trade, dessen `pruefe()` nicht leer ist. Ein offener und ein geschlossener Trade von
+    /// Hand mit demselben Ticket gibt es nie zugleich: Speichern geschlossen schließt den offenen, Speichern offen
+    /// öffnet den geschlossenen wieder.
+    /// - Returns: das Ticket des gespeicherten Trades.
     @discardableResult
-    public func speichereManuellenTrade(_ trade: ManuellerTrade, konto: Konto, ticket: String? = nil,
-                                        eintrag: Journaleintrag? = nil, jetzt: Date = Date()) throws -> ClosedPosition {
+    public func speichereHandtrade(_ trade: ManuellerTrade, konto: Konto, ticket: String? = nil,
+                                   eintrag: Journaleintrag? = nil, jetzt: Date = Date()) throws -> String {
         let probleme = trade.pruefe()
         guard probleme.isEmpty else {
             let liste = probleme.map { "\($0)" }.joined(separator: ", ")
@@ -57,7 +78,6 @@ extension Journal {
         eintrag?.kontoId = kontoId
         eintrag?.ticket = ticket
         if let eintrag { try Self.pruefeEintrag(eintrag) }
-        let position = trade.position(ticket: ticket)
 
         return try schreibe { db in
             guard try Konto.exists(db, key: kontoId) else {
@@ -70,13 +90,16 @@ extension Journal {
                 throw SpeicherFehler.ungueltigerWert("Trade \(ticket) stammt aus einem Import")
             }
             try GeschlossenZeile.filter(Column("kontoId") == kontoId && Column("ticket") == ticket).deleteAll(db)
-            try GeschlossenZeile(kontoId: kontoId, importlaufId: laufId, position,
-                                 markterwartung: trade.markterwartung, schein: trade.schein).insert(db)
+            try OffenZeile.filter(Column("importlaufId") == laufId && Column("ticket") == ticket).deleteAll(db)
+            if trade.offen {
+                try OffenZeile(importlaufId: laufId, trade.offenePosition(ticket: ticket),
+                               markterwartung: trade.markterwartung, schein: trade.schein).insert(db)
+            } else {
+                try GeschlossenZeile(kontoId: kontoId, importlaufId: laufId, trade.position(ticket: ticket),
+                                     markterwartung: trade.markterwartung, schein: trade.schein).insert(db)
+            }
             if let eintrag { try eintrag.save(db) }
-            guard let gespeichert = try GeschlossenZeile
-                .filter(Column("kontoId") == kontoId && Column("ticket") == ticket).fetchOne(db)
-            else { throw SpeicherFehler.ungueltigerWert("Trade \(ticket) wurde nicht gespeichert") }
-            return try gespeichert.modell()
+            return ticket
         }
     }
 
@@ -97,12 +120,17 @@ extension Journal {
 
     /// Der von Hand eingetragene Trade zum Ticket, so wie das Formular ihn wieder anzeigt; `nil`, wenn es ihn
     /// nicht gibt oder er aus einem Import stammt. Der Stop kommt als `stopKurs` zurück, das Risiko steht im
-    /// Journaleintrag (`risikoEinstieg`).
+    /// Journaleintrag (`risikoEinstieg`). Ein offener kommt ohne Ausstieg zurück (`offen`).
     public func manuellerTrade(konto: Konto, ticket: String) throws -> ManuellerTrade? {
         try lies { db in
             guard let kontoId = konto.id,
-                  let lauf = try Importlauf.filter(Column("dateiHash") == Self.vonHandKennung(kontoId)).fetchOne(db),
-                  let zeile = try GeschlossenZeile
+                  let lauf = try Importlauf.filter(Column("dateiHash") == Self.vonHandKennung(kontoId)).fetchOne(db)
+            else { return nil }
+            if let offen = try OffenZeile
+                .filter(Column("importlaufId") == lauf.id! && Column("ticket") == ticket).fetchOne(db) {
+                return try Self.manuellerTrade(offen)
+            }
+            guard let zeile = try GeschlossenZeile
                     .filter(Column("kontoId") == kontoId && Column("ticket") == ticket
                             && Column("importlaufId") == lauf.id!).fetchOne(db)
             else { return nil }
@@ -115,7 +143,29 @@ extension Journal {
         }
     }
 
-    /// Tickets der von Hand eingetragenen Trades eines Kontos.
+    /// Offener Trade von Hand aus seiner Zeile, ohne Ausstieg.
+    static func manuellerTrade(_ zeile: OffenZeile) throws -> ManuellerTrade {
+        let p = try zeile.modell()
+        return ManuellerTrade(symbol: p.symbol, einstieg: p.openTime, markterwartung: try zeile.erwartung(),
+                              schein: zeile.schein, groesse: p.lots, einstiegskurs: p.openPrice, ausstiegskurs: nil,
+                              stopKurs: p.stopLoss, ziel: p.takeProfit, gebuehren: -p.commission,
+                              produktart: p.produktart)
+    }
+
+    /// Offene Trades von Hand eines Kontos mit Ticket, nach Einstieg sortiert. Getrennt von den offenen Positionen
+    /// aus Auszügen (`offenePositionenLetzterAuszug`), die nur den MT4-Lauf lesen.
+    public func offeneManuelleTrades(konto: Konto) throws -> [OffenerHandtrade] {
+        try lies { db in
+            guard let kontoId = konto.id,
+                  let lauf = try Importlauf.filter(Column("dateiHash") == Self.vonHandKennung(kontoId)).fetchOne(db)
+            else { return [] }
+            return try OffenZeile.filter(Column("importlaufId") == lauf.id!)
+                .order(Column("openTime"), Column("ticket")).fetchAll(db)
+                .map { OffenerHandtrade(ticket: $0.ticket, trade: try Self.manuellerTrade($0)) }
+        }
+    }
+
+    /// Tickets der geschlossenen, von Hand eingetragenen Trades eines Kontos.
     public func manuelleTickets(konto: Konto) throws -> Set<String> {
         try lies { db in
             guard let kontoId = konto.id,
@@ -127,19 +177,27 @@ extension Journal {
         }
     }
 
-    /// Löscht einen von Hand eingetragenen Trade samt Journaleintrag, Häkchen und Tags. Importierte Trades
-    /// bleiben (Fehler). Gibt die Dateinamen der Bildverweise des Trades zurück, die mit gelöscht wurden;
-    /// die Dateien selbst bleiben, wie bei `loescheKonto`.
+    /// Löscht einen von Hand eingetragenen Trade (offen oder geschlossen) samt Journaleintrag, Häkchen und Tags.
+    /// Importierte Trades bleiben (Fehler). Gibt die Dateinamen der Bildverweise des Trades zurück, die mit
+    /// gelöscht wurden; die Dateien selbst bleiben, wie bei `loescheKonto`.
     @discardableResult
     public func loescheManuellenTrade(konto: Konto, ticket: String) throws -> [String] {
         guard let kontoId = konto.id else { throw SpeicherFehler.ungueltigerWert("Konto ohne ID") }
         return try schreibe { db in
-            guard let zeile = try GeschlossenZeile
+            let handLauf = try Importlauf.filter(Column("dateiHash") == Self.vonHandKennung(kontoId)).fetchOne(db)
+            let offen = try handLauf.flatMap { lauf in
+                try OffenZeile.filter(Column("importlaufId") == lauf.id! && Column("ticket") == ticket).fetchOne(db)
+            }
+            let zeile = try GeschlossenZeile
                 .filter(Column("kontoId") == kontoId && Column("ticket") == ticket).fetchOne(db)
-            else { throw SpeicherFehler.ungueltigerWert("Trade \(ticket) gibt es nicht") }
-            let lauf = try Importlauf.fetchOne(db, key: zeile.importlaufId)
-            guard lauf?.dateiHash == Self.vonHandKennung(kontoId) else {
+            guard offen != nil || zeile != nil else {
+                throw SpeicherFehler.ungueltigerWert("Trade \(ticket) gibt es nicht")
+            }
+            if let zeile, zeile.importlaufId != handLauf?.id {
                 throw SpeicherFehler.ungueltigerWert("Trade \(ticket) stammt aus einem Import")
+            }
+            if let lauf = handLauf {
+                try OffenZeile.filter(Column("importlaufId") == lauf.id! && Column("ticket") == ticket).deleteAll(db)
             }
             let bilder = try String.fetchAll(db, sql: """
                 SELECT datei FROM bild WHERE kontoId = ? AND ticket = ? ORDER BY datei
@@ -160,7 +218,23 @@ extension Journal {
             let zeilen = try GeschlossenZeile
                 .filter(Column("kontoId") == konto.id! && Column("markterwartung") != nil).fetchAll(db)
             for zeile in zeilen { ergebnis[zeile.ticket] = try zeile.erwartung() }
+            if let lauf = try Importlauf.filter(Column("dateiHash") == Self.vonHandKennung(konto.id!)).fetchOne(db) {
+                let offene = try OffenZeile
+                    .filter(Column("importlaufId") == lauf.id! && Column("markterwartung") != nil).fetchAll(db)
+                for zeile in offene { ergebnis[zeile.ticket] = try zeile.erwartung() }
+            }
             return ergebnis
         }
+    }
+}
+
+/// Offener Trade von Hand mit seinem Ticket (`Journal.offeneManuelleTrades`).
+public struct OffenerHandtrade: Sendable, Equatable {
+    public var ticket: String
+    public var trade: ManuellerTrade
+
+    public init(ticket: String, trade: ManuellerTrade) {
+        self.ticket = ticket
+        self.trade = trade
     }
 }
