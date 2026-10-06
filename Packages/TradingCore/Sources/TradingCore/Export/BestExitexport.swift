@@ -57,6 +57,8 @@ extension JournalExport {
         public var kerzenUnscharf: Bool
         public var abdeckung: Decimal
         public var stufen: [Stufe]
+        /// 1 R aus dem geplanten Risiko statt aus einem Stop (`BestExit.risikoAngenommen`); fehlt in älteren Dateien.
+        public var risikoAngenommen: Bool
 
         public init(_ b: BestExit) {
             risiko = b.risiko
@@ -66,6 +68,7 @@ extension JournalExport {
             kerzenUnscharf = b.kerzenUnscharf
             abdeckung = b.abdeckung
             stufen = b.stufen.map { Stufe($0) }
+            risikoAngenommen = b.risikoAngenommen
         }
 
         /// Zurück zur Analyse des Rechenkerns; `nil`, wenn eine Stufe einen unbekannten Ausgang trägt.
@@ -75,6 +78,7 @@ extension JournalExport {
 
         private enum CodingKeys: String, CodingKey {
             case risiko, tatsaechlichR, kostenR, theoretischesMaximumR, kerzenUnscharf, abdeckung, stufen
+            case risikoAngenommen
         }
 
         public init(from decoder: any Decoder) throws {
@@ -86,6 +90,7 @@ extension JournalExport {
             kerzenUnscharf = try c.decode(Bool.self, forKey: .kerzenUnscharf)
             abdeckung = try c.exportzahl(.abdeckung)
             stufen = try c.decode([Stufe].self, forKey: .stufen)
+            risikoAngenommen = (try? c.decodeIfPresent(Bool.self, forKey: .risikoAngenommen)) ?? false
         }
 
         public func encode(to encoder: any Encoder) throws {
@@ -97,6 +102,7 @@ extension JournalExport {
             try c.encode(kerzenUnscharf, forKey: .kerzenUnscharf)
             try c.encode(abdeckung.description, forKey: .abdeckung)
             try c.encode(stufen, forKey: .stufen)
+            if risikoAngenommen { try c.encode(true, forKey: .risikoAngenommen) }
         }
     }
 }
@@ -125,6 +131,7 @@ extension BestExit {
         differenzTheoretischesMaximum = max(0, b.theoretischesMaximumR - b.tatsaechlichR)
         kerzenUnscharf = b.kerzenUnscharf
         abdeckung = b.abdeckung
+        risikoAngenommen = b.risikoAngenommen
     }
 }
 

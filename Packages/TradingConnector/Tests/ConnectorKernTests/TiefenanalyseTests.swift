@@ -114,7 +114,8 @@ private func ohneStop(_ id: String, _ tag: String, netto: Decimal) -> Trade {
     #expect(text.contains("| 2,00 R | 1 | 1 | 0 | 0 | 2,00 R | 2,00 R | 0,50 R (10,00) |"))
     #expect(text.contains("| 3,00 R | 1 | 0 | 0 | 1 | 1,50 R | 1,50 R | 0,00 R (0,00) |"))
     #expect(text.contains("Tatsächlich: Summe 1,50 R, Ø 1,50 R aus 1 Trades; höchste Summe bei 2,00 R."))
-    #expect(text.contains("Ausgelassen: 2 ohne brauchbaren Stop, 1 ohne Minutenkerzen."))
+    // s1 und s2 haben angenommenes R, aber keine Kerzen in der App; k2 hat einen Stop, aber keine Kerzen.
+    #expect(text.contains("Ausgelassen: 0 ohne R, 3 ohne Minutenkerzen."))
 
     let auswertung = Ausgabe.auswertung(anfrage)
     #expect(auswertung.contains("- Davon 2 von 4 Trades mit R ohne Stop: R aus dem geplanten Risiko"))
