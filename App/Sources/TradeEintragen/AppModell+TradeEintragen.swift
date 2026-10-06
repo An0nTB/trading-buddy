@@ -10,7 +10,8 @@ extension AppModell {
 
     /// Speichert den Trade samt Angaben im gewählten oder in einem neuen Konto für Handeinträge,
     /// lädt neu und wechselt zum Konto des Trades. Mit `ticket` ersetzt er den von Hand eingetragenen Trade
-    /// dieses Tickets; übrige Felder seines Journaleintrags (Zustand, Stop beim Einstieg …) bleiben.
+    /// dieses Tickets; übrige Felder seines Journaleintrags (Zustand, Stop beim Einstieg …) bleiben. Ein offener
+    /// Trade (`trade.offen`) geht in die offenen Positionen; mit Exit gespeichert, ist er geschlossen.
     /// Gibt das Ticket zurück.
     @discardableResult
     func speichereManuellenTrade(_ trade: ManuellerTrade, angaben: TradeAngaben, kontowahl: TradeEntwurf.Kontowahl,
@@ -36,9 +37,9 @@ extension AppModell {
         eintrag.risikoEinstieg = angaben.risikoEinstieg.map { abs($0) }
         eintrag.zeiteinheit = angaben.zeiteinheit
         eintrag.geaendertAm = Date()
-        let position = try journal.speichereManuellenTrade(trade, konto: konto, ticket: ticket, eintrag: eintrag)
+        let gespeichert = try journal.speichereHandtrade(trade, konto: konto, ticket: ticket, eintrag: eintrag)
         nachHandeintrag(kontoId: kontoId)
-        return position.ticket
+        return gespeichert
     }
 
     /// Journaleintrag eines Tickets: aus dem geladenen Konto, sonst aus der Speicherung.
@@ -55,18 +56,34 @@ extension AppModell {
 
     /// Entwurf zum Bearbeiten eines von Hand eingetragenen Trades im gewählten Konto; `nil` bei importierten.
     func handEntwurf(_ trade: Trade) -> TradeEntwurf? {
+        handEntwurf(ticket: trade.id)
+    }
+
+    /// Entwurf zum Bearbeiten oder Schließen eines Hand-Trades (offen oder geschlossen) im gewählten Konto.
+    func handEntwurf(ticket: String) -> TradeEntwurf? {
         guard let journal, let konto, let kontoId = konto.id,
-              let gespeichert = try? journal.manuellerTrade(konto: konto, ticket: trade.id)
+              let gespeichert = try? journal.manuellerTrade(konto: konto, ticket: ticket)
         else { return nil }
-        return TradeEntwurf(bearbeite: gespeichert, eintrag: journaleintraege[trade.id], kontoId: kontoId,
-                            ticket: trade.id)
+        return TradeEntwurf(bearbeite: gespeichert, eintrag: journaleintraege[ticket], kontoId: kontoId,
+                            ticket: ticket)
+    }
+
+    /// Offene Hand-Trades des gewählten Kontos, nach Einstieg.
+    var offeneHandtrades: [OffenerHandtrade] {
+        guard let journal, let konto else { return [] }
+        return (try? journal.offeneManuelleTrades(konto: konto)) ?? []
     }
 
     /// Löscht einen von Hand eingetragenen Trade samt Journaleintrag, Tags und Bildern.
     func loescheHandtrade(_ trade: Trade) throws {
+        try loescheHandtrade(ticket: trade.id)
+    }
+
+    /// Löscht einen von Hand eingetragenen Trade (offen oder geschlossen) samt Journaleintrag, Tags und Bildern.
+    func loescheHandtrade(ticket: String) throws {
         guard let journal else { throw TradeEintragenFehler.keinJournal }
         guard let konto else { throw TradeEintragenFehler.kontoFehlt }
-        let bilder = try journal.loescheManuellenTrade(konto: konto, ticket: trade.id)
+        let bilder = try journal.loescheManuellenTrade(konto: konto, ticket: ticket)
         bilder.forEach(Bilderordner.loesche)
         nachHandeintrag(kontoId: konto.id)
     }

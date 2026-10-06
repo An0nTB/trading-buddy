@@ -169,4 +169,48 @@ import TradingStore
         #expect(m.handEntwurf(trade) == nil)
         #expect(throws: (any Error).self) { try m.loescheHandtrade(trade) }
     }
+
+    // MARK: Offene Trades (Paket 1c)
+
+    @Test func offenerTradeWirdGespeichertUndSpaeterGeschlossen() throws {
+        let m = try modell()
+        var e = entwurf()
+        e.offen = true
+        e.ausstiegskurs = nil
+        #expect(e.speicherbar)
+        #expect(e.netto == nil)
+        let trade = try #require(e.trade)
+        #expect(trade.offen)
+        let ticket = try m.speichereManuellenTrade(trade, angaben: e.angaben, kontowahl: .neu,
+                                                   neuerKontoname: e.neuerKontoname, waehrung: "EUR")
+        #expect(m.offeneHandtrades.map(\.ticket) == [ticket])
+        let vorher = try positionen(m)
+        #expect(vorher.isEmpty)
+
+        var schliessen = try #require(m.handEntwurf(ticket: ticket))
+        #expect(schliessen.offen)
+        #expect(schliessen.gedanken == "erfunden")
+        schliessen.offen = false
+        schliessen.ausstiegskurs = T.d("112.5")
+        schliessen.ausstieg = T.zeit(2026, 3, 2, 11)
+        let geschlossen = try #require(schliessen.trade)
+        try m.speichereManuellenTrade(geschlossen, angaben: schliessen.angaben, kontowahl: schliessen.kontowahl,
+                                      neuerKontoname: "", waehrung: "EUR", ticket: schliessen.ticket)
+        #expect(m.offeneHandtrades.isEmpty)
+        let nachher = try positionen(m)
+        #expect(nachher.map(\.ticket) == [ticket])
+        #expect(nachher.first?.profit == 125)
+        #expect(m.journaleintraege[ticket]?.grund == "erfunden")
+    }
+
+    @Test func offenerTradeWirdGeloescht() throws {
+        let m = try modell()
+        var e = entwurf()
+        e.offen = true
+        let ticket = try m.speichereManuellenTrade(try #require(e.trade), angaben: e.angaben, kontowahl: .neu,
+                                                   neuerKontoname: e.neuerKontoname, waehrung: "EUR")
+        try m.loescheHandtrade(ticket: ticket)
+        #expect(m.offeneHandtrades.isEmpty)
+        #expect(m.journaleintraege[ticket] == nil)
+    }
 }

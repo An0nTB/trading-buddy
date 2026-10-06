@@ -4,8 +4,9 @@ import TradingStore
 
 /// Formular „Trade eintragen“ ohne Ansicht (Doc 02 Nr. 63, Vorlage: Browser-Journal): Felder, Prüfung und
 /// Vorschau des Ergebnisses. Gerechnet wird nur über `ManuellerTrade`, damit Formular und Import der
-/// Journal-Sicherung gleich rechnen. Nur geschlossene Trades; offene kommen später. Mit `ticket` bearbeitet
-/// der Entwurf einen von Hand eingetragenen Trade, Speichern ersetzt ihn.
+/// Journal-Sicherung gleich rechnen. Ein offener Trade hat keinen Ausstieg; Schließen heißt, ihn zu bearbeiten
+/// und den Exit einzutragen. Mit `ticket` bearbeitet der Entwurf einen von Hand eingetragenen Trade, Speichern
+/// ersetzt ihn.
 struct TradeEntwurf: Equatable {
     /// Stop als Kurs oder als geplantes Risiko in Kontowährung (Vorlage: nur Risiko).
     enum StopArt: String, CaseIterable, Identifiable {
@@ -25,6 +26,8 @@ struct TradeEntwurf: Equatable {
     static let waehrungen = ["EUR", "USD", "GBP", "CHF"]
 
     var einstieg: Date
+    /// Noch offen: ohne Ausstiegszeit und Exit.
+    var offen = false
     var ausstiegBekannt = true
     var ausstieg: Date
     var symbol = ""
@@ -66,7 +69,8 @@ struct TradeEntwurf: Equatable {
     /// sonst als Kurs, und das Risiko aus dem Journal bleibt beim Speichern stehen.
     init(bearbeite trade: ManuellerTrade, eintrag: Journaleintrag?, kontoId: Int64, ticket: String) {
         einstieg = trade.einstieg
-        ausstiegBekannt = trade.ausstieg != nil
+        offen = trade.offen
+        ausstiegBekannt = trade.offen || trade.ausstieg != nil
         ausstieg = trade.ausstieg ?? trade.einstieg
         symbol = trade.symbol
         produktart = trade.schein ? .unbekannt : trade.produktart
@@ -108,21 +112,22 @@ struct TradeEntwurf: Equatable {
         var liste: [Luecke] = []
         if groesse == nil { liste.append(.groesse) }
         if einstiegskurs == nil { liste.append(.einstiegskurs) }
-        if ausstiegskurs == nil { liste.append(.ausstiegskurs) }
+        if !offen, ausstiegskurs == nil { liste.append(.ausstiegskurs) }
         if kontowahl == .neu, neuerKontoname.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             liste.append(.kontoname)
         }
         return liste
     }
 
-    /// Der Trade für Speichern und Vorschau; `nil`, solange Größe oder Kurse fehlen.
+    /// Der Trade für Speichern und Vorschau; `nil`, solange Größe oder Kurse fehlen (offen: ohne Exit).
     /// Ein Schein ist immer ein Derivat; ohne Wahl bleibt die Produktart `unbekannt`.
     var trade: ManuellerTrade? {
-        guard let groesse, let einstiegskurs, let ausstiegskurs else { return nil }
+        guard let groesse, let einstiegskurs, offen || ausstiegskurs != nil else { return nil }
         let symbolGetrimmt = symbol.trimmingCharacters(in: .whitespacesAndNewlines)
-        return ManuellerTrade(symbol: symbolGetrimmt, einstieg: einstieg, ausstieg: ausstiegBekannt ? ausstieg : nil,
+        return ManuellerTrade(symbol: symbolGetrimmt, einstieg: einstieg,
+                              ausstieg: !offen && ausstiegBekannt ? ausstieg : nil,
                               markterwartung: markterwartung, schein: schein, groesse: groesse,
-                              einstiegskurs: einstiegskurs, ausstiegskurs: ausstiegskurs,
+                              einstiegskurs: einstiegskurs, ausstiegskurs: offen ? nil : ausstiegskurs,
                               stopKurs: stopArt == .kurs ? stopKurs : nil,
                               risiko: stopArt == .risiko ? risiko.flatMap { $0 == 0 ? nil : abs($0) } : nil,
                               ziel: ziel, gebuehren: abs(gebuehren ?? 0),
@@ -145,9 +150,9 @@ struct TradeEntwurf: Equatable {
         stopArt == .risiko ? trade?.risiko : bisherigesRisiko
     }
 
-    /// Ergebnis nach Gebühren in Kontowährung; `nil`, solange Größe oder Kurse fehlen.
+    /// Ergebnis nach Gebühren in Kontowährung; `nil`, solange Größe oder Kurse fehlen, und bei offenen Trades.
     var netto: Decimal? {
-        guard let trade else { return nil }
+        guard let trade, !trade.offen else { return nil }
         return trade.ergebnis - trade.gebuehren
     }
 
@@ -191,7 +196,7 @@ struct TradeEntwurf: Equatable {
         switch luecke {
         case .groesse: String(localized: "Größe fehlt.")
         case .einstiegskurs: String(localized: "Entry fehlt.")
-        case .ausstiegskurs: String(localized: "Exit fehlt; offene Trades kommen später.")
+        case .ausstiegskurs: String(localized: "Exit fehlt; ein offener Trade braucht „Trade noch offen“.")
         case .kontoname: String(localized: "Name für das neue Konto fehlt.")
         }
     }
