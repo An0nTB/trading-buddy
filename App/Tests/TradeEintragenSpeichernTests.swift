@@ -13,6 +13,13 @@ import TradingStore
         AppModell(journal: try Journal.imSpeicher(), nebenwirkungen: false)
     }
 
+    /// Gespeicherte Positionen des gewählten Kontos, direkt aus dem Journal.
+    private func positionen(_ m: AppModell) throws -> [ClosedPosition] {
+        let journal = try #require(m.journal)
+        let konto = try #require(m.konto)
+        return try journal.geschlossenePositionen(konto: konto)
+    }
+
     private func entwurf() -> TradeEntwurf {
         var e = TradeEntwurf(jetzt: T.zeit(2026, 3, 2, 9))
         e.ausstieg = T.zeit(2026, 3, 2, 11)
@@ -38,8 +45,9 @@ import TradingStore
         let konto = try #require(m.konto)
         #expect(konto.kontoname == "Testdepot")
         #expect(konto.broker == AppModell.handBroker)
-        #expect(m.positionen.count == 1)
-        #expect(m.positionen.first?.stopLoss == 95)
+        let gespeichert = try positionen(m)
+        #expect(gespeichert.count == 1)
+        #expect(gespeichert.first?.stopLoss == 95)
         let eintrag = try #require(m.journaleintraege[ticket])
         #expect(eintrag.setup == "Ausbruch")
         #expect(eintrag.zeiteinheit == "M15")
@@ -57,7 +65,8 @@ import TradingStore
         try m.speichereManuellenTrade(try #require(e.trade), angaben: e.angaben, kontowahl: .bestehend(id),
                                       neuerKontoname: "", waehrung: "EUR")
         #expect(m.konten.count == 1)
-        #expect(m.positionen.count == 2)
+        let gespeichert = try positionen(m)
+        #expect(gespeichert.count == 2)
     }
 
     @Test func journalSicherungWirdImportiert() throws {
@@ -76,8 +85,9 @@ import TradingStore
         #expect(ergebnis.geschlosseneNeu == 1)
         #expect(ergebnis.ohneAusstieg == 1)
         #expect(m.konto?.waehrung == "EUR")
-        #expect(m.positionen.count == 1)
-        #expect(m.positionen.first?.ausstiegszeitBekannt == false)
+        let importiert = try positionen(m)
+        #expect(importiert.count == 1)
+        #expect(importiert.first?.ausstiegszeitBekannt == false)
         let erneut = try m.importiereJournalSicherung(daten: Data(json.utf8), dateiname: "journal-sicherung-test.json",
                                                       kontoname: "Browser-Journal")
         #expect(erneut.status == .dateiBereitsImportiert)
