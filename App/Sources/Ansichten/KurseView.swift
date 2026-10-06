@@ -1,14 +1,17 @@
 import SwiftUI
 import TradingCore
 import TradingQuotes
+import TradingStore
 
-/// Karte „Offene Positionen“ auf der Übersicht (P10, Stand-Doc 20): offene Positionen des letzten MT4-Auszugs und
-/// offene Käufe aus der Positionsbildung mit aktuellem Kurs, Buchgewinn, Alter des Kurses und Zuordnungshinweis.
+/// Karte „Offene Positionen“ auf der Übersicht (P10, Stand-Doc 20): offene Positionen des letzten MT4-Auszugs,
+/// offene Käufe aus der Positionsbildung und offen eingetragene Hand-Trades mit aktuellem Kurs, Buchgewinn, Alter
+/// des Kurses und Zuordnungshinweis. Hand-Trades schließt „Schließen…“ im Formular „Trade eintragen“.
 /// Ohne eingeschaltete Kurse stehen die Werte laut Auszug; ein Knopf schaltet die Kurse ein.
 struct KurseKarte: View {
     @Environment(AppModell.self) private var modell
     @Environment(\.thema) private var thema
     @State private var zuordnungenZeigen = false
+    @State private var bearbeitung: TradeEntwurf?
 
     var body: some View {
         let positionen = modell.offenePositionen
@@ -24,7 +27,14 @@ struct KurseKarte: View {
             .sheet(isPresented: $zuordnungenZeigen) {
                 ZuordnungenBlatt(symbole: Array(Set(positionen.map(\.symbol))).sorted())
             }
+            .sheet(item: $bearbeitung) { entwurf in TradeEintragenBlatt(bearbeite: entwurf) }
         }
+    }
+
+    /// Ticket, wenn die Position ein offen eingetragener Hand-Trade ist.
+    private func handTicket(_ p: OffenePosition) -> String? {
+        if case .hand(let h) = p.herkunft { return h.ticket }
+        return nil
     }
 
     @ViewBuilder private func zeile(_ p: OffenePosition, jetzt: Date) -> some View {
@@ -47,6 +57,12 @@ struct KurseKarte: View {
                     if eintrag?.naeherung != nil || bewertung?.unsicher == true {
                         Kapsel(text: String(localized: "Näherung"), betont: true)
                     }
+                    if let ticket = handTicket(p) {
+                        Kapsel(text: String(localized: "Von Hand"))
+                        Button("Schließen…") { bearbeitung = modell.handEntwurf(ticket: ticket) }
+                            .buttonStyle(.borderless)
+                            .font(Schrift.beschriftung)
+                    }
                 }
                 Text(verbatim: untertitel(p, eintrag: eintrag, wahl: wahl, jetzt: jetzt))
                     .font(Schrift.beschriftung)
@@ -67,7 +83,12 @@ struct KurseKarte: View {
             }
         }
         .contentShape(Rectangle())
-        .contextMenu { AnalyseMenuePunkt(symbol: p.symbol) }
+        .contextMenu {
+            AnalyseMenuePunkt(symbol: p.symbol)
+            if let ticket = handTicket(p) {
+                Button("Trade schließen…") { bearbeitung = modell.handEntwurf(ticket: ticket) }
+            }
+        }
     }
 
     private func untertitel(_ p: OffenePosition, eintrag: Kursstand.Eintrag?, wahl: Zuordnungswahl, jetzt: Date) -> String {
@@ -141,6 +162,9 @@ struct KurseKarte: View {
         }
         if positionen.contains(where: { $0.waehrung != nil }) {
             teile.append(String(localized: "Offene Käufe aus Ausführungen: Stück mal Kurs gegen den Einstand, Kurs in der Währung der Ausführung."))
+        }
+        if positionen.contains(where: { handTicket($0) != nil }) {
+            teile.append(String(localized: "Von Hand eingetragen: Größe mal Kursbewegung seit dem Einstieg, in Kontowährung; Scheine ohne Wert, weil der Kurs zum Basiswert gehört."))
         }
         teile.append(modell.kurse.aktiv
             ? String(localized: "Buchgewinn aus der Kursbewegung, ohne Kosten der Schließung; Kauf zum Geldkurs, Verkauf zum Briefkurs bewertet. Kurse über 30 s alt werden rot.")

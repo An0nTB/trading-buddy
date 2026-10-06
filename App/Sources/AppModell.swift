@@ -41,6 +41,8 @@ final class AppModell {
     private(set) var tradeTags: [String: [String]] = [:]
     /// Markterwartung je Ticket aus dem Journal (v11): gekaufter Short-Schein ist side buy, Erwartung sell.
     private(set) var markterwartungen: [String: Side] = [:]
+    /// Offen eingetragene Hand-Trades des Kontos (Trade eintragen, #294), für die Karte „Offene Positionen“.
+    private(set) var offeneHandpositionen: [OffenerHandtrade] = []
     /// Alle Tags des Kontos für Vorschläge, häufigste zuerst.
     private(set) var tagVorschlaege: [String] = []
     /// Alle Trades des gewählten Kontos, vor Filtern; ein nachgetragener Stop ersetzt den aus dem Export.
@@ -462,6 +464,7 @@ final class AppModell {
                 tradeTags = try journal.tags(konto: konto)
                 tagVorschlaege = try journal.alleTags(konto: konto)
                 markterwartungen = try journal.markterwartungen(konto: konto)
+                offeneHandpositionen = try journal.offeneManuelleTrades(konto: konto)
             } else {
                 positionen = []
                 kontobewegungen = Kontobewegungen()
@@ -475,6 +478,7 @@ final class AppModell {
                 tradeTags = [:]
                 tagVorschlaege = []
                 markterwartungen = [:]
+                offeneHandpositionen = []
             }
             playbook = try journal.playbook()
             positionsbildung = Positionsbildung.bilde(kontobewegungen.ausfuehrungen,
@@ -489,11 +493,13 @@ final class AppModell {
     }
 
     /// Offene Positionen des Kontos: MT4-Auszug zuerst, dann offene Käufe aus der Positionsbildung
-    /// (Trade Republic, Scalable, Krypto). Nur eine Momentaufnahme aus dem letzten Import (Stand-Doc 20).
+    /// (Trade Republic, Scalable, Krypto), dann offen eingetragene Hand-Trades (Tim 06.10.2026: auch in der Karte).
+    /// Auszug und Käufe sind nur eine Momentaufnahme aus dem letzten Import (Stand-Doc 20).
     var offenePositionen: [OffenePosition] {
         let mt4 = (offenerAuszug?.positionen ?? []).map { OffenePosition(herkunft: .mt4($0)) }
         let kaeufe = positionsbildung.offen.map { OffenePosition(herkunft: .kauf($0)) }
-        return mt4 + kaeufe
+        let hand = offeneHandpositionen.map { OffenePosition(herkunft: .hand($0)) }
+        return mt4 + kaeufe + hand
     }
 
     /// Baut die Trades aus den Positionen (MetaTrader, XTB) und aus der Positionsbildung (Trade Republic,
@@ -1030,6 +1036,8 @@ struct OffenePosition: Identifiable {
     enum Herkunft {
         case mt4(OpenPosition)
         case kauf(Ausfuehrung)
+        /// Von Hand eingetragen und noch offen; Ergebnis in Kontowährung.
+        case hand(OffenerHandtrade)
     }
 
     let herkunft: Herkunft
@@ -1038,6 +1046,7 @@ struct OffenePosition: Identifiable {
         switch herkunft {
         case .mt4(let p): p.ticket
         case .kauf(let k): k.id
+        case .hand(let h): "hand-\(h.ticket)" // eigener Raum: ein Hand-Trade im MT4-Konto trägt kein MT4-Ticket
         }
     }
 
@@ -1046,6 +1055,7 @@ struct OffenePosition: Identifiable {
         switch herkunft {
         case .mt4(let p): p.symbol
         case .kauf(let k): k.name.isEmpty ? k.kennung : k.name
+        case .hand(let h): h.trade.symbol.trimmingCharacters(in: .whitespacesAndNewlines)
         }
     }
 
@@ -1053,6 +1063,7 @@ struct OffenePosition: Identifiable {
         switch herkunft {
         case .mt4(let p): p.side
         case .kauf: .buy
+        case .hand(let h): h.trade.markterwartung // Richtung nach Markterwartung, wie Trade.richtung
         }
     }
 
@@ -1061,6 +1072,7 @@ struct OffenePosition: Identifiable {
         switch herkunft {
         case .mt4(let p): p.lots
         case .kauf(let k): k.menge
+        case .hand(let h): h.trade.groesse
         }
     }
 
@@ -1068,6 +1080,7 @@ struct OffenePosition: Identifiable {
         switch herkunft {
         case .mt4(let p): p.openPrice
         case .kauf(let k): k.menge == 0 ? k.preis : -k.betrag / k.menge
+        case .hand(let h): h.trade.einstiegskurs
         }
     }
 
@@ -1093,7 +1106,20 @@ struct OffenePosition: Identifiable {
         switch herkunft {
         case .mt4(let p): OffeneBewertung.bewerte(p, kurs: kurs)
         case .kauf(let k): OffeneBewertung.bewerte(k, kurs: kurs)
+        case .hand(let h): OffeneBewertung.bewerte(Self.bewertungsposition(h), kurs: kurs)
         }
+    }
+
+    /// Hand-Trade als Position mit Wert je Kurspunkt = Größe, wie `ManuellerTrade.ergebnis` rechnet
+    /// ((Kurs − Einstieg) × Größe): Bezugskurs 1.000 Punkte im Gewinn, Ergebnis dort 1.000 × Größe. Ein Schein
+    /// bleibt ohne Wert (Ergebnis 0): Der Kurs gehört zum Basiswert, nicht zum Schein.
+    static func bewertungsposition(_ h: OffenerHandtrade) -> OpenPosition {
+        var p = h.trade.offenePosition(ticket: h.ticket)
+        guard !h.trade.schein else { return p }
+        let bezug: Decimal = 1000
+        p.currentPrice = p.side == .buy ? p.openPrice + bezug : p.openPrice - bezug
+        p.profit = bezug * p.lots
+        return p
     }
 }
 
