@@ -73,6 +73,7 @@ struct TradesView: View {
         let muster = modell.musterJeTrade
         VStack(alignment: .leading, spacing: Abstand.kachelAbstand) {
             Kopfzeile("Trades", untertitel: String(localized: "\(liste.count) von \(modell.trades.count)")) {
+                TradeEintragenKnopf()
                 #if os(macOS)
                 // Suchfeld in der Kopfzeile statt in der Symbolleiste: dort überdeckte es den Kopf des Inspektors.
                 TextField("Instrument, Setup oder Ticket", text: $suche)
