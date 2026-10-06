@@ -319,7 +319,7 @@ struct TagTradesKarte: View {
                         modell.zeigeTrade(trade.id)
                     } label: {
                         HStack {
-                            Text(verbatim: "\(Format.uhrzeit(trade.openTime)) · \(trade.symbol) \(Format.richtung(trade.side))")
+                            Text(verbatim: "\(Format.uhrzeit(trade.openTime)) · \(trade.symbol) \(Format.richtung(trade.richtung))")
                                 .foregroundStyle(thema.text)
                             Spacer()
                             Text(verbatim: Format.geld(trade.netProfit, trade.waehrung(kontowaehrung: modell.waehrung)))
