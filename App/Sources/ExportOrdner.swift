@@ -197,7 +197,9 @@ enum ExportOrdner {
             try daten.json().write(to: ordner.appending(path: JournalExport.dateiname), options: .atomic)
             let jeKonto = Dictionary(daten.konten.map { (ausstiegskonto($0.broker, $0.kontonummer), $0.trades) },
                                      uniquingKeysWith: { erste, _ in erste })
-            aktualisiereAusstieg(jeKonto, journal: journal, zeitzone: zeitzone)
+            let waehrungen = Dictionary(daten.konten.map { (ausstiegskonto($0.broker, $0.kontonummer), $0.waehrung) },
+                                        uniquingKeysWith: { erste, _ in erste })
+            aktualisiereAusstieg(jeKonto, waehrungen: waehrungen, journal: journal, zeitzone: zeitzone)
             let trades = daten.konten.reduce(0) { $0 + $1.trades.count }
             return String(localized: "Export: \(trades) Trades aus \(daten.konten.count) Konten, \(Date.now.formatted(date: .omitted, time: .shortened))")
         } catch {
@@ -230,7 +232,8 @@ enum ExportOrdner {
     /// auf dem Mac) und schreibt den Export neu, wenn sich etwas geändert hat. Liest die Kerzen nur, wenn sich
     /// Speicher oder Trades seit dem letzten Lauf geändert haben, nicht bei jedem Nachrichtenabruf.
     @MainActor
-    private static func aktualisiereAusstieg(_ trades: [String: [Trade]], journal: Journal, zeitzone: TimeZone) {
+    private static func aktualisiereAusstieg(_ trades: [String: [Trade]], waehrungen: [String: String],
+                                             journal: Journal, zeitzone: TimeZone) {
         guard !ausstiegLaeuft else {
             ausstiegNachlauf = true
             return
@@ -252,7 +255,10 @@ enum ExportOrdner {
                 let analysen = await dienst.analysen(liste)
                 if !analysen.isEmpty { neu[konto] = analysen }
                 let mitAnalyse = liste.filter { analysen[$0.id] != nil }
-                let besteAusstiege = await Task.detached { ExportOrdner.bestExits(mitAnalyse) }.value
+                let waehrung = waehrungen[konto] ?? ""
+                let besteAusstiege = await Task.detached {
+                    ExportOrdner.bestExits(mitAnalyse, kontowaehrung: waehrung)
+                }.value
                 if !besteAusstiege.isEmpty { neuBest[konto] = besteAusstiege }
             }
             ausstiegStand = stand
@@ -265,14 +271,18 @@ enum ExportOrdner {
         }
     }
 
-    /// Best-Exit der Trades mit Stop aus den gespeicherten Minutenkerzen (Tradezella-Vergleich, Doc 02 Nr. 65),
+    /// Best-Exit der Trades mit R aus den gespeicherten Minutenkerzen (Tradezella-Vergleich, Doc 02 Nr. 65),
     /// nach Trade-ID. Je Symbol in zeitlicher Reihenfolge wie `Ausstiegsdienst`: Jede Monatsdatei wird einmal gelesen
-    /// und verworfen, sobald kein späterer Trade sie braucht. Ohne Stop, ohne Uhrzeit oder ohne Kerze fehlt der Trade.
-    static func bestExits(_ trades: [Trade],
+    /// und verworfen, sobald kein späterer Trade sie braucht. Ohne R, ohne Uhrzeit oder ohne Kerze fehlt der Trade.
+    static func bestExits(_ trades: [Trade], kontowaehrung: String,
                           speicher: Zeitkerzenspeicher = Zeitkerzenspeicher()) -> [String: BestExit] {
         var ergebnis: [String: BestExit] = [:]
-        // Nur mit R aus dem Stop: Best-Exit misst Ziele am Abstand zum Stop, nie am geplanten Risiko.
-        let passend = trades.filter { !$0.nurDatum && $0.stopRisiko != nil }
+        // R aus dem Stop, oder angenommen aus dem geplanten Risiko (Kern 0.26.0). Das steht in Kontowährung und passt
+        // roh nur zu Trades in Kontowährung; Fremdwährungs-Trades mit angenommenem Risiko fehlen deshalb.
+        let konto = kontowaehrung.uppercased()
+        let passend = trades.filter { t in
+            !t.nurDatum && (t.stopRisiko != nil || (t.risikoAngenommen && t.waehrung(kontowaehrung: konto) == konto))
+        }
         for (symbol, gruppe) in Dictionary(grouping: passend, by: \.symbol) {
             var geladen: [String: [Zeitkerze]] = [:]
             for trade in gruppe.sorted(by: { $0.openTime < $1.openTime }) {

@@ -90,3 +90,15 @@ private func konto(ausstieg: [JournalExport.Ausstieg]) -> JournalExport.Kontodat
     #expect(trotzdem.konten.first?.ausstieg?.first?.bestExit == nil)
     #expect(trotzdem.konten.first?.ausstieg?.first?.tradeID == "k1")
 }
+
+@Test func bestExitMitAngenommenemRisikoImExport() throws {
+    // Ohne Stop, geplantes Risiko 20: 1 R entspricht wie beim Stop 98 einem Abstand von 2 Punkten (20 × 3 ÷ 30).
+    var ohneStop = kauf
+    ohneStop.stopLoss = nil
+    let best = try #require(BestExit(trade: ohneStop.mitGeplantemRisiko(20), kerzen: kerzen))
+    #expect(best.risikoAngenommen)
+    let daten = try JSONEncoder().encode(JournalExport.BestAusstieg(best))
+    let zurueck = try JSONDecoder().decode(JournalExport.BestAusstieg.self, from: daten)
+    #expect(zurueck.risikoAngenommen)
+    #expect(zurueck.bestExit(tradeID: "k1") == best)
+}
