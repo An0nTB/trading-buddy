@@ -58,6 +58,9 @@ public struct Anfrage: Sendable {
             angleichskurse = export.angleichskurse
         } else {
             konto.trades = konto.trades.filter { $0.waehrung(kontowaehrung: kontowaehrung) == waehrung }
+            // Das geplante Risiko steht in Kontowährung; gegen Ergebnisse in anderer Währung gäbe es ein falsches R.
+            // Umgerechnete Trades (oben) behalten es wie in der App (AppModell, nach dem Angleich).
+            if waehrung != kontowaehrung { konto.trades = konto.trades.map { $0.mitGeplantemRisiko(nil) } }
         }
         konto.waehrung = waehrung
         if waehrung != kontowaehrung {

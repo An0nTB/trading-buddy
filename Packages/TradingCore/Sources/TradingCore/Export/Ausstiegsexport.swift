@@ -30,13 +30,17 @@ extension JournalExport {
         /// Was an diesen Kerzen anders ist als an den Fills, etwa Geldkurs (Bid) bei MetaTrader oder USDT statt USD
         /// bei Binance. Fehlt, wenn nichts zu sagen ist.
         public var hinweis: String?
+        /// Best-Exit aus denselben Kerzen; fehlt ohne Stop und in älteren Dateien.
+        public var bestExit: BestAusstieg?
 
         /// - Parameters:
         ///   - quelle: Herkunft der Kerzen, wie die App sie anzeigt.
         ///   - hinweis: Abweichung der Kerzen von den Fills, für Claude.
-        public init(_ a: Ausstiegsanalyse, quelle: String? = nil, hinweis: String? = nil) {
+        ///   - bestExit: Best-Exit des Trades aus denselben Kerzen (`BestExit`).
+        public init(_ a: Ausstiegsanalyse, quelle: String? = nil, hinweis: String? = nil, bestExit: BestExit? = nil) {
             self.quelle = quelle.flatMap { $0.isEmpty ? nil : $0 }
             self.hinweis = hinweis.flatMap { $0.isEmpty ? nil : $0 }
+            self.bestExit = bestExit.map { BestAusstieg($0) }
             tradeID = a.tradeID
             kerzenDauer = a.kerzenDauer
             anzahlKerzen = a.anzahlKerzen
@@ -66,6 +70,7 @@ extension JournalExport {
         private enum CodingKeys: String, CodingKey {
             case tradeID, kerzenDauer, anzahlKerzen, abdeckung, unscharf, mae, mfe, erzielt, maeAnteil, mfeAnteil
             case maeR, mfeR, effizienz, zeitMAE, zeitMFE, nachAusstiegFuer, nachAusstiegGegen, quelle, hinweis
+            case bestExit
         }
 
         public init(from decoder: any Decoder) throws {
@@ -102,6 +107,7 @@ extension JournalExport {
             nachAusstiegGegen = try zahl(.nachAusstiegGegen)
             quelle = try? c.decodeIfPresent(String.self, forKey: .quelle)
             hinweis = try? c.decodeIfPresent(String.self, forKey: .hinweis)
+            bestExit = try? c.decodeIfPresent(BestAusstieg.self, forKey: .bestExit)
         }
 
         public func encode(to encoder: any Encoder) throws {
@@ -125,6 +131,7 @@ extension JournalExport {
             try c.encodeIfPresent(nachAusstiegGegen?.description, forKey: .nachAusstiegGegen)
             try c.encodeIfPresent(quelle, forKey: .quelle)
             try c.encodeIfPresent(hinweis, forKey: .hinweis)
+            try c.encodeIfPresent(bestExit, forKey: .bestExit)
         }
     }
 }
