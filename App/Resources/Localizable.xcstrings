@@ -728,6 +728,16 @@
         }
       }
     },
+    "Instrument, Setup, Tag oder Ticket" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instrument, setup, tag or ticket"
+          }
+        }
+      }
+    },
     "JSON ohne Liste „trades“: keine Sicherung des Browser-Journals." : {
       "localizations" : {
         "en" : {
