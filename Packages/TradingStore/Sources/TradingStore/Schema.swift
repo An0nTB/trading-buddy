@@ -435,6 +435,15 @@ enum Schema {
             try db.alter(table: "journal") { t in t.add(column: "zeiteinheit", .text) }
         }
 
+        migrator.registerMigration("v12 Offene Trades von Hand") { db in
+            // Offene Trades aus dem Formular stehen wie Auszugs-Positionen in `offenePosition`, am Importlauf
+            // „Von Hand“ des Kontos. Markterwartung und Schein wie in `geschlossenePosition` (v11).
+            try db.alter(table: "offenePosition") { t in
+                t.add(column: "markterwartung", .text)
+                t.add(column: "schein", .boolean).notNull().defaults(to: false)
+            }
+        }
+
         return migrator
     }
 }
