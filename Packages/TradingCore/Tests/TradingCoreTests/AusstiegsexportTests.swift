@@ -68,3 +68,25 @@ private func konto(ausstieg: [JournalExport.Ausstieg]) -> JournalExport.Kontodat
     #expect(gelesen.konten.first?.trades == [kauf])
     #expect(gelesen.konten.first?.ausstieg == nil)
 }
+
+@Test func bestExitImExportRundreiseWieInDerApp() throws {
+    let analyse = try #require(Ausstiegsanalyse(trade: kauf, kerzen: kerzen))
+    let best = try #require(BestExit(trade: kauf, kerzen: kerzen))
+    let export = JournalExport(konten: [konto(ausstieg: [JournalExport.Ausstieg(analyse, bestExit: best)])],
+                               zeitzone: utc, erstellt: zeitpunkt("2026-03-03T00:00:00"))
+    let gelesen = try JournalExport.lese(try export.json())
+    let zurueck = try #require(gelesen.konten.first?.ausstieg?.first?.bestExit)
+    #expect(zurueck.bestExit(tradeID: "k1") == best)
+    // 1 R = 2 Punkte: 1 R, 1,5 R und 2 R in der Kerze 10:02 erreicht, 3 R nicht; tatsächlich 1,5 R.
+    #expect(best.stufen.map(\.ausgang) == [.ziel, .ziel, .ziel, .tatsaechlich])
+    #expect(best.tatsaechlichR == zahl("1.5"))
+    // Ohne Best-Exit fehlt das Feld; ein unlesbarer Wert kostet nur das Feld.
+    let ohne = String(decoding: try JournalExport(konten: [konto(ausstieg: [JournalExport.Ausstieg(analyse)])],
+                                                  zeitzone: utc).json(), as: UTF8.self)
+    #expect(!ohne.contains("bestExit"))
+    let kaputt = String(decoding: try export.json(), as: UTF8.self)
+        .replacingOccurrences(of: "\"ausgang\":\"ziel\"", with: "\"ausgang\":1")
+    let trotzdem = try JournalExport.lese(Data(kaputt.utf8))
+    #expect(trotzdem.konten.first?.ausstieg?.first?.bestExit == nil)
+    #expect(trotzdem.konten.first?.ausstieg?.first?.tradeID == "k1")
+}

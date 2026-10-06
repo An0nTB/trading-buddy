@@ -65,8 +65,17 @@ public enum Ausgabe {
 
         t.append("\n## Fehlermuster (Regeln im Rechenkern, Schwellen vorläufig)")
         t.append(contentsOf: a.befunde.map { befund(a, $0) })
-        let ohneTreffer = Fehlermuster.allCases.filter { m in !a.befunde.contains { $0.muster == m } }
+        // Überhandeln ohne Grenze (unter 10 Tagen mit Trades) ist nicht geprüft, nicht „ohne Treffer“.
+        let tage = Fehlermuster.tradesJeTag(a.trades, zeitzone: zone).count
+        let ungeprueft = !a.trades.isEmpty && Fehlermuster.ueberhandelnGrenze(a.trades, zeitzone: zone) == nil
+        let ohneTreffer = Fehlermuster.allCases.filter { m in
+            !a.befunde.contains { $0.muster == m } && !(m == .ueberhandeln && ungeprueft)
+        }
         if !ohneTreffer.isEmpty { t.append("Ohne Treffer: \(ohneTreffer.map(\.bezeichnung).joined(separator: ", ")).") }
+        if ungeprueft {
+            t.append("Nicht geprüft: Überhandeln, erst ab \(Fehlermuster.Schwellen().ueberhandelnMindestTage) Tagen mit "
+                + "Trades (hier \(tage)).")
+        }
 
         if abdeckung.regeltreue > 0 || abdeckung.zustand > 0 {
             t.append("\n## Regeltreue und Zustand (eigene Angaben im Journal)")
@@ -99,6 +108,7 @@ public enum Ausgabe {
                               : "- Nur \(k.anzahl) Trades (unter 30): nur beschreiben, nicht folgern.")
         t.append("- R nur für Trades mit Stop. Ein im Journal nachgetragener Stop beim Einstieg gilt; sonst der Stop "
             + "aus dem Export, bei MetaTrader der letzte Stand (nachgezogene Stops verfälschen R).")
+        if let angenommen = rAngenommen(k) { t.append(angenommen) }
         let nurDatum = a.trades.filter(\.nurDatum).count
         if nurDatum > 0 {
             t.append("- \(nurDatum) von \(k.anzahl) Trades nur mit Datum gebucht (Trade Republic, Scalable): Uhrzeit und "
@@ -125,6 +135,13 @@ public enum Ausgabe {
         t.append("\n" + Rezept.text)
         if anfrage.export.personaTon { t.append(Rezept.personaRegel) }
         return t.joined(separator: "\n")
+    }
+
+    /// Hinweis auf R aus dem geplanten Risiko (Doc 02 Nr. 64); `nil`, wenn kein Trade so rechnet.
+    static func rAngenommen(_ k: Kennzahlen) -> String? {
+        guard k.anzahlRAngenommen > 0 else { return nil }
+        return "- Davon \(k.anzahlRAngenommen) von \(k.anzahlMitR) Trades mit R ohne Stop: R aus dem geplanten Risiko "
+            + "(in der App eingetragen, je Trade, Setup oder Konto), also angenommen. Im Review so nennen."
     }
 
     static func kopf(_ anfrage: Anfrage, vergleich: String? = nil) -> String {
@@ -193,7 +210,11 @@ public enum Ausgabe {
             zeile += "Wert \(Format.zahl(b.wert))"
         } else {
             zeile += "\(b.trades.count) Trades, netto \(Format.zahl(b.netto)), Summe \(Format.r(b.summeR))"
-            if let w = b.wert { zeile += ", Wert \(Format.zahl(w))" }
+            // Bei Überhandeln ist der Wert die Grenze: betroffen sind die Positionen mit höherer Nummer am Tag.
+            if let w = b.wert {
+                zeile += b.muster == .ueberhandeln ? ", betroffen ab Position \(Format.zahl(w + 1, stellen: 0)) eines Tages"
+                                                   : ", Wert \(Format.zahl(w))"
+            }
         }
         zeile += ". Stichprobe \(b.stichprobe)\(b.genugDaten ? "" : " (unter 30)"). Regel: \(b.muster.regeltext)."
         if let ohne = a.ohne(b) {

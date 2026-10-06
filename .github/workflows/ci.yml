@@ -209,6 +209,7 @@ jobs:
             echo '{"jsonrpc":"2.0","id":12,"method":"tools/call","params":{"name":"hole_kursanalyse","arguments":{"symbol":"GER40.cash","monate":12}}}'
             echo '{"jsonrpc":"2.0","id":11,"method":"tools/call","params":{"name":"hole_auswertung","arguments":{"monat":"2026-05","waehrung":"chf"}}}'
             echo '{"jsonrpc":"2.0","id":13,"method":"tools/call","params":{"name":"henry_status","arguments":{}}}'
+            echo '{"jsonrpc":"2.0","id":14,"method":"tools/call","params":{"name":"hole_tiefenanalyse","arguments":{"monat":"2026-05"}}}'
             sleep 3
           ) | TB_EXPORT_DIR="$ORDNER" perl -e 'alarm 20; exec @ARGV' "$BIN/trading-buddy-mcp" > antwort.txt || true
           cat antwort.txt
@@ -231,6 +232,9 @@ jobs:
           grep -q "Eigene Trades in diesem Wert (geschlossen seit" antwort.txt
           grep -q "Kursverläufe (Tageskerzen) für 1 Werte: ger40.cash" antwort.txt
           grep -q "kommt in diesem Konto nicht vor. Vorhanden: EUR" antwort.txt
+          grep -q "Henry · Tiefenanalyse" antwort.txt
+          grep -q "## Leistungsscore (0 bis 100)" antwort.txt
+          grep -q "## Kosten der Fehlermuster" antwort.txt
       - name: Server meldet fehlenden Export-Ordner
         run: |
           BIN="$(swift build -c release --show-bin-path)"
