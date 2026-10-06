@@ -362,7 +362,7 @@ struct BerichtTradeliste: View {
                     Text(verbatim: Format.datum(trade.closeTime))
                     Text(verbatim: trade.symbol)
                         .lineLimit(1)
-                    Text(verbatim: Format.richtung(trade.side))
+                    Text(verbatim: Format.richtung(trade.richtung))
                         .foregroundStyle(thema.textSchwach)
                     Spacer(minLength: Abstand.raster)
                     Text(verbatim: Format.r(trade.rMultiple))
