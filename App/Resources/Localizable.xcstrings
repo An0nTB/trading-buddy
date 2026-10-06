@@ -126,6 +126,16 @@
         }
       }
     },
+    "%@ geschlossen: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ closed: %2$@"
+          }
+        }
+      }
+    },
     "%@ mit %@ bei %lld Trades" : {
       "localizations" : {
         "en" : {
@@ -408,6 +418,26 @@
         }
       }
     },
+    "Alle Regionen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All regions"
+          }
+        }
+      }
+    },
+    "Alle Termine" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All events"
+          }
+        }
+      }
+    },
     "Asset" : {
       "localizations" : {
         "en" : {
@@ -468,6 +498,17 @@
         }
       }
     },
+    "Australien" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Australia"
+          }
+        }
+      }
+    },
     "Bearbeiten…" : {
       "localizations" : {
         "en" : {
@@ -498,12 +539,34 @@
         }
       }
     },
+    "Brasilien" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brazil"
+          }
+        }
+      }
+    },
     "Browser-Journal" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Browser journal"
+          }
+        }
+      }
+    },
+    "China" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "China"
           }
         }
       }
@@ -564,6 +627,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "The manually entered trade is removed along with its journal, tags and images. This cannot be undone."
+          }
+        }
+      }
+    },
+    "Deutschland" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Germany"
           }
         }
       }
@@ -708,6 +782,17 @@
         }
       }
     },
+    "Euroraum" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Euro area"
+          }
+        }
+      }
+    },
     "Exit" : {
       "localizations" : {
         "en" : {
@@ -724,6 +809,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Exit is missing; open trades come later."
+          }
+        }
+      }
+    },
+    "Frankreich" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "France"
           }
         }
       }
@@ -758,12 +854,45 @@
         }
       }
     },
+    "Großbritannien" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "United Kingdom"
+          }
+        }
+      }
+    },
     "Größe fehlt." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Size is missing."
+          }
+        }
+      }
+    },
+    "Hongkong" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hong Kong"
+          }
+        }
+      }
+    },
+    "Indien" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "India"
           }
         }
       }
@@ -778,12 +907,34 @@
         }
       }
     },
+    "Japan" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Japan"
+          }
+        }
+      }
+    },
     "JSON ohne Liste „trades“: keine Sicherung des Browser-Journals." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "JSON without a “trades” list: not a backup of the browser journal."
+          }
+        }
+      }
+    },
+    "Kanada" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Canada"
           }
         }
       }
@@ -898,6 +1049,48 @@
         }
       }
     },
+    "Neuseeland" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New Zealand"
+          }
+        }
+      }
+    },
+    "Norwegen" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Norway"
+          }
+        }
+      }
+    },
+    "Notenbanken, Konjunkturdaten, Verfall und Börsenfeiertage weltweit · Zeiten in deiner Zeit" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Central banks, economic data, expiries and exchange holidays worldwide · times in your time zone"
+          }
+        }
+      }
+    },
+    "Nur wichtige" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Important only"
+          }
+        }
+      }
+    },
     "Offen, nicht übernommen" : {
       "localizations" : {
         "en" : {
@@ -978,6 +1171,16 @@
         }
       }
     },
+    "Region" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Region"
+          }
+        }
+      }
+    },
     "Review" : {
       "localizations" : {
         "en" : {
@@ -1038,6 +1241,39 @@
         }
       }
     },
+    "Schweden" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sweden"
+          }
+        }
+      }
+    },
+    "Schweiz" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Switzerland"
+          }
+        }
+      }
+    },
+    "Singapur" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Singapore"
+          }
+        }
+      }
+    },
     "Stop-Kurs" : {
       "localizations" : {
         "en" : {
@@ -1064,6 +1300,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sum of all fees, positive"
+          }
+        }
+      }
+    },
+    "Südkorea" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "South Korea"
+          }
+        }
+      }
+    },
+    "Taiwan" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taiwan"
           }
         }
       }
@@ -1108,6 +1366,17 @@
         }
       }
     },
+    "USA" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "USA"
+          }
+        }
+      }
+    },
     "Verkaufskurs des Scheins, 0 bei Knock-out" : {
       "localizations" : {
         "en" : {
@@ -1124,6 +1393,27 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "What was the idea, how did you feel, what would you do differently?"
+          }
+        }
+      }
+    },
+    "Welt" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "World"
+          }
+        }
+      }
+    },
+    "Wichtigkeit" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importance"
           }
         }
       }
