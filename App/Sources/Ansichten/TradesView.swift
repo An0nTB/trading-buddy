@@ -12,6 +12,8 @@ struct TradeZeileDaten: Identifiable {
     var termine: [Termin] = []
     /// Der Stop stammt aus dem Journal (Stop beim Einstieg) und ersetzt den aus dem Export (Entscheidung 8).
     var stopAusJournal = false
+    /// Freie Tags des Trades (Doc 02 Nr. 65); leer ohne Tags.
+    var tags: [String] = []
     var id: String { trade.id }
 }
 
@@ -38,16 +40,19 @@ struct TradesView: View {
         let musterFilter = modell.musterFilter
         let termine = modell.termineJeTrade
         let nurUeberTermin = modell.nurUeberTermin
+        let tags = modell.tradeTags
         return modell.trades.compactMap { trade -> TradeZeileDaten? in
             let zeile = TradeZeileDaten(trade: trade, setup: eintraege[trade.id]?.setup ?? "", muster: muster[trade.id] ?? [],
                                         termine: termine[trade.id] ?? [],
-                                        stopAusJournal: eintraege[trade.id]?.stopEinstieg != nil)
+                                        stopAusJournal: eintraege[trade.id]?.stopEinstieg != nil,
+                                        tags: tags[trade.id] ?? [])
             if nurMitMuster, zeile.muster.isEmpty { return nil }
             if nurUeberTermin, zeile.termine.isEmpty { return nil }
             if let musterFilter, !zeile.muster.contains(musterFilter) { return nil }
             if nurOhneStop, trade.stopLoss != nil { return nil }
             if !suche.isEmpty, !trade.symbol.localizedCaseInsensitiveContains(suche), !trade.id.contains(suche),
-               !zeile.setup.localizedCaseInsensitiveContains(suche) {
+               !zeile.setup.localizedCaseInsensitiveContains(suche),
+               !zeile.tags.contains(where: { $0.localizedCaseInsensitiveContains(suche) }) {
                 return nil
             }
             return zeile
@@ -76,7 +81,7 @@ struct TradesView: View {
                 TradeEintragenKnopf()
                 #if os(macOS)
                 // Suchfeld in der Kopfzeile statt in der Symbolleiste: dort überdeckte es den Kopf des Inspektors.
-                TextField("Instrument, Setup oder Ticket", text: $suche)
+                TextField("Instrument, Setup, Tag oder Ticket", text: $suche)
                     .textFieldStyle(.roundedBorder)
                     .frame(minWidth: 120, idealWidth: 200, maxWidth: 240) // mit Inspektor schmaler statt die Schalter zu stauchen
                 #endif
@@ -138,7 +143,7 @@ struct TradesView: View {
         }
         .padding(.top, Abstand.seitenrand)
         #if os(iOS)
-        .searchable(text: $suche, prompt: "Instrument, Setup oder Ticket")
+        .searchable(text: $suche, prompt: "Instrument, Setup, Tag oder Ticket")
         #endif
         .inspector(isPresented: inspektorSichtbar) {
             Group {
@@ -252,7 +257,10 @@ struct TradesView: View {
             .alignment(.numeric)
             .customizationID("netto")
             TableColumn("Hinweise") { zeile in
-                MusterChips(muster: zeile.muster)
+                HStack(spacing: Abstand.raster) {
+                    MusterChips(muster: zeile.muster)
+                    TagHinweis(tags: zeile.tags)
+                }
             }
             .width(min: 170, ideal: 220)
             .customizationID("hinweise")
@@ -262,6 +270,7 @@ struct TradesView: View {
             if ids.count == 1, let id = ids.first, let zeile = liste.first(where: { $0.id == id }) {
                 FragBradMenuePunkt(trade: zeile.trade)
                 AnalyseMenuePunkt(trade: zeile.trade) // Menü „Analyse“ (Doc 38, A5)
+                TagsMenue(trade: zeile.trade, gesetzt: zeile.tags) // Tags ohne Inspektor (Doc 02 Nr. 65)
             }
         }
     }

@@ -96,3 +96,58 @@ private extension View {
             .foregroundStyle(schwach ? thema.textSchwach : thema.text)
     }
 }
+
+/// Tags eines Trades kurz in der Spalte „Hinweise“: der erste Tag, der Rest als „+N“; alle im Tooltip.
+struct TagHinweis: View {
+    let tags: [String]
+    @Environment(\.thema) private var thema
+
+    var body: some View {
+        if let erster = tags.first {
+            Text(verbatim: tags.count > 1 ? "#\(erster) +\(tags.count - 1)" : "#\(erster)")
+                .font(.caption2)
+                .lineLimit(1)
+                .foregroundStyle(thema.textSchwach)
+                .help(tags.joined(separator: ", "))
+        }
+    }
+}
+
+/// Untermenü „Tags“ im Kontextmenü der Trade-Tabelle: bekannte Tags des Kontos an- und abhaken, ohne den
+/// Inspektor zu öffnen. Neue Tags entstehen in der Karte „Tags“ im Inspektor. Nur am Mac (Doc 10: iPhone liest).
+struct TagsMenue: View {
+    let trade: Trade
+    let gesetzt: [String]
+    @Environment(AppModell.self) private var modell
+
+    var body: some View {
+        #if os(macOS)
+        let bekannt = Array((gesetzt + modell.tagVorschlaege.filter { vorschlag in
+            !gesetzt.contains { $0.lowercased() == vorschlag.lowercased() }
+        }).prefix(15))
+        if !bekannt.isEmpty {
+            Menu("Tags") {
+                ForEach(bekannt, id: \.self) { tag in
+                    Button {
+                        umschalten(tag)
+                    } label: {
+                        if gesetzt.contains(tag) {
+                            Label(tag, systemImage: "checkmark")
+                        } else {
+                            Text(verbatim: tag)
+                        }
+                    }
+                }
+            }
+        }
+        #endif
+    }
+
+    private func umschalten(_ tag: String) {
+        if gesetzt.contains(tag) {
+            modell.setzeTags(gesetzt.filter { $0 != tag }, trade: trade)
+        } else {
+            modell.setzeTags(gesetzt + [tag], trade: trade)
+        }
+    }
+}
