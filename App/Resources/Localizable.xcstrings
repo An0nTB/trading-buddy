@@ -1281,6 +1281,16 @@
         }
       }
     },
+    "Schließen…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close…"
+          }
+        }
+      }
+    },
     "Schweden" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1406,6 +1416,16 @@
         }
       }
     },
+    "Trade schließen…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close Trade…"
+          }
+        }
+      }
+    },
     "Trade sichern" : {
       "localizations" : {
         "en" : {
@@ -1433,6 +1453,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sale price of the certificate, 0 on knock-out"
+          }
+        }
+      }
+    },
+    "Von Hand" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manual"
+          }
+        }
+      }
+    },
+    "Von Hand eingetragen: Größe mal Kursbewegung seit dem Einstieg, in Kontowährung; Scheine ohne Wert, weil der Kurs zum Basiswert gehört." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entered manually: size times the price move since entry, in account currency; warrants and certificates show no value because the price belongs to the underlying."
           }
         }
       }
