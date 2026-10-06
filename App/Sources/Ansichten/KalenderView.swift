@@ -4,7 +4,8 @@ import TradingCore
 
 /// Seite „Kalender“ (Stand-Doc 25, Doc 18 F9): nächste Wirtschaftstermine in der Zeit des Nutzers und die Trades
 /// des gewählten Zeitraums, die über einen Termin ihrer Währung gehalten wurden. Daten aus dem Paket TradingCalendar
-/// (Zinsentscheide Fed, EZB, BoE, BoJ, SNB; US-Arbeitsmarkt und -Inflation), keine Prognose- oder Ist-Werte.
+/// (Notenbanken, Konjunkturdaten, Verfall, Index, OPEC, Wahlen weltweit; Stand-Doc 63) und Börsenfeiertage aus der
+/// Börsenuhr, keine Prognose- oder Ist-Werte. Filter nach Währung, Region und Wichtigkeit.
 /// Entwurf: design/Kalender_Entwurf.png, Tims Wahl 02.10.2026 02:28 UTC: Seite, Karte in der Übersicht, Inspektor.
 struct KalenderView: View {
     @Environment(AppModell.self) private var modell
@@ -24,6 +25,16 @@ struct KalenderView: View {
                             ForEach(Kalenderansicht.allCases) { Text(verbatim: $0.titel).tag($0) }
                         }
                         if ansicht == .termine {
+                            Auswahlknopf("Region", anzeige: regionAnzeige(dienst.region), auswahl: $dienst.region) {
+                                Text("Alle Regionen").tag("")
+                                ForEach(Terminkalender.regionen.map { $0.kuerzel }, id: \.self) { kuerzel in
+                                    Text(verbatim: regionAnzeige(kuerzel)).tag(kuerzel)
+                                }
+                            }
+                            Auswahlknopf("Wichtigkeit", anzeige: wichtigAnzeige(dienst.nurWichtige), auswahl: $dienst.nurWichtige) {
+                                Text("Alle Termine").tag(false)
+                                Text("Nur wichtige").tag(true)
+                            }
                             Auswahlknopf("Währungen", anzeige: anzeige(dienst.nurMeineWaehrungen), auswahl: $dienst.nurMeineWaehrungen) {
                                 Text("Meine Währungen").tag(true)
                                 Text("Alle Währungen").tag(false)
@@ -54,13 +65,23 @@ struct KalenderView: View {
 
     private var untertitel: String {
         switch ansicht {
-        case .termine: String(localized: "Zinsentscheide Fed, EZB, BoE, BoJ, SNB · US-Arbeitsmarkt und -Inflation · Zeiten in deiner Zeit")
+        case .termine: String(localized: "Notenbanken, Konjunkturdaten, Verfall und Börsenfeiertage weltweit · Zeiten in deiner Zeit")
         case .ergebnis: String(localized: "Netto je Tag nach Schlusstag · in \(modell.summenwaehrung)")
         }
     }
 
+    private func regionAnzeige(_ kuerzel: String) -> String {
+        Terminkalender.regionen.first { $0.kuerzel == kuerzel }?.name.uebersetzt ?? String(localized: "Alle Regionen")
+    }
+
+    private func wichtigAnzeige(_ nurWichtige: Bool) -> String {
+        nurWichtige ? String(localized: "Nur wichtige") : String(localized: "Alle Termine")
+    }
+
     @ViewBuilder private func kacheln(jetzt: Date, filter: Set<String>?) -> some View {
-        let kommende = modell.termine.naechste(ab: jetzt, waehrungen: filter)
+        let dienst = modell.termine
+        let kommende = dienst.naechste(ab: jetzt, waehrungen: filter, regionen: dienst.regionFilter,
+                                       mindestens: dienst.wichtigkeitFilter)
         let kalender = Calendar.current
         let inWoche = kommende.filter { $0.beginn < jetzt.addingTimeInterval(7 * 86_400) }
         let jahresende = kalender.date(from: DateComponents(year: kalender.component(.year, from: jetzt) + 1)) ?? jetzt
@@ -132,14 +153,16 @@ private struct NaechsteTermineListe: View {
     }
 
     var body: some View {
-        let kommende = modell.termine.naechste(ab: jetzt, waehrungen: filter)
+        let dienst = modell.termine
+        let kommende = dienst.naechste(ab: jetzt, waehrungen: filter, regionen: dienst.regionFilter,
+                                       mindestens: dienst.wichtigkeitFilter)
         let gezeigt = alleZeigen ? kommende : Array(kommende.prefix(vorschau))
         let gruppen = Dictionary(grouping: gezeigt, by: Terminformat.tagesdatum)
             .map { Tagesgruppe(tag: $0.key, termine: $0.value) }
             .sorted { $0.tag < $1.tag }
         Karte("Nächste Termine") {
             if kommende.isEmpty {
-                Text("Keine Termine ab heute in den Daten. Die Jahresdateien enden mit dem letzten gepflegten Jahr.")
+                Text("Keine Termine ab heute für diese Auswahl. Die Jahresdateien enden mit dem letzten veröffentlichten Termin.")
                     .font(Schrift.beschriftung)
                     .foregroundStyle(thema.textSchwach)
             } else {
@@ -208,6 +231,9 @@ struct TerminZeile: View {
                 ForEach(termin.waehrungen.sorted(), id: \.self) { waehrung in
                     Kapsel(text: waehrung, betont: meine.contains(waehrung))
                 }
+                if termin.wichtigkeit == .hoch && !kompakt {
+                    Kapsel(text: String(localized: "wichtig"), betont: true)
+                }
                 if termin.vorlaeufig {
                     Kapsel(text: String(localized: "vorläufig"))
                 }
@@ -229,7 +255,7 @@ struct TerminZeile: View {
     }
 }
 
-/// Karte „Nächste Termine“ auf der Übersicht: die nächsten drei Termine der Währungen des Kontos
+/// Karte „Nächste Termine“ auf der Übersicht: die nächsten drei wichtigen Termine der Währungen des Kontos
 /// (ohne erkannte Währung alle), „Alle“ springt zur Kalender-Seite.
 struct NaechsteTermineKarte: View {
     @Environment(AppModell.self) private var modell
@@ -237,7 +263,8 @@ struct NaechsteTermineKarte: View {
     var body: some View {
         let meine = modell.meineWaehrungen
         TimelineView(.periodic(from: .now, by: 60)) { kontext in
-            let kommende = Array(modell.termine.naechste(ab: kontext.date, waehrungen: meine.isEmpty ? nil : meine).prefix(3))
+            let kommende = Array(modell.termine.naechste(ab: kontext.date, waehrungen: meine.isEmpty ? nil : meine,
+                                                         mindestens: .hoch).prefix(3))
             if !kommende.isEmpty {
                 Karte("Nächste Termine", aktion: { modell.bereich = .kalender }) {
                     ForEach(kommende) { termin in
@@ -280,7 +307,7 @@ private struct TerminTradesKarte: View {
                         .foregroundStyle(thema.textSchwach)
                 }
             }
-            Text("Zählt Termine zwischen Eröffnung und Schließung, die eine Währung des Symbols betreffen (EURUSD: EUR und USD, GER40: EUR). Symbole ohne Währungskürzel zählen nicht. Einschätzung, ab zehn Trades belastbarer.")
+            Text("Zählt wichtige Zinsentscheide, Arbeitsmarkt- und Inflationsdaten zwischen Eröffnung und Schließung, die eine Währung des Symbols betreffen (EURUSD: EUR und USD, GER40: EUR). Symbole ohne Währungskürzel zählen nicht. Einschätzung, ab zehn Trades belastbarer.")
                 .font(Schrift.beschriftung)
                 .foregroundStyle(thema.textSchwach)
         }
@@ -386,7 +413,7 @@ private struct Quellenhinweis: View {
     private func text(_ dienst: Termindienst) -> String {
         var teile: [String] = []
         if let stand = dienst.stand {
-            teile.append(String(localized: "Quelle: Paket TradingCalendar, Stand \(stand)"))
+            teile.append(String(localized: "Quellen: Notenbanken, Statistikämter und Börsen über das Paket TradingCalendar, Stand \(stand); Börsenfeiertage aus der Börsenuhr"))
         }
         let zins = dienst.jahre(mit: .zinsentscheid)
         if let erstes = zins.first, let letztes = zins.last {
@@ -397,7 +424,7 @@ private struct Quellenhinweis: View {
         if let erstes = us.first, let letztes = us.last {
             teile.append(String(localized: "US-Arbeitsmarkt und -Inflation \(String(erstes)) bis \(String(letztes)), spätere Jahre veröffentlicht die BLS erst später"))
         }
-        teile.append(String(localized: "Fed-Termine gelten bis zur vorigen Sitzung als vorläufig (Fed-Kalender). Keine Prognose- und Ist-Werte"))
+        teile.append(String(localized: "„vorläufig“ heißt nach Regel berechnet oder vom Herausgeber noch nicht bestätigt; „wichtig“ ist eine Einschätzung nach den üblichen Trading-Kalendern. Keine Prognose- und Ist-Werte"))
         return teile.joined(separator: ". ") + "."
     }
 }
@@ -413,6 +440,25 @@ enum Terminformat {
         case "boj": "BoJ"
         case "snb": "SNB"
         case "bls": "BLS"
+        case "rba": "RBA"
+        case "boc": "BoC"
+        case "rbnz": "RBNZ"
+        case "norgesbank": "Norges Bank"
+        case "pboc": "PBoC"
+        case "kcfed": "Kansas City Fed"
+        case "spglobal": "S&P Global"
+        case "census": "Census"
+        case "eurostat": "Eurostat"
+        case "destatis": "Destatis"
+        case "eurex": "Eurex"
+        case "cboe": "Cboe/OCC"
+        case "spdji": "S&P DJI"
+        case "minint-fr": "Frankreich"
+        case "umich": "Uni Michigan"
+        case "statjp": "Statistics Japan"
+        case "statcan": "Statistics Canada"
+        case "xetra": "Xetra"
+        case "nasdaq": "Nasdaq"
         default: termin.institution.uppercased()
         }
     }
