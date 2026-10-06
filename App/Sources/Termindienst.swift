@@ -1,14 +1,18 @@
 import Foundation
 import TradingCalendar
+import TradingClock
 import TradingCore
 
 /// Wirtschaftstermine aus dem Paket TradingCalendar (Stand-Doc 25) für die App: nächste Termine, Termine in der
 /// Haltezeit eines Trades (Doc 18 F9 „über Termin gehalten“) und der Währungsfilter der Kalender-Seite.
-/// Lädt die Jahresdateien einmal beim Start; scheitert das, bleibt der Kalender leer und `fehler` nennt den Grund.
+/// Lädt die Jahresdateien einmal beim Start, dazu die Börsenfeiertage aus der Börsenuhr (TradingClock), damit sie nur
+/// dort gepflegt werden (Stand-Doc 63); scheitert das, bleibt der Kalender leer und `fehler` nennt den Grund.
 /// Keine Prognose- und Ist-Werte, nur Zeitpunkte (R1 Abschnitt 5).
 @Observable @MainActor
 final class Termindienst {
     static let schluesselFilter = "kalenderNurMeineWaehrungen"
+    static let schluesselWichtige = "kalenderNurWichtige"
+    static let schluesselRegion = "kalenderRegion"
 
     private(set) var kalender: Terminkalender?
     private(set) var fehler: String?
@@ -16,17 +20,52 @@ final class Termindienst {
     var nurMeineWaehrungen: Bool {
         didSet { UserDefaults.standard.set(nurMeineWaehrungen, forKey: Termindienst.schluesselFilter) }
     }
+    /// Kalender-Seite: nur Termine mit Wichtigkeit „hoch“ (Zinsentscheide, Arbeitsmarkt, Inflation, BIP, ...).
+    var nurWichtige: Bool {
+        didSet { UserDefaults.standard.set(nurWichtige, forKey: Termindienst.schluesselWichtige) }
+    }
+    /// Kalender-Seite: Kürzel einer Region aus `Terminkalender.regionen`, leer heißt alle Regionen.
+    var region: String {
+        didSet { UserDefaults.standard.set(region, forKey: Termindienst.schluesselRegion) }
+    }
 
     init() {
         nurMeineWaehrungen = UserDefaults.standard.object(forKey: Termindienst.schluesselFilter) as? Bool ?? true
+        nurWichtige = UserDefaults.standard.object(forKey: Termindienst.schluesselWichtige) as? Bool ?? false
+        region = UserDefaults.standard.string(forKey: Termindienst.schluesselRegion) ?? ""
         do {
-            kalender = try Terminkalender.mitgeliefert()
+            kalender = try Terminkalender.mitgeliefert(zusaetzlich: Termindienst.boersenfeiertage())
         } catch {
             fehler = Termindienst.text(error)
         }
     }
 
     var termine: [Termin] { kalender?.termine ?? [] }
+
+    /// Feiertage aller mitgelieferten Börsen der Börsenuhr als ganztägige Termine; Nasdaq-Tage, die die NYSE
+    /// auch hat, entfallen. Ohne lesbare Börsendaten bleibt die Liste leer (die Börsenuhr meldet den Fehler selbst).
+    nonisolated static func boersenfeiertage() -> [Termin] {
+        let boersen = (try? Boersenuhr.mitgelieferteBoersen()) ?? []
+        let nyse = Set(boersen.first { $0.id == "nyse" }?.feiertage.map(\.datum) ?? [])
+        var ergebnis: [Termin] = []
+        for boerse in boersen {
+            for feiertag in boerse.feiertage where !(boerse.id == "nasdaq" && nyse.contains(feiertag.datum)) {
+                let titel = String(localized: "\(boerse.name) geschlossen: \(feiertag.name.uebersetzt)")
+                if let termin = Terminkalender.boersenfeiertag(boerse: boerse.id, titel: titel, jahr: feiertag.datum.jahr,
+                                                               monat: feiertag.datum.monat, tag: feiertag.datum.tag,
+                                                               zeitzone: boerse.timeZone) {
+                    ergebnis.append(termin)
+                }
+            }
+        }
+        return ergebnis
+    }
+
+    /// Region der Kalender-Seite als Filter, `nil` für alle.
+    var regionFilter: Set<String>? { region.isEmpty ? nil : [region] }
+
+    /// Wichtigkeit der Kalender-Seite als Filter, `nil` für alle.
+    var wichtigkeitFilter: Wichtigkeit? { nurWichtige ? .hoch : nil }
 
     /// Klartext zu einem Lesefehler der Jahresdateien, ohne interne Fallnamen.
     nonisolated static func text(_ fehler: Error) -> String {
@@ -62,10 +101,11 @@ final class Termindienst {
         symbole.reduce(into: Set<String>()) { $0.formUnion(Terminkalender.waehrungen(symbol: $1)) }
     }
 
-    /// Termine ab `jetzt`, laufende ganztägige eingeschlossen, aufsteigend; `waehrungen` nil heißt alle.
-    func naechste(ab jetzt: Date, waehrungen: Set<String>?) -> [Termin] {
+    /// Termine ab `jetzt`, laufende ganztägige eingeschlossen, aufsteigend; `nil` heißt jeweils ohne Filter.
+    func naechste(ab jetzt: Date, waehrungen: Set<String>?, regionen: Set<String>? = nil,
+                  mindestens: Wichtigkeit? = nil) -> [Termin] {
         termine.filter { termin in
-            termin.ende >= jetzt && (waehrungen.map { !termin.waehrungen.isDisjoint(with: $0) } ?? true)
+            termin.ende >= jetzt && termin.passt(waehrungen: waehrungen, regionen: regionen, mindestens: mindestens)
         }
     }
 
@@ -73,13 +113,17 @@ final class Termindienst {
     /// (Gesamt-Review C1, Standardwert 02.10.2026); wer sie mitzählen will, ergänzt hier `.feiertag`.
     static let ueberTerminArten: Set<Terminart> = [.zinsentscheid, .arbeitsmarkt, .inflation]
 
+    /// Nur Termine mit Wichtigkeit „hoch“ zählen als „über Termin gehalten“, sonst träfen wöchentliche
+    /// Erstanträge jeden über Donnerstag gehaltenen USD-Trade (Stand-Doc 63, Standardwert 05.10.2026).
+    static let ueberTerminMindestens: Wichtigkeit = .hoch
+
     /// Termine in der Haltezeit eines Trades, die die Währungen seines Symbols betreffen; leer ohne Währung.
     func termine(fuer trade: Trade) -> [Termin] {
         guard let kalender else { return [] }
         let waehrungen = Terminkalender.waehrungen(symbol: trade.symbol)
         guard !waehrungen.isEmpty else { return [] }
         return kalender.termine(von: trade.openTime, bis: trade.closeTime, waehrungen: waehrungen,
-                                arten: Termindienst.ueberTerminArten)
+                                arten: Termindienst.ueberTerminArten, mindestens: Termindienst.ueberTerminMindestens)
     }
 
     /// Ist die Haltezeit für die gezählten Terminarten erfasst? Sonst sagt „kein Termin“ nichts.
