@@ -14,6 +14,15 @@ struct HandTradeKnoepfe: View {
     var body: some View {
         if modell.istHandtrade(trade) {
             VStack(alignment: .leading, spacing: Abstand.raster) {
+                if let tickets = modell.moeglicheDuplikate[trade.id] {
+                    Label("Mögliches Duplikat zu Ticket \(tickets.joined(separator: ", "))", systemImage: "exclamationmark.triangle")
+                        .foregroundStyle(thema.warnung)
+                    Text("Bis zur Klärung nicht in Summen und Kennzahlen enthalten.")
+                        .font(Schrift.beschriftung)
+                        .foregroundStyle(thema.textSchwach)
+                    Button("Als eigenständig behalten") { behalte() }
+                        .buttonStyle(.borderless)
+                }
                 HStack(spacing: Abstand.kachelAbstand) {
                     Button("Bearbeiten…", systemImage: "pencil") { bearbeite() }
                     Button("Löschen…", systemImage: "trash", role: .destructive) { loeschfrage = true }
@@ -47,6 +56,15 @@ struct HandTradeKnoepfe: View {
         fehler = nil
         do {
             try modell.loescheHandtrade(trade)
+        } catch {
+            fehler = Importlesung.fehlertext(error)
+        }
+    }
+
+    private func behalte() {
+        fehler = nil
+        do {
+            try modell.behalteHandtrade(trade)
         } catch {
             fehler = Importlesung.fehlertext(error)
         }
