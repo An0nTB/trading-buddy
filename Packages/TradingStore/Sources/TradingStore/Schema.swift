@@ -444,6 +444,16 @@ enum Schema {
             }
         }
 
+        migrator.registerMigration("v13 Eigenständige Hand-Trades") { db in
+            try db.create(table: "handtradeEigenstaendig") { t in
+                t.column("kontoId", .integer).notNull()
+                t.column("ticket", .text).notNull()
+                t.primaryKey(["kontoId", "ticket"])
+                t.foreignKey(["kontoId", "ticket"], references: "geschlossenePosition",
+                             columns: ["kontoId", "ticket"], onDelete: .cascade)
+            }
+        }
+
         return migrator
     }
 }
