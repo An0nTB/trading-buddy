@@ -125,11 +125,14 @@ struct GeschlossenZeile: Codable, FetchableRecord, PersistableRecord {
     }
 
     func modell() throws -> ClosedPosition {
-        ClosedPosition(ticket: ticket, rohzeile: rohzeile, side: try seite(side), lots: lots, symbol: symbol,
+        var position = ClosedPosition(ticket: ticket, rohzeile: rohzeile, side: try seite(side), lots: lots, symbol: symbol,
                        openTime: openTime, openPrice: openPrice, stopLoss: stopLoss,
                        takeProfit: takeProfit, closeTime: closeTime, closePrice: closePrice,
                        commission: commission, swap: swap, profit: profit, produktart: try art(produktart),
                        ausstiegszeitBekannt: ausstiegszeitBekannt)
+        // Formular und Journal-Sicherung rechnen je Stück; der Marker bleibt auch im Altbestand erhalten.
+        position.wertJePunkt = markterwartung == nil ? nil : lots
+        return position
     }
 
     /// Erwartete Marktrichtung: gespeichert oder, ohne Angabe, die Handelsseite.
