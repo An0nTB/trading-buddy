@@ -45,8 +45,12 @@ final class AppModell {
     private(set) var offeneHandpositionen: [OffenerHandtrade] = []
     /// Alle Tags des Kontos für Vorschläge, häufigste zuerst.
     private(set) var tagVorschlaege: [String] = []
-    /// Alle Trades des gewählten Kontos, vor Filtern; ein nachgetragener Stop ersetzt den aus dem Export.
+    /// Auswertbare Trades des gewählten Kontos, vor Filtern; mögliche Doppelungen fehlen bis zur Klärung.
     private(set) var alleTrades: [Trade] = []
+    /// Auch mögliche Doppelungen bleiben in der Trade-Liste und im Inspektor erreichbar.
+    private(set) var alleTradesMitDuplikaten: [Trade] = []
+    private(set) var moeglicheDuplikate: [String: [String]] = [:]
+    private var gespeicherteTrades: [Trade] = []
     /// Alle gelöschten Pending Orders des gewählten Kontos, vor Filtern.
     private(set) var alleGeloeschten: [CancelledOrder] = []
     private(set) var kontoId: Int64?
@@ -264,8 +268,10 @@ final class AppModell {
         return kalender
     }
 
-    /// Trades nach Zeitraum und Instrument in ihrer Originalwährung: Grundlage der Listen (Einzelbeträge, W1).
+    /// Auswertbare Trades nach Zeitraum und Instrument in ihrer Originalwährung (Einzelbeträge, W1).
     var trades: [Trade] { gefiltert(alleTrades) }
+
+    var tradeListe: [Trade] { gefiltert(alleTradesMitDuplikaten) }
 
     /// Trades nach Zeitraum und Instrument in der Anzeigewährung: Grundlage der Summen auf Übersicht, Kennzahlen und
     /// Fehlermuster (Doc 40 W3, B4). Trades ohne Kurs am Schlusstag fehlen hier, `waehrungsstand` zählt sie.
@@ -382,10 +388,10 @@ final class AppModell {
     /// Monate mit Trades, neuester zuerst.
     var monate: [Date] {
         let kalender = self.kalender
-        return Set(alleTrades.map { monatsanfang($0.closeTime, kalender) }).sorted(by: >)
+        return Set(alleTradesMitDuplikaten.map { monatsanfang($0.closeTime, kalender) }).sorted(by: >)
     }
 
-    var symbole: [String] { Set(alleTrades.map(\.symbol)).sorted() }
+    var symbole: [String] { Set(alleTradesMitDuplikaten.map(\.symbol)).sorted() }
 
     var kennzahlen: Kennzahlen { Kennzahlen(trades: angeglicheneTrades) }
     var kapitalverlauf: Kapitalverlauf { Kapitalverlauf(trades: angeglicheneTrades) }
@@ -465,8 +471,13 @@ final class AppModell {
                 tagVorschlaege = try journal.alleTags(konto: konto)
                 markterwartungen = try journal.markterwartungen(konto: konto)
                 offeneHandpositionen = try journal.offeneManuelleTrades(konto: konto)
+                let bestand = try journal.tradeBestand(konto: konto, zeitzone: zeitzone)
+                gespeicherteTrades = bestand.trades
+                moeglicheDuplikate = bestand.moeglicheDuplikate
             } else {
                 positionen = []
+                gespeicherteTrades = []
+                moeglicheDuplikate = [:]
                 kontobewegungen = Kontobewegungen()
                 journaleintraege = [:]
                 alleGeloeschten = []
@@ -511,12 +522,13 @@ final class AppModell {
         let erwartungen = markterwartungen
         let konto = waehrung.uppercased()
         // Fremdwährungs-Trades bekommen das geplante Risiko (Kontowährung) erst im Angleich; roh gäbe es ein falsches R.
-        alleTrades = (positionen.map(Trade.init) + positionsbildung.trades).map { trade in
+        alleTradesMitDuplikaten = gespeicherteTrades.map { trade in
             var mitJournal = trade.mitJournal(journaleintraege[trade.id])
             if mitJournal.markterwartung == nil { mitJournal.markterwartung = erwartungen[trade.id] }
             guard mitJournal.waehrung(kontowaehrung: konto) == konto else { return mitJournal }
             return mitJournal.mitGeplantemRisiko(quellen.wirksam(ticket: trade.id)?.betrag)
         }
+        alleTrades = alleTradesMitDuplikaten.filter { moeglicheDuplikate[$0.id] == nil }
         gleicheWaehrungenAn()
     }
 

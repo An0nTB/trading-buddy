@@ -79,6 +79,14 @@ extension AppModell {
         try loescheHandtrade(ticket: trade.id)
     }
 
+    /// Bestätigt einen verdächtigen Handeintrag als eigenständig und nimmt ihn wieder in die Auswertung auf.
+    func behalteHandtrade(_ trade: Trade) throws {
+        guard let journal else { throw TradeEintragenFehler.keinJournal }
+        guard let konto else { throw TradeEintragenFehler.kontoFehlt }
+        try journal.behalteHandtrade(konto: konto, ticket: trade.id)
+        nachHandeintrag(kontoId: konto.id)
+    }
+
     /// Löscht einen von Hand eingetragenen Trade (offen oder geschlossen) samt Journaleintrag, Tags und Bildern.
     func loescheHandtrade(ticket: String) throws {
         guard let journal else { throw TradeEintragenFehler.keinJournal }
