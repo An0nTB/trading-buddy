@@ -55,3 +55,8 @@ jobs:
           echo "Warnungen in ${{ matrix.paket }}: $anzahl"
           sed -E 's#^.*/Packages/#Packages/#; s#^([^:]+):([0-9]+):([0-9]+): warning: (.*)$#::warning file=\1,line=\2,col=\3::\4#' warnungen.txt
           test "$anzahl" -eq 0
+      - name: Migration v9 bis v12 und erneutes Öffnen prüfen
+        if: matrix.paket == 'TradingStore'
+        run: >-
+          swift test --package-path Packages/TradingStore --skip-build
+          --filter journalAusV9MigriertVollstaendigUndBleibtNachErneutemOeffnenErhalten
