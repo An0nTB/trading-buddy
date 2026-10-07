@@ -77,3 +77,17 @@ private let wocheBerlin = TimeZone(identifier: "Europe/Berlin")!
     let zehn = Zeitspanne.kalenderwoche(jahr: 2026, woche: 10, zeitzone: wocheBerlin)
     #expect(zehn == Zeitspanne.woche(mit: wocheZeit("2026-03-08T12:00:00Z"), zeitzone: wocheBerlin))
 }
+
+@Test func zeitraumberichtNimmtPersoenlicheUeberhandelnGrenze() throws {
+    let spanne = try #require(Zeitspanne.monat(jahr: 2026, monat: 3, zeitzone: wocheBerlin))
+    let trades = Array(wocheTrades[1...3])
+    let bericht = Zeitraumbericht(trades: trades, zeitraum: spanne, zeitzone: wocheBerlin,
+                                  kontowaehrung: "EUR", regeln: Handelsregeln(maxTradesJeTag: 2))
+    let befund = try #require(bericht.auswertung.befunde.first { $0.muster == .ueberhandeln })
+    #expect(befund.trades == ["W4"])
+    #expect(befund.wert == 2 && befund.netto == 30)
+    let kosten = try #require(Tiefenanalyse.fehlermusterKosten(bericht.auswertung).first { $0.muster == .ueberhandeln })
+    #expect(kosten.anzahl == 1 && kosten.netto == 30 && kosten.nettoOhne == -110)
+    let ohneGrenze = Zeitraumbericht(trades: trades, zeitraum: spanne, zeitzone: wocheBerlin, kontowaehrung: "EUR")
+    #expect(!ohneGrenze.auswertung.befunde.contains { $0.muster == .ueberhandeln })
+}

@@ -113,5 +113,26 @@ import TradingStore
         #expect(gelesen.konten.first?.trades.first?.netProfit == T.d("48"))
         #expect(gelesen.verpassteTrades?.first?.ergebnisR == T.d("-0.7"))
     }
+
+    @MainActor @Test func gekaufterShortScheinBleibtImExportShort() throws {
+        let (journal, konto) = try journalMitScalable()
+        let schein = ManuellerTrade(symbol: "Short-Schein", einstieg: T.zeit(2026, 4, 3, 10),
+                                    ausstieg: T.zeit(2026, 4, 3, 11), markterwartung: .sell, schein: true,
+                                    groesse: 100, einstiegskurs: 2, ausstiegskurs: 3)
+        let ticket = try journal.speichereManuellenTrade(schein, konto: konto).ticket
+        let m = AppModell(journal: journal, nebenwirkungen: false)
+        let export = try JournalExport.lese(ExportOrdner.export(journal, zeitzone: m.zeitzone).json())
+        let daten = try #require(export.konten.first)
+        let trade = try #require(daten.trades.first { $0.id == ticket })
+        #expect(trade.side == .buy && trade.markterwartung == .sell && trade.richtung == .sell)
+        let spanne = try #require(Zeitspanne.monat(jahr: 2026, monat: 4, zeitzone: m.zeitzone))
+        let auswertung = Auswertung(trades: daten.trades, zeitraum: spanne, zeitzone: m.zeitzone)
+        #expect(Tiefenanalyse.anteileRichtung(auswertung.trades) == Tiefenanalyse.anteileRichtung(m.angeglicheneTrades))
+        let short = auswertung.trades.filter { $0.richtung == .sell }
+        let appShort = m.angeglicheneTrades.filter { $0.richtung == .sell }
+        #expect(short.map(\.id) == [ticket] && appShort.map(\.id) == [ticket])
+        #expect(Kennzahlen(trades: short).netto == 100 && Kennzahlen(trades: appShort).netto == 100)
+    }
+
 }
 #endif
