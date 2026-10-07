@@ -438,6 +438,16 @@
         }
       }
     },
+    "Als eigenständig behalten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep as separate trade"
+          }
+        }
+      }
+    },
     "Asset" : {
       "localizations" : {
         "en" : {
@@ -535,6 +545,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Amounts in the account currency."
+          }
+        }
+      }
+    },
+    "Bis zur Klärung nicht in Summen und Kennzahlen enthalten." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Excluded from totals and metrics until resolved."
           }
         }
       }
@@ -985,6 +1005,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "With risk (gives R)"
+          }
+        }
+      }
+    },
+    "Mögliches Duplikat zu Ticket %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Possible duplicate of ticket %@"
           }
         }
       }
