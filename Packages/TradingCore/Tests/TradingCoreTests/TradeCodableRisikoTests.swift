@@ -47,3 +47,19 @@ private func tcTrade(_ id: String, stop: Decimal? = nil) -> Trade {
     let t = try JSONDecoder().decode(Trade.self, from: daten)
     #expect(t.id == "C" && t.geplantesRisiko == nil && t.markterwartung == nil && t.basiswert == "Nasdaq 100")
 }
+
+@Test func tradeCodableAlterExportUndUnlesbarerPunktwertBleibenLesbar() throws {
+    let original = tcTrade("alt", stop: 1)
+    let daten = try JSONEncoder().encode(original)
+    #expect(!String(decoding: daten, as: UTF8.self).contains("wertJePunkt"))
+    let gelesen = try JSONDecoder().decode(Trade.self, from: daten)
+    #expect(gelesen == original)
+    #expect(gelesen.stopRisiko == 10)
+
+    var objekt = try #require(try JSONSerialization.jsonObject(with: daten) as? [String: Any])
+    objekt["wertJePunkt"] = "kein Betrag"
+    let unlesbar = try JSONSerialization.data(withJSONObject: objekt)
+    let zurueck = try JSONDecoder().decode(Trade.self, from: unlesbar)
+    #expect(zurueck == original)
+    #expect(zurueck.stopRisiko == 10)
+}

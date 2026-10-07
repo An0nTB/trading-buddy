@@ -10,7 +10,7 @@ extension AppModell {
 
     /// Speichert den Trade samt Angaben im gewählten oder in einem neuen Konto für Handeinträge,
     /// lädt neu und wechselt zum Konto des Trades. Mit `ticket` ersetzt er den von Hand eingetragenen Trade
-    /// dieses Tickets; übrige Felder seines Journaleintrags (Zustand, Stop beim Einstieg …) bleiben. Ein offener
+    /// dieses Tickets; übrige Felder seines Journaleintrags (Zustand, Marktumfeld …) bleiben. Ein offener
     /// Trade (`trade.offen`) geht in die offenen Positionen; mit Exit gespeichert, ist er geschlossen.
     /// Gibt das Ticket zurück.
     @discardableResult
@@ -28,12 +28,13 @@ extension AppModell {
                                             waehrung: waehrung)
         }
         guard let kontoId = konto.id else { throw TradeEintragenFehler.kontoFehlt }
-        // Konto und Ticket setzt die Speicherung; der Stop steht in der Position, das Risiko im Eintrag.
+        // Konto und Ticket setzt die Speicherung; Position und Journal bekommen denselben Stop.
         var eintrag = ticket.flatMap { bisherigerEintrag(konto: konto, ticket: $0) }
             ?? Journaleintrag(kontoId: kontoId, ticket: "")
         eintrag.setup = angaben.setup
         eintrag.regeltreue = angaben.regeltreue
         eintrag.grund = angaben.notiz
+        eintrag.stopEinstieg = trade.stop
         eintrag.risikoEinstieg = angaben.risikoEinstieg.map { abs($0) }
         eintrag.zeiteinheit = angaben.zeiteinheit
         eintrag.geaendertAm = Date()

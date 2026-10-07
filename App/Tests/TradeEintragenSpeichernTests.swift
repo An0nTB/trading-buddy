@@ -95,6 +95,70 @@ import TradingStore
 
     // MARK: Bearbeiten und Löschen (Paket 1a)
 
+    @Test(arguments: [TradeEntwurf.StopArt.kurs, .risiko], [false, true])
+    func bearbeitenGleichtJournalStopAb(stopArt: TradeEntwurf.StopArt, offen: Bool) throws {
+        let m = try modell()
+        var e = entwurf()
+        e.offen = offen
+        e.stopArt = .kurs
+        e.stopKurs = 90
+        let ticket = try m.speichereManuellenTrade(try #require(e.trade), angaben: e.angaben, kontowahl: .neu,
+                                                   neuerKontoname: e.neuerKontoname, waehrung: "EUR")
+        var eintrag = try #require(m.journaleintraege[ticket])
+        eintrag.stopEinstieg = 95
+        eintrag.zustand = 4
+        m.speichereJournal(eintrag)
+        var bearbeitung = try #require(m.handEntwurf(ticket: ticket))
+        #expect(bearbeitung.stopKurs == 95)
+        #expect(bearbeitung.eigenesRisiko == 50)
+        bearbeitung.stopArt = stopArt
+        bearbeitung.stopKurs = 80
+        bearbeitung.risiko = 200
+        bearbeitung.offen = false
+        bearbeitung.ausstiegskurs = 100
+        bearbeitung.gebuehren = 2
+        try m.speichereManuellenTrade(try #require(bearbeitung.trade), angaben: bearbeitung.angaben,
+                                      kontowahl: bearbeitung.kontowahl, neuerKontoname: "", waehrung: "EUR",
+                                      ticket: ticket)
+        #expect(try positionen(m).first?.stopLoss == 80)
+        #expect(m.journaleintraege[ticket]?.stopEinstieg == 80)
+        #expect(m.journaleintraege[ticket]?.zustand == 4)
+        let ausgewertet = try #require(m.alleTrades.first)
+        #expect(ausgewertet.stopLoss == 80)
+        #expect(ausgewertet.risk == 200)
+        #expect(ausgewertet.rMultiple == bearbeitung.rWert(standardRisiko: 100))
+
+        var erneut = try #require(m.handEntwurf(ticket: ticket))
+        #expect(erneut.eigenesRisiko == 200)
+        erneut.stopArt = .kurs
+        erneut.stopKurs = nil
+        try m.speichereManuellenTrade(try #require(erneut.trade), angaben: erneut.angaben,
+                                      kontowahl: erneut.kontowahl, neuerKontoname: "", waehrung: "EUR", ticket: ticket)
+        #expect(try positionen(m).first?.stopLoss == nil)
+        #expect(m.journaleintraege[ticket]?.stopEinstieg == nil)
+        #expect(m.alleTrades.first?.stopLoss == nil)
+    }
+
+    @Test func handtradeOhneKursbewegungRechnetNachNeuladenMitStopRisiko() throws {
+        let m = try modell()
+        var e = entwurf()
+        e.stopArt = .kurs
+        e.stopKurs = 95
+        e.ausstiegskurs = 100
+        e.gebuehren = 2
+        let ticket = try m.speichereManuellenTrade(try #require(e.trade), angaben: e.angaben, kontowahl: .neu,
+                                                   neuerKontoname: e.neuerKontoname, waehrung: "EUR")
+        var eintrag = try #require(m.journaleintraege[ticket])
+        eintrag.risikoEinstieg = 100
+        m.speichereJournal(eintrag)
+        let neu = AppModell(journal: try #require(m.journal), nebenwirkungen: false)
+        let trade = try #require(neu.alleTrades.first)
+        #expect(trade.stopRisiko == 50)
+        #expect(trade.rMultiple == T.d("-0.04"))
+        #expect(trade.rMultiple == e.rWert(standardRisiko: 100))
+        #expect(!trade.risikoAngenommen)
+    }
+
     @Test func bearbeitenErsetztDenTradeUndBehaeltDasJournal() throws {
         let m = try modell()
         let e = entwurf()
