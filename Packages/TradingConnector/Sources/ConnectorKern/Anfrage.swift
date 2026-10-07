@@ -137,9 +137,15 @@ public struct Anfrage: Sendable {
         return (gewaehlt, andere)
     }
 
+    var musterSchwellen: Fehlermuster.Schwellen {
+        var schwellen = Fehlermuster.Schwellen()
+        schwellen.maxTradesProTag = konto.regeln?.maxTradesJeTag
+        return schwellen
+    }
+
     public func auswertung() -> Auswertung {
         Auswertung(trades: konto.trades, geloeschteOrders: konto.geloeschteOrders, zeitraum: zeitraum,
-                   zeitzone: zeitzone)
+                   zeitzone: zeitzone, schwellen: musterSchwellen)
     }
 
     /// Zahl aus den Werkzeug-Argumenten als Text. Ganze Zahlen wie „5“, alles andere (2.5, 1e100, NaN)

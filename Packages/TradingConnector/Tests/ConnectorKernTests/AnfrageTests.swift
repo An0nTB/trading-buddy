@@ -107,3 +107,40 @@ private let export = JournalExport(
     #expect(Int(Anfrage.zahltext(.infinity)) == nil)
     #expect(Int(Anfrage.zahltext(2.5)) == nil)
 }
+
+@Test func persoenlicheUeberhandelnGrenzeGiltInAuswertungUndBericht() throws {
+    let trades = [trade("a", schluss: "2026-10-01T10:00:00", netto: 10),
+                  trade("b", schluss: "2026-10-01T11:00:00", netto: 20),
+                  trade("c", schluss: "2026-10-01T12:00:00", netto: -5)]
+    let export = JournalExport(konten: [.init(broker: "Test", kontonummer: "1234", waehrung: "EUR", trades: trades,
+                                             regeln: Handelsregeln(maxTradesJeTag: 2))], zeitzone: berlin)
+    let anfrage = try Anfrage.lies(["monat": "2026-10"], export: export)
+    for auswertung in [anfrage.auswertung(), anfrage.bericht().auswertung] {
+        let befund = try #require(auswertung.befunde.first { $0.muster == .ueberhandeln })
+        #expect(befund.trades == ["c"] && befund.wert == 2 && befund.netto == -5)
+        let kosten = try #require(Tiefenanalyse.fehlermusterKosten(auswertung).first { $0.muster == .ueberhandeln })
+        #expect(kosten.anzahl == 1 && kosten.netto == -5 && kosten.nettoOhne == 30)
+    }
+    let text = Ausgabe.auswertung(anfrage)
+    #expect(text.contains("- Überhandeln: 1 Trades, netto -5,00"))
+    #expect(!text.contains("Nicht geprüft: Überhandeln"))
+    #expect(!text.contains("Regel: Positionen eines Tages über dem üblichen Maß"))
+    let tiefenanalyse = Ausgabe.tiefenanalyse(anfrage)
+    #expect(tiefenanalyse.contains("| Überhandeln (Regelbruch) | 1 | -5,00 |"))
+}
+
+@Test func exportierterShortScheinZaehltNachMarkterwartung() throws {
+    var schein = trade("short", schluss: "2026-10-01T10:00:00", netto: 100)
+    schein.markterwartung = .sell
+    let export = JournalExport(konten: [.init(broker: "Test", kontonummer: "1234", waehrung: "EUR", trades: [schein])],
+                               zeitzone: berlin)
+    let gelesen = try JournalExport.lese(export.json())
+    let anfrage = try Anfrage.lies(["monat": "2026-10"], export: gelesen)
+    let trades = anfrage.auswertung().trades
+    #expect(trades.first?.side == .buy && trades.first?.richtung == .sell)
+    let short = trades.filter { $0.richtung == .sell }
+    #expect(short.map(\.id) == ["short"] && Kennzahlen(trades: short).netto == 100)
+    let anteile = Tiefenanalyse.anteileRichtung(trades)
+    #expect(anteile.first { $0.schluessel == Side.buy.rawValue }?.wert == 0)
+    #expect(anteile.first { $0.schluessel == Side.sell.rawValue }?.wert == 1)
+}

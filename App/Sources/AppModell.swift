@@ -102,7 +102,8 @@ final class AppModell {
 
     /// Mit Journal von außen. `nebenwirkungen: false` für Tests (App/Tests): kein Export in den Ordner des
     /// Nutzers und kein EZB-Abruf, sonst überschriebe ein Testlauf am Mac die echte Exportdatei.
-    init(journal: Journal?, nebenwirkungen: Bool = true) {
+    init(journal: Journal?, nebenwirkungen: Bool = true, testZeitzone: TimeZone? = nil) {
+        self.testZeitzone = testZeitzone
         self.nebenwirkungen = nebenwirkungen
         if nebenwirkungen {
             kurse = Kursdienst()
@@ -255,8 +256,9 @@ final class AppModell {
 
     var konto: Konto? { konten.first { $0.id == kontoId } ?? konten.first }
     var waehrung: String { konto?.waehrung ?? "EUR" }
+    private let testZeitzone: TimeZone?
     /// Wochentag, Stunde und Tagesgrenze in der Zeitzone des Nutzers.
-    var zeitzone: TimeZone { .current }
+    var zeitzone: TimeZone { testZeitzone ?? .current }
 
     private var kalender: Calendar {
         var kalender = Calendar(identifier: .gregorian)
@@ -291,7 +293,7 @@ final class AppModell {
         let kalender = self.kalender
         return trades.filter { trade in
             if let instrument, trade.symbol != instrument { return false }
-            if case .monat(let monat) = zeitraum, monatsanfang(trade.closeTime, kalender) != monat { return false }
+            if case .monat(let monat) = zeitraum, monatsanfang(trade.schlusstag(kalender), kalender) != monat { return false }
             return true
         }
     }
@@ -382,7 +384,7 @@ final class AppModell {
     /// Monate mit Trades, neuester zuerst.
     var monate: [Date] {
         let kalender = self.kalender
-        return Set(alleTrades.map { monatsanfang($0.closeTime, kalender) }).sorted(by: >)
+        return Set(alleTrades.map { monatsanfang($0.schlusstag(kalender), kalender) }).sorted(by: >)
     }
 
     var symbole: [String] { Set(alleTrades.map(\.symbol)).sorted() }
