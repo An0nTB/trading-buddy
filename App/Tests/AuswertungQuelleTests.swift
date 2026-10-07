@@ -15,7 +15,7 @@ import TradingStore
         return m
     }
 
-    /// Ohne eingestellte Regeln gibt es keine Regeltreue; der Score rechnet dann ohne diese Achse.
+    /// Ohne eingestellte Regeln und Journalbewertungen gibt es keine Regeltreue; der Score rechnet dann ohne diese Achse.
     @Test func auswertungRegeltreueOhneRegelnFehlt() throws {
         let m = try modell()
         #expect(m.angeglicheneTrades.count == 1)
@@ -52,4 +52,47 @@ import TradingStore
         #expect(a == b)
         #expect(a.id != Drilldown(titel: "Montag", tradeIDs: ["1"]).id)
     }
+
+    @Test(arguments: [false, true]) func journalbewertungZaehltOhneRegeln(regeltreu: Bool) throws {
+        let m = try modell()
+        let trade = try #require(m.trades.first)
+        var eintrag = try #require(m.journaleintrag(trade))
+        eintrag.regeltreue = regeltreu
+        m.speichereJournal(eintrag)
+        #expect(m.regeln.leer)
+        #expect(Auswertungsquelle.regeltreue(m) == (regeltreu ? Decimal(1) : Decimal(0)))
+        m.instrument = "Nicht im Zeitraum"
+        #expect(Auswertungsquelle.regeltreue(m) == nil)
+    }
+
+    @Test func manuelleVerstoesseGehenOhneRegelnInDenScoreEin() throws {
+        let journal = try Journal.imSpeicher()
+        _ = try journal.importiereCSV(datei: Data(T.scalable.utf8), dateiname: "appt-score.csv",
+                                      kontonummer: "DE0012345678", kontowaehrung: "EUR", zeitzone: T.berlin)
+        let konto = try #require(try journal.konten().first)
+        for tag in 1...Leistungsscore.mindestanzahl {
+            let trade = ManuellerTrade(symbol: "Score", einstieg: T.zeit(2026, 5, tag, 10),
+                                       ausstieg: T.zeit(2026, 5, tag, 11), markterwartung: .buy,
+                                       groesse: 1, einstiegskurs: 100, ausstiegskurs: tag % 2 == 0 ? 110 : 95)
+            let ticket = try journal.speichereManuellenTrade(trade, konto: konto).ticket
+            try journal.speichereJournal(Journaleintrag(kontoId: try #require(konto.id), ticket: ticket,
+                                                       regeltreue: tag != 1))
+        }
+        let m = AppModell(journal: journal, nebenwirkungen: false)
+        m.instrument = "Score"
+        let quote = try #require(Auswertungsquelle.regeltreue(m))
+        #expect(quote == Decimal(Leistungsscore.mindestanzahl - 1) / Decimal(Leistungsscore.mindestanzahl))
+        let score = try #require(Leistungsscore(trades: m.angeglicheneTrades, zeitzone: m.zeitzone, regeltreue: quote))
+        let spanne = try #require(Zeitspanne.monat(jahr: 2026, monat: 5, zeitzone: m.zeitzone))
+        let bericht = Zeitraumbericht(trades: m.angeglicheneTrades, zeitraum: spanne, zeitzone: m.zeitzone,
+                                      kontowaehrung: "EUR", manuell: m.manuellVerletzt)
+        let vergleich = try #require(Leistungsscore(trades: bericht.auswertung.trades, zeitzone: m.zeitzone,
+                                                   regeltreue: bericht.disziplin.quote))
+        #expect(score.komponenten.contains { $0.komponente == .regeltreue })
+        #expect(score.gesamt == vergleich.gesamt)
+        m.instrument = "Testwert AG"
+        #expect(m.angeglicheneTrades.count == 1)
+        #expect(Auswertungsquelle.regeltreue(m) == nil)
+    }
+
 }

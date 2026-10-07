@@ -56,8 +56,11 @@ enum ExportOrdner {
             let andere = alle.filter { $0.broker == konto.broker }.map(\.kontonummer)
             let stellen = JournalExport.endziffern(konto.kontonummer, neben: andere)
             let quellen = try journal.risikoquellen(konto: konto)
+            let erwartungen = try journal.markterwartungen(konto: konto)
             let trades = try Self.trades(journal, konto).map { t in
-                mitRisiko(t.mitJournal(eintraege[t.id]), quellen: quellen)
+                var mitJournal = t.mitJournal(eintraege[t.id])
+                if mitJournal.markterwartung == nil { mitJournal.markterwartung = erwartungen[t.id] }
+                return mitRisiko(mitJournal, quellen: quellen)
             }
             let nummer = String(konto.kontonummer.suffix(stellen))
             let analysen = ausstieg[ausstiegskonto(konto.broker, nummer)] ?? [:]

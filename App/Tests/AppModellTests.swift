@@ -106,4 +106,30 @@ import TradingStore
         #expect(m.angeglicheneTrades.map(\.id) == m.trades.map(\.id))
         #expect(m.waehrungsstand.leer)
     }
+
+    @Test func datumsimportBleibtInNewYorkImKalendermonat() throws {
+        let zone = try #require(TimeZone(identifier: "America/New_York"))
+        let m = AppModell(journal: try Journal.imSpeicher(), nebenwirkungen: false, testZeitzone: zone)
+        let csv = T.scalable.replacingOccurrences(of: "2026-04-01", with: "2026-09-30")
+            .replacingOccurrences(of: "2026-04-02", with: "2026-10-01")
+            .replacingOccurrences(of: "15:00:00", with: "00:00:00")
+        _ = try m.importiereCSV(daten: Data(csv.utf8), dateiname: "appt-datum.csv", kontonummer: "DE0012345678",
+                                kontoname: "Depot", waehrung: "EUR", zeitzone: T.utc)
+        let trade = try #require(m.trades.first)
+        #expect(trade.nurDatum && trade.closeTime == T.zeit(2026, 10, 1))
+        var kalender = Calendar(identifier: .gregorian)
+        kalender.timeZone = zone
+        let oktober = try #require(kalender.date(from: DateComponents(year: 2026, month: 10, day: 1)))
+        #expect(m.monate == [oktober])
+        m.zeitraum = .monat(oktober)
+        let ergebnis = Monatskalender(trades: m.kalenderTrades, jahr: 2026, monat: 10, kalender: kalender)
+        #expect(m.trades.map(\.id) == [trade.id])
+        #expect(m.kontoTrades.map(\.id) == [trade.id])
+        #expect(m.angeglicheneTrades.map(\.id) == [trade.id])
+        #expect(m.kennzahlen.anzahl == ergebnis.anzahl && ergebnis.anzahl == 1)
+        #expect(m.kennzahlen.netto == ergebnis.netto && ergebnis.netto == T.d("48"))
+        m.zeitraum = .monat(try #require(kalender.date(from: DateComponents(year: 2026, month: 9, day: 1))))
+        #expect(m.trades.isEmpty && m.kontoTrades.isEmpty && m.angeglicheneTrades.isEmpty)
+    }
+
 }
