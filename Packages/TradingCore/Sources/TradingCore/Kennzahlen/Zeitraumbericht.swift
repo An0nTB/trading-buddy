@@ -59,8 +59,10 @@ public struct Zeitraumbericht: Sendable {
         // Kurstag in deutscher Zeit wie überall (G6); die Zeitzone des Nutzers gilt nur für Tage und Regeln.
         let angleich = Waehrungsangleich(trades, kontowaehrung: kontowaehrung, kurse: kurse)
         let alle = angleich.trades
+        var schwellen = Fehlermuster.Schwellen()
+        schwellen.maxTradesProTag = regeln.maxTradesJeTag
         auswertung = Auswertung(trades: alle, geloeschteOrders: geloeschteOrders, zeitraum: zeitraum,
-                                zeitzone: zeitzone)
+                                zeitzone: zeitzone, schwellen: schwellen)
         let imZeitraum = auswertung.trades
         let ohneKursImZeitraum = angleich.ohneKurs.filter { zeitraum.enthaelt($0.closeTime) }
         tage = Self.tage(imZeitraum, zeitzone: zeitzone)
