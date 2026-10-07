@@ -40,6 +40,7 @@ public struct Waehrungsangleich: Sendable, Equatable {
             else { ohneKurs.append(t); continue }
             var u = t
             u.profit = t.profit * faktor
+            u.wertJePunkt = t.wertJePunkt.map { $0 * faktor }
             u.commission = t.commission * faktor
             u.swap = t.swap * faktor
             u.taxes = t.taxes * faktor

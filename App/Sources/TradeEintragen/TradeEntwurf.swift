@@ -65,7 +65,7 @@ struct TradeEntwurf: Equatable {
     }
 
     /// Entwurf aus einem gespeicherten Hand-Trade und seinem Journaleintrag, zum Bearbeiten im selben Konto.
-    /// Stop als Risiko, wenn das Journal ein Risiko hat und der gespeicherte Stop dazu passt (oder fehlt);
+    /// Stop als Risiko, wenn das Journal ein Risiko hat und der wirksame Stop dazu passt (oder fehlt);
     /// sonst als Kurs, und das Risiko aus dem Journal bleibt beim Speichern stehen.
     init(bearbeite trade: ManuellerTrade, eintrag: Journaleintrag?, kontoId: Int64, ticket: String) {
         einstieg = trade.einstieg
@@ -87,16 +87,16 @@ struct TradeEntwurf: Equatable {
         gedanken = eintrag?.grund ?? ""
         kontowahl = .bestehend(kontoId)
         self.ticket = ticket
-        stopKurs = trade.stopKurs
+        stopKurs = eintrag?.stopEinstieg ?? trade.stopKurs
         let risiko = eintrag?.risikoEinstieg
         var ausRisiko = trade
         ausRisiko.stopKurs = nil
         ausRisiko.risiko = risiko
-        if let risiko, risiko != 0, trade.stopKurs == nil || ausRisiko.stop == trade.stopKurs {
+        if let risiko, risiko != 0, stopKurs == nil || ausRisiko.stop == stopKurs {
             stopArt = .risiko
             self.risiko = abs(risiko)
         } else {
-            stopArt = trade.stopKurs == nil ? .risiko : .kurs
+            stopArt = stopKurs == nil ? .risiko : .kurs
             bisherigesRisiko = risiko
         }
     }
