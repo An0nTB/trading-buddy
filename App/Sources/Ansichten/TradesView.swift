@@ -41,7 +41,7 @@ struct TradesView: View {
         let termine = modell.termineJeTrade
         let nurUeberTermin = modell.nurUeberTermin
         let tags = modell.tradeTags
-        return modell.trades.compactMap { trade -> TradeZeileDaten? in
+        return modell.tradeListe.compactMap { trade -> TradeZeileDaten? in
             let zeile = TradeZeileDaten(trade: trade, setup: eintraege[trade.id]?.setup ?? "", muster: muster[trade.id] ?? [],
                                         termine: termine[trade.id] ?? [],
                                         stopAusJournal: eintraege[trade.id]?.stopEinstieg != nil,
@@ -61,7 +61,7 @@ struct TradesView: View {
     }
 
     private var ausgewaehlterTrade: Trade? {
-        modell.trades.first { $0.id == modell.tradeAuswahl }
+        modell.tradeListe.first { $0.id == modell.tradeAuswahl }
     }
 
     /// Am iPhone zeigt die Liste eine Detailseite, kein Inspektor.
@@ -77,7 +77,7 @@ struct TradesView: View {
         let liste = gefiltert
         let muster = modell.musterJeTrade
         VStack(alignment: .leading, spacing: Abstand.kachelAbstand) {
-            Kopfzeile("Trades", untertitel: String(localized: "\(liste.count) von \(modell.trades.count)")) {
+            Kopfzeile("Trades", untertitel: String(localized: "\(liste.count) von \(modell.tradeListe.count)")) {
                 TradeEintragenKnopf()
                 #if os(macOS)
                 // Suchfeld in der Kopfzeile statt in der Symbolleiste: dort überdeckte es den Kopf des Inspektors.
@@ -111,7 +111,7 @@ struct TradesView: View {
             }
             if liste.isEmpty {
                 Group {
-                    if modell.alleTrades.isEmpty {
+                    if modell.alleTradesMitDuplikaten.isEmpty {
                         KeineTrades()
                     } else {
                         KeineTreffer {
@@ -136,7 +136,7 @@ struct TradesView: View {
                 #else
                 tradeTabelle(liste)
                 #endif
-                Summenzeile(trades: liste.map(\.trade))
+                Summenzeile(trades: liste.map(\.trade).filter { modell.moeglicheDuplikate[$0.id] == nil })
                     .padding(.horizontal, Abstand.seitenrand)
                     .padding(.bottom, Abstand.kachelAbstand)
             }
@@ -258,6 +258,10 @@ struct TradesView: View {
             .customizationID("netto")
             TableColumn("Hinweise") { zeile in
                 HStack(spacing: Abstand.raster) {
+                    if modell.moeglicheDuplikate[zeile.id] != nil {
+                        Image(systemName: "exclamationmark.triangle")
+                            .foregroundStyle(thema.warnung)
+                    }
                     MusterChips(muster: zeile.muster)
                     TagHinweis(tags: zeile.tags)
                 }
@@ -299,14 +303,20 @@ struct TradesView: View {
     private func tradeListe(_ liste: [TradeZeileDaten], _ muster: [String: [Fehlermuster]]) -> some View {
         List(liste) { zeile in
             NavigationLink(value: zeile.id) {
-                TradeZeile(trade: zeile.trade, muster: zeile.muster, waehrung: zeile.trade.waehrung(kontowaehrung: modell.waehrung), setup: zeile.setup,
-                           ueberTermin: !zeile.termine.isEmpty)
+                HStack {
+                    TradeZeile(trade: zeile.trade, muster: zeile.muster, waehrung: zeile.trade.waehrung(kontowaehrung: modell.waehrung), setup: zeile.setup,
+                               ueberTermin: !zeile.termine.isEmpty)
+                    if modell.moeglicheDuplikate[zeile.id] != nil {
+                        Image(systemName: "exclamationmark.triangle")
+                            .foregroundStyle(thema.warnung)
+                    }
+                }
             }
             .listRowBackground(thema.flaeche)
         }
         .scrollContentBackground(.hidden)
         .navigationDestination(for: TradeZeileDaten.ID.self) { id in
-            if let trade = modell.trades.first(where: { $0.id == id }) {
+            if let trade = modell.tradeListe.first(where: { $0.id == id }) {
                 ScrollView {
                     TradeInspektor(trade: trade, muster: muster[id] ?? [], waehrung: trade.waehrung(kontowaehrung: modell.waehrung))
                         .padding(Abstand.seitenrand)
