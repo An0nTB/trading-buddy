@@ -87,6 +87,25 @@ import TradingStore
         #expect(e.rWert(standardRisiko: 999) == T.d("2.45"))
     }
 
+    /// Stop-Art und Vorschau richten sich nach dem Journal-Stop, nicht nach dem alten Positions-Stop.
+    @Test func bearbeitungWaehltStopArtNachWirksamemJournalStop() throws {
+        var e = entwurf()
+        e.stopArt = .kurs
+        e.stopKurs = 90
+        let gespeichert = try #require(e.trade)
+        var eintrag = Journaleintrag(kontoId: 1, ticket: "hand-test", stopEinstieg: 95, risikoEinstieg: 100)
+        let abweichend = TradeEntwurf(bearbeite: gespeichert, eintrag: eintrag, kontoId: 1, ticket: "hand-test")
+        #expect(abweichend.stopArt == .kurs)
+        #expect(abweichend.stopKurs == 95)
+        #expect(abweichend.eigenesRisiko == 50)
+        #expect(abweichend.angaben.risikoEinstieg == 100)
+        eintrag.risikoEinstieg = 50
+        let passend = TradeEntwurf(bearbeite: gespeichert, eintrag: eintrag, kontoId: 1, ticket: "hand-test")
+        #expect(passend.stopArt == .risiko)
+        #expect(passend.risiko == 50)
+        #expect(passend.trade?.stop == 95)
+    }
+
     /// Stop als Kurs gewinnt; ein Risiko aus dem anderen Modus wird nicht mitgeschickt.
     @Test func stopKursGehtVorRisiko() throws {
         var e = entwurf()

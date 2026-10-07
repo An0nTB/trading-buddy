@@ -12,6 +12,37 @@ private let berlin = TimeZone(identifier: "Europe/Berlin")!
 private func d(_ text: String) -> Decimal { Decimal(string: text)! }
 private func utc(_ iso: String) -> Date { ISO8601DateFormatter().date(from: iso)! }
 
+@Test func handtradeOhneKursbewegungBehaeltRisikoNachLaden() throws {
+    let journal = try Journal.imSpeicher()
+    let konto = try journal.legeKontoAn(broker: "Von Hand", kontonummer: "Test", waehrung: "EUR")
+    let hand = ManuellerTrade(symbol: "Testwert", einstieg: zeit, markterwartung: .buy,
+                              groesse: 10, einstiegskurs: 100, ausstiegskurs: 100, stopKurs: 95, gebuehren: 2)
+    let ticket = try journal.speichereHandtrade(hand, konto: konto)
+    let position = try #require(try journal.geschlossenePositionen(konto: konto).first)
+    let trade = Trade(position).mitGeplantemRisiko(100)
+    #expect(trade.stopRisiko == 50)
+    #expect(trade.rMultiple == d("-0.04"))
+    #expect(!trade.risikoAngenommen)
+    var bearbeitet = try #require(try journal.manuellerTrade(konto: konto, ticket: ticket))
+    bearbeitet.stopKurs = 80
+    try journal.speichereHandtrade(bearbeitet, konto: konto, ticket: ticket)
+    let neu = try #require(try journal.geschlossenePositionen(konto: konto).first)
+    #expect(Trade(neu).stopRisiko == 200)
+    #expect(Trade(neu).rMultiple == d("-0.01"))
+}
+
+@Test func nurHandelsdatenAusFormularUndSicherungHabenBekanntenPunktwert() throws {
+    let position = ClosedPosition(ticket: "42", rohzeile: [], side: .buy, lots: 10, symbol: "Testwert",
+                                  openTime: zeit, openPrice: 100, stopLoss: 95, closeTime: zeit,
+                                  closePrice: 100, commission: -2, swap: 0, profit: 0)
+    // Derselbe Altbestand: Erst der gespeicherte Marker belegt die Abrechnung je Stück.
+    let broker = try GeschlossenZeile(kontoId: 1, importlaufId: 1, position).modell()
+    #expect(Trade(broker).stopRisiko == nil)
+    let hand = try GeschlossenZeile(kontoId: 1, importlaufId: 1, position, markterwartung: .buy).modell()
+    #expect(Trade(hand).stopRisiko == 50)
+    #expect(Trade(hand).rMultiple == d("-0.04"))
+}
+
 private func beispielSicherung() throws -> Data {
     let url = URL(fileURLWithPath: #filePath)
         .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()

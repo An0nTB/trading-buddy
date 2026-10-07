@@ -99,11 +99,13 @@ public struct ManuellerTrade: Sendable, Equatable {
     /// Nur für geschlossene Trades; offene gehen über `offenePosition(ticket:)`.
     public func position(ticket: String) -> ClosedPosition {
         precondition(!offen, "position(ticket:) nur für geschlossene Trades, offen: offenePosition(ticket:)")
-        return ClosedPosition(ticket: ticket, rohzeile: [], side: handelsseite, lots: groesse,
+        var position = ClosedPosition(ticket: ticket, rohzeile: [], side: handelsseite, lots: groesse,
                        symbol: symbol.trimmingCharacters(in: .whitespacesAndNewlines), openTime: einstieg,
                        openPrice: einstiegskurs, stopLoss: stop, takeProfit: ziel, closeTime: ausstieg ?? einstieg,
                        closePrice: ausstiegskurs ?? einstiegskurs, commission: gebuehren == 0 ? 0 : -abs(gebuehren), swap: 0,
                        profit: ergebnis, produktart: produktart, ausstiegszeitBekannt: ausstieg != nil)
+        position.wertJePunkt = groesse
+        return position
     }
 
     /// Offene Position mit leerer Rohzeile. Ohne Kursabruf steht der aktuelle Kurs auf dem Einstieg, das Ergebnis auf 0;
