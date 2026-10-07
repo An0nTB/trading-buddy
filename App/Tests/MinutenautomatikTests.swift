@@ -14,16 +14,63 @@ private let jetztFest = AppTestdaten.zeit(2026, 10, 5, 12)
               openPrice: 100, closePrice: 110, profit: 10, nurDatum: nurDatum)
     }
 
-    @Test func startUndNeueTradesSindEinAnlass() {
-        #expect(Minutenautomatik.neuerAnlass(bekannt: nil, ids: ["A"]))
-        #expect(!Minutenautomatik.neuerAnlass(bekannt: nil, ids: []))
-        #expect(Minutenautomatik.neuerAnlass(bekannt: ["A"], ids: ["A", "B"]))
+    @Test @MainActor func gleicheTicketsVerschiedenerKontenWerdenAbgerufen() async {
+        let automatik = Minutenautomatik()
+        let t = trade("123", auf: T.zeit(2026, 10, 4, 9), zu: T.zeit(2026, 10, 4, 10))
+        var abrufe: [Int64] = []
+        for kontoId in [Int64(1), 2, 1, 2] {
+            var gespeichert: Set<String> = []
+            await automatik.rufeAb(kontoId: kontoId, trades: [t], jetzt: jetztFest, vorhandene: { _ in
+                gespeichert
+            }, lade: { trades in
+                abrufe.append(kontoId)
+                gespeichert.formUnion(trades.map(\.id))
+            })
+        }
+        #expect(abrufe == [1, 2])
     }
 
-    @Test func bekannteTradesSindKeinAnlass() {
-        // Erneutes Laden oder Kontowechsel zurück: nichts Neues, kein Abruf.
-        #expect(!Minutenautomatik.neuerAnlass(bekannt: ["A", "B"], ids: ["A"]))
-        #expect(!Minutenautomatik.neuerAnlass(bekannt: ["A", "B"], ids: ["A", "B"]))
+    @Test @MainActor func nachlaufWirdBeiSpaeteremAnlassFaellig() async {
+        let automatik = Minutenautomatik()
+        let t = trade("123", auf: T.zeit(2026, 10, 5, 11), zu: T.zeit(2026, 10, 5, 11, 30))
+        var abrufe = 0
+        var gespeichert: Set<String> = []
+        for jetzt in [jetztFest, jetztFest.addingTimeInterval(1_800), jetztFest.addingTimeInterval(3_600)] {
+            await automatik.rufeAb(kontoId: 1, trades: [t], jetzt: jetzt, vorhandene: { _ in
+                gespeichert
+            }, lade: { trades in
+                abrufe += 1
+                gespeichert.formUnion(trades.map(\.id))
+            })
+            #expect(abrufe == (jetzt == jetztFest ? 0 : 1))
+        }
+    }
+
+    @Test @MainActor func fehlenderAbrufWirdWiederholtUndTeilerfolgBleibtErledigt() async {
+        let automatik = Minutenautomatik()
+        let trades = ["A", "B"].map { trade($0, auf: T.zeit(2026, 10, 4, 9), zu: T.zeit(2026, 10, 4, 10)) }
+        var gespeichert: Set<String> = []
+        var abrufe: [[String]] = []
+        for versuch in 1...3 {
+            await automatik.rufeAb(kontoId: 1, trades: trades, jetzt: jetztFest, vorhandene: { _ in
+                gespeichert
+            }, lade: { fehlend in
+                abrufe.append(fehlend.map(\.id))
+                // B liefert zuerst einen Fehler oder keine Kerzen; nur A wird gespeichert.
+                gespeichert.formUnion(versuch == 1 ? ["A"] : ["B"])
+            })
+        }
+        #expect(abrufe == [["A", "B"], ["B"]])
+    }
+
+    @Test @MainActor func vorhandeneKerzenBrauchenKeinenAbruf() async {
+        let automatik = Minutenautomatik()
+        let t = trade("123", auf: T.zeit(2026, 10, 4, 9), zu: T.zeit(2026, 10, 4, 10))
+        await automatik.rufeAb(kontoId: 1, trades: [t], jetzt: jetztFest, vorhandene: { _ in
+            [t.id]
+        }, lade: { _ in
+            Issue.record("Vorhandene Kerzen wurden erneut angefordert")
+        })
     }
 
     @Test func nimmtNurTradesWieDerKnopfUndHoechstens31TageAlt() {
