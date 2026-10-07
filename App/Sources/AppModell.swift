@@ -885,6 +885,7 @@ final class AppModell {
         guard let journal, let id = setup.id else { return }
         try journal.loescheSetup(id: id)
         playbook = try journal.playbook()
+        risikoNeuLesen()
     }
 
     /// Speichert die abgehakten Kriterien eines Trades; die Speicherung schreibt dabei das Setup ins Journal.

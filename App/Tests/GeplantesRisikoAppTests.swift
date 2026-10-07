@@ -35,6 +35,31 @@ import TradingStore
         #expect(m.fehler == nil)
     }
 
+    @Test(arguments: [true, false])
+    func geloeschtesSetupAktualisiertRisikoKennzahlenUndExport(mitKontorisiko: Bool) throws {
+        let m = try mitDepot()
+        let trade = try #require(m.trades.first)
+        let setup = try m.speichereSetup(Setup(name: "Ausbruch"))
+        let setupId = try #require(setup.id)
+        var eintrag = try #require(m.journaleintrag(trade))
+        eintrag.setup = setup.name
+        m.speichereJournal(eintrag)
+        if mitKontorisiko { try m.setzeStandardRisiko(50) }
+        try m.setzeStandardRisiko(100, setupId: setupId)
+        #expect(m.trades.first?.risk == 100)
+        #expect(m.kennzahlen.erwartungswertR == trade.netProfit / 100)
+        let exportVorher = m.exportAnstoesse
+
+        try m.loescheSetup(setup)
+
+        #expect(m.trades.first?.risk == (mitKontorisiko ? 50 : nil))
+        #expect(m.angeglicheneTrades.first?.risk == (mitKontorisiko ? 50 : nil))
+        #expect(m.wirksamesRisiko(trade)?.herkunft == (mitKontorisiko ? .konto : nil))
+        #expect(m.kennzahlen.erwartungswertR == (mitKontorisiko ? trade.netProfit / 50 : nil))
+        #expect(m.exportAnstoesse == exportVorher + 1)
+        #expect(m.fehler == nil)
+    }
+
     /// Das Risiko am Trade geht dem Standard des Kontos vor.
     @Test func risikoAmTradeGehtVor() throws {
         let m = try mitDepot()
