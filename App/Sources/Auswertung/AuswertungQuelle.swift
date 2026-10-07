@@ -131,10 +131,11 @@ enum Auswertungsquelle {
     }
 
     /// Anteil der Trades ohne Regelverstoß (eigene und Prop-Firm-Regeln, wie Disziplin und Monatsbericht), 0 bis 1.
-    /// `nil` ohne eingestellte Regeln: Dann fehlt die Regeltreue im Score und der Kern verteilt die Gewichte neu.
+    /// `nil` ohne Regeln und Journalbewertungen: Dann verteilt der Kern die Gewichte ohne Regeltreue neu.
     static func regeltreue(_ modell: AppModell) -> Decimal? {
-        guard !modell.regeln.leer else { return nil }
         let trades = modell.angeglicheneTrades
+        let mitJournal = trades.contains { modell.journaleintraege[$0.id]?.regeltreue != nil }
+        guard !modell.regeln.leer || mitJournal else { return nil }
         guard !trades.isEmpty else { return nil }
         let verletzt = modell.verletzteTrades
         let treu = trades.filter { !verletzt.contains($0.id) }.count

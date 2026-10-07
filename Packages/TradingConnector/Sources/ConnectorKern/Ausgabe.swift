@@ -64,10 +64,11 @@ public enum Ausgabe {
         t.append(contentsOf: anfrage.produktartabschnitt(a.trades))
 
         t.append("\n## Fehlermuster (Regeln im Rechenkern, Schwellen vorläufig)")
-        t.append(contentsOf: a.befunde.map { befund(a, $0) })
+        t.append(contentsOf: a.befunde.map { befund(a, $0, maxTradesJeTag: anfrage.konto.regeln?.maxTradesJeTag) })
         // Überhandeln ohne Grenze (unter 10 Tagen mit Trades) ist nicht geprüft, nicht „ohne Treffer“.
         let tage = Fehlermuster.tradesJeTag(a.trades, zeitzone: zone).count
-        let ungeprueft = !a.trades.isEmpty && Fehlermuster.ueberhandelnGrenze(a.trades, zeitzone: zone) == nil
+        let grenze = Fehlermuster.ueberhandelnGrenze(a.trades, zeitzone: zone, schwellen: anfrage.musterSchwellen)
+        let ungeprueft = !a.trades.isEmpty && grenze == nil
         let ohneTreffer = Fehlermuster.allCases.filter { m in
             !a.befunde.contains { $0.muster == m } && !(m == .ueberhandeln && ungeprueft)
         }
@@ -204,7 +205,7 @@ public enum Ausgabe {
                        })
     }
 
-    private static func befund(_ a: Auswertung, _ b: Befund) -> String {
+    private static func befund(_ a: Auswertung, _ b: Befund, maxTradesJeTag: Int?) -> String {
         var zeile = "- \(b.muster.bezeichnung): "
         if b.trades.isEmpty {
             zeile += "Wert \(Format.zahl(b.wert))"
@@ -216,7 +217,10 @@ public enum Ausgabe {
                                                    : ", Wert \(Format.zahl(w))"
             }
         }
-        zeile += ". Stichprobe \(b.stichprobe)\(b.genugDaten ? "" : " (unter 30)"). Regel: \(b.muster.regeltext)."
+        let regel = b.muster == .ueberhandeln
+            ? maxTradesJeTag.map { "Tage mit mehr als \($0) Trades (eigene Regel)" } ?? b.muster.regeltext
+            : b.muster.regeltext
+        zeile += ". Stichprobe \(b.stichprobe)\(b.genugDaten ? "" : " (unter 30)"). Regel: \(regel)."
         if let ohne = a.ohne(b) {
             zeile += " Ohne diese Trades: netto \(Format.zahl(ohne.netto)), Erwartungswert \(Format.r(ohne.erwartungswertR))."
         }
