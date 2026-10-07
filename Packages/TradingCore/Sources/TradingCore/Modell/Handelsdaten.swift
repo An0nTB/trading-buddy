@@ -7,6 +7,8 @@ public struct ClosedPosition: Sendable, Equatable {
     public var rohzeile: [String]
     public var side: Side
     public var lots: Decimal
+    /// Bekannter Geldwert je Kurspunkt in Kontowährung (Hand-Trade: Stückzahl), sonst `nil`.
+    public var wertJePunkt: Decimal?
     public var symbol: String
     public var openTime: Date
     public var openPrice: Decimal

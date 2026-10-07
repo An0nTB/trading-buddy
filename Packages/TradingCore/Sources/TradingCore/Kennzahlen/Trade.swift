@@ -7,6 +7,8 @@ public struct Trade: Sendable, Equatable, Identifiable {
     public var symbol: String
     public var side: Side
     public var lots: Decimal
+    /// Bekannter Geldwert je Kurspunkt in `waehrung` (Hand-Trade: Stückzahl), sonst Rückrechnung aus dem Ergebnis.
+    public var wertJePunkt: Decimal?
     public var openTime: Date
     public var closeTime: Date
     public var openPrice: Decimal
@@ -75,6 +77,7 @@ public struct Trade: Sendable, Equatable, Identifiable {
                   closeTime: p.closeTime, openPrice: p.openPrice, closePrice: p.closePrice,
                   stopLoss: p.stopLoss, takeProfit: p.takeProfit, commission: p.commission,
                   swap: p.swap, profit: p.profit, produktart: p.produktart, nurDatum: !p.ausstiegszeitBekannt)
+        wertJePunkt = p.wertJePunkt
     }
 
     /// Kosten (Kommission, Swap und Steuern), meist negativ.
@@ -99,15 +102,16 @@ public struct Trade: Sendable, Equatable, Identifiable {
     }
 
     /// Risiko (1 R) aus dem Stop in Kontowährung: Abstand Einstieg bis Stop mal Wert je Kurspunkt.
-    /// Der Wert je Kurspunkt kommt aus dem Trade selbst (Kursergebnis ÷ Kursbewegung),
-    /// so braucht es keine Kontraktgrößen je Instrument.
-    /// `nil` ohne Stop, bei Stop auf der Gewinnseite (nachgezogen) oder ohne Kursbewegung.
+    /// Der bekannte Wert je Kurspunkt hat Vorrang, sonst kommt er aus Kursergebnis ÷ Kursbewegung.
+    /// `nil` ohne Stop, bei Stop auf der Gewinnseite (nachgezogen) oder ohne bestimmbaren Geldwert.
     /// Kennzahlen rechnen mit `risk`, das ohne solchen Wert auf `geplantesRisiko` zurückfällt.
     public var stopRisiko: Decimal? {
         guard let stop = stopLoss else { return nil }
         let abstand = side == .buy ? openPrice - stop : stop - openPrice
+        guard abstand > 0 else { return nil }
+        if let wertJePunkt, wertJePunkt > 0 { return abstand * wertJePunkt }
         let bewegung = side == .buy ? closePrice - openPrice : openPrice - closePrice
-        guard abstand > 0, bewegung != 0 else { return nil }
+        guard bewegung != 0 else { return nil }
         let wertJePunkt = profit / bewegung
         guard wertJePunkt > 0 else { return nil }
         return abstand * wertJePunkt
