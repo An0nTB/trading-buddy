@@ -1,4 +1,5 @@
 import Charts
+import Observation
 import SwiftUI
 import TradingCore
 
@@ -223,24 +224,56 @@ struct DrawdownKarte: View {
 struct BestExitKarte: View {
     @Environment(AppModell.self) private var modell
     @Environment(\.thema) private var thema
-    @State private var ergebnis: BestExitAuswertung?
-    @State private var rechnet = false
+    @State private var berechnung = Berechnung()
 
-    private struct Schluessel: Equatable {
-        var ids: [String]
+    struct Schluessel: Equatable {
+        var trades: [Trade]
         var stand: Int
         var konto: Int64?
+        var waehrung: String
+    }
+
+    @Observable @MainActor
+    final class Berechnung {
+        private var schluessel: Schluessel?
+        private var auswertung: BestExitAuswertung?
+        private var auftrag = 0
+        private(set) var rechnet = false
+
+        func ergebnis(fuer aktuell: Schluessel) -> BestExitAuswertung? {
+            schluessel == aktuell ? auswertung : nil
+        }
+
+        func zuruecksetzen() {
+            auftrag += 1
+            schluessel = nil
+            auswertung = nil
+            rechnet = false
+        }
+
+        func aktualisiere(_ neu: Schluessel, rechne: @MainActor () async -> BestExitAuswertung) async {
+            zuruecksetzen()
+            schluessel = neu
+            let lauf = auftrag
+            rechnet = true
+            let ergebnis = await rechne()
+            guard lauf == auftrag else { return }
+            rechnet = false
+            guard !Task.isCancelled else { return }
+            auswertung = ergebnis
+        }
     }
 
     var body: some View {
         let dienst = Ausstiegsdienst.geteilt
         let trades = modell.trades
+        let schluessel = Schluessel(trades: trades, stand: dienst.stand, konto: modell.kontoId, waehrung: modell.waehrung)
         Karte("Best-Exit") {
             if istBeispiel {
                 Erklaerung(String(localized: "Die Beispiel-Trades haben erfundene Preise. Ein Vergleich mit echten Kursen ergibt hier keinen Sinn."))
-            } else if let ergebnis, ergebnis.anzahl > 0 {
+            } else if let ergebnis = berechnung.ergebnis(fuer: schluessel), ergebnis.anzahl > 0 {
                 inhalt(ergebnis)
-            } else if rechnet {
+            } else if berechnung.rechnet {
                 ProgressView().controlSize(.small)
             } else {
                 Erklaerung(String(localized: "Für Best-Exit braucht es Trades mit Stop oder geplantem Risiko und Minutenkurse. Kurse holt oder importiert die Seite „Ausstieg“."))
@@ -248,27 +281,25 @@ struct BestExitKarte: View {
             }
             Erklaerung(String(localized: "Rückblick auf vergangene Kurse, Kerze für Kerze ohne Schlupf. Berührt eine Kerze Stop und Ziel, zählt der Stop. Die Obergrenze ist der Ausstieg genau am besten Kurs; den kennt man im Voraus nicht."))
         }
-        .task(id: Schluessel(ids: trades.map(\.id), stand: dienst.stand, konto: modell.kontoId)) {
-            guard !istBeispiel else { ergebnis = nil; return }
-            rechnet = true
-            let neu = await rechne(trades, dienst: dienst)
-            guard !Task.isCancelled else { return }
-            ergebnis = neu
-            rechnet = false
+        .task(id: schluessel) {
+            guard !istBeispiel else { berechnung.zuruecksetzen(); return }
+            await berechnung.aktualisiere(schluessel) {
+                await rechne(trades, dienst: dienst, waehrung: schluessel.waehrung)
+            }
         }
     }
 
     private var istBeispiel: Bool { modell.konto.map(Beispieldaten.istBeispiel) ?? false }
 
     /// Kerzen je Trade mit Risiko aus dem Speicher; die Auswahl auf die Haltedauer macht der Kern.
-    private func rechne(_ trades: [Trade], dienst: Ausstiegsdienst) async -> BestExitAuswertung {
+    private func rechne(_ trades: [Trade], dienst: Ausstiegsdienst, waehrung: String) async -> BestExitAuswertung {
         await dienst.ladeBestand()
         var kerzen: [String: [Zeitkerze]] = [:]
         for trade in trades where trade.risk != nil && !trade.nurDatum && dienst.hatKerzen(trade.symbol) {
             kerzen[trade.id] = await dienst.chartkerzen(trade)
             if Task.isCancelled { break }
         }
-        let waehrungen = Set(trades.map { $0.waehrung(kontowaehrung: modell.waehrung).uppercased() })
+        let waehrungen = Set(trades.map { $0.waehrung(kontowaehrung: waehrung).uppercased() })
         return BestExitAuswertung(trades: trades, kerzenJeTrade: kerzen, gleicheWaehrung: waehrungen.count <= 1)
     }
 

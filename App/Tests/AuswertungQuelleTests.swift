@@ -1,4 +1,5 @@
 import Foundation
+import Observation
 import Testing
 import TradingCore
 import TradingStore
@@ -20,6 +21,31 @@ import TradingStore
         let m = try modell()
         #expect(m.angeglicheneTrades.count == 1)
         #expect(Auswertungsquelle.regeltreue(m) == nil)
+    }
+
+    @Test func offeneTagAuswertungBeobachtetAenderungenAusZweitemFenster() async throws {
+        let auswertungsfenster = try modell()
+        let tradesfenster = auswertungsfenster
+        let trade = try #require(tradesfenster.trades.first)
+        for tags in [["Ausbruch"], ["Ruecklauf"], []] {
+            await confirmation("Tag-Auswertung wird neu aufgebaut") { aktualisiert in
+                withObservationTracking {
+                    _ = Auswertungsquelle.merkmale(auswertungsfenster, art: .tags)
+                } onChange: {
+                    aktualisiert()
+                }
+                tradesfenster.setzeTags(tags, trade: trade)
+            }
+            let auswertung = Merkmalauswertung(trades: auswertungsfenster.angeglicheneTrades,
+                merkmale: Auswertungsquelle.merkmale(auswertungsfenster, art: .tags))
+            #expect(auswertung.merkmale.map(\.merkmal) == tags)
+            #expect(auswertung.ohneMerkmal == (tags.isEmpty ? 1 : 0))
+            if !tags.isEmpty {
+                #expect(auswertung.merkmale.first?.anzahl == 1)
+                #expect(auswertung.merkmale.first?.netto == trade.netProfit)
+                #expect(auswertung.merkmale.first?.tradeIDs == [trade.id])
+            }
+        }
     }
 
     /// Wochentag und Stunde aus der Heatmap zählen dieselben Trades wie die Heatmap selbst.

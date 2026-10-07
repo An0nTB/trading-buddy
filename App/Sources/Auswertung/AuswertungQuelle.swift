@@ -100,13 +100,12 @@ enum Auswertungsquelle {
         return ergebnis
     }
 
-    /// Merkmale je Trade-ID für die gewählte Art. Tags liest die Speicherung (Migration v10), Zustand, Marktumfeld
+    /// Merkmale je Trade-ID für die gewählte Art. Tags liest der beobachtbare Modellzustand, Zustand, Marktumfeld
     /// und Setup das Journal.
     static func merkmale(_ modell: AppModell, art: Merkmalart) -> [String: [String]] {
         switch art {
         case .tags:
-            guard let journal = modell.journal, let konto = modell.konto, konto.id != nil else { return [:] }
-            return (try? journal.tags(konto: konto)) ?? [:]
+            return modell.tradeTags
         case .zustand:
             var ergebnis: [String: [String]] = [:]
             for (ticket, eintrag) in modell.journaleintraege {
