@@ -65,6 +65,11 @@ public struct Anfrage: Sendable {
         }
         konto.waehrung = waehrung
         if waehrung != kontowaehrung {
+            konto.offene = konto.offene?.map {
+                var position = $0
+                position.risiko = nil
+                return position
+            }
             // Ziele und Betragsgrenzen sind in Kontowährung eingetragen; gegen andere Beträge sind sie bedeutungslos.
             konto.ziele = []
             konto.regeln?.maxTagesverlust = nil

@@ -2,7 +2,7 @@ import Foundation
 
 /// Datei für den Claude-Connector (AP12): Die App schreibt sie in den Export-Ordner,
 /// der Connector liest sie und rechnet mit demselben Rechenkern.
-/// Enthält je Konto die abgeschlossenen Trades, die Zeitpunkte gelöschter Orders und die
+/// Enthält je Konto die abgeschlossenen Trades, offene Regelpositionen, die Zeitpunkte gelöschter Orders und die
 /// eigenen Journalangaben je Trade, die Ziele früherer Reviews und die eigenen Handelsregeln, dazu Tagesnotizen
 /// und verpasste Trades, auf Wunsch Überschriften der Nachrichten und Tageskerzen geladener Kurse, dazu die
 /// EZB-Referenzkurse für die Umrechnung in die Kontowährung und die Ausstiegsanalysen je Trade; keine Rohzeilen,
@@ -13,7 +13,8 @@ public struct JournalExport: Sendable, Equatable, Codable {
     /// Neue, freiwillige Felder (etwa `journal`, `ziele`) erhöhen es nicht: Ältere Connectoren übergehen sie.
     /// 2 seit `Trade.waehrung` (Rechenkern 0.17.0): Ein Connector vor 0.8.0 zählte USD-Beträge still als Kontowährung
     /// (Zweiter Gegencheck W4); er meldet jetzt „neueres Format“ statt falsch zu rechnen.
-    public static let aktuellesFormat = 2
+    /// 3 seit den offenen Regelpositionen: Ältere Connectoren würden Überschneidungen übersehen.
+    public static let aktuellesFormat = 3
 
     public var format: Int
     public var erstellt: Date
@@ -54,6 +55,10 @@ public struct JournalExport: Sendable, Equatable, Codable {
         public var kontonummer: String
         public var waehrung: String
         public var trades: [Trade]
+        /// Offene Positionen samt Risiko in Kontowährung. `nil`: Grundlage fehlt; `[]`: keine offen.
+        public var offene: [OffenerTrade]?
+        /// Ob alle verwendeten Importer offene Bestände liefern. Bekannte Positionen bleiben auch bei `false` dabei.
+        public var offeneVollstaendig: Bool?
         /// Zeitpunkte, zu denen Pending Orders gelöscht wurden (Stornoquote, Ständiges Umplanen).
         public var geloeschteOrders: [Date]
         /// Eigene Angaben je Trade, Schlüssel ist die Trade-ID. Fehlt in Dateien älterer Apps.
@@ -77,11 +82,14 @@ public struct JournalExport: Sendable, Equatable, Codable {
         public init(broker: String, kontonummer: String, waehrung: String, trades: [Trade],
                     geloeschteOrders: [Date] = [], journal: [String: Journalangaben] = [:],
                     ziele: [Reviewziel] = [], regeln: Handelsregeln? = nil, ausstieg: [Ausstieg] = [],
-                    beispiel: Bool = false, checklisten: [String: [String]] = [:], kontoart: Kontoart = .echt) {
+                    beispiel: Bool = false, checklisten: [String: [String]] = [:], kontoart: Kontoart = .echt,
+                    offene: [OffenerTrade]? = nil, offeneVollstaendig: Bool? = nil) {
             self.broker = broker
             self.kontonummer = kontonummer
             self.waehrung = waehrung
             self.trades = trades
+            self.offene = offene
+            self.offeneVollstaendig = offene.map { _ in offeneVollstaendig ?? true }
             self.geloeschteOrders = geloeschteOrders
             self.journal = journal.filter { !$0.value.istLeer }
             self.ziele = ziele
@@ -107,7 +115,7 @@ public struct JournalExport: Sendable, Equatable, Codable {
 
         private enum CodingKeys: String, CodingKey {
             case broker, kontonummer, waehrung, trades, geloeschteOrders, journal, ziele, regeln, ausstieg, beispiel
-            case checklisten, kontoart
+            case checklisten, kontoart, offene, offeneVollstaendig
         }
 
         public init(from decoder: any Decoder) throws {
@@ -127,6 +135,9 @@ public struct JournalExport: Sendable, Equatable, Codable {
                       checklisten: (try? c.decodeIfPresent([String: [String]].self, forKey: .checklisten)) ?? [:])
             // Den Text behalten, auch wenn er unbekannt ist; `art` liest ihn.
             kontoart = try? c.decodeIfPresent(String.self, forKey: .kontoart)
+            // Ein unlesbarer Bestand ist unbekannt, nicht leer.
+            offene = try? c.decodeIfPresent([OffenerTrade].self, forKey: .offene)
+            offeneVollstaendig = try? c.decodeIfPresent(Bool.self, forKey: .offeneVollstaendig)
         }
 
         public init(broker: String, kontonummer: String, waehrung: String,

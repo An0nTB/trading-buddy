@@ -65,6 +65,28 @@ extension Trade: Codable {
     }
 }
 
+extension OffenerTrade: Codable {
+    private enum CodingKeys: String, CodingKey {
+        case id, openTime, nurDatum, risiko
+    }
+
+    public init(from decoder: any Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        self.init(id: try c.decode(String.self, forKey: .id),
+                  openTime: try c.decode(Date.self, forKey: .openTime),
+                  nurDatum: try c.decode(Bool.self, forKey: .nurDatum),
+                  risiko: try c.optionalerBetrag(.risiko))
+    }
+
+    public func encode(to encoder: any Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(id, forKey: .id)
+        try c.encode(openTime, forKey: .openTime)
+        try c.encode(nurDatum, forKey: .nurDatum)
+        try c.encodeIfPresent(risiko?.description, forKey: .risiko)
+    }
+}
+
 extension KeyedDecodingContainer {
     fileprivate func betrag(_ key: Key) throws -> Decimal {
         let text = try decode(String.self, forKey: key)
