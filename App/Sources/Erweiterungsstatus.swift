@@ -10,13 +10,16 @@ import AppKit
 /// ab, rechnet Claude mit anderen Regeln als die App (Befund H1: Erweiterung 0.18.1, App 0.26.1).
 struct Erweiterungsstatus: Decodable, Equatable {
     /// Version der Erweiterung laut ihrem Manifest.
-    var connector: String
+    var erweiterung: String
     /// `TradingCore.version` der Erweiterung.
     var rechenkern: String
-    /// Wann die Erweiterung die Datei zuletzt geschrieben hat.
-    var stand: Date?
+    /// Höchstes Exportformat, das die Erweiterung liest.
+    var format: Int?
+    /// Wann die Erweiterung die Datei zuletzt geschrieben hat (Start und jeder Werkzeugaufruf).
+    var geschrieben: Date?
 
-    static let dateiname = "connector_status.json"
+    /// Name und Felder wie `Erweiterungsstand` aus AP12 (ab Erweiterung 0.20.0); die alte 0.18.1 schreibt keine Datei.
+    static let dateiname = "trading-buddy-erweiterung.json"
 
     /// Rechnen App und Erweiterung mit demselben Kern?
     var passt: Bool { rechenkern == TradingCore.version }
@@ -45,10 +48,10 @@ struct Erweiterungsstatus: Decodable, Equatable {
     #endif
 
     /// Schlüssel für „schon gemeldet“: Ein Paar aus Erweiterung und App meldet die App nur einmal.
-    var meldeschluessel: String { "\(connector)|\(rechenkern)|\(TradingCore.version)" }
+    var meldeschluessel: String { "\(erweiterung)|\(rechenkern)|\(TradingCore.version)" }
 
     var hinweistext: String {
-        String(localized: "Die Erweiterung „Henry“ in Claude Desktop (\(connector)) rechnet mit Rechenkern \(rechenkern), die App mit \(TradingCore.version). Zahlen in Claude können von der App abweichen. Ersetze die Erweiterung in Claude Desktop unter Einstellungen › Erweiterungen durch die Datei „Henry-Connector“, die zu dieser App gehört.")
+        String(localized: "Die Erweiterung „Henry“ in Claude Desktop (\(erweiterung)) rechnet mit Rechenkern \(rechenkern), die App mit \(TradingCore.version). Zahlen in Claude können von der App abweichen. Ersetze die Erweiterung in Claude Desktop unter Einstellungen › Erweiterungen durch die Datei „Henry-Connector“, die zu dieser App gehört.")
     }
 }
 
@@ -125,10 +128,10 @@ struct ErweiterungsstatusZeile: View {
     private var zeile: String {
         guard gelesen else { return "" }
         guard let status else {
-            return String(localized: "Noch keine Meldung der Erweiterung. Sie schreibt ihren Stand in den Export-Ordner, sobald Claude Desktop sie startet.")
+            return String(localized: "Die Erweiterung hat sich noch nicht gemeldet: älter als 0.20.0 oder noch nicht benutzt.")
         }
         if status.passt {
-            return String(localized: "Version \(status.connector), Rechenkern \(status.rechenkern) wie die App.")
+            return String(localized: "Version \(status.erweiterung), Rechenkern \(status.rechenkern) wie die App.")
         }
         return status.hinweistext
     }

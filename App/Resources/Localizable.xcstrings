@@ -802,6 +802,16 @@
         }
       }
     },
+    "Die Erweiterung hat sich noch nicht gemeldet: älter als 0.20.0 oder noch nicht benutzt." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The extension has not reported yet: older than 0.20.0 or not used yet."
+          }
+        }
+      }
+    },
     "Die Erweiterung „Henry“ in Claude Desktop (%@) rechnet mit Rechenkern %@, die App mit %@. Zahlen in Claude können von der App abweichen. Ersetze die Erweiterung in Claude Desktop unter Einstellungen › Erweiterungen durch die Datei „Henry-Connector“, die zu dieser App gehört." : {
       "localizations" : {
         "en" : {
@@ -1546,16 +1556,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No trade with this setup yet."
-          }
-        }
-      }
-    },
-    "Noch keine Meldung der Erweiterung. Sie schreibt ihren Stand in den Export-Ordner, sobald Claude Desktop sie startet." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No report from the extension yet. It writes its status to the export folder as soon as Claude Desktop starts it."
           }
         }
       }

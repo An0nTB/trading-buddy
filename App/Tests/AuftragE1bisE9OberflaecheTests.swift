@@ -169,11 +169,12 @@ import TradingStore
     // MARK: E9 Statusdatei der Erweiterung
 
     @Test func statusdateiVergleichtRechenkern() throws {
-        let gleich = Data("{\"connector\":\"0.19.0\",\"rechenkern\":\"\(TradingCore.version)\",\"stand\":\"2026-10-17T16:00:00Z\"}".utf8)
-        let alt = Data("{\"connector\":\"0.18.1\",\"rechenkern\":\"0.26.1\"}".utf8)
+        let gleich = Data("{\"erweiterung\":\"0.20.0\",\"format\":9,\"geschrieben\":\"2026-10-17T16:00:00Z\",\"rechenkern\":\"\(TradingCore.version)\"}".utf8)
+        let alt = Data("{\"erweiterung\":\"0.20.0\",\"rechenkern\":\"0.26.1\"}".utf8)
         let s1 = try #require(Erweiterungsstatus.lies(gleich))
         #expect(s1.passt)
-        #expect(s1.stand == T.zeit(2026, 10, 17, 16))
+        #expect(s1.format == 9)
+        #expect(s1.geschrieben == T.zeit(2026, 10, 17, 16))
         let s2 = try #require(Erweiterungsstatus.lies(alt))
         #expect(!s2.passt)
         #expect(s2.meldeschluessel != s1.meldeschluessel)
