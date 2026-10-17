@@ -165,6 +165,9 @@ jobs:
         working-directory: Packages/TradingConnector
     steps:
       - uses: actions/checkout@v4
+        with:
+          # HEAD^1 ist der Stand davor (im PR main, auf main der vorige Merge) für die Versionsprüfung.
+          fetch-depth: 2
       - name: Tests
         run: swift test
       - name: Bauen (Release)
@@ -175,6 +178,23 @@ jobs:
           VERSION=$(python3 -c 'import json; print(json.load(open("../../Connector/manifest.json"))["version"])')
           grep -q "connectorVersion = \"$VERSION\"" Sources/ConnectorKern/Verbindungsstatus.swift \
             || { echo "manifest.json $VERSION passt nicht zu Verbindungsstatus.connectorVersion"; exit 1; }
+      - name: Neuer Rechenkern heißt neue Erweiterung (E9)
+        run: |
+          # Ändert sich TradingCore.version, muss die Connector-Version steigen: Sonst hält Claude Desktop eine alte
+          # Erweiterung mit altem Rechenkern für aktuell (Tims Befund 17.10.2026: 0.18.1 mit Kern 0.26.1).
+          KERN_DATEI=Packages/TradingCore/Sources/TradingCore/TradingCore.swift
+          kern() { sed -n 's/.*static let version = "\(.*\)".*/\1/p'; }
+          connector() { python3 -c 'import json, sys; print(json.load(sys.stdin)["version"])'; }
+          git -C ../.. cat-file -e HEAD^1 2>/dev/null || { echo "Kein Stand davor, Prüfung entfällt."; exit 0; }
+          KERN=$(kern < "../../$KERN_DATEI")
+          KERN_VORHER=$(git -C ../.. show "HEAD^1:$KERN_DATEI" | kern)
+          VERSION=$(connector < ../../Connector/manifest.json)
+          VERSION_VORHER=$(git -C ../.. show HEAD^1:Connector/manifest.json | connector)
+          echo "Rechenkern $KERN_VORHER -> $KERN, Connector $VERSION_VORHER -> $VERSION"
+          [ "$KERN" = "$KERN_VORHER" ] && exit 0
+          python3 -c 'import sys; z = lambda v: [int(t) for t in v.split(".")]; sys.exit(0 if z(sys.argv[1]) > z(sys.argv[2]) else 1)' \
+            "$VERSION" "$VERSION_VORHER" \
+            || { echo "Rechenkern geändert ($KERN_VORHER -> $KERN), Connector-Version nicht erhöht ($VERSION). Bitte manifest.json und Verbindungsstatus.connectorVersion erhöhen."; exit 1; }
       - name: Universal bauen wie scripts/connector_bauen.sh
         run: |
           swift build -c release --arch arm64 --arch x86_64
@@ -235,6 +255,10 @@ jobs:
           grep -q "Henry · Tiefenanalyse" antwort.txt
           grep -q "## Leistungsscore (0 bis 100)" antwort.txt
           grep -q "## Kosten der Fehlermuster" antwort.txt
+          grep -q "Konten: " antwort.txt
+          # E9: Die Erweiterung meldet Version und Rechenkern im Export-Ordner, die App liest das.
+          cat "$ORDNER/trading-buddy-erweiterung.json"
+          grep -q "\"erweiterung\":\"$(plutil -extract version raw -o - ../../Connector/manifest.json)\"" "$ORDNER/trading-buddy-erweiterung.json"
       - name: Server meldet fehlenden Export-Ordner
         run: |
           BIN="$(swift build -c release --show-bin-path)"

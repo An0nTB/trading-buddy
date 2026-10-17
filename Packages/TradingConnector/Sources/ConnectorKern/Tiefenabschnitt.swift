@@ -19,6 +19,7 @@ extension Ausgabe {
         t.append(contentsOf: rAbschnitt(trades))
         t.append(contentsOf: heatmapAbschnitt(trades, zone))
         t.append(contentsOf: staerkenAbschnitt(anfrage, trades))
+        t.append(contentsOf: anfrage.setuppruefungAbschnitt())
         t.append(contentsOf: musterkostenAbschnitt(a))
         t.append(contentsOf: drawdownAbschnitt(trades, zone))
         t.append(contentsOf: scoreAbschnitt(anfrage, b))

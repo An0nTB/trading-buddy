@@ -11,20 +11,20 @@ enum Katalog {
         "kw": text("ISO-Kalenderwoche JJJJ-Www, z. B. 2026-W40 (Montag bis Sonntag)"),
         "von": text("Erster Tag JJJJ-MM-TT, nur zusammen mit bis"),
         "bis": text("Letzter Tag JJJJ-MM-TT (einschließlich), nur zusammen mit von"),
-        "konto": text("Konto über Endziffern oder Broker; nur nötig, wenn es mehrere gibt"),
+        "konto": text("Konto über Endziffern, Broker oder „demo“/„echtgeld“; nur nötig, wenn es mehrere gibt. Demo- und Echtgeld-Konten nie zusammenzählen"),
         "waehrung": text("Nur Trades dieser Währung ohne Umrechnung, z. B. USD; ohne Angabe alles in Kontowährung (EZB-Kurs)")
     ]
     static let nurLesen = Tool.Annotations(readOnlyHint: true, openWorldHint: false)
 
     static let werkzeuge = [
         Tool(name: "henry_status",
-             description: "Prüft die Verbindung zu Henry: Version der Erweiterung, Export-Ordner, Zeitpunkt des letzten Exports, Konten und Trades, mit Hinweis, was zu tun ist, wenn Daten fehlen oder veraltet sind. Aufrufen bei „Henry-Status“, „Verbindung prüfen“ oder wenn ein anderes Werkzeug keine Daten findet.",
+             description: "Prüft die Verbindung zu Henry: Version der Erweiterung, Rechenkern gegen die App (Warnung bei Abweichung), Export-Ordner, Zeitpunkt des letzten Exports, Konten mit Echtgeld oder Demo, Trades und Stand der Setup-Prüfung (Kill-Kriterium), mit Hinweis, was zu tun ist, wenn Daten fehlen oder veraltet sind. Aufrufen bei „Henry-Status“, „Verbindung prüfen“ oder wenn ein anderes Werkzeug keine Daten findet.",
              inputSchema: schema([:]), annotations: nurLesen),
         Tool(name: "hole_datenstand",
              description: "Welche Konten und welcher Zeitraum in Henry vorliegen. Zuerst aufrufen, wenn unklar ist, welche Daten es gibt.",
              inputSchema: schema([:]), annotations: nurLesen),
         Tool(name: "hole_auswertung",
-             description: "Auswertung einer Woche (auch Kalenderwoche), eines Monats oder freier Tage wie der Wochenbericht der App: Kennzahlen mit Vorzeitraum, Ergebnis je Tag, Kosten, Symbole, Fehlermuster, Verstöße gegen die eigenen Handelsregeln und Prop-Firm-Grenzen, Muster mit Zufallsprüfung, auffällige Trades, Ausstieg (MAE und MFE aus Kerzen der App), Plan und verpasste Trades, Ziele früherer Reviews mit Istwert, Steuer-Orientierung je Topf seit Jahresbeginn, dazu das Rezept für die Antwort. Für Fragen wie „Wie lief mein Mai?“. Ohne Zeitraum gilt der letzte Monat mit Trades.",
+             description: "Auswertung einer Woche (auch Kalenderwoche), eines Monats oder freier Tage wie der Wochenbericht der App: Kennzahlen mit Vorzeitraum, Ergebnis je Tag, Kosten, Symbole, Fehlermuster, Verstöße gegen die eigenen Handelsregeln (auch Setup-Grenzen, Monatsverlust, Prozent vom Kontostand) und Prop-Firm-Grenzen, Stand der Setup-Prüfung (Kill-Kriterium), Muster mit Zufallsprüfung, auffällige Trades, Ausstieg (MAE und MFE aus Kerzen der App), Plan und verpasste Trades, Ziele früherer Reviews mit Istwert, Steuer-Orientierung je Topf seit Jahresbeginn, dazu das Rezept für die Antwort. Für Fragen wie „Wie lief mein Mai?“. Ohne Zeitraum gilt der letzte Monat mit Trades.",
              inputSchema: schema(zeitraum), annotations: nurLesen),
         Tool(name: "hole_aufschluesselung",
              description: "Kennzahlen je Gruppe: Symbol, Produktart (laut Broker), Richtung, Wochentag, Stunde, Trade-Nummer am Tag, Ergebnis des vorherigen Trades, Haltedauer oder eigene Journalangaben (Setup, Regeltreue, Zustand).",
@@ -108,41 +108,46 @@ enum Ausfuehrung {
     }
 
     static func werkzeug(_ name: String, _ argumente: [String: String]) -> CallTool.Result {
+        Exportdatei.meldeStand(ordner: exportOrdner)
         let geladen = Exportdatei.lade(ordner: exportOrdner)
         if name == "henry_status" { return antwort(Verbindungsstatus.text(geladen, ordner: exportOrdner)) }
         guard case let .geladen(export) = geladen else {
             return antwort(Exportdatei.meldung(geladen) ?? "Keine Daten", fehler: true)
         }
+        // Weicht der Rechenkern der App ab, steht die Warnung vor jeder Antwort (E9).
+        func mitWarnung(_ text: String, fehler: Bool = false) -> CallTool.Result {
+            antwort(Verbindungsstatus.mitVersionswarnung(text, export: export), fehler: fehler)
+        }
         do {
             switch name {
             case "hole_datenstand":
-                return antwort(Ausgabe.datenstand(export))
+                return mitWarnung(Ausgabe.datenstand(export))
             case "hole_auswertung":
-                return antwort(Ausgabe.auswertung(try Anfrage.lies(argumente, export: export)))
+                return mitWarnung(Ausgabe.auswertung(try Anfrage.lies(argumente, export: export)))
             case "hole_aufschluesselung":
                 guard let dimension = argumente["dimension"].flatMap(Aufschluesselung.init(rawValue:)) else {
                     let erlaubt = Aufschluesselung.alleWerte.joined(separator: ", ")
-                    return antwort("DIMENSION FEHLT: eine von \(erlaubt).", fehler: true)
+                    return mitWarnung("DIMENSION FEHLT: eine von \(erlaubt).", fehler: true)
                 }
-                return antwort(Ausgabe.aufschluesselung(try Anfrage.lies(argumente, export: export), nach: dimension))
+                return mitWarnung(Ausgabe.aufschluesselung(try Anfrage.lies(argumente, export: export), nach: dimension))
             case "hole_nachrichten":
                 let tage = argumente["tage"].flatMap { Int($0) } ?? 1
-                return antwort(Ausgabe.nachrichten(export, tage: tage, begriff: argumente["begriff"]))
+                return mitWarnung(Ausgabe.nachrichten(export, tage: tage, begriff: argumente["begriff"]))
             case "hole_kursanalyse":
                 let monate = argumente["monate"].flatMap { Int($0) } ?? 12
-                return antwort(Ausgabe.kursanalyse(export, symbol: argumente["symbol"] ?? "", monate: monate))
+                return mitWarnung(Ausgabe.kursanalyse(export, symbol: argumente["symbol"] ?? "", monate: monate))
             case "hole_tiefenanalyse":
-                return antwort(Ausgabe.tiefenanalyse(try Anfrage.lies(argumente, export: export)))
+                return mitWarnung(Ausgabe.tiefenanalyse(try Anfrage.lies(argumente, export: export)))
             case "hole_notizen":
-                return antwort(Ausgabe.notizen(try Anfrage.lies(argumente, export: export)))
+                return mitWarnung(Ausgabe.notizen(try Anfrage.lies(argumente, export: export)))
             case "hole_trades":
                 let auswahl = argumente["auswahl"].flatMap(Tradeauswahl.init(rawValue:)) ?? .chronologisch
                 let muster = argumente["muster"].flatMap(Fehlermuster.init(rawValue:))
                 let anzahl = argumente["anzahl"].flatMap { Int($0) } ?? 10
-                return antwort(Ausgabe.trades(try Anfrage.lies(argumente, export: export), auswahl: auswahl,
-                                              muster: muster, anzahl: anzahl, symbol: argumente["symbol"]))
+                return mitWarnung(Ausgabe.trades(try Anfrage.lies(argumente, export: export), auswahl: auswahl,
+                                                 muster: muster, anzahl: anzahl, symbol: argumente["symbol"]))
             default:
-                return antwort("Unbekanntes Werkzeug \(name)", fehler: true)
+                return mitWarnung("Unbekanntes Werkzeug \(name)", fehler: true)
             }
         } catch let fehler as AnfrageFehler {
             return antwort(fehler.text, fehler: true)
@@ -165,6 +170,9 @@ enum Ausfuehrung {
         .init(content: [.text(text: text, annotations: nil, _meta: nil)], isError: fehler)
     }
 }
+
+// Beim Start melden, damit die App die Version auch ohne Werkzeugaufruf sieht (E9).
+Exportdatei.meldeStand(ordner: Ausfuehrung.exportOrdner)
 
 let server = Server(
     name: "trading-buddy",

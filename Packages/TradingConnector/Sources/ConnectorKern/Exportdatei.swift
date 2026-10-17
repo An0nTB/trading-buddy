@@ -32,6 +32,20 @@ public enum Exportdatei {
         }
     }
 
+    /// Schreibt `Erweiterungsstand` (Version und Rechenkern dieser Erweiterung) in den Export-Ordner, damit die App
+    /// eine veraltete Erweiterung erkennt (E9). Nur wenn der Ordner existiert; Fehler bleiben still, die Werkzeuge
+    /// lesen weiter. Sonst schreibt die Erweiterung nichts.
+    @discardableResult
+    public static func meldeStand(ordner: String?, jetzt: Date = .now) -> Bool {
+        guard let ordner, !ordner.isEmpty else { return false }
+        let verzeichnis = URL(filePath: ordner, directoryHint: .isDirectory)
+        var istOrdner: ObjCBool = false
+        guard FileManager.default.fileExists(atPath: verzeichnis.path, isDirectory: &istOrdner), istOrdner.boolValue,
+              let daten = try? Erweiterungsstand(erweiterung: Verbindungsstatus.connectorVersion, geschrieben: jetzt).json()
+        else { return false }
+        return (try? daten.write(to: verzeichnis.appending(path: Erweiterungsstand.dateiname), options: .atomic)) != nil
+    }
+
     /// Meldung für Claude, wenn keine Daten geladen wurden; `nil` bei Erfolg.
     public static func meldung(_ ergebnis: Ergebnis) -> String? {
         switch ergebnis {

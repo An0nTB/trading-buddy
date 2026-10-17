@@ -111,7 +111,7 @@ extension Ausgabe {
             let jeWaehrung = Dictionary(grouping: passend) { $0.waehrung(kontowaehrung: konto.waehrung) }
             for waehrung in jeWaehrung.keys.sorted() {
                 let k = Kennzahlen(trades: jeWaehrung[waehrung]!)
-                zeilen.append([export.kurzname(konto), waehrung, "\(k.anzahl)", Format.zahl(k.netto),
+                zeilen.append([export.bezeichnung(konto), waehrung, "\(k.anzahl)", Format.zahl(k.netto),
                                Format.prozent(k.trefferquote), Format.r(k.erwartungswertR)])
             }
         }
