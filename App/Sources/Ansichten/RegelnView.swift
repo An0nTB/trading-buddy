@@ -20,14 +20,17 @@ struct Ampellampe: Identifiable {
     let stufe: Ampelstufe
 
     /// Baut die Zeilen für einen Tagesstand: nur gesetzte Regeln, dazu Journal-Markierungen „nicht regeltreu“.
+    /// Prozentgrenzen (E2) rechnen mit dem Kontostand aus `bezug`; Monat, Setups und offene Positionen (E3 bis E6)
+    /// kommen aus `RegelAmpelErweitert.swift`.
     static func lampen(regeln: Handelsregeln, stand: Regelpruefung.Tagesstand, verstoesse: [Regelverstoss],
-                       trades: [Trade], waehrung: String) -> [Ampellampe] {
+                       trades: [Trade], waehrung: String, bezug: Ampelbezug = Ampelbezug()) -> [Ampellampe] {
         var lampen: [Ampellampe] = []
         func hat(_ art: Regelverstoss.Art) -> Bool { verstoesse.contains { $0.art == art } }
         let verstoss = String(localized: "Verstoß")
         let frei = String(localized: "frei")
 
-        if let grenze = regeln.maxTagesverlust {
+        if let grenze = Handelsregeln.grenze(betrag: regeln.maxTagesverlust, prozent: regeln.maxTagesverlustProzent,
+                                             stand: bezug.kontostand) {
             let verlust = max(0, -stand.netto)
             let stufe: Ampelstufe = hat(.tagesverlust) || verlust >= grenze ? .rot : verlust >= grenze * 7 / 10 ? .gelb : .gruen
             let status = stufe == .rot ? (hat(.tagesverlust) ? verstoss : String(localized: "Grenze erreicht"))
@@ -48,7 +51,8 @@ struct Ampellampe: Identifiable {
             lampen.append(Ampellampe(id: "verlusteInFolge", titel: String(localized: "Verluste in Folge"),
                                      wert: String(localized: "\(stand.verlusteInFolge) von \(grenze)"), status: status, stufe: stufe))
         }
-        if let grenze = regeln.maxRisikoJeTrade {
+        if let grenze = Handelsregeln.grenze(betrag: regeln.maxRisikoJeTrade, prozent: regeln.maxRisikoJeTradeProzent,
+                                             stand: bezug.kontostand) {
             let risiken = trades.compactMap(\.risk)
             let groesstes = risiken.max() ?? 0
             let stufe: Ampelstufe = hat(.risikoJeTrade) ? .rot : groesstes >= grenze * 8 / 10 ? .gelb : .gruen
@@ -59,6 +63,7 @@ struct Ampellampe: Identifiable {
             lampen.append(Ampellampe(id: "risiko", titel: String(localized: "Risiko je Trade"), wert: wert,
                                      status: status, stufe: stufe))
         }
+        lampen += erweiterteLampen(regeln: regeln, verstoesse: verstoesse, waehrung: waehrung, bezug: bezug)
         let manuell = verstoesse.filter { $0.art == .manuell }.count
         if manuell > 0 {
             lampen.append(Ampellampe(id: "manuell", titel: String(localized: "Journal"),
@@ -79,7 +84,8 @@ struct RegelAmpelKarte: View {
             let waehrung = modell.waehrung
             let amTag = modell.verstoesse.filter { $0.tag == stand.tag }
             let lampen = Ampellampe.lampen(regeln: modell.regeln, stand: stand, verstoesse: amTag,
-                                           trades: modell.trades(eroeffnetAm: stand.tag), waehrung: waehrung)
+                                           trades: modell.trades(eroeffnetAm: stand.tag), waehrung: waehrung,
+                                           bezug: modell.ampelbezug(stand))
             let betroffen = Set(amTag.map(\.trade)).count
             if !lampen.isEmpty {
                 Karte("Regel-Ampel") {

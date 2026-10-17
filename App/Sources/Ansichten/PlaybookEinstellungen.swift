@@ -21,6 +21,8 @@ struct PlaybookEinstellungen: View {
     /// Standard-Risiko der Karte (Doc 02 Nr. 64); eigener Wert in der Datenbank, gespeichert mit der Karte.
     @State private var risiko: Decimal?
     @State private var risikoBasis: Decimal?
+    /// Kill-Kriterium der Karten über alle Konten (E7), gelesen beim Laden und nach dem Speichern.
+    @State private var pruefungen: [Setuppruefung] = []
 
     var body: some View {
         Group {
@@ -50,6 +52,7 @@ struct PlaybookEinstellungen: View {
                 textfeld("Marktumfeld", optional(\.marktumfeld), prompt: "z. B. nur im Trend, nicht vor Zahlen")
                 textfeld("Notiz", optional(\.notiz), prompt: "Beispiele, Beobachtungen")
             }
+            grenzenAbschnitt
             risikoAbschnitt
             knopfzeile
         }
@@ -80,6 +83,57 @@ struct PlaybookEinstellungen: View {
             Button("Kriterium hinzufügen") { entwurf.kriterien.append(Kriterium(text: "")) }
             hinweis("Jedes Kriterium wird im Inspektor ein Häkchen je Trade. Umformulieren ist unschädlich; Entfernen und neu Anlegen verliert die alten Häkchen dieses Kriteriums.")
         }
+    }
+
+    /// Grenzen der Karte (E4, E5, E7; Tim 17.10.2026): zusätzlich zu den Regeln des Kontos.
+    private var grenzenAbschnitt: some View {
+        Section("Grenzen der Karte") {
+            anzahlfeld("Höchstens Trades je Tag mit diesem Setup", $entwurf.maxTradesJeTag, standard: 3)
+            Picker("Haltedauer", selection: $entwurf.haltedauer) {
+                Text("Aus").tag(Setup.Haltedauer?.none)
+                Text("Kein Wochenende").tag(Setup.Haltedauer?.some(.keinWochenende))
+                Text("Gleicher Tag").tag(Setup.Haltedauer?.some(.gleicherTag))
+            }
+            .pickerStyle(.segmented)
+            hinweis("Gilt zusätzlich zu den Regeln des Kontos. Gleicher Tag: am Eröffnungstag schließen. Kein Wochenende: über Nacht erlaubt, nicht über Samstag oder Sonntag. Offene Positionen zählen bis jetzt.")
+            anzahlfeld("Prüfung nach Trades", $entwurf.pruefungNachTrades, standard: 50)
+            hinweis("Kill-Kriterium: Nach so vielen Trades zählt der Erwartungswert in R nach Kosten. Ist er nicht über 0, geht das Setup nicht auf Echtgeld. Demo und Echtgeld zählen getrennt.")
+            pruefstand
+        }
+    }
+
+    /// Stand des Kill-Kriteriums der gewählten Karte je Kontoart, wie gespeichert.
+    @ViewBuilder private var pruefstand: some View {
+        let eigene = pruefungen.filter { Setup.schluessel($0.setup) == Setup.schluessel(basis.name) }
+        if auswahl != nil, basis.pruefungNachTrades != nil {
+            if eigene.isEmpty {
+                hinweis("Noch kein Trade mit diesem Setup.")
+            }
+            ForEach(eigene, id: \.kontoart) { p in
+                LabeledContent(Self.kontoartText(p.kontoart)) {
+                    Text(verbatim: Self.pruefText(p))
+                        .foregroundStyle(p.nichtBestanden ? thema.verlust : p.faellig ? thema.warnung : thema.textSchwach)
+                }
+            }
+        }
+    }
+
+    static func kontoartText(_ art: String) -> String {
+        Kontoart(rawValue: art) == .demo ? String(localized: "Demo/Paper") : String(localized: "Echtgeld")
+    }
+
+    /// „23 von 50 Trades · +0,12 R“, dazu fällig oder nicht bestanden; angenommenes R wird genannt.
+    static func pruefText(_ p: Setuppruefung) -> String {
+        var teile = [String(localized: "\(p.anzahl) von \(p.schwelle) Trades"), Format.r(p.erwartungswertR)]
+        if p.anzahlRAngenommen > 0 {
+            teile.append(String(localized: "\(p.anzahlRAngenommen) mit angenommenem R"))
+        }
+        if p.nichtBestanden {
+            teile.append(String(localized: "nicht bestanden"))
+        } else if p.faellig {
+            teile.append(String(localized: "Prüfung fällig"))
+        }
+        return teile.joined(separator: " · ")
     }
 
     private var risikoAbschnitt: some View {
@@ -162,6 +216,21 @@ struct PlaybookEinstellungen: View {
         )
     }
 
+    /// Schalter plus Zahlenfeld: aus heißt `nil` (keine Grenze), an setzt den Vorschlag ein.
+    private func anzahlfeld(_ titel: LocalizedStringKey, _ wert: Binding<Int?>, standard: Int) -> some View {
+        VStack(alignment: .leading, spacing: Abstand.raster) {
+            Toggle(titel, isOn: Binding(get: { wert.wrappedValue != nil },
+                                        set: { wert.wrappedValue = $0 ? standard : nil }))
+            if wert.wrappedValue != nil {
+                TextField(titel, value: wert, format: .number)
+                    .textFieldStyle(.roundedBorder)
+                    .multilineTextAlignment(.trailing)
+                    .frame(maxWidth: 100)
+                    .labelsHidden()
+            }
+        }
+    }
+
     private func hinweis(_ text: LocalizedStringKey) -> some View {
         Text(text)
             .font(Schrift.beschriftung)
@@ -183,6 +252,7 @@ struct PlaybookEinstellungen: View {
         risiko = auswahl == nil ? nil : modell.risikoquellen.setups[karte.name]
         risikoBasis = risiko
         meldung = nil
+        pruefungen = modell.setuppruefungen()
     }
 
     private func speichern() {
@@ -210,6 +280,7 @@ struct PlaybookEinstellungen: View {
             if auswahl != gespeichert.id {
                 auswahl = gespeichert.id
             }
+            pruefungen = modell.setuppruefungen()
             meldung = ton.text("Gespeichert. Die Kriterien stehen jetzt im Inspektor der Trade-Liste.",
                                henry: "Festgehalten. Die Kriterien stehen jetzt im Inspektor der Trade-Liste.")
             meldungIstFehler = false

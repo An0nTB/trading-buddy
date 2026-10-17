@@ -810,17 +810,130 @@ final class AppModell {
     /// Verstöße gegen die eigenen Regeln, immer über alle Trades des Kontos (in Kontowährung, W3) und nicht über
     /// den Filter: „Trades je Tag“ und „Tagesverlust“ zählen den ganzen Tag, nicht nur ein Instrument. Trades ohne
     /// EZB-Kurs zählen bei den Zählregeln mit, ihre Beträge nicht (G1, TradingCore 0.22.0).
+    /// Seit 0.29.0 mit den Setup-Grenzen der Karten (E4, E5) und den offenen Positionen (E5, E6).
     var verstoesse: [Regelverstoss] {
-        Regelpruefung.pruefe(angleich, regeln: regeln, zeitzone: zeitzone, manuell: manuellVerletzt)
+        Regelpruefung.pruefe(angleich, regeln: regeln, zeitzone: zeitzone, manuell: manuellVerletzt,
+                             setups: setupsJeTicket, playbook: playbook, offene: offeneRegelpositionen, jetzt: Date())
     }
 
     /// Der letzte Handelstag im gewählten Zeitraum, Grundlage der Regel-Ampel.
     var letzterTagesstand: Regelpruefung.Tagesstand? {
         let kalender = self.kalender
-        let staende = Regelpruefung.tagesstaende(angleich, regeln: regeln, zeitzone: zeitzone, manuell: manuellVerletzt)
+        let staende = Regelpruefung.tagesstaende(angleich, regeln: regeln, zeitzone: zeitzone, manuell: manuellVerletzt,
+                                                 setups: setupsJeTicket, playbook: playbook,
+                                                 offene: offeneRegelpositionen, jetzt: Date())
         return staende.last { stand in
             if case .monat(let monat) = zeitraum { return monatsanfang(stand.tag, kalender) == monat }
             return true
+        }
+    }
+
+    /// Setup laut Journal je Ticket (auch offener Hand-Trades): verbindet Trades mit den Grenzen ihrer Karte.
+    var setupsJeTicket: [String: String] { journaleintraege.compactMapValues(\.setup) }
+
+    /// Jetzt offene Positionen für die Regelprüfung (E5, E6; Tim 17.10.2026: auch von Hand eingetragene): MT4-Auszug
+    /// ohne Positionen, die inzwischen geschlossen importiert sind, offene Käufe und offene Hand-Trades. Risiko aus
+    /// dem Stop in Kontowährung, sonst das wirksame geplante Risiko; ohne beides zählt die Position nur bei der Anzahl.
+    var offeneRegelpositionen: [OffenerTrade] {
+        let quellen = risikoquellen
+        let geschlossen = Set(alleTradesMitDuplikaten.map(\.id))
+        let auszug = (offenerAuszug?.positionen ?? []).filter { !geschlossen.contains($0.ticket) }.map { p in
+            OffenerTrade(id: p.ticket, openTime: p.openTime,
+                         risiko: Self.stopRisiko(p) ?? quellen.wirksam(ticket: p.ticket)?.betrag)
+        }
+        let kaeufe = positionsbildung.offen.map { k in
+            OffenerTrade(id: k.id, openTime: k.zeit, nurDatum: k.nurDatum, risiko: quellen.wirksam(ticket: k.id)?.betrag)
+        }
+        let hand = offeneHandpositionen.map { h in
+            OffenerTrade(id: h.ticket, openTime: h.trade.einstieg,
+                         risiko: Self.stopRisiko(h.trade) ?? quellen.wirksam(ticket: h.ticket)?.betrag)
+        }
+        return auszug + kaeufe + hand
+    }
+
+    /// Verlust bis zum Stop einer Auszugsposition in Kontowährung, mit dem Wert je Kurspunkt aus dem Auszug selbst
+    /// (`OffeneBewertung`); 0, wenn der Stop schon im Gewinn liegt; `nil` ohne Stop oder ohne Kursbewegung.
+    static func stopRisiko(_ p: OpenPosition) -> Decimal? {
+        guard let stop = p.stopLoss, stop > 0, let ergebnis = OffeneBewertung.bewerte(p, kurs: stop).brutto else {
+            return nil
+        }
+        return max(0, -ergebnis)
+    }
+
+    /// Risiko eines offenen Hand-Trades: Stop-Kurs vor eingetragenem Risiko wie `ManuellerTrade.stop`.
+    static func stopRisiko(_ t: ManuellerTrade) -> Decimal? {
+        if let stop = t.stopKurs { return abs(t.einstiegskurs - stop) * t.groesse }
+        guard let risiko = t.risiko, risiko != 0 else { return nil }
+        return abs(risiko)
+    }
+
+    /// Bezug der Regel-Ampel für einen Handelstag (E2 bis E6): Kontostand zu Tages- und Monatsbeginn, Monatsergebnis
+    /// bis Tagesende, Trades je Setup an dem Tag und die jetzt offenen Positionen. Beträge in Kontowährung.
+    func ampelbezug(_ stand: Regelpruefung.Tagesstand) -> Ampelbezug {
+        let kalender = self.kalender
+        let mitBetrag = angleich.trades
+        let monatsbeginn = monatsanfang(stand.tag, kalender)
+        var bezug = Ampelbezug()
+        bezug.kontostand = regeln.kontostand?.stand(bei: stand.tag, trades: mitBetrag)
+        bezug.monatsstand = regeln.kontostand?.stand(bei: monatsbeginn, trades: mitBetrag)
+        bezug.monatsnetto = mitBetrag.filter { t in
+            let schluss = t.schlusstag(kalender)
+            return schluss >= monatsbeginn && schluss <= stand.tag
+        }.map(\.netProfit).reduce(0, +)
+        let setups = setupsJeTicket
+        let amTag = (angleich.trades + angleich.ohneKurs).filter { kalender.startOfDay(for: $0.openTime) == stand.tag }
+        for karte in playbook {
+            guard let grenze = karte.maxTradesJeTag else { continue }
+            let schluessel = Setup.schluessel(karte.name)
+            // Teilverkäufe sind eine Position wie im Kern (Symbol, Richtung, Eröffnung).
+            let positionen = Set(amTag.filter { setups[$0.id].map(Setup.schluessel) == schluessel }
+                .map { "\($0.symbol)|\($0.side)|\($0.openTime.timeIntervalSinceReferenceDate)" })
+            bezug.setupTrades.append(.init(setup: karte.name, anzahl: positionen.count, grenze: grenze))
+        }
+        bezug.haltedauerAktiv = playbook.contains { $0.haltedauer != nil }
+        let offene = offeneRegelpositionen
+        bezug.offene = offene
+        bezug.standHeute = regeln.kontostand?.stand(bei: kalender.startOfDay(for: Date()), trades: mitBetrag)
+        let offenIDs = Set(offene.map(\.id))
+        bezug.offeneVerstoesse = verstoesse.filter { offenIDs.contains($0.trade) }
+        return bezug
+    }
+
+    /// Kill-Kriterium je Setup (E7) über alle Konten, Echtgeld und Demo getrennt. Liest alle Konten aus der Datenbank,
+    /// darum nur auf Abruf (Playbook-Einstellungen). Geplantes Risiko nur bei Trades in Kontowährung wie in
+    /// `aktualisiereTrades`, damit R nicht Fremdwährung durch Kontowährung teilt.
+    func setuppruefungen() -> [Setuppruefung] {
+        guard let journal else { return [] }
+        var konten: [(kontoart: Kontoart, trades: [Trade], setups: [String: String])] = []
+        do {
+            for konto in try journal.konten() {
+                let eintraege = try journal.journaleintraege(konto: konto)
+                let quellen = try journal.risikoquellen(konto: konto)
+                let waehrung = konto.waehrung.uppercased()
+                var trades: [Trade] = []
+                for t in try journal.tradeBestand(konto: konto, zeitzone: zeitzone).auswertbareTrades {
+                    let mitJournal = t.mitJournal(eintraege[t.id])
+                    trades.append(mitJournal.waehrung(kontowaehrung: waehrung) == waehrung
+                        ? mitJournal.mitGeplantemRisiko(quellen.wirksam(ticket: t.id)?.betrag) : mitJournal)
+                }
+                konten.append((kontoart: konto.kontoart, trades: trades, setups: eintraege.compactMapValues(\.setup)))
+            }
+        } catch {
+            fehler = error.localizedDescription
+            return []
+        }
+        return Setuppruefung.berechne(playbook: playbook, konten: konten)
+    }
+
+    /// Markiert ein Konto als Echtgeld oder Demo/Paper (E1); Export und Kill-Kriterium trennen danach.
+    func setzeKontoart(_ art: Kontoart, konto: Konto) {
+        guard let journal, konto.kontoart != art else { return }
+        do {
+            _ = try journal.setzeKontoart(art, konto: konto)
+            laden()
+            exportiere()
+        } catch {
+            fehler = Regelfehler.text(error)
         }
     }
 
