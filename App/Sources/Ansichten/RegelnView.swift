@@ -4,7 +4,7 @@ import TradingCore
 
 /// Karten der Handelsregeln auf der Übersicht (P6; Doc 18 F1 und F10): Regel-Ampel des letzten Handelstags,
 /// Disziplin-Kurve neben der Kapitalkurve, Stand der Prop-Firm-Challenge. Alle drei erscheinen nur, wenn
-/// Regeln gesetzt sind (`Handelsregeln.leer`); geprüft wird nach dem Import, nicht live (E3).
+/// Regeln oder Setup-Grenzen gesetzt sind (`AppModell.regelnAktiv`); geprüft wird nach dem Import, nicht live (E3).
 
 /// Ampelstufe einer Regel am Tagesende: frei, Grenze nah oder erreicht, Verstoß oder überschritten.
 enum Ampelstufe {
@@ -74,47 +74,57 @@ struct Ampellampe: Identifiable {
     }
 }
 
-/// Regel-Ampel: Stand des letzten Handelstags im gewählten Zeitraum je Regel.
+/// Regel-Ampel: Stand des letzten Handelstags im gewählten Zeitraum je Regel. Ohne Handelstag im Zeitraum nur die
+/// jetzt offenen Positionen (E6), damit deren Verstöße nicht erst mit dem ersten geschlossenen Trade sichtbar werden.
 struct RegelAmpelKarte: View {
     @Environment(AppModell.self) private var modell
     @Environment(\.thema) private var thema
 
     var body: some View {
+        if let ampel = inhalt, !ampel.lampen.isEmpty {
+            Karte("Regel-Ampel") {
+                Text(verbatim: ampel.kopf)
+                    .font(Schrift.beschriftung)
+                    .foregroundStyle(thema.textSchwach)
+                ForEach(ampel.lampen) { lampe in
+                    HStack(spacing: Abstand.raster * 2) {
+                        Circle()
+                            .fill(farbe(lampe.stufe))
+                            .frame(width: 10, height: 10)
+                        Text(verbatim: lampe.titel)
+                            .foregroundStyle(thema.text)
+                        Spacer()
+                        Text(verbatim: lampe.wert)
+                            .font(Schrift.tabelle)
+                            .foregroundStyle(thema.textSchwach)
+                        Text(verbatim: lampe.status)
+                            .font(Schrift.beschriftung)
+                            .foregroundStyle(farbe(lampe.stufe))
+                            .frame(minWidth: 96, alignment: .trailing)
+                    }
+                }
+                Text("Geprüft nach dem Import, nicht live. Regeln änderst du in den Einstellungen unter „Regeln“.")
+                    .font(Schrift.beschriftung)
+                    .foregroundStyle(thema.textSchwach)
+            }
+        }
+    }
+
+    /// Kopfzeile und Lampen: letzter Handelstag, sonst die offenen Positionen; `nil`, wenn es keins von beiden gibt.
+    private var inhalt: (kopf: String, lampen: [Ampellampe])? {
+        let waehrung = modell.waehrung
         if let stand = modell.letzterTagesstand {
-            let waehrung = modell.waehrung
             let amTag = modell.verstoesse.filter { $0.tag == stand.tag }
             let lampen = Ampellampe.lampen(regeln: modell.regeln, stand: stand, verstoesse: amTag,
                                            trades: modell.trades(eroeffnetAm: stand.tag), waehrung: waehrung,
                                            bezug: modell.ampelbezug(stand))
             let betroffen = Set(amTag.map(\.trade)).count
-            if !lampen.isEmpty {
-                Karte("Regel-Ampel") {
-                    Text("Handelstag \(Format.datum(stand.tag)): \(stand.trades) Trades, \(Format.geld(stand.netto, waehrung)) netto, \(betroffen) mit Verstoß.")
-                        .font(Schrift.beschriftung)
-                        .foregroundStyle(thema.textSchwach)
-                    ForEach(lampen) { lampe in
-                        HStack(spacing: Abstand.raster * 2) {
-                            Circle()
-                                .fill(farbe(lampe.stufe))
-                                .frame(width: 10, height: 10)
-                            Text(verbatim: lampe.titel)
-                                .foregroundStyle(thema.text)
-                            Spacer()
-                            Text(verbatim: lampe.wert)
-                                .font(Schrift.tabelle)
-                                .foregroundStyle(thema.textSchwach)
-                            Text(verbatim: lampe.status)
-                                .font(Schrift.beschriftung)
-                                .foregroundStyle(farbe(lampe.stufe))
-                                .frame(minWidth: 96, alignment: .trailing)
-                        }
-                    }
-                    Text("Geprüft nach dem Import, nicht live. Regeln änderst du in den Einstellungen unter „Regeln“.")
-                        .font(Schrift.beschriftung)
-                        .foregroundStyle(thema.textSchwach)
-                }
-            }
+            return (String(localized: "Handelstag \(Format.datum(stand.tag)): \(stand.trades) Trades, \(Format.geld(stand.netto, waehrung)) netto, \(betroffen) mit Verstoß."), lampen)
         }
+        let bezug = modell.offenerAmpelbezug
+        guard !bezug.offene.isEmpty else { return nil }
+        let lampen = Ampellampe.positionslampen(regeln: modell.regeln, waehrung: waehrung, bezug: bezug)
+        return (String(localized: "Noch kein Handelstag mit Trade im Zeitraum. Geprüft sind die \(bezug.offene.count) offenen Positionen."), lampen)
     }
 
     private func farbe(_ stufe: Ampelstufe) -> Color {

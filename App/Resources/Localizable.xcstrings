@@ -862,6 +862,16 @@
         }
       }
     },
+    "Die Erweiterung „Henry“ in Claude Desktop hat sich noch nicht gemeldet. Sie ist älter als 0.20.0, nicht installiert oder wurde noch nicht benutzt. Installiere in Claude Desktop unter Einstellungen › Erweiterungen die Datei „Henry-Connector“, die zu dieser App gehört." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The “Henry” extension in Claude Desktop has not reported yet. It is older than 0.20.0, not installed, or has not been used yet. In Claude Desktop under Settings › Extensions, install the “Henry-Connector” file that belongs to this app."
+          }
+        }
+      }
+    },
     "Die Erweiterung „Henry“ in Claude Desktop (%@) rechnet mit Rechenkern %@, die App mit %@. Zahlen in Claude können von der App abweichen. Ersetze die Erweiterung in Claude Desktop unter Einstellungen › Erweiterungen durch die Datei „Henry-Connector“, die zu dieser App gehört." : {
       "localizations" : {
         "en" : {
@@ -1018,6 +1028,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Extension"
+          }
+        }
+      }
+    },
+    "Erweiterung hat sich nicht gemeldet" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Extension Has Not Reported"
           }
         }
       }
@@ -17163,6 +17183,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No trading day with closed trades yet."
+          }
+        }
+      }
+    },
+    "Noch kein Handelstag mit Trade im Zeitraum. Geprüft sind die %lld offenen Positionen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No trading day with a trade in this period yet. The %lld open positions are checked."
           }
         }
       }

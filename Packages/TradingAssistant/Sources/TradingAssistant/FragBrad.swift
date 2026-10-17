@@ -345,15 +345,33 @@ public enum ClaudeProjektziel: Equatable, Sendable {
     case chat(String)
 
     /// Liest Link (`https://claude.ai/code/project/chan_…`, `https://claude.ai/project/<uuid>`, dieselben mit
-    /// `claude://`) oder die Kennung allein. Eine `chan_`-Kennung geht vor einer UUID.
+    /// `claude://` oder ohne Schema) oder die Kennung allein. Streng nach Pfad: Ein Chat-Link
+    /// (`claude.ai/chat/<uuid>`) oder ein Bruchstück wie `chan_a` ist kein Projekt (Codex-Befund).
     public init?(_ eingabe: String) {
-        if let bereich = eingabe.range(of: "chan_[A-Za-z0-9]+", options: .regularExpression) {
-            self = .code(String(eingabe[bereich]))
+        var text = eingabe.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let ziel = Self.kennung(text) {
+            self = ziel
             return
         }
-        let uuid = "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"
-        guard let bereich = eingabe.range(of: uuid, options: .regularExpression) else { return nil }
-        self = .chat(eingabe[bereich].lowercased())
+        if text.lowercased().hasPrefix("claude.ai/") { text = "https://" + text }
+        guard let teile = URLComponents(string: text), teile.host?.lowercased() == "claude.ai",
+              ["https", "claude"].contains(teile.scheme?.lowercased() ?? "") else { return nil }
+        let pfad = teile.path.split(separator: "/").map(String.init)
+        guard let ziel = Self.kennung(pfad.last ?? "") else { return nil }
+        let vorne = Array(pfad.dropLast())
+        switch ziel {
+        case .code: guard vorne == ["code", "project"] else { return nil }
+        case .chat: guard vorne == ["project"] else { return nil }
+        }
+        self = ziel
+    }
+
+    /// Kennung allein: `chan_` mit mindestens 20 Buchstaben und Ziffern oder eine UUID.
+    private static func kennung(_ text: String) -> ClaudeProjektziel? {
+        if text.range(of: "^chan_[A-Za-z0-9]{20,}$", options: .regularExpression) != nil { return .code(text) }
+        let uuid = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+        guard text.range(of: uuid, options: .regularExpression) != nil else { return nil }
+        return .chat(text.lowercased())
     }
 
     /// Die Kennung, wie sie gespeichert wird; `init` liest sie wieder.

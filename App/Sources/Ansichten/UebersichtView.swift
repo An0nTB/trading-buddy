@@ -3,7 +3,7 @@ import SwiftUI
 import TradingCore
 
 /// Übersicht (Doc 10, Reihe 1 und 6): Filter, vier Kacheln, Kapitalkurve, Fehlermuster, Review-Ziele, letzte Trades.
-/// Mit gesetzten Handelsregeln (P6) dazu Regel-Ampel, Disziplin-Kurve neben der Kapitalkurve, Challenge-Karte und Tagesverlust-Balken;
+/// Mit gesetzten Handelsregeln (P6) oder Setup-Grenzen (E4, E5) dazu Regel-Ampel, Disziplin-Kurve neben der Kapitalkurve, Challenge-Karte und Tagesverlust-Balken;
 /// mit offenen Positionen die Karte „Offene Positionen“ mit Kursen (P10); dazu „Nächste Termine“ (TradingCalendar, Doc 25).
 struct UebersichtView: View {
     @Environment(AppModell.self) private var modell
@@ -22,6 +22,8 @@ struct UebersichtView: View {
                         KurseKarte()
                         NaechsteTermineKarte()
                         NachrichtenKarte()
+                        // Offene Positionen gegen die Regeln auch vor dem ersten geschlossenen Trade (E6).
+                        if modell.regelnAktiv { RegelAmpelKarte() }
                         ZieleKarte()
                     }
                 } else {
@@ -51,7 +53,7 @@ struct UebersichtView: View {
                     KurseKarte()
                     NaechsteTermineKarte()
                     NachrichtenKarte()
-                    if modell.regeln.leer {
+                    if !modell.regelnAktiv {
                         Kapitalkurve(punkte: verlauf.punkte)
                     } else {
                         RegelAmpelKarte()
