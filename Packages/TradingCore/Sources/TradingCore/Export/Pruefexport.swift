@@ -9,9 +9,9 @@ extension JournalExport {
         let kurse = angleichskurse
         let konten = self.konten.filter { !$0.istBeispiel }.map { konto -> (kontoart: Kontoart, trades: [Trade],
                                                                        setups: [String: String]) in
-            let angleich = Waehrungsangleich(konto.trades, kontowaehrung: konto.waehrung, kurse: kurse)
-            return (kontoart: konto.art, trades: angleich.trades + angleich.ohneKurs.map { $0.mitGeplantemRisiko(nil) },
-                    setups: konto.journal.compactMapValues(\.setup))
+            (kontoart: konto.art,
+             trades: Setuppruefung.kontotrades(konto.trades, kontowaehrung: konto.waehrung, kurse: kurse),
+             setups: konto.journal.compactMapValues(\.setup))
         }
         return Setuppruefung.berechne(playbook: playbook, konten: konten)
     }

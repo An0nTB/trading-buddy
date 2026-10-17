@@ -17,12 +17,31 @@ extension Anfrage {
     func verstoesse(_ trades: [Trade], ohneKurs: [Trade] = []) -> [Regelverstoss] {
         let ids = Set((trades + ohneKurs).map(\.id))
         let andere = andereWaehrungen.values.flatMap { $0 }
-        // Setup-Grenzen (E4, E5) aus den Playbookkarten, verbunden über das Setup im Journal. Offene Positionen
-        // stehen nicht in der Datei; Grenzen für offene Positionen zählen hier nur geschlossene Trades.
+        // Setup-Grenzen (E4, E5) aus den Playbookkarten, verbunden über das Setup im Journal; offene Positionen
+        // (E5, E6) aus der Datei, geprüft zum Zeitpunkt des Exports wie in der App (Codex-Review 17.10.2026).
         return Regelpruefung.pruefe(konto.trades + andere, regeln: konto.regeln ?? Handelsregeln(),
                                     zeitzone: zeitzone, manuell: manuellVerletzt, ohneBetrag: Set(andere.map(\.id)),
                                     setups: konto.journal.compactMapValues(\.setup),
-                                    playbook: (export.playbook ?? []).map(\.setupRegeln))
+                                    playbook: playbookRegeln, offene: offen, jetzt: export.erstellt)
+            .filter { ids.contains($0.trade) }
+    }
+
+    /// Setup-Grenzen der Playbookkarten für `Regelpruefung.pruefe`.
+    var playbookRegeln: [Setup] { (export.playbook ?? []).map(\.setupRegeln) }
+
+    /// Jetzt offene Positionen des Kontos aus der Datei; leer in älteren Dateien.
+    var offen: [OffenerTrade] { konto.offen ?? [] }
+
+    /// Verstöße der jetzt offenen Positionen (Offene Positionen, offenes Risiko, Haltedauer), wie die Regel-Ampel
+    /// der App sie zeigt.
+    func offeneVerstoesse() -> [Regelverstoss] {
+        guard !offen.isEmpty else { return [] }
+        let ids = Set(offen.map(\.id))
+        let andere = andereWaehrungen.values.flatMap { $0 }
+        return Regelpruefung.pruefe(konto.trades + andere, regeln: konto.regeln ?? Handelsregeln(),
+                                    zeitzone: zeitzone, manuell: manuellVerletzt, ohneBetrag: Set(andere.map(\.id)),
+                                    setups: konto.journal.compactMapValues(\.setup),
+                                    playbook: playbookRegeln, offene: offen, jetzt: export.erstellt)
             .filter { ids.contains($0.trade) }
     }
 
@@ -34,7 +53,7 @@ extension Anfrage {
         let ohneKurs = self.ohneKurs.filter { zeitraum.enthaelt($0.closeTime) }
         let verstoesse = verstoesse(trades, ohneKurs: ohneKurs)
         let geprueft = trades.count + ohneKurs.count
-        guard konto.regeln != nil || !verstoesse.isEmpty else { return [] }
+        guard konto.regeln != nil || !verstoesse.isEmpty || !offeneVerstoesse().isEmpty else { return [] }
         var t = ["\n## Eigene Handelsregeln (eingetragen in der App, geprüft nach dem Import)"]
         t.append("Regeln: " + (konto.regeln.map { Self.regeltext($0, zeitzone: zeitzone) } ?? "keine Grenzen eingetragen") + ".")
         let zone = zeitzone
@@ -64,6 +83,13 @@ extension Anfrage {
             t.append("Mitgezählt wie in der App: \(ohneKurs.count) Trades in anderer Währung ohne EZB-Kurs am "
                 + "Schlusstag, davon \(mitVerstoss) mit Verstoß. Sie zählen bei Anzahl und Verstößen, ihre Beträge "
                 + "fehlen in Netto, Erwartungswert und Tagesverlust.")
+        }
+        let offenVerletzt = offeneVerstoesse()
+        if !offenVerletzt.isEmpty {
+            let arten = Regelverstoss.Art.allCases.filter { art in offenVerletzt.contains { $0.art == art } }
+            t.append("Jetzt offen (Stand des Exports, \(Format.datum(export.erstellt, zeitzone, mitZeit: true))): "
+                + "\(Set(offenVerletzt.map(\.trade)).count) von \(offen.count) offenen Positionen mit Verstoß ("
+                + arten.map(\.bezeichnung).joined(separator: ", ") + ").")
         }
         if let propFirm {
             t.append(propFirm)

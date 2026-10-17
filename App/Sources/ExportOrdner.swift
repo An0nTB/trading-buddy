@@ -58,7 +58,8 @@ enum ExportOrdner {
             let stellen = JournalExport.endziffern(konto.kontonummer, neben: andere)
             let quellen = try journal.risikoquellen(konto: konto)
             let erwartungen = try journal.markterwartungen(konto: konto)
-            let trades = try journal.tradeBestand(konto: konto, zeitzone: zeitzone).auswertbareTrades.map { t in
+            let bestand = try journal.tradeBestand(konto: konto, zeitzone: zeitzone)
+            let trades = bestand.auswertbareTrades.map { t in
                 var mitJournal = t.mitJournal(eintraege[t.id])
                 if mitJournal.markterwartung == nil { mitJournal.markterwartung = erwartungen[t.id] }
                 return mitRisiko(mitJournal, quellen: quellen)
@@ -83,7 +84,9 @@ enum ExportOrdner {
                 },
                 beispiel: Beispieldaten.istBeispiel(konto),
                 checklisten: try journal.checklisten(konto: konto).mapValues { $0.erfuellt.sorted() },
-                kontoart: konto.kontoart)
+                kontoart: konto.kontoart,
+                offen: try offeneRegelpositionen(journal, konto: konto, geschlossen: Set(bestand.trades.map(\.id)),
+                                                 quellen: quellen))
         }
         // Tonfall aus den Einstellungen (AP11, `Ton`); ohne Wahl gilt in der App „bro“.
         let ton = Ton.aktuell.rawValue
@@ -105,6 +108,18 @@ enum ExportOrdner {
         let karten = setups.map { JournalExport.Playbookkarte($0, standardRisiko: risiken[$0.name], pruefung: pruefungen) }
         daten.playbook = karten.isEmpty ? nil : karten.sorted { $0.name < $1.name }
         return daten
+    }
+
+    /// Jetzt offene Positionen eines Kontos wie `AppModell.offeneRegelpositionen`, damit der Connector offene
+    /// Positionen prüft wie die Regel-Ampel (Codex-Review 17.10.2026).
+    static func offeneRegelpositionen(_ journal: Journal, konto: Konto, geschlossen: Set<String>,
+                                      quellen: Risikoquellen) throws -> [OffenerTrade] {
+        let bewegungen = try journal.kontobewegungen(konto: konto)
+        let kaeufe = Positionsbildung.bilde(bewegungen.ausfuehrungen, kapitalmassnahmen: bewegungen.kapitalmassnahmen).offen
+        let hand = try journal.offeneManuelleTrades(konto: konto).map { (ticket: $0.ticket, trade: $0.trade) }
+        return OffenerTrade.sammle(auszug: try journal.offenePositionenLetzterAuszug(konto: konto)?.positionen ?? [],
+                                   kaeufe: kaeufe, hand: hand, geschlossen: geschlossen,
+                                   geplant: { quellen.wirksam(ticket: $0)?.betrag })
     }
 
     /// Trade mit seinem geplanten Risiko (Doc 02 Nr. 64): Angabe am Trade, sonst Standard des Setups, sonst des

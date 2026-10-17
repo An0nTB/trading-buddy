@@ -9,14 +9,17 @@ extension Anfrage {
     /// draußen wie in `lies`. Mit `waehrung` die Trades dieser Währung.
     func bericht() -> Zeitraumbericht {
         let regeln = konto.regeln ?? Handelsregeln()
+        let setups = konto.journal.compactMapValues(\.setup)
         // Alle Muster, damit `musterabschnitt` sie nicht ein zweites Mal sucht.
         guard inKontowaehrung else {
             return Zeitraumbericht(trades: konto.trades, zeitraum: zeitraum, zeitzone: zeitzone,
                                    kontowaehrung: konto.waehrung, regeln: regeln, manuell: manuellVerletzt,
+                                   setups: setups, playbook: playbookRegeln, offene: offen, jetzt: export.erstellt,
                                    ziele: konto.ziele, geloeschteOrders: konto.geloeschteOrders, musterAnzahl: .max)
         }
         return Zeitraumbericht(trades: alleTrades, zeitraum: zeitraum, zeitzone: zeitzone,
                                kontowaehrung: konto.waehrung, regeln: regeln, manuell: manuellVerletzt,
+                               setups: setups, playbook: playbookRegeln, offene: offen, jetzt: export.erstellt,
                                ziele: konto.ziele, geloeschteOrders: konto.geloeschteOrders, kurse: angleichskurse,
                                musterAnzahl: .max)
     }

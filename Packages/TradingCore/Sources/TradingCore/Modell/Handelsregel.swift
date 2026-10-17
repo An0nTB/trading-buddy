@@ -90,11 +90,19 @@ public struct Kontostandbezug: Codable, Sendable, Equatable {
 
     /// Stand zum Zeitpunkt `zeit`: Startwert plus Netto der Trades, die zwischen `seit` und `zeit` schlossen.
     /// Liegt `zeit` vor `seit`, werden die Ergebnisse dazwischen abgezogen. `ohneBetrag` wie bei der Regelprüfung.
-    public func stand(bei zeit: Date, trades: [Trade], ohneBetrag: Set<String> = []) -> Decimal {
+    /// Mit `kalender` zählen Buchungen nur mit Datum mit ihrem Schlusstag (`Trade.schlusstag`): Sie stehen auf
+    /// 00:00 UTC und lägen westlich von UTC sonst vor dem Tagesbeginn ihres eigenen Tags (Codex-Review 17.10.2026).
+    public func stand(bei zeit: Date, trades: [Trade], ohneBetrag: Set<String> = [], kalender: Calendar? = nil) -> Decimal {
         var stand = betrag
         for t in trades where !ohneBetrag.contains(t.id) {
-            if t.closeTime >= seit && t.closeTime < zeit { stand += t.netProfit }
-            if t.closeTime >= zeit && t.closeTime < seit { stand -= t.netProfit }
+            var schluss = t.closeTime
+            var beginn = seit
+            if let kalender, t.nurDatum {
+                schluss = t.schlusstag(kalender)
+                beginn = kalender.startOfDay(for: seit)
+            }
+            if schluss >= beginn && schluss < zeit { stand += t.netProfit }
+            if schluss >= zeit && schluss < beginn { stand -= t.netProfit }
         }
         return stand
     }

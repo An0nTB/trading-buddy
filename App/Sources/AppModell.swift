@@ -831,40 +831,15 @@ final class AppModell {
     /// Setup laut Journal je Ticket (auch offener Hand-Trades): verbindet Trades mit den Grenzen ihrer Karte.
     var setupsJeTicket: [String: String] { journaleintraege.compactMapValues(\.setup) }
 
-    /// Jetzt offene Positionen für die Regelprüfung (E5, E6; Tim 17.10.2026: auch von Hand eingetragene): MT4-Auszug
-    /// ohne Positionen, die inzwischen geschlossen importiert sind, offene Käufe und offene Hand-Trades. Risiko aus
-    /// dem Stop in Kontowährung, sonst das wirksame geplante Risiko; ohne beides zählt die Position nur bei der Anzahl.
+    /// Jetzt offene Positionen für die Regelprüfung (E5, E6; Tim 17.10.2026: auch von Hand eingetragene), gleich wie
+    /// im Export (`OffenerTrade.sammle`): MT4-Auszug ohne Positionen, die inzwischen geschlossen importiert sind,
+    /// offene Käufe und offene Hand-Trades. Der offene Rest eines Teilverkaufs gehört zur verkauften Position.
     var offeneRegelpositionen: [OffenerTrade] {
         let quellen = risikoquellen
-        let geschlossen = Set(alleTradesMitDuplikaten.map(\.id))
-        let auszug = (offenerAuszug?.positionen ?? []).filter { !geschlossen.contains($0.ticket) }.map { p in
-            OffenerTrade(id: p.ticket, openTime: p.openTime,
-                         risiko: Self.stopRisiko(p) ?? quellen.wirksam(ticket: p.ticket)?.betrag)
-        }
-        let kaeufe = positionsbildung.offen.map { k in
-            OffenerTrade(id: k.id, openTime: k.zeit, nurDatum: k.nurDatum, risiko: quellen.wirksam(ticket: k.id)?.betrag)
-        }
-        let hand = offeneHandpositionen.map { h in
-            OffenerTrade(id: h.ticket, openTime: h.trade.einstieg,
-                         risiko: Self.stopRisiko(h.trade) ?? quellen.wirksam(ticket: h.ticket)?.betrag)
-        }
-        return auszug + kaeufe + hand
-    }
-
-    /// Verlust bis zum Stop einer Auszugsposition in Kontowährung, mit dem Wert je Kurspunkt aus dem Auszug selbst
-    /// (`OffeneBewertung`); 0, wenn der Stop schon im Gewinn liegt; `nil` ohne Stop oder ohne Kursbewegung.
-    static func stopRisiko(_ p: OpenPosition) -> Decimal? {
-        guard let stop = p.stopLoss, stop > 0, let ergebnis = OffeneBewertung.bewerte(p, kurs: stop).brutto else {
-            return nil
-        }
-        return max(0, -ergebnis)
-    }
-
-    /// Risiko eines offenen Hand-Trades: Stop-Kurs vor eingetragenem Risiko wie `ManuellerTrade.stop`.
-    static func stopRisiko(_ t: ManuellerTrade) -> Decimal? {
-        if let stop = t.stopKurs { return abs(t.einstiegskurs - stop) * t.groesse }
-        guard let risiko = t.risiko, risiko != 0 else { return nil }
-        return abs(risiko)
+        return OffenerTrade.sammle(auszug: offenerAuszug?.positionen ?? [], kaeufe: positionsbildung.offen,
+                                   hand: offeneHandpositionen.map { (ticket: $0.ticket, trade: $0.trade) },
+                                   geschlossen: Set(alleTradesMitDuplikaten.map(\.id)),
+                                   geplant: { quellen.wirksam(ticket: $0)?.betrag })
     }
 
     /// Bezug der Regel-Ampel für einen Handelstag (E2 bis E6): Kontostand zu Tages- und Monatsbeginn, Monatsergebnis
@@ -874,14 +849,15 @@ final class AppModell {
         let mitBetrag = angleich.trades
         let monatsbeginn = monatsanfang(stand.tag, kalender)
         var bezug = Ampelbezug()
-        bezug.kontostand = regeln.kontostand?.stand(bei: stand.tag, trades: mitBetrag)
-        bezug.monatsstand = regeln.kontostand?.stand(bei: monatsbeginn, trades: mitBetrag)
+        bezug.kontostand = regeln.kontostand?.stand(bei: stand.tag, trades: mitBetrag, kalender: kalender)
+        bezug.monatsstand = regeln.kontostand?.stand(bei: monatsbeginn, trades: mitBetrag, kalender: kalender)
         bezug.monatsnetto = mitBetrag.filter { t in
             let schluss = t.schlusstag(kalender)
             return schluss >= monatsbeginn && schluss <= stand.tag
         }.map(\.netProfit).reduce(0, +)
         let setups = setupsJeTicket
-        let amTag = (angleich.trades + angleich.ohneKurs).filter { kalender.startOfDay(for: $0.openTime) == stand.tag }
+        // Tag wie in der Prüfung: Buchungen nur mit Datum zählen mit ihrem eigenen Datum (Codex-Review 17.10.2026).
+        let amTag = (angleich.trades + angleich.ohneKurs).filter { $0.eroeffnungstag(kalender) == stand.tag }
         for karte in playbook {
             guard let grenze = karte.maxTradesJeTag else { continue }
             let schluessel = Setup.schluessel(karte.name)
@@ -893,30 +869,29 @@ final class AppModell {
         bezug.haltedauerAktiv = playbook.contains { $0.haltedauer != nil }
         let offene = offeneRegelpositionen
         bezug.offene = offene
-        bezug.standHeute = regeln.kontostand?.stand(bei: kalender.startOfDay(for: Date()), trades: mitBetrag)
+        bezug.standHeute = regeln.kontostand?.stand(bei: kalender.startOfDay(for: Date()), trades: mitBetrag,
+                                                    kalender: kalender)
         let offenIDs = Set(offene.map(\.id))
         bezug.offeneVerstoesse = verstoesse.filter { offenIDs.contains($0.trade) }
         return bezug
     }
 
     /// Kill-Kriterium je Setup (E7) über alle Konten, Echtgeld und Demo getrennt. Liest alle Konten aus der Datenbank,
-    /// darum nur auf Abruf (Playbook-Einstellungen). Geplantes Risiko nur bei Trades in Kontowährung wie in
-    /// `aktualisiereTrades`, damit R nicht Fremdwährung durch Kontowährung teilt.
+    /// darum nur auf Abruf (Playbook-Einstellungen). Rechnet wie der Export (`Setuppruefung.kontotrades`): fremde
+    /// Währung nach dem Angleich mit den EZB-Kursen, das Beispielkonto zählt nicht (Codex-Review 17.10.2026).
     func setuppruefungen() -> [Setuppruefung] {
         guard let journal else { return [] }
         var konten: [(kontoart: Kontoart, trades: [Trade], setups: [String: String])] = []
         do {
-            for konto in try journal.konten() {
+            for konto in try journal.konten() where !Beispieldaten.istBeispiel(konto) {
                 let eintraege = try journal.journaleintraege(konto: konto)
                 let quellen = try journal.risikoquellen(konto: konto)
-                let waehrung = konto.waehrung.uppercased()
-                var trades: [Trade] = []
-                for t in try journal.tradeBestand(konto: konto, zeitzone: zeitzone).auswertbareTrades {
-                    let mitJournal = t.mitJournal(eintraege[t.id])
-                    trades.append(mitJournal.waehrung(kontowaehrung: waehrung) == waehrung
-                        ? mitJournal.mitGeplantemRisiko(quellen.wirksam(ticket: t.id)?.betrag) : mitJournal)
+                let trades = try journal.tradeBestand(konto: konto, zeitzone: zeitzone).auswertbareTrades.map {
+                    $0.mitJournal(eintraege[$0.id]).mitGeplantemRisiko(quellen.wirksam(ticket: $0.id)?.betrag)
                 }
-                konten.append((kontoart: konto.kontoart, trades: trades, setups: eintraege.compactMapValues(\.setup)))
+                konten.append((kontoart: konto.kontoart,
+                               trades: Setuppruefung.kontotrades(trades, kontowaehrung: konto.waehrung, kurse: ezb.kurse),
+                               setups: eintraege.compactMapValues(\.setup)))
             }
         } catch {
             fehler = error.localizedDescription
@@ -941,7 +916,7 @@ final class AppModell {
     /// Regeln (Dritter Gegencheck G12: die Risiko-Ampel las sonst Fremdwährung als Kontowährung).
     func trades(eroeffnetAm tag: Date) -> [Trade] {
         let kalender = self.kalender
-        return angleich.trades.filter { kalender.startOfDay(for: $0.openTime) == tag }
+        return angleich.trades.filter { $0.eroeffnungstag(kalender) == tag }
     }
 
     /// Trades mit Verstoß gegen eigene oder Prop-Firm-Regeln, dieselbe Quelle wie Disziplin und Monatsbericht.
