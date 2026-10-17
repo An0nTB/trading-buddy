@@ -125,6 +125,7 @@ jobs:
           PLIST=build/verteilung/Henry.app/Contents/Info.plist
           test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$PLIST")" = de.timbock.journal
           test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleDisplayName' "$PLIST")" = Henry
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIconName' "$PLIST")" = AppIcon
 
       # Wie die Startprobe in ci.yml, aber mit der signierten Release-App samt Sandbox.
       - name: Startprobe der verpackten App

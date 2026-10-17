@@ -123,6 +123,7 @@ jobs:
           PLIST="$(find build/Build/Products -maxdepth 2 -name '*.app' | head -1)/Contents/Info.plist"
           test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$PLIST")" = de.timbock.journal.dev
           test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleDisplayName' "$PLIST")" = "Henry Dev"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIconName' "$PLIST")" = AppIconDev
       # Bauen allein findet keine Abstürze beim Start (#63). Drei Starts mit leerem Zuhause,
       # je acht Sekunden; beendet sich die App vorher, ist der Job rot und das Protokoll steht im Log.
       - name: Startprobe macOS (drei Starts)
