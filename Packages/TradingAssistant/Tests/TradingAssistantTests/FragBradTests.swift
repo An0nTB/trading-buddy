@@ -114,6 +114,38 @@ let september = FragBradKontext(konto: "XTB …1234", von: zeit("2026-09-01 00:0
     #expect(teile.queryItems?.first?.value == text)
 }
 
+/// Erfundene Kennungen; echte Projekt-Kennungen gehören nicht ins Repo.
+@Test func codeProjektAusLinkOderKennung() throws {
+    let id = "chan_01TESTPROJEKT00000000000"
+    for eingabe in [id, " https://claude.ai/code/project/\(id)?x=1 ", "claude://claude.ai/code/project/\(id)"] {
+        #expect(FragBrad.projekt(eingabe) == .code(id))
+    }
+    let link = try #require(FragBrad.projekt(id)?.link)
+    #expect(link.absoluteString == "claude://claude.ai/code/project/\(id)")
+    #expect(link.query == nil)
+}
+
+@Test func chatProjektAusLinkOderUUID() throws {
+    let id = "00000000-0000-4000-8000-000000000000"
+    for eingabe in [id.uppercased(), "https://claude.ai/project/\(id)", "claude://claude.ai/project/\(id)"] {
+        #expect(FragBrad.projekt(eingabe) == .chat(id))
+    }
+    let link = try #require(FragBrad.projekt(id)?.link)
+    #expect(link.absoluteString == "claude://claude.ai/project/\(id)")
+    #expect(ClaudeProjektziel(FragBrad.projekt(id)!.kennung) == .chat(id))
+}
+
+@Test func ungueltigeProjekteingabe() {
+    for eingabe in ["", "   ", "kein Projekt", "https://claude.ai/project/", "chan_", "00000000-0000-4000-8000"] {
+        #expect(FragBrad.projekt(eingabe) == nil)
+    }
+}
+
+@Test func kursanalyseBleibtOhneProjekt() {
+    #expect(!FragBrad.nutztProjekt(.analyse))
+    #expect(FragBradVorlage.allCases.filter(FragBrad.nutztProjekt).count == FragBradVorlage.allCases.count - 1)
+}
+
 @Test func laengsterLinkBleibtUnterDerKuerzungsgrenze() throws {
     var kontext = september
     kontext.instrument = "EURUSD"

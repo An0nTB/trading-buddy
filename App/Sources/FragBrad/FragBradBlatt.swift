@@ -75,6 +75,12 @@ struct FragBradBlatt: View {
                 Picker("Frage", selection: $vorlage) {
                     ForEach(vorlagen) { Text(verbatim: $0.titel.uebersetzt).tag($0) }
                 }
+                #if os(macOS)
+                if ClaudeProjekt.fuer(vorlage) != nil {
+                    Text("Öffnet dein Claude-Projekt. Die Frage liegt dann in der Zwischenablage: mit ⌘V einfügen und abschicken.")
+                        .font(.callout)
+                }
+                #endif
                 if istBeispiel {
                     Text("Beispielkonto: keine Kursanalyse, weil die Beispiel-Trades erfundene Preise haben und nicht neben echte Kurse gehören.")
                         .font(.callout)
@@ -156,6 +162,16 @@ struct FragBradBlatt: View {
         guard let text else { return }
         // Analyse: zusätzlich kopieren, falls der Klick auf Inkognito das vorbefüllte Feld leert (Doc 38).
         if vorlage.kopiertMit { FragBradOeffner.kopiere(text) }
+        // Claude-Projekt (Tim 17.10.2026): Der Projekt-Link nimmt keine Frage mit, sie geht über die Zwischenablage.
+        if let projekt = ClaudeProjekt.fuer(vorlage) {
+            if ClaudeProjekt.oeffne(projekt, text: text) {
+                // Blatt bleibt offen, damit der Hinweis zu sehen ist (Tim 17.10.2026).
+                meldung = String(localized: "Frage kopiert, in Claude mit ⌘V einfügen und senden.")
+            } else {
+                meldung = String(localized: "Claude Desktop ist auf diesem Mac nicht installiert. Die Frage liegt in der Zwischenablage. Installiere Claude Desktop, nur dort liest Claude dein Journal.")
+            }
+            return
+        }
         if FragBradOeffner.oeffneClaude(text) {
             schliessen()
         } else {

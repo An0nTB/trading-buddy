@@ -670,6 +670,16 @@
         }
       }
     },
+    "Chat-Projekt %@. Auswertungen öffnen dort, die Frage liegt in der Zwischenablage. Die Kursanalyse bleibt ohne Projekt. Nur auf diesem Mac gespeichert." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chat project %@. Reviews open there, the question is on the clipboard. The price analysis stays without a project. Stored only on this Mac."
+          }
+        }
+      }
+    },
     "China" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -677,6 +687,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "China"
+          }
+        }
+      }
+    },
+    "Claude Desktop ist auf diesem Mac nicht installiert." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Claude Desktop is not installed on this Mac."
+          }
+        }
+      }
+    },
+    "Claude im Browser öffnen (claude.ai), dort das Projekt öffnen und die Adresse aus der Adresszeile kopieren. Ein Claude-Code-Projekt sieht so aus: claude.ai/code/project/chan_…, ein Chat-Projekt so: claude.ai/project/…. Hier einfügen, mehr ist nicht nötig. Die Erweiterung „Henry“ muss in Claude Desktop installiert sein, sonst sieht Claude im Projekt keine Zahlen. Leer lassen heißt: Frag Henry öffnet wie bisher einen neuen Chat." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Claude in the browser (claude.ai), open the project there and copy the address from the address bar. A Claude Code project looks like this: claude.ai/code/project/chan_…, a chat project like this: claude.ai/project/…. Paste it here, nothing more is needed. The “Henry” extension must be installed in Claude Desktop, otherwise Claude sees no figures in the project. Leaving it empty means: Ask Henry opens a new chat as before."
+          }
+        }
+      }
+    },
+    "Claude-Code-Projekt %@. Auswertungen öffnen dort, die Frage liegt in der Zwischenablage. Die Kursanalyse bleibt ohne Projekt. Nur auf diesem Mac gespeichert." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Claude Code project %@. Reviews open there, the question is on the clipboard. The price analysis stays without a project. Stored only on this Mac."
+          }
+        }
+      }
+    },
+    "Claude-Projekt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Claude project"
           }
         }
       }
@@ -872,6 +922,16 @@
         }
       }
     },
+    "Ein Testsatz liegt in der Zwischenablage. In Claude mit ⌘V einfügen und abschicken; Henry nennt dann den Stand der Erweiterung." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A test sentence is on the clipboard. Paste it in Claude with ⌘V and send it; Henry then reports the status of the extension."
+          }
+        }
+      }
+    },
     "Einstieg muss über 0 liegen, Exit auch (nur ein Schein darf mit 0 enden)." : {
       "localizations" : {
         "en" : {
@@ -1019,6 +1079,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Exit is missing; open trades come later."
+          }
+        }
+      }
+    },
+    "Frage kopiert, in Claude mit ⌘V einfügen und senden." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Question copied, paste it in Claude with ⌘V and send it."
           }
         }
       }
@@ -1329,6 +1399,16 @@
         }
       }
     },
+    "Keine Projekt-Kennung erkannt, nichts gespeichert. Erwartet wird ein Link wie claude.ai/code/project/chan_… oder claude.ai/project/… oder die Kennung allein." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No project ID recognized, nothing saved. Expected a link like claude.ai/code/project/chan_… or claude.ai/project/… or the ID alone."
+          }
+        }
+      }
+    },
     "Kill-Kriterium: Nach so vielen Trades zählt der Erwartungswert in R nach Kosten. Ist er nicht über 0, geht das Setup nicht auf Echtgeld. Demo und Echtgeld zählen getrennt." : {
       "localizations" : {
         "en" : {
@@ -1375,6 +1455,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Price"
+          }
+        }
+      }
+    },
+    "Leer: Frag Henry öffnet einen neuen Chat ohne Projekt." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Empty: Ask Henry opens a new chat without a project."
+          }
+        }
+      }
+    },
+    "Link oder Kennung des Projekts" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Link or ID of the project"
           }
         }
       }
@@ -1721,6 +1821,16 @@
         }
       }
     },
+    "Projekt testen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Test Project"
+          }
+        }
+      }
+    },
     "Prozent vom Kontostand" : {
       "localizations" : {
         "en" : {
@@ -1880,6 +1990,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Singapore"
+          }
+        }
+      }
+    },
+    "So findest du den Link" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Where to find the link"
           }
         }
       }
@@ -6152,6 +6272,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Save changes"
+          }
+        }
+      }
+    },
+    "Öffnet dein Claude-Projekt. Die Frage liegt dann in der Zwischenablage: mit ⌘V einfügen und abschicken." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opens your Claude project. The question is then on the clipboard: paste it with ⌘V and send it."
           }
         }
       }
