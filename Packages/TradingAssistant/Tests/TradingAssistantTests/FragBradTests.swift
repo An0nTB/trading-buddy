@@ -136,9 +136,44 @@ let september = FragBradKontext(konto: "XTB …1234", von: zeit("2026-09-01 00:0
 }
 
 @Test func ungueltigeProjekteingabe() {
-    for eingabe in ["", "   ", "kein Projekt", "https://claude.ai/project/", "chan_", "00000000-0000-4000-8000"] {
+    for eingabe in ["", "   ", "kein Projekt", "https://claude.ai/project/", "chan_", "chan_a", "chan_01TESTPROJEKT", "00000000-0000-4000-8000"] {
         #expect(FragBrad.projekt(eingabe) == nil)
     }
+}
+
+@Test func projektKennungenWerdenNichtAusFremdemTextExtrahiert() {
+    for id in ["chan_01TESTPROJEKT00000000000", "00000000-0000-4000-8000-000000000000"] {
+        for eingabe in ["Projekt: \(id)", "x\(id)", "\(id)!", "\(id)/weiter", "\(id)\nZusatz"] {
+            #expect(FragBrad.projekt(eingabe) == nil, "\(eingabe)")
+        }
+    }
+}
+
+@Test func projektLinksPruefenSchemaHostUndPfad() {
+    let chat = "00000000-0000-4000-8000-000000000000"
+    let code = "chan_01TESTPROJEKT00000000000"
+    for pfad in ["project/\(chat)", "code/project/\(code)"] {
+        for eingabe in [
+            "http://claude.ai/\(pfad)", "ftp://claude.ai/\(pfad)",
+            "https://beispiel.example/\(pfad)", "https://claude.ai.beispiel.example/\(pfad)",
+            "https://claude.ai@beispiel.example/\(pfad)", "https://user@claude.ai/\(pfad)",
+            "https://claude.ai:1234/\(pfad)", "https://claude.ai/\(pfad)/weiter",
+            "https://claude.ai//\(pfad)", "claude.ai/\(pfad)",
+        ] {
+            #expect(FragBrad.projekt(eingabe) == nil, "\(eingabe)")
+        }
+    }
+    for eingabe in [
+        "https://claude.ai/chat/\(chat)", "claude://claude.ai/chat/\(chat)",
+        "https://claude.ai/project/\(code)", "https://claude.ai/code/project/\(chat)",
+        "https://claude.ai/?project=\(chat)", "https://claude.ai/#\(code)",
+        "https://claude.ai/project/?id=\(chat)", "https://claude.ai/code/project/?id=\(code)",
+    ] {
+        #expect(FragBrad.projekt(eingabe) == nil, "\(eingabe)")
+    }
+    // Parameter und Fragmente dürfen das Ziel eines gültigen Projektpfads nicht ersetzen.
+    #expect(FragBrad.projekt("https://claude.ai/project/\(chat)?q=\(code)#\(code)") == .chat(chat))
+    #expect(FragBrad.projekt("claude://claude.ai/code/project/\(code)?q=\(chat)") == .code(code))
 }
 
 @Test func kursanalyseBleibtOhneProjekt() {

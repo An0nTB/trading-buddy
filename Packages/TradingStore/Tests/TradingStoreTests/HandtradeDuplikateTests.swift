@@ -364,3 +364,86 @@ func handtradeDuplikatKurstoleranzHatEineEngeGrenze(aufGrenze: Bool) throws {
     try journal.behalteHandtrade(konto: konto, ticket: "hand-alt")
     #expect(try journal.tradeBestand(konto: konto, zeitzone: utcZone).auswertbareTrades.count == 2)
 }
+
+@Test func handtradeDuplikatMigrationErhaeltV13BestaetigungenNachErneutemOeffnen() throws {
+    let ordner = URL(fileURLWithPath: #filePath)
+        .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        .appendingPathComponent(".build/Duplikate-v13-\(UUID().uuidString)")
+    try FileManager.default.createDirectory(at: ordner, withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(at: ordner) }
+    let pfad = ordner.appendingPathComponent("journal.sqlite").path
+    let alt = try DatabaseQueue(path: pfad)
+    try Schema.migrator.migrate(alt, upTo: "v13 Eigenständige Hand-Trades")
+    try alt.write { db in
+        try db.execute(sql: """
+            INSERT INTO konto (id, broker, kontonummer, kontoname, waehrung)
+                VALUES (1, 'Beispiel Broker Ltd.', '12345678', 'Alt', 'EUR');
+            INSERT INTO importlauf (id, kontoId, importer, importerVersion, dateiname, dateiHash, datei,
+                                    art, stichtag, serverZeitzone, importiertAm) VALUES
+                (1, 1, 'Von Hand', '0.2.0', '', 'von-hand-1', X'', 'von-hand',
+                 '2026-06-03 18:00:00.000', 'UTC', '2026-06-03 18:00:00.000'),
+                (2, 1, 'MT4-Auszug', '0.2.0', 'beispiel.html', 'beispiel-v13', X'010203', 'daily',
+                 '2026-06-03 18:00:00.000', 'UTC', '2026-06-03 18:00:00.000');
+            INSERT INTO geschlossenePosition (kontoId, importlaufId, ticket, rohzeile, side, lots, symbol,
+                                              openTime, openPrice, closeTime, closePrice, commission, swap,
+                                              profit, produktart, markterwartung)
+                VALUES (1, 2, 'broker-alt', '[]', 'sell', '0.01', 'euraud',
+                        '2026-06-03 16:00:00.000', '1.78989', '2026-06-03 16:30:00.000', '1.78838',
+                        '-0.1', '-0.2', '1.51', 'cfd', 'sell');
+            """)
+        for ticket in ["hand-bestaetigt-1", "hand-bestaetigt-2", "hand-unbestaetigt"] {
+            try db.execute(sql: """
+                INSERT INTO geschlossenePosition (kontoId, importlaufId, ticket, rohzeile, side, lots, symbol,
+                                                  openTime, openPrice, closeTime, closePrice, commission, swap,
+                                                  profit, produktart, markterwartung)
+                    SELECT kontoId, 1, ?, rohzeile, side, lots, symbol, openTime, openPrice, closeTime,
+                           closePrice, commission, swap, profit, produktart, markterwartung
+                    FROM geschlossenePosition WHERE ticket = 'broker-alt'
+                """, arguments: [ticket])
+        }
+        // Bereits unter v13 bestätigt, ohne Aufruf von behalteHandtrade nach dem Upgrade.
+        try db.execute(sql: """
+            INSERT INTO handtradeEigenstaendig (kontoId, ticket)
+                VALUES (1, 'hand-bestaetigt-1'), (1, 'hand-bestaetigt-2')
+            """)
+    }
+    let migrationen = try alt.read { try Schema.migrator.appliedMigrations($0) }
+    #expect(migrationen.last == "v13 Eigenständige Hand-Trades")
+    let vorher = try alt.read { db in
+        #expect(try !db.columns(in: "konto").contains { $0.name == "kontoart" })
+        return try Dictionary(uniqueKeysWithValues:
+            ["konto", "importlauf", "geschlossenePosition", "handtradeEigenstaendig"].map {
+                ($0, try Row.fetchAll(db, sql: "SELECT * FROM \($0) ORDER BY rowid"))
+            })
+    }
+    let tradesVorher = try alt.read { db in
+        try GeschlossenZeile.order(Column("closeTime"), Column("ticket")).fetchAll(db).map { zeile in
+            var trade = Trade(try zeile.modell())
+            trade.markterwartung = try zeile.erwartung()
+            return trade
+        }
+    }
+    #expect(tradesVorher.count == 4)
+    #expect(vorher["handtradeEigenstaendig"]?.count == 2)
+    try alt.close()
+
+    for _ in 0..<2 {
+        let journal = try Journal(pfad: pfad)
+        #expect(try journal.angewandteMigrationen() == migrationen + ["v14 Kontoart und Regeln je Setup"])
+        try journal.lies { db in
+            for (tabelle, zeilen) in vorher {
+                let erste = try #require(zeilen.first)
+                let spalten = erste.columnNames.map { "\"\($0)\"" }.joined(separator: ", ")
+                let nachher = try Row.fetchAll(db, sql: "SELECT \(spalten) FROM \(tabelle) ORDER BY rowid")
+                #expect(nachher == zeilen, "v13-Werte und Beziehungen in \(tabelle)")
+            }
+            #expect(try Row.fetchAll(db, sql: "PRAGMA foreign_key_check").isEmpty)
+        }
+        let konto = try #require(try journal.konten().first)
+        let bestand = try journal.tradeBestand(konto: konto, zeitzone: utcZone)
+        #expect(bestand.trades == tradesVorher)
+        #expect(bestand.moeglicheDuplikate == ["hand-unbestaetigt": ["broker-alt"]])
+        #expect(bestand.auswertbareTrades == tradesVorher.filter { $0.id != "hand-unbestaetigt" })
+        try journal.db.close()
+    }
+}

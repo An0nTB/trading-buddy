@@ -339,21 +339,42 @@ public enum FragBrad {
 /// geprüft); die Frage geht darum über die Zwischenablage. `claude://claude.ai/project/<uuid>` nennt die Anthropic-Hilfe
 /// „Open Claude Desktop with a link“ (Artikel 14729294).
 public enum ClaudeProjektziel: Equatable, Sendable {
-    /// Claude-Code-Projekt, Kennung `chan_…`.
+    /// Claude-Code-Projekt, Kennung `chan_` plus 20 bis 40 Buchstaben und Ziffern (bekannte Kennungen haben 26).
     case code(String)
     /// Chat-Projekt, Kennung ist eine UUID (klein geschrieben).
     case chat(String)
 
     /// Liest Link (`https://claude.ai/code/project/chan_…`, `https://claude.ai/project/<uuid>`, dieselben mit
-    /// `claude://`) oder die Kennung allein. Eine `chan_`-Kennung geht vor einer UUID.
+    /// `claude://`) oder die vollständige Kennung allein.
     public init?(_ eingabe: String) {
-        if let bereich = eingabe.range(of: "chan_[A-Za-z0-9]+", options: .regularExpression) {
-            self = .code(String(eingabe[bereich]))
+        let text = eingabe.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let ziel = Self.ausKennung(text) {
+            self = ziel
             return
         }
+        guard let teile = URLComponents(string: text),
+              ["https", "claude"].contains(teile.scheme?.lowercased() ?? ""),
+              teile.host?.lowercased() == "claude.ai",
+              teile.user == nil, teile.password == nil, teile.port == nil else { return nil }
+        let pfad = teile.percentEncodedPath.components(separatedBy: "/")
+        if pfad.count == 4, pfad.prefix(3) == ["", "code", "project"],
+           case .code(let id)? = Self.ausKennung(pfad[3]) {
+            self = .code(id)
+        } else if pfad.count == 3, pfad.prefix(2) == ["", "project"],
+                  case .chat(let id)? = Self.ausKennung(pfad[2]) {
+            self = .chat(id)
+        } else {
+            return nil
+        }
+    }
+
+    private static func ausKennung(_ text: String) -> ClaudeProjektziel? {
+        if text.range(of: #"\Achan_[A-Za-z0-9]{20,40}\z"#, options: .regularExpression) != nil {
+            return .code(text)
+        }
         let uuid = "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"
-        guard let bereich = eingabe.range(of: uuid, options: .regularExpression) else { return nil }
-        self = .chat(eingabe[bereich].lowercased())
+        guard text.range(of: #"\A"# + uuid + #"\z"#, options: .regularExpression) != nil else { return nil }
+        return .chat(text.lowercased())
     }
 
     /// Die Kennung, wie sie gespeichert wird; `init` liest sie wieder.
