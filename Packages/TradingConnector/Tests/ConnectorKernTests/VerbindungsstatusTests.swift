@@ -36,7 +36,10 @@ private func export(erstellt: Date, trades: Int = 2) -> JournalExport {
     #expect(text.contains("(vor 3 Tagen)") && text.contains("0 Konten, 0 Trades."))
     #expect(text.contains("HINWEIS: Noch kein Konto importiert."))
     #expect(text.contains("HINWEIS: Der Export ist älter als 24 Stunden."))
-    #expect(text.contains("verschiedene Rechenkerne (App 0.1.0, Erweiterung \(TradingCore.version))"))
+    // E9: Eine ältere App als die Erweiterung steht als Warnung vorn, mit Abhilfe.
+    #expect(text.contains("WARNUNG, APP ÄLTER ALS ERWEITERUNG: Henry rechnet mit Rechenkern 0.1.0, diese Erweiterung "
+        + "(\(Verbindungsstatus.connectorVersion)) mit \(TradingCore.version)."))
+    #expect(text.components(separatedBy: "\n")[1].hasPrefix("WARNUNG"))
 }
 
 @Test func statusOhneVerbindung() {

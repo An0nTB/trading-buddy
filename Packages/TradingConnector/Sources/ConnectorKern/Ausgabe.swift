@@ -55,6 +55,7 @@ public enum Ausgabe {
             t.append("\n## Nach Setup (eigene Angabe im Journal)")
             t.append(journaltabelle(anfrage, a.trades, .setup))
         }
+        t.append(contentsOf: anfrage.setuppruefungAbschnitt())
         t.append("\n## Nach Symbol")
         t.append(Format.tabelle(["Symbol", "Trades", "Netto", "Treffer", "Erw. R"], symbole.prefix(10).map {
             [$0.schluessel, "\($0.kennzahlen.anzahl)", Format.zahl($0.kennzahlen.netto),
@@ -146,11 +147,19 @@ public enum Ausgabe {
     }
 
     static func kopf(_ anfrage: Anfrage, vergleich: String? = nil) -> String {
-        var text = "Konto \(anfrage.kontoname), Beträge in \(anfrage.konto.waehrung). " + waehrungshinweis(anfrage)
-            + anzeigehinweis(anfrage)
+        var text = "Konto \(anfrage.kontoname), Beträge in \(anfrage.konto.waehrung). " + kontoarthinweis(anfrage)
+            + waehrungshinweis(anfrage) + anzeigehinweis(anfrage)
         if let vergleich { text += "Vergleich: \(vergleich). " }
         text += "Zeitzone \(anfrage.export.zeitzone). Export vom \(Format.datum(anfrage.export.erstellt, anfrage.zeitzone)). "
         return text + gespeichert(anfrage.konto, anfrage.zeitzone)
+    }
+
+    /// Demo-Konten (E1) sagen es in jedem Kopf: Ihre Zahlen sind kein echtes Geld und stehen nie in einer Summe mit
+    /// Echtgeld-Konten (jede Antwort gilt einem Konto).
+    static func kontoarthinweis(_ anfrage: Anfrage) -> String {
+        guard anfrage.konto.art == .demo else { return "" }
+        return "Demo- oder Paper-Konto ohne echtes Geld: Ergebnisse so benennen und nicht mit Echtgeld-Konten "
+            + "zusammenzählen. "
     }
 
     /// Hinweis auf Trades in anderen Währungen; leer, wenn das Konto nur eine Währung hat.

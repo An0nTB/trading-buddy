@@ -15,7 +15,7 @@ extension Ausgabe {
                      + "Zeitzone \(export.zeitzone)."]
         if export.konten.isEmpty { t.append("Noch kein Konto importiert.") }
         for konto in export.konten {
-            var zeile = "- \(export.kurzname(konto)), \(konto.waehrung): \(konto.trades.count) Trades"
+            var zeile = "- \(export.bezeichnung(konto)), \(konto.waehrung): \(konto.trades.count) Trades"
             let zeiten = konto.trades.map(\.closeTime)
             if let erster = zeiten.min(), let letzter = zeiten.max() {
                 zeile += ", geschlossen \(Format.datum(erster, zone, mitZeit: false)) bis "

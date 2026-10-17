@@ -1,6 +1,6 @@
 #!/bin/bash
 # Verpackt Henry für Testerinnen und Tester: die App im Release-Modus als DMG und ZIP, dazu den
-# Connector als .mcpb für Claude Desktop. Läuft nur auf dem Mac (Xcode 27, XcodeGen, Swift).
+# Connector als .mcpb für Claude Desktop, einzeln und als Kopie in der App (Contents/Resources). Läuft nur auf dem Mac (Xcode 27, XcodeGen, Swift).
 # Ergebnis in build/verteilung/. Dasselbe Skript nutzt .github/workflows/release.yml.
 #
 # Signierung und Notarisierung steuern Umgebungsvariablen; Namen, Team-ID und Schlüssel stehen
@@ -102,6 +102,37 @@ VERSION=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP/C
 BUILD=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$APP/Contents/Info.plist")
 echo "Henry $VERSION ($BUILD)"
 
+# 1b. Connector wie scripts/connector_bauen.sh, aber mit derselben Signierung wie die App. Vor dem Signieren der App,
+# weil eine Kopie in die App kommt (E9, Tim 17.10.2026): Henry kann die passende Erweiterung selbst anbieten, und
+# App und Erweiterung haben immer denselben Rechenkern.
+PAKET=Packages/TradingConnector
+# Universal (Apple Silicon und Intel) wie connector_bauen.sh, damit die Erweiterung auf jedem Tester-Mac startet.
+ARCH=(--arch arm64 --arch x86_64)
+swift build -c release "${ARCH[@]}" --package-path "$PAKET"
+SERVER="$(swift build -c release "${ARCH[@]}" --package-path "$PAKET" --show-bin-path)/trading-buddy-mcp"
+ARCHS=$(lipo -archs "$SERVER")
+case "$ARCHS" in
+    *arm64*x86_64*|*x86_64*arm64*) echo "Connector-Architekturen: $ARCHS" ;;
+    *) echo "Connector ist nicht universal ($ARCHS)."; exit 1 ;;
+esac
+CVERSION=$(plutil -extract version raw -o - Connector/manifest.json)
+MCPB="$ZIEL/mcpb"
+mkdir -p "$MCPB/server"
+cp "$SERVER" "$MCPB/server/"
+cp Connector/manifest.json "$MCPB/manifest.json"
+codesign "${SIGNATUR[@]}" "$MCPB/server/trading-buddy-mcp"
+codesign --verify --strict "$MCPB/server/trading-buddy-mcp"
+if [ -n "$PROFIL" ]; then
+    # Ein einzelnes Programm lässt sich nicht heften; Gatekeeper fragt das Ticket bei Apple ab.
+    ditto -c -k "$MCPB/server/trading-buddy-mcp" "$ZIEL/notar-connector.zip"
+    notarisieren "$ZIEL/notar-connector.zip"
+    rm "$ZIEL/notar-connector.zip"
+fi
+(cd "$MCPB" && zip -qr "../Henry-Connector-$CVERSION.mcpb" .)
+rm -rf "$MCPB"
+# Fester Name, damit die App sie findet (Bundle.main.url(forResource: "Henry-Connector", withExtension: "mcpb")).
+cp "$ZIEL/Henry-Connector-$CVERSION.mcpb" "$APP/Contents/Resources/Henry-Connector.mcpb"
+
 # 2. Signieren: erst eingebettete Teile, dann die App mit den Berechtigungen (Sandbox, Netz, Ordnerzugriff).
 while IFS= read -r -d '' teil; do
     codesign "${SIGNATUR[@]}" "$teil"
@@ -134,33 +165,6 @@ if [ -n "$PROFIL" ]; then
     notarisieren "$ZIEL/Henry-$VERSION.dmg"
     xcrun stapler staple "$ZIEL/Henry-$VERSION.dmg"
 fi
-
-# 5. Connector wie scripts/connector_bauen.sh, aber mit derselben Signierung wie die App.
-PAKET=Packages/TradingConnector
-# Universal (Apple Silicon und Intel) wie connector_bauen.sh, damit die Erweiterung auf jedem Tester-Mac startet.
-ARCH=(--arch arm64 --arch x86_64)
-swift build -c release "${ARCH[@]}" --package-path "$PAKET"
-SERVER="$(swift build -c release "${ARCH[@]}" --package-path "$PAKET" --show-bin-path)/trading-buddy-mcp"
-ARCHS=$(lipo -archs "$SERVER")
-case "$ARCHS" in
-    *arm64*x86_64*|*x86_64*arm64*) echo "Connector-Architekturen: $ARCHS" ;;
-    *) echo "Connector ist nicht universal ($ARCHS)."; exit 1 ;;
-esac
-CVERSION=$(plutil -extract version raw -o - Connector/manifest.json)
-MCPB="$ZIEL/mcpb"
-mkdir -p "$MCPB/server"
-cp "$SERVER" "$MCPB/server/"
-cp Connector/manifest.json "$MCPB/manifest.json"
-codesign "${SIGNATUR[@]}" "$MCPB/server/trading-buddy-mcp"
-codesign --verify --strict "$MCPB/server/trading-buddy-mcp"
-if [ -n "$PROFIL" ]; then
-    # Ein einzelnes Programm lässt sich nicht heften; Gatekeeper fragt das Ticket bei Apple ab.
-    ditto -c -k "$MCPB/server/trading-buddy-mcp" "$ZIEL/notar-connector.zip"
-    notarisieren "$ZIEL/notar-connector.zip"
-    rm "$ZIEL/notar-connector.zip"
-fi
-(cd "$MCPB" && zip -qr "../Henry-Connector-$CVERSION.mcpb" .)
-rm -rf "$MCPB"
 
 # 6. Prüfsummen, damit Tester sehen können, dass die Datei vollständig angekommen ist.
 (cd "$ZIEL" && shasum -a 256 Henry-*.dmg Henry-*.zip Henry-Connector-*.mcpb > SHA256SUMS.txt)

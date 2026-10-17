@@ -44,7 +44,8 @@ enum ExportOrdner {
     /// `kerzenquellen` nennt je Journal-Symbol die Herkunft der Minutenkerzen („MT4“, „Binance“); sie geht mit
     /// einem Hinweis zu Bid oder USDT an jede Ausstiegsanalyse (Doc 59 B9). Das Beispielkonto trägt `beispiel`,
     /// damit der Connector seine erfundenen Trades nicht neben echte Kurse stellt (Doc 59 B2). Playbook-Karten und
-    /// abgehakte Kriterien je Trade gehen mit, damit der Review prüfen kann, ob ein Trade nach Plan lief.
+    /// abgehakte Kriterien je Trade gehen mit, damit der Review prüfen kann, ob ein Trade nach Plan lief; dazu je
+    /// Konto Echtgeld oder Demo (E1) und je Karte Standard-Risiko (E8) und Stand des Kill-Kriteriums (E7).
     static func export(_ journal: Journal, zeitzone: TimeZone,
                        ausstieg: [String: [String: Ausstiegsanalyse]] = [:],
                        bestExit: [String: [String: BestExit]] = [:],
@@ -81,7 +82,8 @@ enum ExportOrdner {
                     }
                 },
                 beispiel: Beispieldaten.istBeispiel(konto),
-                checklisten: try journal.checklisten(konto: konto).mapValues { $0.erfuellt.sorted() })
+                checklisten: try journal.checklisten(konto: konto).mapValues { $0.erfuellt.sorted() },
+                kontoart: konto.kontoart)
         }
         // Tonfall aus den Einstellungen (AP11, `Ton`); ohne Wahl gilt in der App „bro“.
         let ton = Ton.aktuell.rawValue
@@ -89,13 +91,20 @@ enum ExportOrdner {
         let notizen = try journal.tagesnotizen(von: Journaltag(jahr: 1970, monat: 1, tag: 1)!,
                                                bis: Journaltag(jahr: 2999, monat: 12, tag: 31)!)
         let verpasst = try journal.verpassteTrades(von: .distantPast, bis: .distantFuture)
-        return JournalExport(konten: konten, zeitzone: zeitzone, ton: ton,
-                             tagesnotizen: notizen.map(JournalExport.Notiz.init),
-                             verpassteTrades: verpasst.map(JournalExport.Verpasst.init),
-                             nachrichten: nachrichten(journal), kursverlauf: kursverlauf(),
-                             referenzkurse: referenzkurse(konten, anzeigewaehrung: anzeigewaehrung),
-                             anzeigewaehrung: anzeigewaehrung,
-                             playbook: try journal.playbook().map { JournalExport.Playbookkarte($0) })
+        var daten = JournalExport(konten: konten, zeitzone: zeitzone, ton: ton,
+                                  tagesnotizen: notizen.map(JournalExport.Notiz.init),
+                                  verpassteTrades: verpasst.map(JournalExport.Verpasst.init),
+                                  nachrichten: nachrichten(journal), kursverlauf: kursverlauf(),
+                                  referenzkurse: referenzkurse(konten, anzeigewaehrung: anzeigewaehrung),
+                                  anzeigewaehrung: anzeigewaehrung)
+        // Karten mit Standard-Risiko (E8) und dem Stand des Kill-Kriteriums je Kontoart (E7); die Prüfung braucht
+        // die fertigen Konten mit geplantem Risiko und den EZB-Kursen der Datei.
+        let setups = try journal.playbook()
+        let risiken = try journal.standardRisikoJeSetup()
+        let pruefungen = daten.setuppruefungen(setups)
+        let karten = setups.map { JournalExport.Playbookkarte($0, standardRisiko: risiken[$0.name], pruefung: pruefungen) }
+        daten.playbook = karten.isEmpty ? nil : karten.sorted { $0.name < $1.name }
+        return daten
     }
 
     /// Trade mit seinem geplanten Risiko (Doc 02 Nr. 64): Angabe am Trade, sonst Standard des Setups, sonst des

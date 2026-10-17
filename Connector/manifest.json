@@ -2,8 +2,8 @@
   "manifest_version": "0.3",
   "name": "trading-buddy",
   "display_name": "Henry",
-  "version": "0.19.0",
-  "description": "Henry führt Buch über deine Trades. Kennzahlen, Fehlermuster und Wochen- oder Monatsauswertung aus deinem Journal. Nur lesend, die Daten bleiben auf deinem Mac.",
+  "version": "0.20.0",
+  "description": "Henry führt Buch über deine Trades. Kennzahlen, Fehlermuster und Wochen- oder Monatsauswertung aus deinem Journal. Nur lesend, die Daten bleiben auf deinem Mac. In den Export-Ordner schreibt die Erweiterung nur eine kleine Statusdatei mit ihrer Version, damit Henry eine veraltete Erweiterung erkennt.",
   "author": {
     "name": "Tim Bock"
   },
@@ -21,7 +21,7 @@
   "tools": [
     {
       "name": "henry_status",
-      "description": "Prüft die Verbindung: Version, Export-Ordner, letzter Export, Konten und Trades, mit Hinweis, was zu tun ist."
+      "description": "Prüft die Verbindung: Version, Rechenkern gegen die App, Export-Ordner, letzter Export, Konten mit Echtgeld oder Demo, Stand der Setup-Prüfung, mit Hinweis, was zu tun ist."
     },
     {
       "name": "hole_datenstand",

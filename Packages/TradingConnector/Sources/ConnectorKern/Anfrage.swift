@@ -25,7 +25,8 @@ public struct Anfrage: Sendable {
     public var tickets: [String] = []
 
     public var zeitzone: TimeZone { export.nutzerZeitzone }
-    public var kontoname: String { export.kurzname(konto) }
+    /// Kurzname mit Kontoart (`JournalExport.bezeichnung`, E1).
+    public var kontoname: String { export.bezeichnung(konto) }
 
     /// Zeitraum aus `monat` („JJJJ-MM“), `woche` (ein Tag der Woche, „JJJJ-MM-TT“), `kw` (ISO-Kalenderwoche,
     /// „JJJJ-Www“ oder „JJJJ-WW“) oder `von` und `bis` („JJJJ-MM-TT“, beide einschließlich). Ohne Angabe:
@@ -68,6 +69,10 @@ public struct Anfrage: Sendable {
             konto.ziele = []
             konto.regeln?.maxTagesverlust = nil
             konto.regeln?.maxRisikoJeTrade = nil
+            konto.regeln?.maxMonatsverlust = nil
+            konto.regeln?.maxOffenesRisiko = nil
+            // Ohne Kontostand gelten die Prozentgrenzen nicht (`Handelsregeln.grenze`); er steht in Kontowährung.
+            konto.regeln?.kontostand = nil
         }
         let zone = export.nutzerZeitzone
         var vorgabe: String?
@@ -77,7 +82,7 @@ public struct Anfrage: Sendable {
         let gesucht = konto.trades.filter { tickets.contains($0.id) }
         if !tickets.isEmpty, gesucht.isEmpty {
             let fremd = alleTrades.first { tickets.contains($0.id) }?.waehrung(kontowaehrung: kontowaehrung)
-            throw AnfrageFehler.ticketUnbekannt(tickets.joined(separator: ", "), export.kurzname(konto), fremd)
+            throw AnfrageFehler.ticketUnbekannt(tickets.joined(separator: ", "), export.bezeichnung(konto), fremd)
         }
         if let text = argumente["monat"] {
             let teile = zahlen(text)
@@ -101,7 +106,7 @@ public struct Anfrage: Sendable {
             vorgabe = "Kein Zeitraum angegeben, daher die Monate der gesuchten Tickets."
         } else {
             guard let letzter = konto.trades.map(\.closeTime).max() else {
-                throw AnfrageFehler.keineTrades(export.kurzname(konto))
+                throw AnfrageFehler.keineTrades(export.bezeichnung(konto))
             }
             zeitraum = Zeitspanne.monat(mit: letzter, zeitzone: zone)
             vorgabe = "Kein Zeitraum angegeben, daher der letzte Monat mit Trades."
@@ -156,7 +161,10 @@ public struct Anfrage: Sendable {
 
     static func waehleKonto(_ wunsch: String?, in export: JournalExport) throws -> JournalExport.Kontodaten {
         let konten = export.konten
-        let namen = konten.map(export.kurzname)
+        // Mit Kontoart, damit „demo“ oder „echtgeld“ ein Konto wählt; der reine Kurzname (Frag Henry) trifft
+        // weiter genau.
+        let namen = konten.map(export.bezeichnung)
+        let kurz = konten.map(export.kurzname)
         guard !konten.isEmpty else { throw AnfrageFehler.keineKonten }
         let wunsch = wunsch?.trimmingCharacters(in: .whitespaces) ?? ""
         if wunsch.isEmpty {
@@ -168,7 +176,8 @@ public struct Anfrage: Sendable {
         }
         // Genau der Kurzname oder genau die Nummer gewinnt, wenn der Wunsch auch in anderen Namen steckt.
         let genau = treffer.filter {
-            namen[$0].caseInsensitiveCompare(wunsch) == .orderedSame || konten[$0].kontonummer == wunsch
+            namen[$0].caseInsensitiveCompare(wunsch) == .orderedSame || kurz[$0].caseInsensitiveCompare(wunsch) == .orderedSame
+                || konten[$0].kontonummer == wunsch
         }
         if genau.count == 1 { treffer = genau }
         if treffer.count == 1 { return konten[treffer[0]] }
