@@ -22,8 +22,8 @@ extension JournalExport {
     public func bezeichnung(_ konto: Kontodaten) -> String {
         if konto.istBeispiel { return kurzname(konto) + " (Beispielkonto)" }
         switch konto.art {
-        case .demo: kurzname(konto) + " (Demo)"
-        case .echt: konten.contains { $0.art == .demo } ? kurzname(konto) + " (Echtgeld)" : kurzname(konto)
+        case .demo: return kurzname(konto) + " (Demo)"
+        case .echt: return konten.contains { $0.art == .demo } ? kurzname(konto) + " (Echtgeld)" : kurzname(konto)
         }
     }
 }
