@@ -42,7 +42,7 @@ private func maikurse() -> Referenzkurse {
     let json = String(decoding: try export.json(), as: UTF8.self)
     #expect(json.contains("\"kurse\":{\"CHF\":\"1\",\"USD\":\"2\"},\"tag\":\"2025-05-12\""))
     let gelesen = try JournalExport.lese(Data(json.utf8))
-    #expect(gelesen == export && gelesen.format == 2)
+    #expect(gelesen == export && gelesen.format == JournalExport.aktuellesFormat)
     let kurse = try #require(gelesen.angleichskurse)
     #expect(kurse.umrechnen(100, von: "USD", nach: "EUR", am: zeit("2025-05-20T12:00:00"), zeitzone: utc) == 50)
 
@@ -66,10 +66,10 @@ private func maikurse() -> Referenzkurse {
     // Befund G7 (Doc 49): Ein Feld in neuer Form darf die Meldung „neueres Format“ nicht verdecken.
     let export = JournalExport(konten: [], zeitzone: utc, erstellt: zeit("2026-10-01T20:00:00"))
     let text = String(decoding: try export.json(), as: UTF8.self)
-        .replacingOccurrences(of: "\"format\":\(JournalExport.aktuellesFormat)", with: #""format":3"#)
+        .replacingOccurrences(of: "\"format\":\(JournalExport.aktuellesFormat)", with: #""format":99"#)
         .replacingOccurrences(of: #""konten":[]"#, with: #""konten":"neue Form""#)
-    #expect(text.contains(#""format":3"#) && text.contains("neue Form"))
-    #expect(throws: ExportFehler.neueresFormat(3)) { try JournalExport.lese(Data(text.utf8)) }
+    #expect(text.contains(#""format":99"#) && text.contains("neue Form"))
+    #expect(throws: ExportFehler.neueresFormat(99)) { try JournalExport.lese(Data(text.utf8)) }
 }
 
 @Test func anzeigewaehrungMitKursenImExport() throws {
@@ -90,5 +90,5 @@ private func maikurse() -> Referenzkurse {
     let ohne = JournalExport(konten: konten, zeitzone: utc, anzeigewaehrung: "")
     let ohneText = String(decoding: try ohne.json(), as: UTF8.self)
     #expect(ohne.anzeigewaehrung == nil && !ohneText.contains("anzeigewaehrung"))
-    #expect(export.format == 2)
+    #expect(export.format == JournalExport.aktuellesFormat)
 }

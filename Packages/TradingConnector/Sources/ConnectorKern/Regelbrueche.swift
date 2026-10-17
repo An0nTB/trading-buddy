@@ -17,13 +17,39 @@ extension Anfrage {
     func verstoesse(_ trades: [Trade], ohneKurs: [Trade] = []) -> [Regelverstoss] {
         let ids = Set((trades + ohneKurs).map(\.id))
         let andere = andereWaehrungen.values.flatMap { $0 }
-        // Setup-Grenzen (E4, E5) aus den Playbookkarten, verbunden über das Setup im Journal. Offene Positionen
-        // stehen nicht in der Datei; Grenzen für offene Positionen zählen hier nur geschlossene Trades.
+        // Setup-Grenzen aus den Playbookkarten, offene Positionen mit Risiko in Kontowährung aus der App.
         return Regelpruefung.pruefe(konto.trades + andere, regeln: konto.regeln ?? Handelsregeln(),
                                     zeitzone: zeitzone, manuell: manuellVerletzt, ohneBetrag: Set(andere.map(\.id)),
                                     setups: konto.journal.compactMapValues(\.setup),
-                                    playbook: (export.playbook ?? []).map(\.setupRegeln))
+                                    playbook: (export.playbook ?? []).map(\.setupRegeln),
+                                    offene: konto.offene ?? [], jetzt: export.erstellt)
             .filter { ids.contains($0.trade) }
+    }
+
+    /// Fehlende Grundlagen dürfen bei den Grenzen für offene Positionen keine Entwarnung ergeben.
+    var offeneRegelnUnvollstaendig: Bool {
+        let regeln = export.konten.first { $0.broker == konto.broker && $0.kontonummer == konto.kontonummer }?.regeln
+            ?? konto.regeln
+        guard let regeln else { return false }
+        let risiko = regeln.maxOffenesRisiko != nil || regeln.maxOffenesRisikoProzent != nil
+        guard regeln.maxOffenePositionen != nil || risiko else { return false }
+        guard konto.offeneVollstaendig == true, let offene = konto.offene else { return true }
+        let trades = konto.trades + andereWaehrungen.values.flatMap { $0 }
+        if offene.contains(where: \.nurDatum) || trades.contains(where: \.nurDatum) { return true }
+        guard risiko else { return false }
+        if konto.waehrung != kontowaehrung || !andereWaehrungen.isEmpty
+            || offene.contains(where: { $0.risiko == nil }) || trades.contains(where: { $0.risk == nil }) {
+            return true
+        }
+        if regeln.maxOffenesRisikoProzent != nil {
+            var kalender = Calendar(identifier: .gregorian)
+            kalender.timeZone = zeitzone
+            let tage = trades.map { $0.eroeffnungstag(kalender) } + offene.map {
+                Trade.tagesbeginn($0.openTime, nurDatum: $0.nurDatum, kalender: kalender)
+            }
+            return tage.contains { (regeln.kontostand?.stand(bei: $0, trades: trades) ?? 0) <= 0 }
+        }
+        return false
     }
 
     /// Abschnitt „Eigene Handelsregeln“; leer, wenn weder Regeln noch Journal-Verstöße vorliegen.
@@ -34,9 +60,14 @@ extension Anfrage {
         let ohneKurs = self.ohneKurs.filter { zeitraum.enthaelt($0.closeTime) }
         let verstoesse = verstoesse(trades, ohneKurs: ohneKurs)
         let geprueft = trades.count + ohneKurs.count
+        let unvollstaendig = offeneRegelnUnvollstaendig
         guard konto.regeln != nil || !verstoesse.isEmpty else { return [] }
         var t = ["\n## Eigene Handelsregeln (eingetragen in der App, geprüft nach dem Import)"]
         t.append("Regeln: " + (konto.regeln.map { Self.regeltext($0, zeitzone: zeitzone) } ?? "keine Grenzen eingetragen") + ".")
+        if unvollstaendig {
+            t.append("Offene Positionen und offenes Risiko: nicht vollständig geprüft; Positionsbestand, Uhrzeiten, "
+                + "Risikobeträge oder Kontostand fehlen oder liegen nicht in Kontowährung vor.")
+        }
         let zone = zeitzone
         let zeilen: [[String]] = Regelverstoss.Art.allCases.compactMap { art in
             let teil = verstoesse.filter { $0.art == art }
@@ -47,17 +78,19 @@ extension Anfrage {
             let tagtext = tage.count > 5 ? tage.prefix(5).joined(separator: ", ") + " …" : tage.joined(separator: ", ")
             return [art.bezeichnung, "\(ids.count)", "\(tage.count) (\(tagtext))", Format.zahl(netto)]
         }
-        if zeilen.isEmpty {
+        if zeilen.isEmpty && !unvollstaendig {
             t.append("Kein Verstoß im Zeitraum (\(geprueft) Trades geprüft).")
-        } else {
+        } else if !zeilen.isEmpty {
             t.append(Format.tabelle(["Regel", "Trades", "Tage", "Netto dieser Trades"], zeilen))
-            let betroffen = Set(verstoesse.map(\.trade))
-            let mit = Kennzahlen(trades: trades.filter { betroffen.contains($0.id) })
-            let ohne = Kennzahlen(trades: trades.filter { !betroffen.contains($0.id) })
-            t.append("Trades mit mindestens einem Verstoß: \(betroffen.count) von \(geprueft), netto \(Format.zahl(mit.netto)), "
-                + "Erwartungswert \(Format.r(mit.erwartungswertR)). Ohne Verstoß: \(geprueft - betroffen.count) Trades, netto "
-                + "\(Format.zahl(ohne.netto)), Erwartungswert \(Format.r(ohne.erwartungswertR)). "
-                + "Ein Trade kann mehrere Regeln zugleich verletzen.")
+            if !unvollstaendig {
+                let betroffen = Set(verstoesse.map(\.trade))
+                let mit = Kennzahlen(trades: trades.filter { betroffen.contains($0.id) })
+                let ohne = Kennzahlen(trades: trades.filter { !betroffen.contains($0.id) })
+                t.append("Trades mit mindestens einem Verstoß: \(betroffen.count) von \(geprueft), netto \(Format.zahl(mit.netto)), "
+                    + "Erwartungswert \(Format.r(mit.erwartungswertR)). Ohne Verstoß: \(geprueft - betroffen.count) Trades, netto "
+                    + "\(Format.zahl(ohne.netto)), Erwartungswert \(Format.r(ohne.erwartungswertR)). "
+                    + "Ein Trade kann mehrere Regeln zugleich verletzen.")
+            }
         }
         if !ohneKurs.isEmpty {
             let mitVerstoss = Set(verstoesse.map(\.trade)).intersection(ohneKurs.map(\.id)).count

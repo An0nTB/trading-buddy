@@ -21,7 +21,7 @@ private func export(erstellt: Date, trades: Int = 2) -> JournalExport {
     let jetzt = zeit("2026-10-03T12:00:00")
     let text = Verbindungsstatus.text(.geladen(export(erstellt: zeit("2026-10-03T09:30:00"))), ordner: "/Nutzer/x/Export",
                                       jetzt: jetzt)
-    #expect(text.contains("Erweiterung \(Verbindungsstatus.connectorVersion), liest Exportdateien bis Format 2"))
+    #expect(text.contains("Erweiterung \(Verbindungsstatus.connectorVersion), liest Exportdateien bis Format \(JournalExport.aktuellesFormat)"))
     #expect(text.contains("Export-Ordner in der Erweiterung: /Nutzer/x/Export."))
     #expect(text.contains("VERBINDUNG STEHT. Export vom 03.10.2026 11:30 (vor 2 Stunden)"))
     #expect(text.contains("1 Konten, 2 Trades.") && !text.contains("HINWEIS"))

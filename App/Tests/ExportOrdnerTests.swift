@@ -134,5 +134,96 @@ import TradingStore
         #expect(Kennzahlen(trades: short).netto == 100 && Kennzahlen(trades: appShort).netto == 100)
     }
 
+    @MainActor @Test func offeneHandpositionMitRegelgrundlagenKommtMit() throws {
+        let journal = try Journal.imSpeicher()
+        let konto = try journal.legeKontoAn(broker: "Test", kontonummer: "1234", waehrung: "EUR")
+        let a = ManuellerTrade(symbol: "A", einstieg: T.zeit(2026, 4, 1, 9), markterwartung: .buy,
+                               groesse: 10, einstiegskurs: 100, ausstiegskurs: nil, stopKurs: 93, risiko: 5)
+        let ticket = try journal.speichereHandtrade(a, konto: konto)
+        try journal.speichereJournal(Journaleintrag(kontoId: try #require(konto.id), ticket: ticket, setup: "Ausbruch"))
+        try journal.setzeStandardRisiko(20, konto: konto)
+        let b = ManuellerTrade(symbol: "B", einstieg: T.zeit(2026, 4, 1, 10), ausstieg: T.zeit(2026, 4, 1, 11),
+                               markterwartung: .buy, groesse: 10, einstiegskurs: 100, ausstiegskurs: 110, stopKurs: 96)
+        let geschlossen = try journal.speichereManuellenTrade(b, konto: konto)
+        try journal.setzeHandelsregeln(Handelsregeln(maxOffenePositionen: 1, maxOffenesRisiko: 100), konto: konto)
+        let modell = AppModell(journal: journal, nebenwirkungen: false)
+        let daten = try #require(try JournalExport.lese(ExportOrdner.export(journal, zeitzone: T.berlin).json()).konten.first)
+        #expect(daten.offene == [OffenerTrade(id: ticket, openTime: a.einstieg, risiko: 70)])
+        #expect(daten.offene == modell.offeneRegelpositionen)
+        #expect(daten.offeneVollstaendig == true)
+        #expect(daten.journal[ticket]?.setup == "Ausbruch")
+        let verstoesse = Regelpruefung.pruefe(daten.trades, regeln: try #require(daten.regeln), zeitzone: T.berlin,
+                                             offene: try #require(daten.offene))
+        #expect(Set(verstoesse.filter { $0.trade == geschlossen.ticket }.map(\.art)) == [.offenePositionen, .offenesRisiko])
+    }
+
+    @MainActor @Test func offeneKaeufeMitGeplantemRisikoBleibenJeKonto() throws {
+        let journal = try Journal.imSpeicher()
+        let nurKauf = T.kraken().split(separator: "\n", omittingEmptySubsequences: false)
+            .filter { !$0.contains("\"sell\"") }.joined(separator: "\n")
+        _ = try journal.importiereCSV(datei: Data(nurKauf.utf8), dateiname: "appt-kauf.csv",
+                                      kontonummer: "1234", kontowaehrung: "EUR", zeitzone: T.berlin)
+        let konto = try #require(try journal.konten().first)
+        try journal.setzeStandardRisiko(25, konto: konto)
+        _ = try journal.legeKontoAn(broker: "Leer", kontonummer: "5678", waehrung: "EUR")
+        let export = try JournalExport.lese(ExportOrdner.export(journal, zeitzone: T.berlin).json())
+        let offene = try #require(export.konten.first { $0.broker == konto.broker }?.offene)
+        #expect(offene.count == 1)
+        #expect(offene.first?.risiko == 25)
+        #expect(offene.first?.openTime == T.zeit(2026, 4, 1, 10))
+        #expect(export.konten.first { $0.broker == "Leer" }?.offene == [])
+        #expect(export.konten.allSatisfy { $0.offeneVollstaendig == true })
+        let modell = AppModell(journal: journal, nebenwirkungen: false)
+        modell.waehleKonto(konto.id)
+        #expect(offene == modell.offeneRegelpositionen)
+    }
+
+    @Test func auszugSchliesstBereitsGeschlosseneTicketsAusUndNimmtStopRisiko() {
+        let a = OpenPosition(ticket: "A", rohzeile: [], side: .buy, lots: 1, symbol: "Test",
+                             openTime: T.zeit(2026, 4, 1, 9), openPrice: 100, stopLoss: 93,
+                             currentPrice: 110, commission: 0, swap: 0, profit: 100)
+        var b = a
+        b.ticket = "B"
+        let geschlossen = Trade(id: "B", symbol: "Test", side: .buy, lots: 1, openTime: b.openTime,
+                                 closeTime: T.zeit(2026, 4, 1, 11), openPrice: 100, closePrice: 110, profit: 100)
+        let offene = AppModell.offeneRegelpositionen(auszug: [a, b], geschlossen: [geschlossen],
+                                                     kaeufe: [], hand: [], quellen: Risikoquellen(konto: 20))
+        #expect(offene == [OffenerTrade(id: "A", openTime: a.openTime, risiko: 70)])
+    }
+
+    @Test func mt5ExportKennzeichnetFehlendenBrokerbestandUndBehaeltHandpositionen() throws {
+        let journal = try Journal.imSpeicher()
+        let html = """
+        <html><title>Trade History Report</title><table>
+        <tr><td>Account:</td><td>1234 (EUR, Test, real, Hedge)</td></tr>
+        <tr><td>Company:</td><td>Test</td></tr>
+        <tr><th>Positions</th></tr>
+        <tr><td>Time</td><td>Position</td><td>Symbol</td><td>Type</td><td>Volume</td><td>Price</td><td>S / L</td>
+        <td>T / P</td><td>Time</td><td>Price</td><td>Commission</td><td>Swap</td><td>Profit</td></tr>
+        <tr><td>2026.04.01 10:00:00</td><td>B</td><td>Testindex</td><td>buy</td><td>1</td><td>100</td><td>90</td>
+        <td>0</td><td>2026.04.01 11:00:00</td><td>110</td><td>0</td><td>0</td><td>10</td></tr>
+        </table></html>
+        """
+        try journal.importiereMT5(datei: Data(html.utf8), dateiname: "appt-mt5.html", serverZeitzone: T.utc)
+        let konto = try #require(try journal.konten().first)
+        let hand = ManuellerTrade(symbol: "A", einstieg: T.zeit(2026, 4, 1, 9), markterwartung: .buy,
+                                  groesse: 1, einstiegskurs: 100, ausstiegskurs: nil, risiko: 20)
+        let ticket = try journal.speichereHandtrade(hand, konto: konto)
+        let daten = try #require(try JournalExport.lese(ExportOrdner.export(journal, zeitzone: T.berlin).json()).konten.first)
+        #expect(daten.trades.map(\.id) == ["B"])
+        #expect(daten.offene?.map(\.id) == [ticket])
+        #expect(daten.offeneVollstaendig == false)
+    }
+
+    @Test func verkaufOhneKaufKennzeichnetUnvollstaendigenBestand() throws {
+        let journal = try Journal.imSpeicher()
+        let nurVerkauf = T.kraken().split(separator: "\n", omittingEmptySubsequences: false)
+            .filter { !$0.contains("\"buy\"") }.joined(separator: "\n")
+        _ = try journal.importiereCSV(datei: Data(nurVerkauf.utf8), dateiname: "appt-verkauf.csv",
+                                      kontonummer: "1234", kontowaehrung: "EUR", zeitzone: T.berlin)
+        let daten = try #require(try ExportOrdner.export(journal, zeitzone: T.berlin).konten.first)
+        #expect(daten.offene == [])
+        #expect(daten.offeneVollstaendig == false)
+    }
 }
 #endif

@@ -146,7 +146,7 @@ private func mitPlaybook(_ export: JournalExport) throws -> JournalExport {
     #expect(stand.passtZurApp)
     // Feldnamen sind mit AP11 abgesprochen; die App liest sie.
     let json = String(decoding: try stand.json(), as: UTF8.self)
-    #expect(json == "{\"erweiterung\":\"\(Verbindungsstatus.connectorVersion)\",\"format\":2,"
+    #expect(json == "{\"erweiterung\":\"\(Verbindungsstatus.connectorVersion)\",\"format\":\(JournalExport.aktuellesFormat),"
         + "\"geschrieben\":\"2026-10-17T16:30:00Z\",\"rechenkern\":\"\(TradingCore.version)\"}")
     // Ohne Ordner oder mit fehlendem Ordner schreibt sie nichts.
     #expect(!Exportdatei.meldeStand(ordner: nil))

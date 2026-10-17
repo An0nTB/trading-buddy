@@ -835,18 +835,25 @@ final class AppModell {
     /// ohne Positionen, die inzwischen geschlossen importiert sind, offene Käufe und offene Hand-Trades. Risiko aus
     /// dem Stop in Kontowährung, sonst das wirksame geplante Risiko; ohne beides zählt die Position nur bei der Anzahl.
     var offeneRegelpositionen: [OffenerTrade] {
-        let quellen = risikoquellen
-        let geschlossen = Set(alleTradesMitDuplikaten.map(\.id))
-        let auszug = (offenerAuszug?.positionen ?? []).filter { !geschlossen.contains($0.ticket) }.map { p in
+        Self.offeneRegelpositionen(auszug: offenerAuszug?.positionen ?? [], geschlossen: alleTradesMitDuplikaten,
+                                  kaeufe: positionsbildung.offen, hand: offeneHandpositionen, quellen: risikoquellen)
+    }
+
+    /// Dieselbe Grundlage für App und Connector-Export, ohne Zugriff auf den Zustand der Oberfläche.
+    nonisolated static func offeneRegelpositionen(auszug: [OpenPosition], geschlossen: [Trade],
+                                                  kaeufe: [Ausfuehrung], hand: [OffenerHandtrade],
+                                                  quellen: Risikoquellen) -> [OffenerTrade] {
+        let geschlosseneIDs = Set(geschlossen.map(\.id))
+        let auszug = auszug.filter { !geschlosseneIDs.contains($0.ticket) }.map { p in
             OffenerTrade(id: p.ticket, openTime: p.openTime,
                          risiko: Self.stopRisiko(p) ?? quellen.wirksam(ticket: p.ticket)?.betrag)
         }
-        let kaeufe = positionsbildung.offen.map { k in
+        let kaeufe = kaeufe.map { k in
             OffenerTrade(id: k.id, openTime: k.zeit, nurDatum: k.nurDatum, risiko: quellen.wirksam(ticket: k.id)?.betrag,
                          positionsschluessel: Trade.positionsschluessel(symbol: k.name.isEmpty ? k.kennung : k.name,
                                                                         side: k.seite, openTime: k.zeit))
         }
-        let hand = offeneHandpositionen.map { h in
+        let hand = hand.map { h in
             OffenerTrade(id: h.ticket, openTime: h.trade.einstieg,
                          risiko: Self.stopRisiko(h.trade) ?? quellen.wirksam(ticket: h.ticket)?.betrag)
         }
@@ -855,7 +862,7 @@ final class AppModell {
 
     /// Verlust bis zum Stop einer Auszugsposition in Kontowährung, mit dem Wert je Kurspunkt aus dem Auszug selbst
     /// (`OffeneBewertung`); 0, wenn der Stop schon im Gewinn liegt; `nil` ohne Stop oder ohne Kursbewegung.
-    static func stopRisiko(_ p: OpenPosition) -> Decimal? {
+    nonisolated static func stopRisiko(_ p: OpenPosition) -> Decimal? {
         guard let stop = p.stopLoss, stop > 0, let ergebnis = OffeneBewertung.bewerte(p, kurs: stop).brutto else {
             return nil
         }
@@ -863,7 +870,7 @@ final class AppModell {
     }
 
     /// Risiko eines offenen Hand-Trades: Stop-Kurs vor eingetragenem Risiko wie `ManuellerTrade.stop`.
-    static func stopRisiko(_ t: ManuellerTrade) -> Decimal? {
+    nonisolated static func stopRisiko(_ t: ManuellerTrade) -> Decimal? {
         if let stop = t.stopKurs { return abs(t.einstiegskurs - stop) * t.groesse }
         guard let risiko = t.risiko, risiko != 0 else { return nil }
         return abs(risiko)

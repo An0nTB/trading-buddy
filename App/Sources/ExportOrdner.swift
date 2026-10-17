@@ -58,7 +58,8 @@ enum ExportOrdner {
             let stellen = JournalExport.endziffern(konto.kontonummer, neben: andere)
             let quellen = try journal.risikoquellen(konto: konto)
             let erwartungen = try journal.markterwartungen(konto: konto)
-            let trades = try journal.tradeBestand(konto: konto, zeitzone: zeitzone).auswertbareTrades.map { t in
+            let bestand = try journal.tradeBestand(konto: konto, zeitzone: zeitzone)
+            let trades = bestand.auswertbareTrades.map { t in
                 var mitJournal = t.mitJournal(eintraege[t.id])
                 if mitJournal.markterwartung == nil { mitJournal.markterwartung = erwartungen[t.id] }
                 return mitRisiko(mitJournal, quellen: quellen)
@@ -66,6 +67,20 @@ enum ExportOrdner {
             let nummer = String(konto.kontonummer.suffix(stellen))
             let analysen = ausstieg[ausstiegskonto(konto.broker, nummer)] ?? [:]
             let besteAusstiege = bestExit[ausstiegskonto(konto.broker, nummer)] ?? [:]
+            let bewegungen = try journal.kontobewegungen(konto: konto)
+            let positionen = Positionsbildung.bilde(bewegungen.ausfuehrungen,
+                                                    kapitalmassnahmen: bewegungen.kapitalmassnahmen)
+            // MT5, XTB und unbekannte Importer liefern keinen offenen Bestand. Bekannte Positionen bleiben dabei.
+            let mitOffenemBestand: Set<String> = [Journal.mt4Importer, Journal.vonHandImporter,
+                Journal.tradeRepublicImporter, Journal.scalableImporter, Journal.krakenImporter,
+                Journal.binanceImporter, Journal.coinbaseImporter, Journal.bitpandaImporter, Journal.ibkrImporter]
+            let offeneVollstaendig = try journal.importe(konto: konto).allSatisfy { mitOffenemBestand.contains($0.importer) }
+                && positionen.ohneBestand.isEmpty
+            let offene = try AppModell.offeneRegelpositionen(
+                auszug: journal.offenePositionenLetzterAuszug(konto: konto)?.positionen ?? [],
+                geschlossen: bestand.trades,
+                kaeufe: positionen.offen,
+                hand: journal.offeneManuelleTrades(konto: konto), quellen: quellen)
             return JournalExport.Kontodaten(
                 broker: konto.broker, kontonummer: nummer, waehrung: konto.waehrung,
                 trades: trades,
@@ -83,7 +98,7 @@ enum ExportOrdner {
                 },
                 beispiel: Beispieldaten.istBeispiel(konto),
                 checklisten: try journal.checklisten(konto: konto).mapValues { $0.erfuellt.sorted() },
-                kontoart: konto.kontoart)
+                kontoart: konto.kontoart, offene: offene, offeneVollstaendig: offeneVollstaendig)
         }
         // Tonfall aus den Einstellungen (AP11, `Ton`); ohne Wahl gilt in der App „bro“.
         let ton = Ton.aktuell.rawValue
