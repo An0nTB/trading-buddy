@@ -1,4 +1,5 @@
 import SwiftUI
+import TradingCore
 import TradingStore
 
 /// Bereiche der App (Doc 10, Aufbau A): Seitenleiste am Mac und iPad, Tab-Leiste am iPhone.
@@ -94,6 +95,7 @@ struct Hauptfenster: View {
         .fragBradBlatt() // Frag Henry (Doc 31): an der Wurzel, damit es auch in der Tab-Leiste am iPhone wirkt
         .hilfeBlaetter() // Hilfe › Erste Schritte, Problem melden (Nachtpaket AP11)
         .aktualisierungsHinweis() // neue Version für Tester, höchstens einmal am Tag geprüft (Doc 51)
+        .erweiterungsHinweis() // Erweiterung mit anderem Rechenkern als die App (E9)
         .startmeldung(modell) // nach dem Ausweg: wo die alte Datei liegt
     }
 
@@ -252,8 +254,10 @@ struct KontoZeile: View {
         modell.konto.map(kontoName) ?? ""
     }
 
+    /// Demo- und Paper-Konten tragen den Zusatz, damit niemand Demo-Zahlen für Echtgeld hält (E1).
     private func kontoName(_ konto: Konto) -> String {
-        "\(konto.broker) · \(konto.kontoname)"
+        let name = "\(konto.broker) · \(konto.kontoname)"
+        return konto.kontoart == .demo ? name + " · " + String(localized: "Demo") : name
     }
 }
 

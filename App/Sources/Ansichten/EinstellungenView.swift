@@ -1,4 +1,5 @@
 import SwiftUI
+import TradingCore
 import TradingStore
 
 /// Einstellungen (Doc 10, Abschnitt 7): am Mac ein Fenster mit Reitern, am iPhone eine Liste unter „Mehr“.
@@ -204,6 +205,15 @@ struct KontenView: View {
                                 .foregroundStyle(thema.textSchwach)
                         }
                         Spacer()
+                        // E1 (Tim 17.10.2026): Demo- und Paper-Trades zählen getrennt (Kill-Kriterium, Export).
+                        Picker("Kontoart", selection: kontoart(konto)) {
+                            Text("Echtgeld").tag(Kontoart.echt)
+                            Text("Demo/Paper").tag(Kontoart.demo)
+                        }
+                        .pickerStyle(.segmented)
+                        .labelsHidden()
+                        .fixedSize()
+                        .help("Demo- und Paper-Konten zählen beim Kill-Kriterium der Setups getrennt vom Echtgeld; der Export für Claude nennt die Art.")
                     }
                     .listRowBackground(thema.flaeche)
                 }
@@ -211,6 +221,10 @@ struct KontenView: View {
             }
         }
         .padding(Abstand.seitenrand)
+    }
+
+    private func kontoart(_ konto: Konto) -> Binding<Kontoart> {
+        Binding(get: { konto.kontoart }, set: { modell.setzeKontoart($0, konto: konto) })
     }
 }
 
@@ -231,11 +245,12 @@ struct ClaudeFelder: View {
                     Button("exportFolder.choose") { ordnerWaehlen = true }
                 }
             }
+            ErweiterungsstatusZeile()
             Text("Claude Desktop liest diesen Ordner über die Erweiterung „Henry“. Sie ist die Datei „Henry-Connector“, die du mit der App bekommen hast: Doppelklick öffnet sie in Claude Desktop. Derselbe Ordner muss in den Einstellungen der Erweiterung stehen.")
                 .font(Schrift.beschriftung)
                 .foregroundStyle(thema.textSchwach)
             LabeledContent("Exportierte Felder") {
-                Text("Ticketnummer, Zeiten, Instrument, Richtung, Lots, Kurse, Stop und Ziel, Kommission, Swap, Steuern (falls der Broker sie meldet), Ergebnis, Zeitpunkte gelöschter Orders, Journal (Stop, Setup, Regeltreue, Zustand, Marktumfeld, Grund), Ziele aus Reviews, eigene Handelsregeln, Tagesnotizen und verpasste Trades (ohne Bilder), Ausstiegsanalysen (falls Kerzen geladen), Nachrichten der letzten sieben Tage (falls eingeschaltet), Tageskerzen geladener Werte, EZB-Referenzkurse für Trades in fremder Währung, Tonfall, Broker, Kontowährung, Zeitzone und die letzten vier Stellen der Kontonummer. Nicht: Name, volle Kontonummer, Saldo.")
+                Text("Ticketnummer, Zeiten, Instrument, Richtung, Lots, Kurse, Stop und Ziel, Kommission, Swap, Steuern (falls der Broker sie meldet), Ergebnis, Zeitpunkte gelöschter Orders, Journal (Stop, Setup, Regeltreue, Zustand, Marktumfeld, Grund), Ziele aus Reviews, eigene Handelsregeln (mit dem Kontostand für Prozentgrenzen, falls eingetragen), Playbook-Karten, Kontoart (Echtgeld oder Demo), Tagesnotizen und verpasste Trades (ohne Bilder), Ausstiegsanalysen (falls Kerzen geladen), Nachrichten der letzten sieben Tage (falls eingeschaltet), Tageskerzen geladener Werte, EZB-Referenzkurse für Trades in fremder Währung, Tonfall, Broker, Kontowährung, Zeitzone und die letzten vier Stellen der Kontonummer. Nicht: Name, volle Kontonummer, Saldo aus dem Auszug.")
             }
             if let status = [fehler, modell.exportStand].first(where: { !$0.isEmpty }) {
                 Text(verbatim: status)

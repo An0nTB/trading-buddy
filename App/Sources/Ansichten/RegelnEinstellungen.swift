@@ -33,6 +33,8 @@ struct RegelnEinstellungen: View {
                     betragsgrenze("Höchstes Risiko je Trade", $entwurf.maxRisikoJeTrade, standard: 50, einheit: konto.waehrung)
                     hinweis("Abstand Einstieg bis Stop; ein Verlust über der Grenze zählt auch ohne Stop.")
                 }
+                prozentAbschnitt(waehrung: konto.waehrung)
+                monatUndOffenAbschnitt(waehrung: konto.waehrung)
                 Section("Geplantes Risiko") {
                     betragsgrenze("Standard-Risiko je Trade", $standardRisiko, standard: 50, einheit: konto.waehrung)
                     hinweis("Gilt für Trades ohne Stop und ohne eigenes Risiko; R ist dann als angenommen gekennzeichnet. Ein Standard der Setup-Karte geht vor, ein echter Stop immer.")
@@ -71,6 +73,74 @@ struct RegelnEinstellungen: View {
     }
 
     private var geaendert: Bool { entwurf != modell.regeln || standardRisiko != modell.risikoquellen.konto }
+
+    // MARK: Prozent, Monat, offene Positionen (E2, E3, E6; Tim 17.10.2026)
+
+    /// Kontostand von heute aus dem eingetragenen Stand und den Ergebnissen danach, in Kontowährung.
+    private var standHeute: Decimal? {
+        entwurf.kontostand?.stand(bei: Date(), trades: modell.angleich.trades)
+    }
+
+    private func prozentAbschnitt(waehrung: String) -> some View {
+        Section("Prozent vom Kontostand") {
+            kontostandFeld(waehrung: waehrung)
+            betragsgrenze("Höchster Tagesverlust in Prozent", $entwurf.maxTagesverlustProzent, standard: 1.5, einheit: "%",
+                          bezugsstand: standHeute.map { ($0, waehrung) })
+            betragsgrenze("Höchstes Risiko je Trade in Prozent", $entwurf.maxRisikoJeTradeProzent, standard: 1, einheit: "%",
+                          bezugsstand: standHeute.map { ($0, waehrung) })
+            hinweis("Prozent vom Kontostand zu Tagesbeginn. Sind Betrag und Prozent gesetzt, gilt die engere Grenze. Ohne Kontostand ruhen die Prozentgrenzen.")
+        }
+    }
+
+    private var kontostandAn: Binding<Bool> {
+        Binding(get: { entwurf.kontostand != nil },
+                set: { an in
+                    entwurf.kontostand = an
+                        ? (entwurf.kontostand ?? Kontostandbezug(betrag: 1000, seit: Calendar.current.startOfDay(for: Date())))
+                        : nil
+                })
+    }
+
+    private var kontostandBetrag: Binding<Decimal> {
+        Binding(get: { entwurf.kontostand?.betrag ?? 0 }, set: { entwurf.kontostand?.betrag = $0 })
+    }
+
+    private var kontostandSeit: Binding<Date> {
+        Binding(get: { entwurf.kontostand?.seit ?? Date() }, set: { entwurf.kontostand?.seit = $0 })
+    }
+
+    @ViewBuilder private func kontostandFeld(waehrung: String) -> some View {
+        Toggle("Kontostand eintragen", isOn: kontostandAn)
+        if entwurf.kontostand != nil {
+            HStack {
+                TextField("Kontostand", value: kontostandBetrag, format: .number.precision(.fractionLength(0...2)))
+                    .textFieldStyle(.roundedBorder)
+                    .multilineTextAlignment(.trailing)
+                    .frame(maxWidth: 160)
+                    .labelsHidden()
+                Text(verbatim: waehrung).foregroundStyle(thema.textSchwach)
+                DatePicker("am", selection: kontostandSeit, displayedComponents: [.date, .hourAndMinute])
+                    .fixedSize()
+            }
+            if let standHeute {
+                hinweis(verbatim: String(localized: "Heute \(Format.betrag(standHeute, waehrung)): eingetragener Stand plus die Ergebnisse danach. Nach einer Ein- oder Auszahlung einen neuen Stand eintragen."))
+            }
+        }
+    }
+
+    private func monatUndOffenAbschnitt(waehrung: String) -> some View {
+        Section("Monat und offene Positionen") {
+            betragsgrenze("Höchster Monatsverlust", $entwurf.maxMonatsverlust, standard: 300, einheit: waehrung)
+            betragsgrenze("Höchster Monatsverlust in Prozent", $entwurf.maxMonatsverlustProzent, standard: 6, einheit: "%",
+                          bezugsstand: standHeute.map { ($0, waehrung) })
+            hinweis("Kalendermonat in deiner Zeitzone, realisiert netto. Danach keine neuen Trades in diesem Monat.")
+            anzahlgrenze("Höchstens offene Positionen", $entwurf.maxOffenePositionen, standard: 3)
+            betragsgrenze("Höchstes offenes Risiko", $entwurf.maxOffenesRisiko, standard: 150, einheit: waehrung)
+            betragsgrenze("Höchstes offenes Risiko in Prozent", $entwurf.maxOffenesRisikoProzent, standard: 3, einheit: "%",
+                          bezugsstand: standHeute.map { ($0, waehrung) })
+            hinweis("Gezählt beim Einstieg: alle Positionen, die dann offen waren, auch von Hand eingetragene, die neue mitgezählt. Risiko aus dem Stop, sonst das geplante Risiko.")
+        }
+    }
 
     // MARK: Prop-Firm
 
@@ -217,8 +287,10 @@ struct RegelnEinstellungen: View {
     // MARK: Felder
 
     /// Schalter plus Betragsfeld: aus heißt `nil` (Regel aus), an setzt den Vorschlag ein.
+    /// `bezugsstand`: Kontostand mit Währung; ein Prozentfeld zeigt dann den Betrag, den es heute bedeutet.
     private func betragsgrenze(_ titel: LocalizedStringKey, _ wert: Binding<Decimal?>, standard: Decimal,
-                               einheit: String?, prozentVon: Decimal? = nil) -> some View {
+                               einheit: String?, prozentVon: Decimal? = nil,
+                               bezugsstand: (Decimal, String)? = nil) -> some View {
         VStack(alignment: .leading, spacing: Abstand.raster) {
             Toggle(titel, isOn: an(wert, standard: standard))
             if let aktuell = wert.wrappedValue {
@@ -233,6 +305,11 @@ struct RegelnEinstellungen: View {
                     }
                     if let prozentVon, prozentVon > 0 {
                         Text("entspricht \(Format.prozent(aktuell / prozentVon)) vom Startkapital")
+                            .font(Schrift.beschriftung)
+                            .foregroundStyle(thema.textSchwach)
+                    }
+                    if let bezug = bezugsstand, bezug.0 > 0 {
+                        Text("heute \(Format.betrag(bezug.0 * aktuell / 100, bezug.1))")
                             .font(Schrift.beschriftung)
                             .foregroundStyle(thema.textSchwach)
                     }

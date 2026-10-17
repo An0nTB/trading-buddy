@@ -156,6 +156,16 @@
         }
       }
     },
+    "%@ von %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ of %2$@"
+          }
+        }
+      }
+    },
     "%lld Angaben ersetzt" : {
       "localizations" : {
         "en" : {
@@ -248,6 +258,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld accounts, %lld closed positions"
+          }
+        }
+      }
+    },
+    "%lld mit angenommenem R" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld with assumed R"
+          }
+        }
+      }
+    },
+    "%lld offen von %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld open of %lld"
+          }
+        }
+      }
+    },
+    "%lld ohne Stop und Risiko" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld without stop or risk"
           }
         }
       }
@@ -358,12 +398,32 @@
         }
       }
     },
+    "%lld von %lld Trades" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld of %lld trades"
+          }
+        }
+      }
+    },
     "%lld Zeilen weggelassen" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld lines omitted"
+          }
+        }
+      }
+    },
+    "%lld zu lange gehalten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld held too long"
           }
         }
       }
@@ -418,6 +478,16 @@
         }
       }
     },
+    "alle im Rahmen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "all within limits"
+          }
+        }
+      }
+    },
     "Alle Regionen" : {
       "localizations" : {
         "en" : {
@@ -448,6 +518,16 @@
         }
       }
     },
+    "am" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "on"
+          }
+        }
+      }
+    },
     "Asset" : {
       "localizations" : {
         "en" : {
@@ -474,6 +554,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Asset class"
+          }
+        }
+      }
+    },
+    "Aus" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Off"
           }
         }
       }
@@ -621,6 +711,36 @@
         }
       }
     },
+    "Demo" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Demo"
+          }
+        }
+      }
+    },
+    "Demo- und Paper-Konten zählen beim Kill-Kriterium der Setups getrennt vom Echtgeld; der Export für Claude nennt die Art." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Demo and paper accounts count separately from real money for the setups' kill criterion; the export for Claude names the type."
+          }
+        }
+      }
+    },
+    "Demo/Paper" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Demo/Paper"
+          }
+        }
+      }
+    },
     "Der Stop liegt auf der Gewinnseite des Einstiegs." : {
       "localizations" : {
         "en" : {
@@ -682,6 +802,26 @@
         }
       }
     },
+    "Die Erweiterung hat sich noch nicht gemeldet: älter als 0.20.0 oder noch nicht benutzt." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The extension has not reported yet: older than 0.20.0 or not used yet."
+          }
+        }
+      }
+    },
+    "Die Erweiterung „Henry“ in Claude Desktop (%@) rechnet mit Rechenkern %@, die App mit %@. Zahlen in Claude können von der App abweichen. Ersetze die Erweiterung in Claude Desktop unter Einstellungen › Erweiterungen durch die Datei „Henry-Connector“, die zu dieser App gehört." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The “Henry” extension in Claude Desktop (%@) uses calculation core %@, the app uses %@. Figures in Claude may differ from the app. Replace the extension in Claude Desktop under Settings › Extensions with the “Henry-Connector” file that belongs to this app."
+          }
+        }
+      }
+    },
     "Die Größe muss über 0 liegen." : {
       "localizations" : {
         "en" : {
@@ -718,6 +858,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Traded directly"
+          }
+        }
+      }
+    },
+    "Echtgeld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Real money"
           }
         }
       }
@@ -798,6 +948,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Detected: backup of the browser journal (JSON)"
+          }
+        }
+      }
+    },
+    "Erweiterung" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Extension"
+          }
+        }
+      }
+    },
+    "Erweiterung passt nicht zur App" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Extension Does Not Match the App"
+          }
+        }
+      }
+    },
+    "Erweiterung öffnen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Extension"
           }
         }
       }
@@ -884,6 +1064,46 @@
         }
       }
     },
+    "Gezählt beim Einstieg: alle Positionen, die dann offen waren, auch von Hand eingetragene, die neue mitgezählt. Risiko aus dem Stop, sonst das geplante Risiko." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Counted at entry: all positions open at that moment, including manually entered ones, plus the new one. Risk from the stop, otherwise the planned risk."
+          }
+        }
+      }
+    },
+    "Gilt zusätzlich zu den Regeln des Kontos. Gleicher Tag: am Eröffnungstag schließen. Kein Wochenende: über Nacht erlaubt, nicht über Samstag oder Sonntag. Offene Positionen zählen bis jetzt." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Applies in addition to the account's rules. Same day: close on the opening day. No weekend: overnight is allowed, but not over Saturday or Sunday. Open positions count up to now."
+          }
+        }
+      }
+    },
+    "Gleicher Tag" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Same day"
+          }
+        }
+      }
+    },
+    "Grenzen der Karte" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Card Limits"
+          }
+        }
+      }
+    },
     "Großbritannien" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -905,6 +1125,16 @@
         }
       }
     },
+    "Heute %@: eingetragener Stand plus die Ergebnisse danach. Nach einer Ein- oder Auszahlung einen neuen Stand eintragen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today %@: the entered balance plus the results since. After a deposit or withdrawal, enter a new balance."
+          }
+        }
+      }
+    },
     "Hongkong" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -912,6 +1142,96 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hong Kong"
+          }
+        }
+      }
+    },
+    "Höchstens offene Positionen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maximum open positions"
+          }
+        }
+      }
+    },
+    "Höchstens Trades je Tag mit diesem Setup" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maximum trades per day with this setup"
+          }
+        }
+      }
+    },
+    "Höchster Monatsverlust" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maximum monthly loss"
+          }
+        }
+      }
+    },
+    "Höchster Monatsverlust in Prozent" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maximum monthly loss in percent"
+          }
+        }
+      }
+    },
+    "Höchster Monatsverlust überschritten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maximum monthly loss exceeded"
+          }
+        }
+      }
+    },
+    "Höchster Tagesverlust in Prozent" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maximum daily loss in percent"
+          }
+        }
+      }
+    },
+    "Höchstes offenes Risiko" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maximum open risk"
+          }
+        }
+      }
+    },
+    "Höchstes offenes Risiko in Prozent" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maximum open risk in percent"
+          }
+        }
+      }
+    },
+    "Höchstes Risiko je Trade in Prozent" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maximum risk per trade in percent"
           }
         }
       }
@@ -958,6 +1278,16 @@
         }
       }
     },
+    "Kalendermonat in deiner Zeitzone, realisiert netto. Danach keine neuen Trades in diesem Monat." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calendar month in your time zone, realized net. After that, no new trades this month."
+          }
+        }
+      }
+    },
     "Kanada" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -979,12 +1309,62 @@
         }
       }
     },
+    "kein Kontostand eingetragen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no account balance entered"
+          }
+        }
+      }
+    },
+    "Kein Wochenende" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No weekend"
+          }
+        }
+      }
+    },
+    "Kill-Kriterium: Nach so vielen Trades zählt der Erwartungswert in R nach Kosten. Ist er nicht über 0, geht das Setup nicht auf Echtgeld. Demo und Echtgeld zählen getrennt." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kill criterion: after this many trades, the expectancy in R after costs decides. If it is not above 0, the setup does not go to real money. Demo and real money count separately."
+          }
+        }
+      }
+    },
     "Knock-out, Optionsschein, Zertifikat: Gewinn bei steigendem Scheinpreis, auch bei Short." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Knock-out, warrant, certificate: profit when the certificate price rises, short too."
+          }
+        }
+      }
+    },
+    "Kontoart" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Account type"
+          }
+        }
+      }
+    },
+    "Kontostand eintragen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter account balance"
           }
         }
       }
@@ -999,12 +1379,62 @@
         }
       }
     },
+    "Länger gehalten, als das Setup erlaubt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Held longer than the setup allows"
+          }
+        }
+      }
+    },
+    "Mehr Positionen offen als erlaubt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "More positions open than allowed"
+          }
+        }
+      }
+    },
+    "Mehr Trades am Tag mit einem Setup als erlaubt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "More trades per day with one setup than allowed"
+          }
+        }
+      }
+    },
     "Mit Risiko (ergibt R)" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "With risk (gives R)"
+          }
+        }
+      }
+    },
+    "Monat und offene Positionen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Month and Open Positions"
+          }
+        }
+      }
+    },
+    "Monatsverlust" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monthly loss"
           }
         }
       }
@@ -1100,6 +1530,36 @@
         }
       }
     },
+    "nicht bestanden" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "failed"
+          }
+        }
+      }
+    },
+    "nicht geprüft" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "not checked"
+          }
+        }
+      }
+    },
+    "Noch kein Trade mit diesem Setup." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No trade with this setup yet."
+          }
+        }
+      }
+    },
     "Norwegen" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1157,6 +1617,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Close open trades"
+          }
+        }
+      }
+    },
+    "Offenes Risiko" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open risk"
+          }
+        }
+      }
+    },
+    "Offenes Risiko über der Grenze" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open risk above the limit"
           }
         }
       }
@@ -1237,6 +1717,56 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Followed the plan"
+          }
+        }
+      }
+    },
+    "Prozent vom Kontostand" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Percent of Account Balance"
+          }
+        }
+      }
+    },
+    "Prozent vom Kontostand zu Tagesbeginn. Sind Betrag und Prozent gesetzt, gilt die engere Grenze. Ohne Kontostand ruhen die Prozentgrenzen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Percent of the account balance at the start of the day. If both amount and percent are set, the tighter limit applies. Without an account balance, the percent limits are inactive."
+          }
+        }
+      }
+    },
+    "Prozentgrenzen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Percent limits"
+          }
+        }
+      }
+    },
+    "Prüfung fällig" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "check due"
+          }
+        }
+      }
+    },
+    "Prüfung nach Trades" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check after trades"
           }
         }
       }
@@ -1406,6 +1936,16 @@
         }
       }
     },
+    "Ticketnummer, Zeiten, Instrument, Richtung, Lots, Kurse, Stop und Ziel, Kommission, Swap, Steuern (falls der Broker sie meldet), Ergebnis, Zeitpunkte gelöschter Orders, Journal (Stop, Setup, Regeltreue, Zustand, Marktumfeld, Grund), Ziele aus Reviews, eigene Handelsregeln (mit dem Kontostand für Prozentgrenzen, falls eingetragen), Playbook-Karten, Kontoart (Echtgeld oder Demo), Tagesnotizen und verpasste Trades (ohne Bilder), Ausstiegsanalysen (falls Kerzen geladen), Nachrichten der letzten sieben Tage (falls eingeschaltet), Tageskerzen geladener Werte, EZB-Referenzkurse für Trades in fremder Währung, Tonfall, Broker, Kontowährung, Zeitzone und die letzten vier Stellen der Kontonummer. Nicht: Name, volle Kontonummer, Saldo aus dem Auszug." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ticket number, times, instrument, direction, lots, prices, stop and target, commission, swap, taxes (if the broker reports them), result, times of deleted orders, journal (stop, setup, rule compliance, condition, market environment, reason), goals from reviews, own trading rules (with the account balance for percent limits, if entered), playbook cards, account type (real money or demo), daily notes and missed trades (without images), exit analyses (if candles are loaded), news of the last seven days (if switched on), daily candles of loaded instruments, ECB reference rates for trades in a foreign currency, tone, broker, account currency, time zone and the last four digits of the account number. Not: name, full account number, balance from the statement."
+          }
+        }
+      }
+    },
     "Trade bearbeiten" : {
       "localizations" : {
         "en" : {
@@ -1466,6 +2006,16 @@
         }
       }
     },
+    "Trades am Tag mit %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trades per day with %@"
+          }
+        }
+      }
+    },
     "USA" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1483,6 +2033,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sale price of the certificate, 0 on knock-out"
+          }
+        }
+      }
+    },
+    "Version %@, Rechenkern %@ wie die App." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Version %@, calculation core %@, same as the app."
           }
         }
       }
@@ -19282,16 +19842,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ticket %@"
-          }
-        }
-      }
-    },
-    "Ticketnummer, Zeiten, Instrument, Richtung, Lots, Kurse, Stop und Ziel, Kommission, Swap, Steuern (falls der Broker sie meldet), Ergebnis, Zeitpunkte gelöschter Orders, Journal (Stop, Setup, Regeltreue, Zustand, Marktumfeld, Grund), Ziele aus Reviews, eigene Handelsregeln, Tagesnotizen und verpasste Trades (ohne Bilder), Ausstiegsanalysen (falls Kerzen geladen), Nachrichten der letzten sieben Tage (falls eingeschaltet), Tageskerzen geladener Werte, EZB-Referenzkurse für Trades in fremder Währung, Tonfall, Broker, Kontowährung, Zeitzone und die letzten vier Stellen der Kontonummer. Nicht: Name, volle Kontonummer, Saldo." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ticket number, times, instrument, direction, lots, prices, stop and target, commission, swap, taxes (if the broker reports them), result, times of deleted orders, journal (stop, setup, rule compliance, condition, market environment, reason), goals from reviews, own trading rules, daily notes and missed trades (without images), exit analyses (if candles are loaded), news of the last seven days (if switched on), daily candles of loaded instruments, ECB reference rates for trades in a foreign currency, tone, broker, account currency, time zone and the last four digits of the account number. Not: name, full account number, balance."
           }
         }
       }
