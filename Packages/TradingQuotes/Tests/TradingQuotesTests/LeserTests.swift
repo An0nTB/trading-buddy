@@ -143,7 +143,7 @@ let testSchluessel = AlpacaSchluessel(schluesselID: "TEST-ID", geheimnis: "TEST-
 @Test func alpacaKursblattMitNullIstKeinKurs() throws {
     var leser = AlpacaLeser(symbole: ["AAPL"], schluessel: testSchluessel)
     let abschluss = #"[{"T":"t","S":"AAPL","p":126.55,"t":"2021-02-22T15:51:00Z"}]"#
-    let blatt = #"[{"T":"q","S":"AAPL","bp":0,"ap":126.56,"t":"2021-02-22T15:52:00Z"}]"#
+    let blatt = #"[{"T":"q","S":"AAPL","bp":0,"ap":126.56,"t":"2021-02-22T15:51:20Z"}]"#
     _ = leser.lies(abschluss, empfangen: empfangen)
     let lesung = leser.lies(blatt, empfangen: empfangen)
     let kurs = try #require(lesung.kurse.first)
@@ -151,6 +151,25 @@ let testSchluessel = AlpacaSchluessel(schluesselID: "TEST-ID", geheimnis: "TEST-
     #expect(kurs.brief == d("126.56"))
     // Kaufposition ohne Geldkurs: der letzte Abschluss, nicht 0.
     #expect(kurs.bewertungskurs(kaufposition: true) == d("126.55"))
+}
+
+@Test func alpacaAlterAbschlussIstNichtDerFrischeKurs() throws {
+    var leser = AlpacaLeser(symbole: ["AAPL"], schluessel: testSchluessel)
+    let abschluss = #"[{"T":"t","S":"AAPL","p":120.00,"t":"2021-02-22T13:00:00Z"}]"#
+    let blatt = #"[{"T":"q","S":"AAPL","bp":126.54,"ap":126.56,"t":"2021-02-22T15:52:00Z"}]"#
+    let nahesBlatt = #"[{"T":"q","S":"AAPL","bp":126.50,"ap":126.52,"t":"2021-02-22T15:52:10Z"}]"#
+    let nurAbschluss = try #require(leser.lies(abschluss, empfangen: empfangen).kurse.first)
+    #expect(nurAbschluss.preis == d("120.00"))
+    // Abschluss Stunden vor dem Kursblatt: Anzeige und Bewertung aus dem Kursblatt, Zeit des Kursblatts.
+    let mitBlatt = try #require(leser.lies(blatt, empfangen: empfangen).kurse.first)
+    #expect(mitBlatt.letzter == nil)
+    #expect(mitBlatt.preis == d("126.55"))
+    #expect(mitBlatt.zeit == zeit("2021-02-22T15:52:00.000Z"))
+    // Neuer Abschluss kurz vor dem nächsten Kursblatt: zählt wieder.
+    _ = leser.lies(#"[{"T":"t","S":"AAPL","p":126.51,"t":"2021-02-22T15:52:05Z"}]"#, empfangen: empfangen)
+    let frisch = try #require(leser.lies(nahesBlatt, empfangen: empfangen).kurse.first)
+    #expect(frisch.letzter == d("126.51"))
+    #expect(frisch.preis == d("126.51"))
 }
 
 @Test func alpacaFehlerCodes() {

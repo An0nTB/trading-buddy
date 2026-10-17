@@ -101,6 +101,24 @@ let aapl = Kurs(symbol: "AAPL", letzter: 230, zeit: empfangen, quelle: "alpaca")
     #expect(stand.verbindungen == ["kraken": .verbunden, "alpaca": .verbunden])
 }
 
+@Test func beobachterFindetKleingeschriebeneQuellsymbole() async {
+    // Binance meldet „BTCUSDT“, auch wenn die Zuordnung „btcusdt“ von Hand eingetragen ist.
+    let tether = Kurs(symbol: "BTCUSDT", letzter: 68000, zeit: empfangen, quelle: "binance")
+    let beobachter = Kursbeobachter(quellen: [
+        FesteQuelle(id: "binance", name: "Binance", hoechstzahlSymbole: 1, kurse: [tether])
+    ])
+    let zuordnungen = [
+        Kurszuordnung(journalSymbol: "btcusdt", quelle: "binance", quellSymbol: "btcusdt"),
+        Kurszuordnung(journalSymbol: "BTCUSDT.cfd", quelle: "binance", quellSymbol: "BTCUSDT", naeherung: "CFD")
+    ]
+    #expect(beobachter.plane(zuordnungen).abos["binance"]?.keys.sorted() == ["BTCUSDT"])
+    var stand = Kursstand()
+    for await ereignis in beobachter.beobachte(zuordnungen) { stand.uebernimm(ereignis) }
+    #expect(stand.kurse["btcusdt"]?.kurs == tether)
+    #expect(stand.kurse["BTCUSDT.cfd"]?.naeherung == "CFD")
+    #expect(stand.ohneQuelle.isEmpty)
+}
+
 @Test func kursstandMeldetVeralteteKurse() {
     var stand = Kursstand()
     let verzoegert = Kurs(symbol: "SAP", letzter: 200, zeit: empfangen, quelle: "test", verzoegerung: .verzoegert(minuten: 15))

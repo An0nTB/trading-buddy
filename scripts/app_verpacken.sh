@@ -40,6 +40,29 @@ if [ -n "$UNSAUBER" ]; then
     echo "$UNSAUBER"
     exit 1
 fi
+# Ignorierte Dateien zeigt die Prüfung oben nicht. project.yml legt aber ganz App/Resources ins Bundle, und
+# .gitignore ignoriert gerade Broker-Exporte (*.csv, *.pdf …): Ein Kontoauszug dort käme sonst mit in die App.
+# Erlaubt sind nur Reste, die auf jedem Mac entstehen, und die eigene Config/Local.xcconfig; in App/Resources
+# nur .DS_Store (lässt XcodeGen weg), denn alles andere dort käme mit ins Bundle.
+IGNORIERT=""
+while IFS= read -r -d '' zeile; do
+    [[ "$zeile" == '!! '* ]] || continue
+    pfad="${zeile#!! }"
+    case "$pfad" in
+        .DS_Store|*/.DS_Store) continue ;;
+        App/Resources/*) ;;
+        *xcuserdata/*|*.xcuserstate|*.xcscmblueprint) continue ;;
+        build/*|*/build/*|DerivedData/*|*/DerivedData/*|.build/*|*/.build/*|.swiftpm/*|*/.swiftpm/*) continue ;;
+        Config/Local.xcconfig) continue ;;
+    esac
+    IGNORIERT+="$pfad"$'\n'
+done < <(git status --porcelain -z --ignored --untracked-files=all -- App Connector Config)
+if [ -n "$IGNORIERT" ]; then
+    echo "In App, Connector oder Config liegen von Git ignorierte Dateien, die mitverpackt werden könnten:"
+    printf '%s' "$IGNORIERT"
+    echo "Bitte verschieben, etwa nach ~/Henry-Privat, und erneut verpacken."
+    exit 1
+fi
 # Signierte Fassungen nur vom aktuellen main (Lehre 06.10.2026); in GitHub Actions entscheidet release.yml.
 if [ -n "$IDENT" ] && [ -z "${GITHUB_ACTIONS:-}" ]; then
     git fetch -q origin +refs/heads/main:refs/remotes/origin/main
