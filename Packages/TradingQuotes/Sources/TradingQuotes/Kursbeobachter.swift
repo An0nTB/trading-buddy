@@ -28,7 +28,7 @@ public struct Kursbeobachter: Sendable {
 
     /// Plan: was je Quelle abonniert wird und was ohne Quelle bleibt. Getrennt, damit es ohne Netz testbar ist.
     struct Plan: Sendable, Equatable {
-        /// Quell-ID → Quellsymbol → Zuordnungen.
+        /// Quell-ID → Quellsymbol in Großbuchstaben → Zuordnungen.
         var abos: [String: [String: [Kurszuordnung]]] = [:]
         var ohneQuelle: [(journalSymbol: String, grund: String)] = []
 
@@ -46,15 +46,22 @@ public struct Kursbeobachter: Sendable {
                 continue
             }
             var abo = plan.abos[z.quelle, default: [:]]
-            if abo[z.quellSymbol] == nil, let grenze = quelle.hoechstzahlSymbole, abo.count >= grenze {
+            // Quellen melden ihre Symbole in eigener Schreibweise (Binance „BTCUSDT“ auch für ein Abo „btcusdt“).
+            // Deshalb gilt das Quellsymbol ohne Groß- und Kleinschreibung und wird groß abonniert, wie es alle Quellen
+            // führen; die Zuordnung behält, was gespeichert ist.
+            let schluessel = Self.schluessel(z.quellSymbol)
+            if abo[schluessel] == nil, let grenze = quelle.hoechstzahlSymbole, abo.count >= grenze {
                 plan.ohneQuelle.append((journalSymbol: z.journalSymbol, grund: "\(quelle.name) liefert höchstens \(grenze) Symbole gleichzeitig."))
                 continue
             }
-            abo[z.quellSymbol, default: []].append(z)
+            abo[schluessel, default: []].append(z)
             plan.abos[z.quelle] = abo
         }
         return plan
     }
+
+    /// Quellsymbol als Schlüssel im Plan und beim Verteilen der Kurse.
+    static func schluessel(_ quellSymbol: String) -> String { quellSymbol.uppercased() }
 
     /// Startet alle Quellen. Der Strom endet, wenn die App ihn nicht mehr liest oder alle Quellen beendet sind.
     public func beobachte(_ zuordnungen: [Kurszuordnung]) -> AsyncStream<Kursereignis> {
@@ -74,7 +81,7 @@ public struct Kursbeobachter: Sendable {
                                 case .status(let status):
                                     fortsetzung.yield(.status(quelle: id, status))
                                 case .kurs(let kurs):
-                                    for z in abo[kurs.symbol] ?? [] {
+                                    for z in abo[Self.schluessel(kurs.symbol)] ?? [] {
                                         fortsetzung.yield(.kurs(journalSymbol: z.journalSymbol, kurs: kurs, naeherung: z.naeherung))
                                     }
                                 }

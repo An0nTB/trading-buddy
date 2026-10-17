@@ -115,8 +115,18 @@ struct AlpacaLeser: Nachrichtenleser {
         kurs.zeit = (mitBlatt ? teile.blatt : teile.abschluss) ?? zeit
         stand[symbol] = kurs
         zeiten[symbol] = teile
-        return kurs.preis == nil ? nil : kurs
+        // `preis` nimmt zuerst den Abschluss. Liegt der mehr als 30 s vor dem Kursblatt, wäre er unter der Zeit des
+        // Kursblatts ein alter Kurs, der frisch aussieht; dann zählt nur das Kursblatt. Der Stand behält den Abschluss.
+        var meldung = kurs
+        if mitBlatt, let abschluss = teile.abschluss, let blatt = teile.blatt,
+           blatt.timeIntervalSince(abschluss) > Self.hoechstabstandAbschluss {
+            meldung.letzter = nil
+        }
+        return meldung.preis == nil ? nil : meldung
     }
+
+    /// Längster Abstand zwischen Abschluss und Kursblatt, bei dem der Abschluss noch als Anzeigekurs gilt (R1: 30 s).
+    static let hoechstabstandAbschluss: TimeInterval = 30
 }
 
 extension Kursquellen {
