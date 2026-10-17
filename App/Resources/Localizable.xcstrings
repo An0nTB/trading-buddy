@@ -478,6 +478,26 @@
         }
       }
     },
+    "Die Version der Erweiterung „Henry“ in Claude Desktop konnte nicht geprüft werden. Eine ältere Erweiterung berücksichtigt möglicherweise die neuen Regeln und die Kontoart nicht. Ersetze sie in Claude Desktop unter Einstellungen › Erweiterungen durch die Datei „Henry-Connector“, die zu dieser App gehört." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The version of the “Henry” extension in Claude Desktop could not be verified. An older extension may not account for the new rules and account type. Replace it in Claude Desktop under Settings › Extensions with the “Henry-Connector” file included with this app."
+          }
+        }
+      }
+    },
+    "Erweiterung ungeprüft" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Extension not verified"
+          }
+        }
+      }
+    },
     "alle im Rahmen" : {
       "localizations" : {
         "en" : {
