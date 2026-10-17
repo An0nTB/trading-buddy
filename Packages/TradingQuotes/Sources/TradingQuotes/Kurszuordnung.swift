@@ -16,8 +16,19 @@ public struct Kurszuordnung: Sendable, Equatable, Codable {
     public init(journalSymbol: String, quelle: String, quellSymbol: String, naeherung: String? = nil) {
         self.journalSymbol = journalSymbol
         self.quelle = quelle
-        self.quellSymbol = quellSymbol
+        self.quellSymbol = Self.normalisiere(quellSymbol, quelle: quelle)
         self.naeherung = naeherung
+    }
+
+    /// Auch gespeicherte oder nachträglich bearbeitete Binance-Zuordnungen verwenden denselben Schlüssel.
+    public func normalisiert() -> Kurszuordnung {
+        var neu = self
+        neu.quellSymbol = Self.normalisiere(quellSymbol, quelle: quelle)
+        return neu
+    }
+
+    static func normalisiere(_ symbol: String, quelle: String) -> String {
+        quelle == "binance" ? symbol.uppercased() : symbol
     }
 }
 

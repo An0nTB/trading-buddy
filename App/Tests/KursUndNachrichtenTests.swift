@@ -60,6 +60,23 @@ private struct Testeinstellungen {
         #expect(d.eigene.map(\.quellSymbol) == ["NEU"])
     }
 
+    @Test func binanceZuordnungNormalisiertAltbestandUndSpeicherung() throws {
+        let einstellungen = Testeinstellungen()
+        defer { einstellungen.aufraeumen() }
+        let altbestand = Data(#"[{"journalSymbol":"btceur","quelle":"binance","quellSymbol":"btceur","naeherung":"CFD"}]"#.utf8)
+        einstellungen.speicher.set(altbestand, forKey: Kursdienst.schluesselZuordnungen)
+        let erster = dienst(einstellungen)
+        #expect(erster.zuordnung(fuer: "btceur").zuordnung?.quellSymbol == "BTCEUR")
+        var bearbeitet = try #require(erster.eigene.first)
+        bearbeitet.quellSymbol = "etheur"
+        erster.setzeZuordnung(bearbeitet)
+        let daten = try #require(einstellungen.speicher.data(forKey: Kursdienst.schluesselZuordnungen))
+        let gespeichert = try JSONDecoder().decode([Kurszuordnung].self, from: daten)
+        #expect(gespeichert.map(\.quellSymbol) == ["ETHEUR"])
+        #expect(gespeichert.map(\.journalSymbol) == ["btceur"])
+        #expect(dienst(einstellungen).zuordnung(fuer: "btceur").zuordnung?.quellSymbol == "ETHEUR")
+    }
+
     /// Der Schalter bleibt über einen Neustart; ohne beobachtete Symbole läuft dabei nichts.
     @Test func schalterKurseWirdGespeichert() {
         let einstellungen = Testeinstellungen()

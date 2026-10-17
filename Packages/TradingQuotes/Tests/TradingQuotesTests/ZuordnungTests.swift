@@ -56,6 +56,15 @@ private func grund(_ symbol: String) -> String? {
     #expect(zurueck == z)
 }
 
+@Test func binanceZuordnungSpeichertGrossgeschriebenesQuellsymbol() throws {
+    let z = Kurszuordnung(journalSymbol: "btceur", quelle: "binance", quellSymbol: "btceur", naeherung: "CFD")
+    let zurueck = try JSONDecoder().decode(Kurszuordnung.self, from: JSONEncoder().encode(z))
+    #expect(zurueck.quellSymbol == "BTCEUR")
+    #expect(zurueck.journalSymbol == "btceur")
+    #expect(zurueck.naeherung == "CFD")
+    #expect(Kurszuordnung(journalSymbol: "X", quelle: "eigene", quellSymbol: "klein").quellSymbol == "klein")
+}
+
 // MARK: Beobachter
 
 /// Quelle ohne Netz: meldet „verbunden“ und dann feste Kurse für die abonnierten Symbole.
@@ -101,6 +110,45 @@ let aapl = Kurs(symbol: "AAPL", letzter: 230, zeit: empfangen, quelle: "alpaca")
     #expect(stand.verbindungen == ["kraken": .verbunden, "alpaca": .verbunden])
 }
 
+private struct BinanceTestquelle: Kursquelle {
+    let id = "binance"
+    let name = "Binance"
+    let verzoegerung = Verzoegerung.echtzeit
+    let hoechstzahlSymbole: Int? = 1
+    let antwortSymbol: String
+
+    func beobachte(_ symbole: [String]) -> AsyncStream<Quellereignis> {
+        #expect(symbole == ["BTCEUR"])
+        #expect(BinanceLeser.adresse(symbole).absoluteString.hasSuffix("streams=btceur@ticker"))
+        var leser = BinanceLeser()
+        let text = #"{"stream":"btceur@ticker","data":{"e":"24hrTicker","s":""# + antwortSymbol + #"","c":"58000"}}"#
+        let lesung = leser.lies(text, empfangen: empfangen)
+        return AsyncStream { fortsetzung in
+            for kurs in lesung.kurse { fortsetzung.yield(.kurs(kurs)) }
+            fortsetzung.finish()
+        }
+    }
+}
+
+@Test(arguments: ["BTCEUR", "btceur"])
+func binanceAltZuordnungenTeilenAboUndErhaltenAntwort(antwortSymbol: String) async throws {
+    // Decodieren umgeht den Initialisierer, wie bei bereits gespeicherten Zuordnungen.
+    let daten = Data(#"[{"journalSymbol":"btceur","quelle":"binance","quellSymbol":"btceur","naeherung":"CFD"},{"journalSymbol":"BTC/EUR","quelle":"binance","quellSymbol":"BTCEUR"}]"#.utf8)
+    let zuordnungen = try JSONDecoder().decode([Kurszuordnung].self, from: daten)
+    let beobachter = Kursbeobachter(quellen: [BinanceTestquelle(antwortSymbol: antwortSymbol)])
+    let plan = beobachter.plane(zuordnungen)
+    #expect(plan.abos["binance"]?.count == 1)
+    #expect(plan.abos["binance"]?["BTCEUR"]?.count == 2)
+    #expect(plan.ohneQuelle.isEmpty)
+    var stand = Kursstand()
+    for await ereignis in beobachter.beobachte(zuordnungen) { stand.uebernimm(ereignis) }
+    #expect(stand.kurse.count == 2)
+    #expect(stand.kurse["btceur"]?.kurs.preis == 58000)
+    #expect(stand.kurse["btceur"]?.naeherung == "CFD")
+    #expect(stand.kurse["BTC/EUR"]?.kurs.preis == 58000)
+    #expect(stand.ohneQuelle.isEmpty)
+}
+
 @Test func kursstandMeldetVeralteteKurse() {
     var stand = Kursstand()
     let verzoegert = Kurs(symbol: "SAP", letzter: 200, zeit: empfangen, quelle: "test", verzoegerung: .verzoegert(minuten: 15))
@@ -117,4 +165,15 @@ let aapl = Kurs(symbol: "AAPL", letzter: 230, zeit: empfangen, quelle: "alpaca")
     #expect(kurs.bewertungskurs(kaufposition: false) == 11)
     let nurBlatt = Kurs(symbol: "X", geld: 9, brief: 11, zeit: empfangen, quelle: "test")
     #expect(nurBlatt.preis == 10)
+}
+
+@Test func bewertungsalterOhneTeilzeitenBehaeltVerzoegerung() {
+    let kurs = Kurs(symbol: "X", letzter: 10, geld: 9, brief: 11, zeit: empfangen,
+                    quelle: "test", verzoegerung: .verzoegert(minuten: 15))
+    for kaufposition in [true, false] {
+        #expect(kurs.bewertungszeit(kaufposition: kaufposition) == empfangen)
+        #expect(kurs.alter(jetzt: empfangen.addingTimeInterval(930), kaufposition: kaufposition) == 930)
+        #expect(!kurs.istVeraltet(jetzt: empfangen.addingTimeInterval(930), kaufposition: kaufposition))
+        #expect(kurs.istVeraltet(jetzt: empfangen.addingTimeInterval(931), kaufposition: kaufposition))
+    }
 }

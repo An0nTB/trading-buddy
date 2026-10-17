@@ -51,7 +51,7 @@ final class Kursdienst {
         chartwerte = speicher.stringArray(forKey: Self.schluesselChartwerte) ?? []
         if let daten = speicher.data(forKey: Self.schluesselZuordnungen),
            let gespeichert = try? JSONDecoder().decode([Kurszuordnung].self, from: daten) {
-            eigene = gespeichert
+            eigene = gespeichert.map { $0.normalisiert() }
         } else {
             eigene = []
         }
@@ -80,7 +80,7 @@ final class Kursdienst {
 
     func setzeZuordnung(_ zuordnung: Kurszuordnung) {
         eigene.removeAll { $0.journalSymbol == zuordnung.journalSymbol }
-        eigene.append(zuordnung)
+        eigene.append(zuordnung.normalisiert())
         speichere()
         verwirfVerlauf(zuordnung.journalSymbol)
         neustart()
