@@ -132,7 +132,7 @@ import Testing
         let argumente = try probe.lies("bauargumente").split(separator: "\n").map(String.init)
         #expect(argumente.contains("MARKETING_VERSION=0.3.0"))
         #expect(argumente.contains("CURRENT_PROJECT_VERSION=42"))
-        #expect(argumente.contains(probe.repo.path + "/build/release-derived"))
+        #expect(argumente.contains(echterPfad(probe.repo) + "/build/release-derived"))
         #expect(FileManager.default.fileExists(atPath: probe.repo.appendingPathComponent("build/verteilung/Henry.app").path))
         for pfad in lokal { #expect(try probe.lies("Repo mit Leerzeichen/\(pfad)") == "nur lokal\n") }
     }
@@ -173,10 +173,12 @@ import Testing
             printf '%s\\n' "$@" > "$PRUEF_BASIS/notarargumente"
             echo '{"status":"Rejected"}'
             """, ausfuehrbar: true)
-        let erwartet = probe.repo.appendingPathComponent("build/notar.keychain-db").path
+        let gegeben = probe.repo.appendingPathComponent("build/notar.keychain-db").path
+        // Relativ löst das Skript gegen `$PWD` auf, und das ist unter macOS der echte Pfad (/private/var/…).
+        let erwartet = absolut ? gegeben : echterPfad(probe.repo) + "/build/notar.keychain-db"
         let ergebnis = try probe.lauf(["bash", "scripts/app_verpacken.sh"], zusaetze: [
             "PRUEF_NOTAR": "1", "GITHUB_ACTIONS": "true", "HENRY_SIGNIERUNG": "Testidentitaet",
-            "HENRY_NOTAR_PROFIL": "Testprofil", "HENRY_NOTAR_KEYCHAIN": absolut ? erwartet : "build/notar.keychain-db"
+            "HENRY_NOTAR_PROFIL": "Testprofil", "HENRY_NOTAR_KEYCHAIN": absolut ? gegeben : "build/notar.keychain-db"
         ])
         #expect(ergebnis.status == 1)
         let argumente = try probe.lies("notarargumente").split(separator: "\n").map(String.init)
@@ -189,3 +191,11 @@ import Testing
     }
 }
 #endif
+
+/// Echter Pfad ohne Symlinks wie `pwd -P`: Temporäre Ordner liegen unter /var, das auf /private/var zeigt;
+/// `resolvingSymlinksInPath` liefert dort die kurze Form, die Shell die lange.
+private func echterPfad(_ url: URL) -> String {
+    guard let echt = realpath(url.path, nil) else { return url.path }
+    defer { free(echt) }
+    return String(cString: echt)
+}
