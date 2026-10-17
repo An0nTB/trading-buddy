@@ -168,6 +168,39 @@ import TradingStore
 
     // MARK: E9 Statusdatei der Erweiterung
 
+    @Test func eingerichteterExportOhneVersionsnachweisWarntBeimUpgrade() throws {
+        // 0.18.1 schreibt keine Statusdatei; nach dem Upgrade darf das nicht als passend gelten.
+        let hinweis = try #require(Erweiterungsstatus.hinweis(
+            exportEingerichtet: true, stand: nil, gemeldet: nil))
+        #expect(hinweis == .ungeprueft)
+        #expect(Erweiterungsstatus.hinweis(
+            exportEingerichtet: true, stand: nil, gemeldet: hinweis.meldeschluessel) == nil)
+        #expect(Erweiterungsstatus.hinweis(
+            exportEingerichtet: true, stand: nil, gemeldet: "ungeprueft|0.26.1") == .ungeprueft)
+    }
+
+    @Test func ohneEingerichtetenExportKeinErweiterungshinweis() {
+        #expect(Erweiterungsstatus.hinweis(exportEingerichtet: false, stand: nil, gemeldet: nil) == nil)
+    }
+
+    @Test func passenderVersionsnachweisLoestUngeprueftenStandAb() {
+        let stand = Erweiterungsstand(erweiterung: "0.20.0")
+        #expect(Erweiterungsstatus.hinweis(
+            exportEingerichtet: true, stand: stand,
+            gemeldet: Erweiterungsstatus.Hinweis.ungeprueft.meldeschluessel) == nil)
+    }
+
+    @Test func abweichenderRechenkernWirdWeiterhinEinmalGemeldet() throws {
+        let stand = Erweiterungsstand(erweiterung: "0.20.0", rechenkern: "0.26.1")
+        let hinweis = try #require(Erweiterungsstatus.hinweis(
+            exportEingerichtet: true, stand: stand,
+            gemeldet: Erweiterungsstatus.Hinweis.ungeprueft.meldeschluessel))
+        #expect(hinweis == .abweichend(stand))
+        #expect(hinweis.meldeschluessel == stand.meldeschluessel)
+        #expect(Erweiterungsstatus.hinweis(
+            exportEingerichtet: true, stand: stand, gemeldet: hinweis.meldeschluessel) == nil)
+    }
+
     @Test func statusdateiVergleichtRechenkern() throws {
         let gleich = try Erweiterungsstand(erweiterung: "0.20.0", geschrieben: T.zeit(2026, 10, 17, 16)).json()
         let alt = Erweiterungsstand(erweiterung: "0.18.1", rechenkern: "0.26.1")
