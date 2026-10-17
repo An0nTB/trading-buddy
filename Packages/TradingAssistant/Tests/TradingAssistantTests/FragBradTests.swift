@@ -117,7 +117,8 @@ let september = FragBradKontext(konto: "XTB …1234", von: zeit("2026-09-01 00:0
 /// Erfundene Kennungen; echte Projekt-Kennungen gehören nicht ins Repo.
 @Test func codeProjektAusLinkOderKennung() throws {
     let id = "chan_01TESTPROJEKT00000000000"
-    for eingabe in [id, " https://claude.ai/code/project/\(id)?x=1 ", "claude://claude.ai/code/project/\(id)"] {
+    for eingabe in [id, " https://claude.ai/code/project/\(id)?x=1 ", "claude://claude.ai/code/project/\(id)",
+                    "claude.ai/code/project/\(id)/"] {
         #expect(FragBrad.projekt(eingabe) == .code(id))
     }
     let link = try #require(FragBrad.projekt(id)?.link)
@@ -139,6 +140,23 @@ let september = FragBradKontext(konto: "XTB …1234", von: zeit("2026-09-01 00:0
     for eingabe in ["", "   ", "kein Projekt", "https://claude.ai/project/", "chan_", "00000000-0000-4000-8000"] {
         #expect(FragBrad.projekt(eingabe) == nil)
     }
+}
+
+/// Codex-Befund: Nur Projektpfade und ganze Kennungen zählen, kein Chat-Link, kein Bruchstück, kein fremder Host.
+@Test func projektlinkStrengNachPfad() {
+    let uuid = "00000000-0000-4000-8000-000000000000"
+    let code = "chan_01TESTPROJEKT00000000000"
+    let falsch = [
+        "https://claude.ai/chat/\(uuid)", "claude://claude.ai/chat/\(uuid)", "chan_a", "chan_TEST",
+        "https://claude.ai/code/project/chan_a", "https://claude.ai/project/\(code)",
+        "https://claude.ai/code/project/\(uuid)", "https://example.com/project/\(uuid)",
+        "https://claude.ai/project/\(uuid)/chat", "siehe \(code)", "\(uuid)x",
+    ]
+    for eingabe in falsch {
+        #expect(FragBrad.projekt(eingabe) == nil, "\(eingabe)")
+    }
+    #expect(FragBrad.projekt("https://claude.ai/project/\(uuid)?tab=chats#oben") == .chat(uuid))
+    #expect(FragBrad.projekt("claude.ai/project/\(uuid)") == .chat(uuid))
 }
 
 @Test func kursanalyseBleibtOhneProjekt() {

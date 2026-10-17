@@ -178,4 +178,17 @@ import TradingStore
         #expect(alt.meldeschluessel != s1.meldeschluessel)
         #expect(alt.hinweistext.contains("0.26.1"))
     }
+
+    /// Fehlt die Statusdatei neben einem Export, meldet die App die Erweiterung als veraltet oder fehlend.
+    @Test func fehlendeStatusdateiNebenExportGiltAlsVeraltet() throws {
+        let gleich = try Erweiterungsstand(erweiterung: "0.20.0").json()
+        #expect(Erweiterungsstatus.befund(statusdaten: nil, exportVorhanden: false) == nil)
+        let fehlt = try #require(Erweiterungsstatus.befund(statusdaten: nil, exportVorhanden: true))
+        #expect(fehlt == .fehlt)
+        #expect(fehlt.verdientHinweis)
+        #expect(fehlt.meldeschluessel == "fehlt|\(TradingCore.version)")
+        let gemeldet = try #require(Erweiterungsstatus.befund(statusdaten: gleich, exportVorhanden: true))
+        #expect(!gemeldet.verdientHinweis)
+        #expect(Erweiterungsstatus.befund(statusdaten: Data("kaputt".utf8), exportVorhanden: true) == nil)
+    }
 }
