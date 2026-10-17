@@ -50,8 +50,12 @@ public struct Zeitraumbericht: Sendable {
     ///   - manuell: Trades, die im Journal als „nicht regeltreu“ markiert sind.
     ///   - kontowaehrung: alle Summen lauten darauf; Trades in anderer Währung rechnet `kurse` um
     ///     (`Waehrungsangleich`), ohne Kurs fehlen sie und zählen in `ohneKurs`.
+    ///   - setups, playbook, offene, jetzt: wie bei `Regelpruefung.pruefe`, damit der Bericht Setup-Grenzen,
+    ///     Haltedauer und offene Positionen prüft wie die App (Codex-Review 17.10.2026).
     public init(trades: [Trade], zeitraum: Zeitspanne, zeitzone: TimeZone, kontowaehrung: String,
                 regeln: Handelsregeln = Handelsregeln(), manuell: Set<String> = [],
+                setups: [String: String] = [:], playbook: [Setup] = [], offene: [OffenerTrade] = [],
+                jetzt: Date = Date(),
                 ziele: [Reviewziel] = [], notizen: [Tagesnotiz] = [], verpasst: [VerpassterTrade] = [],
                 geloeschteOrders: [Date] = [], kurse: Referenzkurse? = nil, musterAnzahl: Int = 3,
                 topAnzahl: Int = 3) {
@@ -68,7 +72,8 @@ public struct Zeitraumbericht: Sendable {
         tage = Self.tage(imZeitraum, zeitzone: zeitzone)
         // Regeln über alle Trades, auch die ohne Kurs (G1): Anzahl zählt, Betrag nicht.
         let ids = Set((imZeitraum + ohneKursImZeitraum).map(\.id))
-        regelverstoesse = Regelpruefung.pruefe(angleich, regeln: regeln, zeitzone: zeitzone, manuell: manuell)
+        regelverstoesse = Regelpruefung.pruefe(angleich, regeln: regeln, zeitzone: zeitzone, manuell: manuell,
+                                               setups: setups, playbook: playbook, offene: offene, jetzt: jetzt)
             .filter { ids.contains($0.trade) }
         propFirmVerstoesse = regeln.propFirm.map { PropFirmPruefung.pruefe(alle, regeln: $0).verstoesse }?
             .filter { ids.contains($0.trade) } ?? []

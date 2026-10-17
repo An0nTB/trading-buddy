@@ -141,7 +141,8 @@ extension AppModell {
         let verpasst = (try? journal?.verpassteTrades(von: zeitraum.von, bis: zeitraum.bis)) ?? []
         let bericht = Zeitraumbericht(trades: alleTrades, zeitraum: zeitraum, zeitzone: zeitzone,
                                       kontowaehrung: waehrung, regeln: regeln, manuell: manuellVerletzt,
-                                      ziele: ziele, notizen: notizen, verpasst: verpasst,
+                                      setups: setupsJeTicket, playbook: playbook, offene: offeneRegelpositionen,
+                                      jetzt: jetzt, ziele: ziele, notizen: notizen, verpasst: verpasst,
                                       geloeschteOrders: alleGeloeschten.map(\.cancelledAt), kurse: ezb.kurse)
         return (bericht, berichtKontext(zeitraum, art: art, titel: titel, zeitzone: zeitzone, jetzt: jetzt))
     }
@@ -153,7 +154,8 @@ extension AppModell {
         return BerichtKontext(art: art, zeitraum: zeitraum, erster: Journaltag(zeitraum.von, zeitzone: zeitzone),
                               letzter: Journaltag(zeitraum.bis.addingTimeInterval(-1), zeitzone: zeitzone), titel: titel,
                               konto: kontoText ?? String(localized: "Ohne Konto"), waehrung: waehrung,
-                              zeitzone: zeitzone, erstellt: jetzt, regelnHinterlegt: !regeln.leer,
+                              zeitzone: zeitzone, erstellt: jetzt,
+                              regelnHinterlegt: !regeln.leer || playbook.contains(where: \.hatRegelgrenze),
                               brokerFuehrtSteuerAb: brokerFuehrtSteuerAb, ezbBis: ezb.letzterTag,
                               anzeigewaehrung: summenwaehrung == waehrung.uppercased() ? nil : summenwaehrung)
     }

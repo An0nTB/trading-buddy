@@ -1,19 +1,64 @@
 import Foundation
 
 /// Eine noch offene Position für die Regelprüfung (E5, E6): aus dem Auszug oder von Hand eingetragen.
-public struct OffenerTrade: Sendable, Equatable {
+public struct OffenerTrade: Sendable, Equatable, Codable {
     /// Kennung wie bei den Trades (Ticket), für Verstöße und `setups`.
     public var id: String
     public var openTime: Date
     public var nurDatum: Bool
     /// Risiko in Kontowährung wie `Trade.risk` (Stop, sonst geplantes Risiko); `nil` zählt beim offenen Risiko nicht.
     public var risiko: Decimal?
+    /// Symbol, Richtung und Eröffnung wie `Trade.positionsschluessel`: Der offene Rest nach einem Teilverkauf gehört
+    /// zur selben Position wie der verkaufte Teil (Codex-Review 17.10.2026). `nil` zählt als eigene Position.
+    public var positionsschluessel: String?
 
-    public init(id: String, openTime: Date, nurDatum: Bool = false, risiko: Decimal? = nil) {
+    public init(id: String, openTime: Date, nurDatum: Bool = false, risiko: Decimal? = nil,
+                positionsschluessel: String? = nil) {
         self.id = id
         self.openTime = openTime
         self.nurDatum = nurDatum
         self.risiko = risiko
+        self.positionsschluessel = positionsschluessel
+    }
+
+    /// Offene Positionen eines Kontos für die Regelprüfung, in App und Export gleich (Tim 17.10.2026: auch von Hand
+    /// eingetragene): Positionen des letzten Auszugs, die noch nicht geschlossen importiert sind, offene Käufe aus
+    /// den Ausführungen und offene Hand-Trades. `risiko` je Ticket ist das Risiko aus dem Stop in Kontowährung,
+    /// sonst das wirksame geplante Risiko.
+    public static func sammle(auszug: [OpenPosition], kaeufe: [Ausfuehrung],
+                              hand: [(ticket: String, trade: ManuellerTrade)], geschlossen: Set<String>,
+                              geplant: (String) -> Decimal?) -> [OffenerTrade] {
+        let ausAuszug = auszug.filter { !geschlossen.contains($0.ticket) }.map { p in
+            OffenerTrade(id: p.ticket, openTime: p.openTime, risiko: stopRisiko(p) ?? geplant(p.ticket),
+                         positionsschluessel: Trade.positionsschluessel(symbol: p.symbol, side: p.side,
+                                                                        openTime: p.openTime))
+        }
+        // Symbol wie der verkaufte Teil in `Positionsbildung`: Name, sonst Kennung; Käufe sind immer `.buy`.
+        let ausKaeufen = kaeufe.map { k in
+            OffenerTrade(id: k.id, openTime: k.zeit, nurDatum: k.nurDatum, risiko: geplant(k.id),
+                         positionsschluessel: Trade.positionsschluessel(symbol: k.name.isEmpty ? k.kennung : k.name,
+                                                                        side: .buy, openTime: k.zeit))
+        }
+        let vonHand = hand.map { h in
+            OffenerTrade(id: h.ticket, openTime: h.trade.einstieg, risiko: stopRisiko(h.trade) ?? geplant(h.ticket))
+        }
+        return ausAuszug + ausKaeufen + vonHand
+    }
+
+    /// Verlust bis zum Stop einer Auszugsposition in Kontowährung, mit dem Wert je Kurspunkt aus dem Auszug selbst
+    /// (`OffeneBewertung`); 0, wenn der Stop schon im Gewinn liegt; `nil` ohne Stop oder ohne Kursbewegung.
+    public static func stopRisiko(_ p: OpenPosition) -> Decimal? {
+        guard let stop = p.stopLoss, stop > 0, let ergebnis = OffeneBewertung.bewerte(p, kurs: stop).brutto else {
+            return nil
+        }
+        return max(0, -ergebnis)
+    }
+
+    /// Risiko eines offenen Hand-Trades: Stop-Kurs vor eingetragenem Risiko wie `ManuellerTrade.stop`.
+    public static func stopRisiko(_ t: ManuellerTrade) -> Decimal? {
+        if let stop = t.stopKurs { return abs(t.einstiegskurs - stop) * t.groesse }
+        guard let risiko = t.risiko, risiko != 0 else { return nil }
+        return abs(risiko)
     }
 }
 
@@ -95,8 +140,18 @@ extension Regelpruefung {
                                            schluss: t.closeTime, risiko: risiko))
             }
         }
-        positionen += offene.map { Position(ids: [$0.id], openTime: $0.openTime, nurDatum: $0.nurDatum, schluss: nil,
-                                            risiko: $0.risiko ?? 0) }
+        // Der offene Rest einer teils verkauften Position gehört zu ihr: Sie ist dann noch offen.
+        for o in offene {
+            if let schluessel = o.positionsschluessel, let i = index[schluessel] {
+                positionen[i].ids.append(o.id)
+                positionen[i].schluss = nil
+                positionen[i].risiko += o.risiko ?? 0
+                continue
+            }
+            if let schluessel = o.positionsschluessel { index[schluessel] = positionen.count }
+            positionen.append(Position(ids: [o.id], openTime: o.openTime, nurDatum: o.nurDatum, schluss: nil,
+                                       risiko: o.risiko ?? 0))
+        }
         positionen.sort { ($0.openTime, $0.ids[0]) < ($1.openTime, $1.ids[0]) }
 
         var verstoesse: [Regelverstoss] = []

@@ -52,6 +52,9 @@ public struct Setup: Codable, Sendable, Equatable {
         self.pruefungNachTrades = pruefungNachTrades
     }
 
+    /// Hat die Karte eine Grenze für die Regelprüfung (E4, E5)? Dann zählt sie wie eigene Handelsregeln.
+    public var hatRegelgrenze: Bool { maxTradesJeTag != nil || haltedauer != nil }
+
     /// Schlüssel für den Vergleich mit dem Setup-Feld im Journal: ohne Leerraum am Rand, Kleinbuchstaben.
     public static func schluessel(_ name: String) -> String {
         name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()

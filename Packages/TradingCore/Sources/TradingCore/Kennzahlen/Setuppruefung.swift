@@ -33,6 +33,15 @@ public struct Setuppruefung: Sendable, Equatable, Codable {
         nichtBestanden = faellig && (k.erwartungswertR ?? 0) <= 0
     }
 
+    /// Trades eines Kontos für das Kill-Kriterium, in App und Export gleich (Codex-Review 17.10.2026): Trades in
+    /// fremder Währung zählen nach dem Angleich mit `kurse`; ohne Kurs zählen sie mit, aber nur mit R aus dem Stop,
+    /// denn das geplante Risiko steht in Kontowährung und gäbe gegen ein Ergebnis in anderer Währung ein falsches R.
+    /// - Parameter trades: mit Journal und geplantem Risiko (`Trade.mitGeplantemRisiko`) in Kontowährung.
+    public static func kontotrades(_ trades: [Trade], kontowaehrung: String, kurse: Referenzkurse?) -> [Trade] {
+        let angleich = Waehrungsangleich(trades, kontowaehrung: kontowaehrung, kurse: kurse)
+        return angleich.trades + angleich.ohneKurs.map { $0.mitGeplantemRisiko(nil) }
+    }
+
     /// Prüfstände aller Karten mit `pruefungNachTrades`, je Kontoart mit mindestens einem Trade.
     /// - Parameter konten: Trades je Konto mit Kontoart und Setup je Trade-ID (aus dem Journal).
     public static func berechne(playbook: [Setup],

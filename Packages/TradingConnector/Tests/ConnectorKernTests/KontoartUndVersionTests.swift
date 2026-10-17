@@ -166,3 +166,19 @@ private func mitPlaybook(_ export: JournalExport) throws -> JournalExport {
     #expect(r.maxMonatsverlust == nil && r.maxOffenesRisiko == nil && r.kontostand == nil)
     #expect(r.maxOffenePositionen == 2)
 }
+
+@Test func offenePositionenAusDerDateiZaehlenWieInDerApp() throws {
+    // Codex-Review 17.10.2026: Der Connector sah keine offenen Positionen und meldete „kein Verstoß“.
+    let geschlossen = [trade("g1", "2026-10-06", netto: 2)]
+    let offen = [OffenerTrade(id: "o1", openTime: zeit("2026-10-06T08:00:00"), risiko: 10),
+                 OffenerTrade(id: "o2", openTime: zeit("2026-10-07T08:00:00"), risiko: 10)]
+    let datei = JournalExport(konten: [.init(broker: "XTB", kontonummer: "501234", waehrung: "EUR", trades: geschlossen,
+                                             regeln: Handelsregeln(maxOffenePositionen: 1), offen: offen)],
+                              zeitzone: berlin, erstellt: zeit("2026-10-08T18:00:00"))
+    let anfrage = try Anfrage.lies(["monat": "2026-10"], export: try JournalExport.lese(try datei.json()))
+    // g1 wurde eröffnet, während o1 offen war; o2 kam zu o1 dazu.
+    #expect(anfrage.verstoesse(anfrage.konto.trades).map(\.trade) == ["g1"])
+    #expect(anfrage.offeneVerstoesse().map(\.trade) == ["o2"])
+    let text = anfrage.regelabschnitt(anfrage.auswertung().trades).joined(separator: "\n")
+    #expect(text.contains("1 von 2 offenen Positionen mit Verstoß (Offene Positionen)"))
+}
