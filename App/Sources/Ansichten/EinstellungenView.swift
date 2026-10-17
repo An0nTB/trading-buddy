@@ -257,6 +257,7 @@ struct ClaudeFelder: View {
                     .font(Schrift.beschriftung)
                     .foregroundStyle(thema.textSchwach)
             }
+            ClaudeProjektFeld() // Frag Henry im Claude-Projekt (Tim 17.10.2026)
             // Verbindungsprüfung (Beta-Punkte 17 und 18, AP12): neu schreiben und in Claude nachsehen.
             Button("Jetzt exportieren") { modell.exportiere() }
             Text("In Claude Desktop die Vorlage „Henry-Status“ wählen oder „Henry-Status“ schreiben: Claude meldet, ob die Erweiterung diesen Export liest.")

@@ -162,6 +162,15 @@ public enum FragBrad {
         return URL(string: "claude://claude.ai/new?q=" + kodiert)
     }
 
+    /// Claude-Projekt aus einem eingefügten Link oder einer Kennung; `nil`, wenn keine erkennbar ist.
+    public static func projekt(_ eingabe: String) -> ClaudeProjektziel? {
+        ClaudeProjektziel(eingabe)
+    }
+
+    /// Ob die Frage ins Claude-Projekt geht: alle Auswertungen eigener Trades, nicht die Kursanalyse eines Werts.
+    /// Die bleibt inkognito ohne Projekt (Entscheidung 02.10.2026, Doc 38).
+    public static func nutztProjekt(_ vorlage: FragBradVorlage) -> Bool { vorlage != .analyse }
+
     /// Eigene Frage ohne Ränder, auf `freitextGrenze` UTF-16-Einheiten gekürzt, nur an Zeichengrenzen
     /// (ein Emoji wird ganz übernommen oder ganz weggelassen).
     public static func bereinigt(_ freieFrage: String) -> String {
@@ -322,5 +331,43 @@ public enum FragBrad {
     private static func zwei(_ zahl: Int?) -> String {
         let wert = zahl ?? 0
         return wert < 10 ? "0\(wert)" : "\(wert)"
+    }
+}
+
+/// Ziel von „Frag Henry“ im Claude-Projekt (Tim 17.10.2026). Beide Links öffnen das Projekt ohne Frage: Mit `?q=`
+/// meldet Claude Desktop beim Code-Projekt „Projekt nicht gefunden“, `new?project=` setzt kein Projekt (von Tim am Mac
+/// geprüft); die Frage geht darum über die Zwischenablage. `claude://claude.ai/project/<uuid>` nennt die Anthropic-Hilfe
+/// „Open Claude Desktop with a link“ (Artikel 14729294).
+public enum ClaudeProjektziel: Equatable, Sendable {
+    /// Claude-Code-Projekt, Kennung `chan_…`.
+    case code(String)
+    /// Chat-Projekt, Kennung ist eine UUID (klein geschrieben).
+    case chat(String)
+
+    /// Liest Link (`https://claude.ai/code/project/chan_…`, `https://claude.ai/project/<uuid>`, dieselben mit
+    /// `claude://`) oder die Kennung allein. Eine `chan_`-Kennung geht vor einer UUID.
+    public init?(_ eingabe: String) {
+        if let bereich = eingabe.range(of: "chan_[A-Za-z0-9]+", options: .regularExpression) {
+            self = .code(String(eingabe[bereich]))
+            return
+        }
+        let uuid = "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"
+        guard let bereich = eingabe.range(of: uuid, options: .regularExpression) else { return nil }
+        self = .chat(eingabe[bereich].lowercased())
+    }
+
+    /// Die Kennung, wie sie gespeichert wird; `init` liest sie wieder.
+    public var kennung: String {
+        switch self {
+        case .code(let id), .chat(let id): id
+        }
+    }
+
+    /// Link zum Öffnen in Claude Desktop, ohne Frage.
+    public var link: URL? {
+        switch self {
+        case .code(let id): URL(string: "claude://claude.ai/code/project/" + id)
+        case .chat(let id): URL(string: "claude://claude.ai/project/" + id)
+        }
     }
 }
