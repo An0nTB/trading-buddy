@@ -61,7 +61,8 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: de.timbock.journal
         # App-Datei „Henry.app“, damit Dock und Finder „Henry“ zeigen (Tim 04.10.2026); Modulname bleibt für
-        # `@testable import Trading_Buddy`. Bundle-ID und Datenordner („Application Support/Trading Buddy“) bleiben.
+        # `@testable import Trading_Buddy`. Bundle-ID und Datenordner („Application Support/Trading Buddy“) bleiben;
+        # nur Debug hat eine eigene Bundle-ID (siehe `configs` unten).
         PRODUCT_NAME: Henry
         PRODUCT_MODULE_NAME: Trading_Buddy
         MARKETING_VERSION: "0.1.0"
@@ -80,6 +81,18 @@ targets:
         TARGETED_DEVICE_FAMILY: "1,2"
         "CODE_SIGN_ENTITLEMENTS[sdk=macosx*]": App/TradingBuddy-macOS.entitlements
         "ENABLE_HARDENED_RUNTIME[sdk=macosx*]": YES
+        # Sichtbarer Name, in App/Info.plist eingesetzt.
+        HENRY_ANZEIGENAME: Henry
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+      # Der Xcode-Bau (Debug) ist „Henry Dev“ mit eigener Bundle-ID (Tim 17.10.2026): eigener Sandbox-Container,
+      # also eigene Datenbank, Einstellungen, Export-Ordner und Schlüsselbund-Einträge. Ein Lauf aus Xcode fasst
+      # die Daten der installierten Henry nie an. Release (app_verpacken.sh) bleibt de.timbock.journal / „Henry“.
+      configs:
+        Debug:
+          PRODUCT_BUNDLE_IDENTIFIER: de.timbock.journal.dev
+          HENRY_ANZEIGENAME: Henry Dev
+          # Icon mit „Dev“ neben dem H (Tim 17.10.2026), erzeugt mit scripts/dev_icon_erzeugen.py.
+          ASSETCATALOG_COMPILER_APPICON_NAME: AppIconDev
     scheme: {}
   # Tests der App-Schicht (App/Tests, Swift Testing). Läuft in der App als Wirt, damit `@testable import`
   # die internen Typen sieht; nur macOS. Eigener CI-Job „App-Tests (macOS)“, Schema TradingBuddyTests.

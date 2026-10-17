@@ -32,6 +32,23 @@ if [ "$(uname)" != "Darwin" ]; then echo "Läuft nur auf dem Mac."; exit 1; fi
 command -v xcodegen >/dev/null || { echo "XcodeGen fehlt: brew install xcodegen"; exit 1; }
 if [ -n "$PROFIL" ] && [ -z "$IDENT" ]; then echo "Notarisierung braucht eine Developer-ID-Signierung (HENRY_SIGNIERUNG)."; exit 1; fi
 
+# Nur eingecheckter Code kommt in die App (Tim 17.10.2026): Geänderte oder neue Dateien in den Ordnern, aus
+# denen gebaut wird, brechen ab. So rutscht nichts Lokales (Testdateien, eigene Links) in eine Fassung.
+UNSAUBER="$(git status --porcelain --untracked-files=all -- App Packages Connector Config project.yml)"
+if [ -n "$UNSAUBER" ]; then
+    echo "Im Repo-Ordner gibt es nicht eingecheckte Änderungen. Verpackt wird nur ein sauberer Stand:"
+    echo "$UNSAUBER"
+    exit 1
+fi
+# Signierte Fassungen nur vom aktuellen main (Lehre 06.10.2026); in GitHub Actions entscheidet release.yml.
+if [ -n "$IDENT" ] && [ -z "${GITHUB_ACTIONS:-}" ]; then
+    git fetch -q origin +refs/heads/main:refs/remotes/origin/main
+    if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]; then
+        echo "HEAD ist $(git rev-parse --short HEAD), origin/main ist $(git rev-parse --short origin/main). Signiert wird nur der aktuelle main: git checkout main && git pull"
+        exit 1
+    fi
+fi
+
 # Version und Build-Nummer müssen bei jeder Fassung für Tester steigen (Doc 51, Abschnitt 6).
 VORGABE="${HENRY_VERSION:-}"
 if [ -n "$IDENT" ] && [ -z "$VORGABE" ]; then echo "Signierter Bau ohne HENRY_VERSION. Bitte eine neue Versionsnummer setzen, etwa HENRY_VERSION=0.2.0."; exit 1; fi
@@ -83,6 +100,14 @@ notarisieren() {
     fi
 }
 
+# Fertige Pakete der letzten Fassung und den Ordner alt/ nicht löschen, sondern nach build/verteilung-alt/<Zeit>
+# legen, ohne die .app, damit Spotlight nur eine Henry findet.
+if compgen -G "$ZIEL/*.dmg" > /dev/null || compgen -G "$ZIEL/*.mcpb" > /dev/null || [ -d "$ZIEL/alt" ]; then
+    ALT="build/verteilung-alt/$(date +%Y-%m-%d_%H%M%S)"
+    mkdir -p "$ALT"
+    for f in "$ZIEL"/*.dmg "$ZIEL"/*.zip "$ZIEL"/*.mcpb "$ZIEL"/SHA256SUMS.txt "$ZIEL"/alt; do if [ -e "$f" ]; then mv "$f" "$ALT/"; fi; done
+    echo "Vorige Pakete liegen in $ALT"
+fi
 rm -rf "$ZIEL" "$ABLEITUNG"
 mkdir -p "$ZIEL"
 
