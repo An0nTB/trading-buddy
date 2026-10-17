@@ -10,6 +10,46 @@ import AppKit
 /// mit dem eigenen. Weichen beide ab, rechnet Claude mit anderen Regeln als die App (Befund H1: Erweiterung 0.18.1,
 /// App 0.26.1).
 enum Erweiterungsstatus {
+    enum Hinweis: Equatable {
+        case ungeprueft
+        case abweichend(Erweiterungsstand)
+
+        var meldeschluessel: String {
+            switch self {
+            case .ungeprueft: "ungeprueft|\(TradingCore.version)"
+            case .abweichend(let stand): stand.meldeschluessel
+            }
+        }
+
+        var titel: LocalizedStringKey {
+            switch self {
+            case .ungeprueft: "Erweiterung ungeprüft"
+            case .abweichend: "Erweiterung passt nicht zur App"
+            }
+        }
+
+        var hinweistext: String {
+            switch self {
+            case .ungeprueft:
+                String(localized: "Die Version der Erweiterung „Henry“ in Claude Desktop konnte nicht geprüft werden. Eine ältere Erweiterung berücksichtigt möglicherweise die neuen Regeln und die Kontoart nicht. Ersetze sie in Claude Desktop unter Einstellungen › Erweiterungen durch die Datei „Henry-Connector“, die zu dieser App gehört.")
+            case .abweichend(let stand): stand.hinweistext
+            }
+        }
+    }
+
+    /// Ohne Versionsnachweis ist ein eingerichteter Connector ungeprüft; je Rechenkern einmal melden.
+    static func hinweis(exportEingerichtet: Bool, stand: Erweiterungsstand?, gemeldet: String?) -> Hinweis? {
+        guard exportEingerichtet else { return nil }
+        let hinweis: Hinweis
+        if let stand {
+            guard !stand.passtZurApp else { return nil }
+            hinweis = .abweichend(stand)
+        } else {
+            hinweis = .ungeprueft
+        }
+        return gemeldet == hinweis.meldeschluessel ? nil : hinweis
+    }
+
     #if os(macOS)
     /// Statusdatei aus dem gemerkten Export-Ordner, mit dessen Zugriffsrecht aus der Sandbox; `nil`, wenn sie fehlt
     /// (Erweiterung älter als 0.20.0 oder nie aufgerufen) oder unlesbar ist.
@@ -41,7 +81,7 @@ extension Erweiterungsstand {
 }
 
 extension View {
-    /// Hinweis beim Start, wenn die Erweiterung einen anderen Rechenkern meldet (E9); je Paar einmal.
+    /// Hinweis beim Start, wenn der Rechenkern der Erweiterung abweicht oder ungeprüft ist (E9).
     func erweiterungsHinweis() -> some View {
         modifier(ErweiterungsHinweis())
     }
@@ -50,18 +90,18 @@ extension View {
 struct ErweiterungsHinweis: ViewModifier {
     #if os(macOS)
     static let gemeldetSchluessel = "erweiterungsHinweisGemeldet"
-    @State private var status: Erweiterungsstand?
+    @State private var status: Erweiterungsstatus.Hinweis?
 
     func body(content: Content) -> some View {
         content
             .task {
-                guard ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil,
-                      let gelesen = Erweiterungsstatus.ausExportOrdner(), !gelesen.passtZurApp,
-                      UserDefaults.standard.string(forKey: Self.gemeldetSchluessel) != gelesen.meldeschluessel
-                else { return }
-                status = gelesen
+                guard ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil else { return }
+                status = Erweiterungsstatus.hinweis(
+                    exportEingerichtet: UserDefaults.standard.data(forKey: ExportOrdner.schluessel) != nil,
+                    stand: Erweiterungsstatus.ausExportOrdner(),
+                    gemeldet: UserDefaults.standard.string(forKey: Self.gemeldetSchluessel))
             }
-            .alert("Erweiterung passt nicht zur App", isPresented: sichtbar, presenting: status) { s in
+            .alert(status?.titel ?? "Erweiterung passt nicht zur App", isPresented: sichtbar, presenting: status) { s in
                 if let datei = Erweiterungsstatus.beiliegendeErweiterung {
                     Button("Erweiterung öffnen") {
                         NSWorkspace.shared.open(datei)
@@ -78,7 +118,7 @@ struct ErweiterungsHinweis: ViewModifier {
         Binding(get: { status != nil }, set: { if !$0, let status { gemeldet(status) } })
     }
 
-    private func gemeldet(_ s: Erweiterungsstand) {
+    private func gemeldet(_ s: Erweiterungsstatus.Hinweis) {
         UserDefaults.standard.set(s.meldeschluessel, forKey: Self.gemeldetSchluessel)
         status = nil
     }
