@@ -147,6 +147,62 @@ import TradingStore
         #expect(stufe(4) == .rot)
     }
 
+    @Test func gleicheEroeffnungszeitVerbindetKeineGetrenntenHandtickets() throws {
+        let m = try modell()
+        let erster = try speichere(entwurf(stunde: 9, offen: true), in: m)
+        let zweiter = try speichere(entwurf(stunde: 9, offen: true), in: m)
+        try m.speichereRegeln(Handelsregeln(maxOffenePositionen: 1))
+        #expect(erster != zweiter && m.offeneRegelpositionen.count == 2)
+        let verstoesse = m.verstoesse.filter { $0.art == .offenePositionen }
+        #expect(verstoesse.count == 1)
+        #expect(verstoesse.first?.trade == [erster, zweiter].sorted().last)
+    }
+
+    @Test func teilverkaufMitOffenemRestZaehltEinmal() throws {
+        let m = try modell()
+        let csv = T.scalable.replacingOccurrences(of: "-10;55,00;550,00", with: "-4;55,00;220,00")
+        _ = try m.importiereCSV(daten: Data(csv.utf8), dateiname: "appt-teilverkauf.csv",
+                                kontonummer: "TEST0000", kontoname: "Depot", waehrung: "EUR", zeitzone: T.berlin)
+        try m.speichereRegeln(Handelsregeln(maxOffenePositionen: 1))
+        #expect(m.alleTrades.count == 1 && m.offeneRegelpositionen.count == 1)
+        #expect(m.verstoesse.isEmpty)
+    }
+
+    @Test func ampelbezugZaehltDatumsschlussNichtVorMonatsbeginn() throws {
+        let zone = try #require(TimeZone(identifier: "America/New_York"))
+        let m = AppModell(journal: try Journal.imSpeicher(), nebenwirkungen: false, testZeitzone: zone)
+        let csv = T.scalable.replacingOccurrences(of: "2026-04-01", with: "2026-09-30")
+            .replacingOccurrences(of: "2026-04-02", with: "2026-10-01")
+            .replacingOccurrences(of: "15:00:00", with: "00:00:00")
+        _ = try m.importiereCSV(daten: Data(csv.utf8), dateiname: "appt-datum-regeln.csv",
+                                kontonummer: "TEST0000", kontoname: "Depot", waehrung: "EUR", zeitzone: T.utc)
+        try m.speichereRegeln(Handelsregeln(maxTagesverlustProzent: 1, maxMonatsverlustProzent: 1,
+                                            kontostand: Kontostandbezug(betrag: 1000, seit: T.zeit(2026, 9, 1))))
+        let stand = try #require(m.letzterTagesstand)
+        let bezug = m.ampelbezug(stand)
+        #expect(stand.netto == 48)
+        #expect(bezug.kontostand == 1000 && bezug.monatsstand == 1000)
+        #expect(bezug.monatsnetto == 48)
+    }
+
+    @Test func pdfBerichtNutztSetupgrenzenUndOffenePositionen() throws {
+        let m = try modell()
+        try speichere(entwurf(stunde: 8, offen: true, setup: "Swing"), in: m)
+        try speichere(entwurf(stunde: 9), in: m)
+        let zweiter = try speichere(entwurf(stunde: 10), in: m)
+        try m.speichereSetup(Setup(name: "Day-DE", maxTradesJeTag: 1))
+        let nurSetup = m.monatsbericht(T.zeit(2026, 3, 2), jetzt: T.zeit(2026, 3, 3))
+        #expect(nurSetup.kontext.regelnHinterlegt)
+        #expect(nurSetup.bericht.regelverstoesse.map(\.trade) == [zweiter])
+        #expect(nurSetup.bericht.disziplin.regeltreu == 1 && nurSetup.bericht.disziplin.verletzt == 1)
+        try m.speichereRegeln(Handelsregeln(maxOffenePositionen: 1, maxOffenesRisiko: 75))
+        let b = m.monatsbericht(T.zeit(2026, 3, 2), jetzt: T.zeit(2026, 3, 3)).bericht
+        #expect(b.anzahl(.tradesJeSetup) == 1)
+        #expect(b.anzahl(.offenePositionen) == 2 && b.anzahl(.offenesRisiko) == 2)
+        #expect(b.regelverstoesse == m.verstoesse)
+        #expect(b.disziplin.verletzt == 2 && b.disziplin.regeltreu == 0)
+    }
+
     // MARK: E7 Kill-Kriterium
 
     /// Zwei Day-DE-Trades bei Prüfung nach 2: fällig, Erwartungswert −1,02 R (−51 bei 50 Risiko), nicht bestanden.

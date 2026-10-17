@@ -98,6 +98,11 @@ public struct Trade: Sendable, Equatable, Identifiable {
     /// Trades mit diesem Schlüssel und zählen für „Trades je Tag“ als einer. Ohne Uhrzeit fallen zwei
     /// getrennte Käufe desselben Werts am selben Tag zusammen (Näherung).
     var positionsschluessel: String {
+        Self.positionsschluessel(symbol: symbol, side: side, openTime: openTime)
+    }
+
+    /// Gemeinsame Kennung für abgeschlossene Teile und den offenen Rest derselben Eröffnung.
+    public static func positionsschluessel(symbol: String, side: Side, openTime: Date) -> String {
         "\(symbol)|\(side)|\(openTime.timeIntervalSinceReferenceDate)"
     }
 

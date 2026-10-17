@@ -35,7 +35,9 @@ public enum Regelpruefung {
         let karten = Dictionary(playbook.map { (Setup.schluessel($0.name), $0) }, uniquingKeysWith: { erste, _ in erste })
         func karte(_ id: String) -> Setup? { setups[id].flatMap { karten[Setup.schluessel($0)] } }
         let mitBetrag = trades.filter { !ohneBetrag.contains($0.id) }
-        func stand(_ zeit: Date) -> Decimal? { regeln.kontostand?.stand(bei: zeit, trades: mitBetrag) }
+        func stand(_ zeit: Date) -> Decimal? {
+            regeln.kontostand?.stand(bei: zeit, trades: mitBetrag, zeitzone: zeitzone)
+        }
         var verstoesse: [Regelverstoss] = []
 
         for tag in jeTag.keys.sorted() {

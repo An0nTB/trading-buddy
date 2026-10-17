@@ -48,13 +48,17 @@ public struct Zeitraumbericht: Sendable {
     ///   - trades: alle Trades des Kontos, auch außerhalb der Spanne (Vorzeitraum, Steuerjahr).
     ///   - zeitraum: etwa `Zeitspanne.woche(mit:zeitzone:)` oder `Zeitspanne.kalenderwoche(jahr:woche:zeitzone:)`.
     ///   - manuell: Trades, die im Journal als „nicht regeltreu“ markiert sind.
+    ///   - setups: Setup-Zuordnungen des ganzen Kontos; die Grenzen stehen in `playbook`.
+    ///   - offene: offene Positionen für die gemeinsame Regelprüfung; gezählt bleiben Verstöße an
+    ///     abgeschlossenen Trades der Spanne.
     ///   - kontowaehrung: alle Summen lauten darauf; Trades in anderer Währung rechnet `kurse` um
     ///     (`Waehrungsangleich`), ohne Kurs fehlen sie und zählen in `ohneKurs`.
     public init(trades: [Trade], zeitraum: Zeitspanne, zeitzone: TimeZone, kontowaehrung: String,
                 regeln: Handelsregeln = Handelsregeln(), manuell: Set<String> = [],
                 ziele: [Reviewziel] = [], notizen: [Tagesnotiz] = [], verpasst: [VerpassterTrade] = [],
                 geloeschteOrders: [Date] = [], kurse: Referenzkurse? = nil, musterAnzahl: Int = 3,
-                topAnzahl: Int = 3) {
+                topAnzahl: Int = 3, setups: [String: String] = [:], playbook: [Setup] = [],
+                offene: [OffenerTrade] = [], jetzt: Date = Date()) {
         self.zeitraum = zeitraum
         // Kurstag in deutscher Zeit wie überall (G6); die Zeitzone des Nutzers gilt nur für Tage und Regeln.
         let angleich = Waehrungsangleich(trades, kontowaehrung: kontowaehrung, kurse: kurse)
@@ -68,7 +72,8 @@ public struct Zeitraumbericht: Sendable {
         tage = Self.tage(imZeitraum, zeitzone: zeitzone)
         // Regeln über alle Trades, auch die ohne Kurs (G1): Anzahl zählt, Betrag nicht.
         let ids = Set((imZeitraum + ohneKursImZeitraum).map(\.id))
-        regelverstoesse = Regelpruefung.pruefe(angleich, regeln: regeln, zeitzone: zeitzone, manuell: manuell)
+        regelverstoesse = Regelpruefung.pruefe(angleich, regeln: regeln, zeitzone: zeitzone, manuell: manuell,
+                                              setups: setups, playbook: playbook, offene: offene, jetzt: jetzt)
             .filter { ids.contains($0.trade) }
         propFirmVerstoesse = regeln.propFirm.map { PropFirmPruefung.pruefe(alle, regeln: $0).verstoesse }?
             .filter { ids.contains($0.trade) } ?? []

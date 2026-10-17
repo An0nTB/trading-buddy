@@ -8,12 +8,16 @@ public struct OffenerTrade: Sendable, Equatable {
     public var nurDatum: Bool
     /// Risiko in Kontowährung wie `Trade.risk` (Stop, sonst geplantes Risiko); `nil` zählt beim offenen Risiko nicht.
     public var risiko: Decimal?
+    /// Gemeinsame Kennung mit geschlossenen Teilen (`Trade.positionsschluessel`); ohne Angabe eigene Position.
+    public var positionsschluessel: String?
 
-    public init(id: String, openTime: Date, nurDatum: Bool = false, risiko: Decimal? = nil) {
+    public init(id: String, openTime: Date, nurDatum: Bool = false, risiko: Decimal? = nil,
+                positionsschluessel: String? = nil) {
         self.id = id
         self.openTime = openTime
         self.nurDatum = nurDatum
         self.risiko = risiko
+        self.positionsschluessel = positionsschluessel
     }
 }
 
@@ -68,47 +72,71 @@ extension Regelpruefung {
 
     /// Offene Positionen und offenes Risiko (E6) beim Einstieg: Gezählt werden die Positionen, die vorher eröffnet
     /// wurden und zu diesem Zeitpunkt noch offen waren, dazu die neue. Teilverkäufe sind eine Position; ihr
-    /// Risiko ist die Summe der Teile. Alle Teile einer Position bekommen den Verstoß.
+    /// Risiko ist die Summe der dann noch offenen Teile. Alle Teile einer Position bekommen den Verstoß.
     static func offenVerstoesse(_ nachEroeffnung: [Trade], offene: [OffenerTrade], regeln: Handelsregeln,
                                 kalender: Calendar, ohneBetrag: Set<String>,
                                 stand: (Date) -> Decimal?) -> [Regelverstoss] {
         guard regeln.maxOffenePositionen != nil || regeln.maxOffenesRisiko != nil
                 || regeln.maxOffenesRisikoProzent != nil else { return [] }
+        struct Teil {
+            var schluss: Date?
+            var nurDatum: Bool
+            var risiko: Decimal
+
+            func offen(bei zeit: Date, nurDatum: Bool, kalender: Calendar) -> Bool {
+                guard let schluss else { return true }
+                if self.nurDatum || nurDatum {
+                    return Trade.tagesbeginn(schluss, nurDatum: self.nurDatum, kalender: kalender)
+                        >= Trade.tagesbeginn(zeit, nurDatum: nurDatum, kalender: kalender)
+                }
+                return schluss > zeit
+            }
+        }
         struct Position {
             var ids: [String]
             var openTime: Date
             var nurDatum: Bool
-            var schluss: Date?
-            var risiko: Decimal
+            var teile: [Teil]
         }
         var positionen: [Position] = []
         var index: [String: Int] = [:]
         for t in nachEroeffnung {
             let risiko = ohneBetrag.contains(t.id) ? 0 : (t.risk ?? 0)
+            let teil = Teil(schluss: t.closeTime, nurDatum: t.nurDatum, risiko: risiko)
             if let i = index[t.positionsschluessel] {
                 positionen[i].ids.append(t.id)
-                positionen[i].schluss = max(positionen[i].schluss!, t.closeTime)
-                positionen[i].risiko += risiko
+                positionen[i].teile.append(teil)
             } else {
                 index[t.positionsschluessel] = positionen.count
                 positionen.append(Position(ids: [t.id], openTime: t.openTime, nurDatum: t.nurDatum,
-                                           schluss: t.closeTime, risiko: risiko))
+                                           teile: [teil]))
             }
         }
-        positionen += offene.map { Position(ids: [$0.id], openTime: $0.openTime, nurDatum: $0.nurDatum, schluss: nil,
-                                            risiko: $0.risiko ?? 0) }
+        for o in offene {
+            let schluessel = o.positionsschluessel ?? "offen:\(o.id)"
+            let teil = Teil(schluss: nil, nurDatum: o.nurDatum, risiko: ohneBetrag.contains(o.id) ? 0 : (o.risiko ?? 0))
+            // Nur einen Rest mit geschlossenen Teilen verbinden; getrennte offene Käufe bleiben eigenständig.
+            if let i = index.removeValue(forKey: schluessel) {
+                positionen[i].ids.append(o.id)
+                positionen[i].teile.append(teil)
+            } else {
+                positionen.append(Position(ids: [o.id], openTime: o.openTime, nurDatum: o.nurDatum, teile: [teil]))
+            }
+        }
         positionen.sort { ($0.openTime, $0.ids[0]) < ($1.openTime, $1.ids[0]) }
 
         var verstoesse: [Regelverstoss] = []
         for (n, p) in positionen.enumerated() {
             // Sortiert nach Eröffnung: Alle davor sind nicht später eröffnet; offen ist, wer erst danach schloss.
-            let offenDabei = positionen[..<n].filter { ($0.schluss ?? .distantFuture) > p.openTime }
+            let offeneTeile = positionen[..<n].map { vorher in
+                vorher.teile.filter { $0.offen(bei: p.openTime, nurDatum: p.nurDatum, kalender: kalender) }
+            }.filter { !$0.isEmpty }
             let tag = Trade.tagesbeginn(p.openTime, nurDatum: p.nurDatum, kalender: kalender)
             var arten: [Regelverstoss.Art] = []
-            if let max = regeln.maxOffenePositionen, offenDabei.count >= max { arten.append(.offenePositionen) }
+            if let max = regeln.maxOffenePositionen, offeneTeile.count >= max { arten.append(.offenePositionen) }
             if let max = Handelsregeln.grenze(betrag: regeln.maxOffenesRisiko, prozent: regeln.maxOffenesRisikoProzent,
                                               stand: stand(tag)),
-               offenDabei.map(\.risiko).reduce(p.risiko, +) > max {
+               (offeneTeile.flatMap { $0 } + p.teile).map(\.risiko).reduce(0, +) > max {
                 arten.append(.offenesRisiko)
             }
             for art in arten { verstoesse += p.ids.map { Regelverstoss(art: art, trade: $0, tag: tag) } }

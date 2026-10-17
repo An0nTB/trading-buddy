@@ -131,3 +131,18 @@ private func export(regeln: Handelsregeln? = nil, mitKurs: Bool = false) throws 
     #expect(Rezept.wochenvorlage(datum: "", heute: zeit("2026-01-05T06:00:00"), zeitzone: berlin).contains("kw=2026-W01"))
     #expect(Rezept.wochenvorlage(datum: "2025-05-14").contains("woche=2025-05-14"))
 }
+
+@Test func connectorBerichtReichtSetupregelnInBeidenWaehrungspfadenWeiter() throws {
+    let trades = [trade("S1", "2025-05-06T10:00:00", netto: 10, waehrung: "USD"),
+                  trade("S2", "2025-05-06T12:00:00", netto: 20, waehrung: "USD")]
+    let datei = JournalExport(konten: [.init(broker: "Test", kontonummer: "TEST0000", waehrung: "EUR",
+                                             trades: trades, journal: ["S1": Journalangaben(setup: "Day"),
+                                                                       "S2": Journalangaben(setup: "Day")])],
+                              zeitzone: berlin, playbook: [.init(Setup(name: "Day", maxTradesJeTag: 1))])
+    for waehrung in ["EUR", "USD"] {
+        let anfrage = try Anfrage.lies(["kw": "2025-W19", "waehrung": waehrung], export: datei)
+        let b = anfrage.bericht()
+        #expect(b.anzahl(.tradesJeSetup) == 1 && b.regelverstoesse.map(\.trade) == ["S2"])
+        #expect(b.disziplin.verletzt == 1 && b.disziplin.regeltreu == 1)
+    }
+}

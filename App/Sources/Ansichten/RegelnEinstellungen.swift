@@ -78,7 +78,7 @@ struct RegelnEinstellungen: View {
 
     /// Kontostand von heute aus dem eingetragenen Stand und den Ergebnissen danach, in Kontowährung.
     private var standHeute: Decimal? {
-        entwurf.kontostand?.stand(bei: Date(), trades: modell.angleich.trades)
+        entwurf.kontostand?.stand(bei: Date(), trades: modell.angleich.trades, zeitzone: modell.zeitzone)
     }
 
     private func prozentAbschnitt(waehrung: String) -> some View {

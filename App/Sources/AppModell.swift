@@ -842,7 +842,9 @@ final class AppModell {
                          risiko: Self.stopRisiko(p) ?? quellen.wirksam(ticket: p.ticket)?.betrag)
         }
         let kaeufe = positionsbildung.offen.map { k in
-            OffenerTrade(id: k.id, openTime: k.zeit, nurDatum: k.nurDatum, risiko: quellen.wirksam(ticket: k.id)?.betrag)
+            OffenerTrade(id: k.id, openTime: k.zeit, nurDatum: k.nurDatum, risiko: quellen.wirksam(ticket: k.id)?.betrag,
+                         positionsschluessel: Trade.positionsschluessel(symbol: k.name.isEmpty ? k.kennung : k.name,
+                                                                        side: k.seite, openTime: k.zeit))
         }
         let hand = offeneHandpositionen.map { h in
             OffenerTrade(id: h.ticket, openTime: h.trade.einstieg,
@@ -874,8 +876,8 @@ final class AppModell {
         let mitBetrag = angleich.trades
         let monatsbeginn = monatsanfang(stand.tag, kalender)
         var bezug = Ampelbezug()
-        bezug.kontostand = regeln.kontostand?.stand(bei: stand.tag, trades: mitBetrag)
-        bezug.monatsstand = regeln.kontostand?.stand(bei: monatsbeginn, trades: mitBetrag)
+        bezug.kontostand = regeln.kontostand?.stand(bei: stand.tag, trades: mitBetrag, zeitzone: zeitzone)
+        bezug.monatsstand = regeln.kontostand?.stand(bei: monatsbeginn, trades: mitBetrag, zeitzone: zeitzone)
         bezug.monatsnetto = mitBetrag.filter { t in
             let schluss = t.schlusstag(kalender)
             return schluss >= monatsbeginn && schluss <= stand.tag
@@ -893,7 +895,8 @@ final class AppModell {
         bezug.haltedauerAktiv = playbook.contains { $0.haltedauer != nil }
         let offene = offeneRegelpositionen
         bezug.offene = offene
-        bezug.standHeute = regeln.kontostand?.stand(bei: kalender.startOfDay(for: Date()), trades: mitBetrag)
+        bezug.standHeute = regeln.kontostand?.stand(bei: kalender.startOfDay(for: Date()), trades: mitBetrag,
+                                                  zeitzone: zeitzone)
         let offenIDs = Set(offene.map(\.id))
         bezug.offeneVerstoesse = verstoesse.filter { offenIDs.contains($0.trade) }
         return bezug

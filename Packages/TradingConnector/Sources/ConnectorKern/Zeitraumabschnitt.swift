@@ -13,12 +13,15 @@ extension Anfrage {
         guard inKontowaehrung else {
             return Zeitraumbericht(trades: konto.trades, zeitraum: zeitraum, zeitzone: zeitzone,
                                    kontowaehrung: konto.waehrung, regeln: regeln, manuell: manuellVerletzt,
-                                   ziele: konto.ziele, geloeschteOrders: konto.geloeschteOrders, musterAnzahl: .max)
+                                   ziele: konto.ziele, geloeschteOrders: konto.geloeschteOrders, musterAnzahl: .max,
+                                   setups: konto.journal.compactMapValues(\.setup),
+                                   playbook: (export.playbook ?? []).map(\.setupRegeln))
         }
         return Zeitraumbericht(trades: alleTrades, zeitraum: zeitraum, zeitzone: zeitzone,
                                kontowaehrung: konto.waehrung, regeln: regeln, manuell: manuellVerletzt,
                                ziele: konto.ziele, geloeschteOrders: konto.geloeschteOrders, kurse: angleichskurse,
-                               musterAnzahl: .max)
+                               musterAnzahl: .max, setups: konto.journal.compactMapValues(\.setup),
+                               playbook: (export.playbook ?? []).map(\.setupRegeln))
     }
 
     /// Antwortet die Anfrage in der Kontowährung? Nur dann gelten Prop-Firm-Grenzen und Steuer-Orientierung.

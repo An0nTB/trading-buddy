@@ -139,10 +139,14 @@ extension AppModell {
         let letzter = Journaltag(zeitraum.bis.addingTimeInterval(-1), zeitzone: zeitzone)
         let notizen = (try? journal?.tagesnotizen(von: erster, bis: letzter)) ?? []
         let verpasst = (try? journal?.verpassteTrades(von: zeitraum.von, bis: zeitraum.bis)) ?? []
-        let bericht = Zeitraumbericht(trades: alleTrades, zeitraum: zeitraum, zeitzone: zeitzone,
+        let quellen = risikoquellen
+        let trades = alleTrades.map { $0.mitGeplantemRisiko(quellen.wirksam(ticket: $0.id)?.betrag) }
+        let bericht = Zeitraumbericht(trades: trades, zeitraum: zeitraum, zeitzone: zeitzone,
                                       kontowaehrung: waehrung, regeln: regeln, manuell: manuellVerletzt,
                                       ziele: ziele, notizen: notizen, verpasst: verpasst,
-                                      geloeschteOrders: alleGeloeschten.map(\.cancelledAt), kurse: ezb.kurse)
+                                      geloeschteOrders: alleGeloeschten.map(\.cancelledAt), kurse: ezb.kurse,
+                                      setups: setupsJeTicket, playbook: playbook, offene: offeneRegelpositionen,
+                                      jetzt: jetzt)
         return (bericht, berichtKontext(zeitraum, art: art, titel: titel, zeitzone: zeitzone, jetzt: jetzt))
     }
 
@@ -153,7 +157,10 @@ extension AppModell {
         return BerichtKontext(art: art, zeitraum: zeitraum, erster: Journaltag(zeitraum.von, zeitzone: zeitzone),
                               letzter: Journaltag(zeitraum.bis.addingTimeInterval(-1), zeitzone: zeitzone), titel: titel,
                               konto: kontoText ?? String(localized: "Ohne Konto"), waehrung: waehrung,
-                              zeitzone: zeitzone, erstellt: jetzt, regelnHinterlegt: !regeln.leer,
+                              zeitzone: zeitzone, erstellt: jetzt,
+                              regelnHinterlegt: !regeln.leer || playbook.contains {
+                                  $0.maxTradesJeTag != nil || $0.haltedauer != nil
+                              },
                               brokerFuehrtSteuerAb: brokerFuehrtSteuerAb, ezbBis: ezb.letzterTag,
                               anzeigewaehrung: summenwaehrung == waehrung.uppercased() ? nil : summenwaehrung)
     }

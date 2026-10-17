@@ -45,14 +45,16 @@ public struct Monatsbericht: Sendable {
                  regeln: Handelsregeln = Handelsregeln(), manuell: Set<String> = [],
                  ziele: [Reviewziel] = [], notizen: [Tagesnotiz] = [], verpasst: [VerpassterTrade] = [],
                  geloeschteOrders: [Date] = [], kurse: Referenzkurse? = nil, musterAnzahl: Int = 3,
-                 topAnzahl: Int = 3) {
+                 topAnzahl: Int = 3, setups: [String: String] = [:], playbook: [Setup] = [],
+                 offene: [OffenerTrade] = [], jetzt: Date = Date()) {
         guard let zeitraum = Zeitspanne.monat(jahr: jahr, monat: monat, zeitzone: zeitzone) else { return nil }
         self.jahr = jahr
         self.monat = monat
         bericht = Zeitraumbericht(trades: trades, zeitraum: zeitraum, zeitzone: zeitzone,
                                   kontowaehrung: kontowaehrung, regeln: regeln, manuell: manuell, ziele: ziele,
                                   notizen: notizen, verpasst: verpasst, geloeschteOrders: geloeschteOrders,
-                                  kurse: kurse, musterAnzahl: musterAnzahl, topAnzahl: topAnzahl)
+                                  kurse: kurse, musterAnzahl: musterAnzahl, topAnzahl: topAnzahl,
+                                  setups: setups, playbook: playbook, offene: offene, jetzt: jetzt)
     }
 
     /// Anzahl der Verstöße einer Art im Monat.

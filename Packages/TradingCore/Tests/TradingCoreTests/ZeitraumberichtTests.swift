@@ -91,3 +91,48 @@ private let wocheBerlin = TimeZone(identifier: "Europe/Berlin")!
     let ohneGrenze = Zeitraumbericht(trades: trades, zeitraum: spanne, zeitzone: wocheBerlin, kontowaehrung: "EUR")
     #expect(!ohneGrenze.auswertung.befunde.contains { $0.muster == .ueberhandeln })
 }
+
+@Test func berichtReichtSetupgrenzenBisZurDisziplinWeiter() throws {
+    let spanne = try #require(Zeitspanne.monat(jahr: 2026, monat: 3, zeitzone: wocheBerlin))
+    let trades = Array(wocheTrades[1...2])
+    let setups = ["W2": "Day-DE", "W3": "day-de "]
+    let playbook = [Setup(name: "Day-DE", maxTradesJeTag: 1)]
+    let b = Zeitraumbericht(trades: trades, zeitraum: spanne, zeitzone: wocheBerlin, kontowaehrung: "EUR",
+                            setups: setups, playbook: playbook)
+    #expect(b.regelverstoesse == Regelpruefung.pruefe(trades, regeln: Handelsregeln(), zeitzone: wocheBerlin,
+                                                     setups: setups, playbook: playbook))
+    #expect(b.anzahl(.tradesJeSetup) == 1 && b.regelverstoesse.map(\.trade) == ["W3"])
+    #expect(b.disziplin.regeltreu == 1 && b.disziplin.verletzt == 1)
+    #expect(b.disziplin.quote == Decimal(string: "0.5"))
+    #expect(b.disziplin.nettoVerletzt == -60)
+    let monat = try #require(Monatsbericht(trades: trades, jahr: 2026, monat: 3, zeitzone: wocheBerlin,
+                                           kontowaehrung: "EUR", setups: setups, playbook: playbook))
+    #expect(monat.regelverstoesse == b.regelverstoesse && monat.disziplin == b.disziplin)
+}
+
+@Test func berichtBeruecksichtigtOffenePositionVorDerSpanne() throws {
+    let spanne = try #require(Zeitspanne.monat(jahr: 2026, monat: 3, zeitzone: wocheBerlin))
+    let offen = [OffenerTrade(id: "Offen", openTime: wocheZeit("2026-02-25T09:00:00Z"), risiko: 40)]
+    let trades = [wocheTrades[1].mitGeplantemRisiko(20)]
+    let regeln = Handelsregeln(maxOffenePositionen: 1, maxOffenesRisiko: 50)
+    let b = Zeitraumbericht(trades: trades, zeitraum: spanne, zeitzone: wocheBerlin, kontowaehrung: "EUR",
+                            regeln: regeln, offene: offen)
+    #expect(b.anzahl(.offenePositionen) == 1 && b.anzahl(.offenesRisiko) == 1)
+    #expect(Set(b.regelverstoesse.map(\.trade)) == ["W2"])
+    #expect(b.disziplin.verletzt == 1 && b.disziplin.regeltreu == 0)
+    let monat = try #require(Monatsbericht(trades: trades, jahr: 2026, monat: 3, zeitzone: wocheBerlin,
+                                           kontowaehrung: "EUR", regeln: regeln, offene: offen))
+    #expect(monat.regelverstoesse == b.regelverstoesse && monat.disziplin == b.disziplin)
+}
+
+@Test func berichtSetupgrenzeZaehltAuchTradesOhneUmrechnungskurs() throws {
+    let spanne = try #require(Zeitspanne.monat(jahr: 2026, monat: 3, zeitzone: wocheBerlin))
+    var fremd = wocheTrades[1]
+    fremd.waehrung = "USD"
+    let b = Zeitraumbericht(trades: [fremd, wocheTrades[2]], zeitraum: spanne, zeitzone: wocheBerlin,
+                            kontowaehrung: "EUR", setups: ["W2": "Day", "W3": "Day"],
+                            playbook: [Setup(name: "Day", maxTradesJeTag: 1)])
+    #expect(b.ohneKurs == 1 && b.anzahl(.tradesJeSetup) == 1)
+    #expect(b.disziplin.regeltreu == 1 && b.disziplin.verletzt == 1)
+    #expect(b.disziplin.nettoRegeltreu == 0 && b.disziplin.nettoVerletzt == -60)
+}
