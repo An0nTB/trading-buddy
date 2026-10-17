@@ -99,6 +99,10 @@ jobs:
         run: python3 scripts/token_pruefen.py
       - name: Kontrast der gezeichneten Farbpaare prüfen (mindestens 4,5:1)
         run: python3 scripts/kontrast_pruefen.py
+      # Läuft in diesem Pflicht-Check, weil er bei jedem PR läuft: keine echten Broker-Dateien, E-Mail-Adressen,
+      # IBAN oder Claude-Projektkennungen im öffentlichen Repo (Tim 17.10.2026).
+      - name: Keine echten Daten im Repo
+        run: python3 scripts/daten_pruefen.py
 
   app:
     name: App (macOS und iOS-Simulator)
@@ -113,6 +117,12 @@ jobs:
         run: xcodegen generate
       - name: Bauen für macOS
         run: xcodebuild -project TradingBuddy.xcodeproj -scheme TradingBuddy -destination 'generic/platform=macOS' -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
+      # Der Xcode-Bau ist „Henry Dev“ mit eigener Bundle-ID, damit er die Daten der installierten Henry nie berührt.
+      - name: Debug-Bau heißt Henry Dev
+        run: |
+          PLIST="$(find build/Build/Products -maxdepth 2 -name '*.app' | head -1)/Contents/Info.plist"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$PLIST")" = de.timbock.journal.dev
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleDisplayName' "$PLIST")" = "Henry Dev"
       # Bauen allein findet keine Abstürze beim Start (#63). Drei Starts mit leerem Zuhause,
       # je acht Sekunden; beendet sich die App vorher, ist der Job rot und das Protokoll steht im Log.
       - name: Startprobe macOS (drei Starts)

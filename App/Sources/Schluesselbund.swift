@@ -7,9 +7,12 @@ import TradingQuotes
 /// Dienste (Marketaux, Doc 26). Die Ablage ist austauschbar (Paket A7): Ohne Angabe der Schlüsselbund des
 /// Systems, in den App-Tests `SpeicherSchluesselablage`. Die statischen Kurzformen nutzen immer das System.
 struct Schluesselbund: AlpacaSchluesselquelle {
-    static let dienst = "de.timbock.journal.alpaca"
+    /// Vorsatz der Dienstnamen ist die Bundle-ID: in Henry `de.timbock.journal` (Einträge wie bisher), im
+    /// Xcode-Bau „Henry Dev“ `de.timbock.journal.dev`, damit Tests dort nie die echten Schlüssel berühren.
+    static let vorsatz = Bundle.main.bundleIdentifier ?? "de.timbock.journal"
+    static let dienst = vorsatz + ".alpaca"
     static let konto = "alpaca"
-    static let dienstMarketaux = "de.timbock.journal.marketaux"
+    static let dienstMarketaux = vorsatz + ".marketaux"
     static let kontoText = "token"
 
     let ablage: any Schluesselablage

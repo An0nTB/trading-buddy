@@ -25,3 +25,22 @@ Config/Local.xcconfig
 
 # Gebaute Connector-Pakete (scripts/connector_bauen.sh)
 build/
+
+# Echte Broker-Exporte nie einchecken (Tim 17.10.2026). Sie gehören in einen Ordner außerhalb des Repos,
+# etwa ~/Henry-Privat. Erfundene oder anonymisierte Testdateien liegen nur unter Packages/<Paket>/Tests/…/Fixtures/.
+# Zusätzlich prüft scripts/daten_pruefen.py im Pflicht-Check „Design-Token“.
+*.csv
+*.tsv
+*.xlsx
+*.xlsm
+*.xls
+*.ods
+*.numbers
+*.htm
+*.html
+*.ofx
+*.qif
+*.pdf
+*.sqlite
+*.sqlite3
+!Packages/*/Tests/**/Fixtures/**
