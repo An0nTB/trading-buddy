@@ -14,6 +14,8 @@ public struct Konto: Codable, Sendable, Equatable, FetchableRecord, MutablePersi
     public var kontoname: String
     /// ISO-Währungscode, z. B. „EUR“.
     public var waehrung: String
+    /// Echtgeld oder Demo/Paper (E1, Migration v14); neue und alte Konten sind Echtgeld.
+    public var kontoart: Kontoart = .echt
 
     public mutating func didInsert(_ inserted: InsertionSuccess) { id = inserted.rowID }
 }

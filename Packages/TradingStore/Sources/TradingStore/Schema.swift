@@ -454,6 +454,31 @@ enum Schema {
             }
         }
 
+        migrator.registerMigration("v14 Kontoart und Regeln je Setup") { db in
+            // Tims Auftrag vom 17.10.2026 (E1 bis E7). Nur neue Spalten, alte Zeilen bleiben gültig. Jede Spalte
+            // nur, wenn sie fehlt: v5 kann nach dieser Migration nachgeholt werden (siehe v6) und legt
+            // `handelsregeln` dann ohne sie an; diese Migration läuft danach erneut.
+            func neu(_ tabelle: String, _ spalten: [(String, Database.ColumnType)]) throws {
+                let da = Set(try db.columns(in: tabelle).map(\.name))
+                for (name, typ) in spalten where !da.contains(name) {
+                    try db.alter(table: tabelle) { t in t.add(column: name, typ) }
+                }
+            }
+            // E1: Echtgeld oder Demo/Paper; bestehende Konten sind Echtgeld.
+            if try !db.columns(in: "konto").contains(where: { $0.name == "kontoart" }) {
+                try db.alter(table: "konto") { t in t.add(column: "kontoart", .text).notNull().defaults(to: "echt") }
+            }
+            // E2, E3, E6: Grenzen in Prozent (als Prozentzahl), Monatsverlust, offene Positionen und Risiko, dazu
+            // der Kontostand als Bezug der Prozente (Startwert und Datum). Beträge als Text wie überall.
+            try neu("handelsregeln", [("maxTagesverlustProzent", .text), ("maxRisikoJeTradeProzent", .text),
+                                      ("maxMonatsverlust", .text), ("maxMonatsverlustProzent", .text),
+                                      ("maxOffenePositionen", .integer), ("maxOffenesRisiko", .text),
+                                      ("maxOffenesRisikoProzent", .text), ("kontostandBetrag", .text),
+                                      ("kontostandSeit", .datetime)])
+            // E4, E5, E7: Grenzen der Setup-Karte. Haltedauer als Text, geprüft im Code.
+            try neu("setup", [("maxTradesJeTag", .integer), ("haltedauer", .text), ("pruefungNachTrades", .integer)])
+        }
+
         return migrator
     }
 }

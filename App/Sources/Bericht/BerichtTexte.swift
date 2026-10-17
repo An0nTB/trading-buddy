@@ -12,6 +12,11 @@ extension Regelverstoss.Art {
         case .stoppNachVerlusten: String(localized: "Weitergehandelt nach Verlusten in Folge")
         case .risikoJeTrade: String(localized: "Risiko je Trade über der Grenze")
         case .manuell: String(localized: "Im Journal als nicht regeltreu markiert")
+        case .monatsverlust: String(localized: "Höchster Monatsverlust überschritten")
+        case .tradesJeSetup: String(localized: "Mehr Trades am Tag mit einem Setup als erlaubt")
+        case .haltedauer: String(localized: "Länger gehalten, als das Setup erlaubt")
+        case .offenePositionen: String(localized: "Mehr Positionen offen als erlaubt")
+        case .offenesRisiko: String(localized: "Offenes Risiko über der Grenze")
         }
     }
 }

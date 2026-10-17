@@ -358,7 +358,7 @@ func handtradeDuplikatKurstoleranzHatEineEngeGrenze(aufGrenze: Bool) throws {
     let journal = try Journal(pfad: pfad)
     try importiereMT4(journal)
     let konto = try brokerkonto(journal)
-    #expect(try journal.angewandteMigrationen().last == "v13 Eigenständige Hand-Trades")
+    #expect(try journal.angewandteMigrationen().last == "v14 Kontoart und Regeln je Setup")
     #expect(try journal.tradeBestand(konto: konto, zeitzone: utcZone).moeglicheDuplikate
         == ["hand-alt": ["51819669"]])
     try journal.behalteHandtrade(konto: konto, ticket: "hand-alt")

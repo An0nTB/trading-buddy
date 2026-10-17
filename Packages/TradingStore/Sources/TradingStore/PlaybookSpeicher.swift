@@ -15,6 +15,9 @@ struct SetupZeile: Codable, FetchableRecord, MutablePersistableRecord {
     var notiz: String?
     var status: String
     var statusSeit: Date
+    var maxTradesJeTag: Int?
+    var haltedauer: String?
+    var pruefungNachTrades: Int?
 
     init(_ s: Setup) {
         id = s.id
@@ -25,6 +28,9 @@ struct SetupZeile: Codable, FetchableRecord, MutablePersistableRecord {
         notiz = s.notiz
         status = s.status.rawValue
         statusSeit = s.statusSeit
+        maxTradesJeTag = s.maxTradesJeTag
+        haltedauer = s.haltedauer?.rawValue
+        pruefungNachTrades = s.pruefungNachTrades
     }
 
     mutating func didInsert(_ inserted: InsertionSuccess) {
@@ -33,8 +39,13 @@ struct SetupZeile: Codable, FetchableRecord, MutablePersistableRecord {
 
     func modell(_ kriterien: [Kriterium]) throws -> Setup {
         guard let s = Setup.Status(rawValue: status) else { throw SpeicherFehler.unbekannterWert(status) }
+        let dauer = try haltedauer.map { text in
+            guard let h = Setup.Haltedauer(rawValue: text) else { throw SpeicherFehler.unbekannterWert(text) }
+            return h
+        }
         return Setup(id: id, name: name, kriterien: kriterien, stopRegel: stopRegel, zielRegel: zielRegel,
-                     marktumfeld: marktumfeld, notiz: notiz, status: s, statusSeit: statusSeit)
+                     marktumfeld: marktumfeld, notiz: notiz, status: s, statusSeit: statusSeit,
+                     maxTradesJeTag: maxTradesJeTag, haltedauer: dauer, pruefungNachTrades: pruefungNachTrades)
     }
 }
 
@@ -87,6 +98,12 @@ extension Journal {
         }
         if setup.kriterien.contains(where: { $0.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }) {
             throw SpeicherFehler.ungueltigerWert("Kriterium ohne Text in „\(name)“")
+        }
+        if let n = setup.maxTradesJeTag, n <= 0 {
+            throw SpeicherFehler.ungueltigerWert("Trades je Tag in „\(name)“ muss größer als 0 sein")
+        }
+        if let n = setup.pruefungNachTrades, n <= 0 {
+            throw SpeicherFehler.ungueltigerWert("Prüfung nach Trades in „\(name)“ muss größer als 0 sein")
         }
         return try schreibe { db in
             if let andere = try SetupZeile.filter(Column("name") == name).fetchOne(db), andere.id != setup.id {

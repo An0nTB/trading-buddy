@@ -30,6 +30,15 @@ struct RegelZeile: Codable, FetchableRecord, PersistableRecord {
     var pfKeinHaltenUeberWochenende: Bool?
     var pfMaxLotsJeTrade: Decimal?
     var pfStopPflicht: Bool?
+    var maxTagesverlustProzent: Decimal?
+    var maxRisikoJeTradeProzent: Decimal?
+    var maxMonatsverlust: Decimal?
+    var maxMonatsverlustProzent: Decimal?
+    var maxOffenePositionen: Int?
+    var maxOffenesRisiko: Decimal?
+    var maxOffenesRisikoProzent: Decimal?
+    var kontostandBetrag: Decimal?
+    var kontostandSeit: Date?
     var geaendert: Date
 
     init(kontoId: Int64, _ r: Handelsregeln, geaendert: Date) {
@@ -57,14 +66,31 @@ struct RegelZeile: Codable, FetchableRecord, PersistableRecord {
         pfKeinHaltenUeberWochenende = p?.keinHaltenUeberWochenende
         pfMaxLotsJeTrade = p?.maxLotsJeTrade
         pfStopPflicht = p?.stopPflicht
+        maxTagesverlustProzent = r.maxTagesverlustProzent
+        maxRisikoJeTradeProzent = r.maxRisikoJeTradeProzent
+        maxMonatsverlust = r.maxMonatsverlust
+        maxMonatsverlustProzent = r.maxMonatsverlustProzent
+        maxOffenePositionen = r.maxOffenePositionen
+        maxOffenesRisiko = r.maxOffenesRisiko
+        maxOffenesRisikoProzent = r.maxOffenesRisikoProzent
+        kontostandBetrag = r.kontostand?.betrag
+        kontostandSeit = r.kontostand?.seit
         self.geaendert = geaendert
     }
 
     func modell() throws -> Handelsregeln {
         let pf = try propFirm()
+        var kontostand: Kontostandbezug?
+        if let kontostandBetrag, let kontostandSeit {
+            kontostand = Kontostandbezug(betrag: kontostandBetrag, seit: kontostandSeit)
+        }
         return Handelsregeln(maxTagesverlust: maxTagesverlust, maxTradesJeTag: maxTradesJeTag,
                              stoppNachVerlusten: stoppNachVerlusten, maxRisikoJeTrade: maxRisikoJeTrade,
-                             propFirm: pf)
+                             propFirm: pf, maxTagesverlustProzent: maxTagesverlustProzent,
+                             maxRisikoJeTradeProzent: maxRisikoJeTradeProzent, maxMonatsverlust: maxMonatsverlust,
+                             maxMonatsverlustProzent: maxMonatsverlustProzent, maxOffenePositionen: maxOffenePositionen,
+                             maxOffenesRisiko: maxOffenesRisiko, maxOffenesRisikoProzent: maxOffenesRisikoProzent,
+                             kontostand: kontostand)
     }
 
     private func propFirm() throws -> PropFirmRegeln? {
@@ -102,7 +128,7 @@ extension Journal {
         }
     }
 
-    /// Ersetzt die Handelsregeln des Kontos. Leere Regeln entfernen die gespeicherten.
+    /// Ersetzt die Handelsregeln des Kontos. Leere Regeln ohne Kontostand entfernen die gespeicherten.
     ///
     /// Abgelehnt werden Grenzen, die keine sind: Beträge und Anzahlen nicht größer als 0, ein leerer
     /// Prop-Firm-Name, eine unbekannte Zeitzone, ein Tageswechsel außerhalb des Tages, ein Konsistenzanteil
@@ -114,7 +140,8 @@ extension Journal {
             guard try Konto.exists(db, key: kontoId) else {
                 throw SpeicherFehler.ungueltigerWert("Konto \(kontoId) gibt es nicht")
             }
-            if regeln.leer {
+            // Ein Kontostand ohne Regel bleibt gespeichert: Er ist der Bezug für spätere Prozentregeln.
+            if regeln.leer && regeln.kontostand == nil {
                 _ = try RegelZeile.deleteOne(db, key: kontoId)
             } else {
                 try RegelZeile(kontoId: kontoId, regeln, geaendert: jetzt).save(db)
@@ -127,6 +154,14 @@ extension Journal {
         try positiv("Trades je Tag", r.maxTradesJeTag)
         try positiv("Stopp nach Verlusten", r.stoppNachVerlusten)
         try positiv("Risiko je Trade", r.maxRisikoJeTrade)
+        try prozent("Tagesverlust in Prozent", r.maxTagesverlustProzent)
+        try prozent("Risiko je Trade in Prozent", r.maxRisikoJeTradeProzent)
+        try positiv("Monatsverlust", r.maxMonatsverlust)
+        try prozent("Monatsverlust in Prozent", r.maxMonatsverlustProzent)
+        try positiv("Offene Positionen", r.maxOffenePositionen)
+        try positiv("Offenes Risiko", r.maxOffenesRisiko)
+        try prozent("Offenes Risiko in Prozent", r.maxOffenesRisikoProzent)
+        try positiv("Kontostand", r.kontostand?.betrag)
         guard let p = r.propFirm else { return }
         guard !p.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             throw SpeicherFehler.ungueltigerWert("Prop-Firm ohne Namen")
@@ -151,7 +186,28 @@ extension Journal {
         }
     }
 
+    /// Prozentzahl über 0 und höchstens 100.
+    private static func prozent(_ name: String, _ wert: Decimal?) throws {
+        try positiv(name, wert)
+        if let wert, wert > 100 { throw SpeicherFehler.ungueltigerWert("\(name) über 100") }
+    }
+
     private static func positiv<Z: Comparable & ExpressibleByIntegerLiteral>(_ name: String, _ wert: Z?) throws {
         if let wert, wert <= 0 { throw SpeicherFehler.ungueltigerWert("\(name) muss größer als 0 sein") }
+    }
+}
+
+extension Journal {
+    /// Setzt Echtgeld oder Demo/Paper für das Konto (E1). Gibt das Konto mit der neuen Art zurück.
+    @discardableResult
+    public func setzeKontoart(_ art: Kontoart, konto: Konto) throws -> Konto {
+        guard let kontoId = konto.id else { throw SpeicherFehler.ungueltigerWert("Konto ohne ID") }
+        return try schreibe { db in
+            try db.execute(sql: "UPDATE konto SET kontoart = ? WHERE id = ?", arguments: [art.rawValue, kontoId])
+            guard db.changesCount == 1, let neu = try Konto.fetchOne(db, key: kontoId) else {
+                throw SpeicherFehler.ungueltigerWert("Konto \(kontoId) gibt es nicht")
+            }
+            return neu
+        }
     }
 }

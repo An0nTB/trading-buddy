@@ -70,6 +70,7 @@ private func befuelleV9(_ db: Database) throws {
 private func pruefeV12(_ journal: Journal, vorher: [String: [Row]], migrationen: [String]) throws {
     #expect(try journal.angewandteMigrationen() == migrationen + [
         "v10 Risiko und Tags", "v11 Ausstiegszeit und Markterwartung", "v12 Offene Trades von Hand", "v13 Eigenständige Hand-Trades",
+        "v14 Kontoart und Regeln je Setup",
     ])
     try journal.db.read { db in
         try vergleicheV9(db, mit: vorher)
