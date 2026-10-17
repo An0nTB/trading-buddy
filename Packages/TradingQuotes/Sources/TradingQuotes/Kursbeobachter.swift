@@ -41,6 +41,7 @@ public struct Kursbeobachter: Sendable {
     func plane(_ zuordnungen: [Kurszuordnung]) -> Plan {
         var plan = Plan()
         for z in zuordnungen {
+            let z = z.normalisiert()
             guard let quelle = quellen[z.quelle] else {
                 plan.ohneQuelle.append((journalSymbol: z.journalSymbol, grund: "Quelle „\(z.quelle)“ ist nicht eingerichtet."))
                 continue
@@ -74,7 +75,8 @@ public struct Kursbeobachter: Sendable {
                                 case .status(let status):
                                     fortsetzung.yield(.status(quelle: id, status))
                                 case .kurs(let kurs):
-                                    for z in abo[kurs.symbol] ?? [] {
+                                    let symbol = Kurszuordnung.normalisiere(kurs.symbol, quelle: id)
+                                    for z in abo[symbol] ?? [] {
                                         fortsetzung.yield(.kurs(journalSymbol: z.journalSymbol, kurs: kurs, naeherung: z.naeherung))
                                     }
                                 }

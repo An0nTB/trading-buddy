@@ -30,14 +30,6 @@ struct AlpacaLeser: Nachrichtenleser {
     let schluessel: AlpacaSchluessel
     /// Letzter Stand je Symbol: Abschlüsse und Kursblatt kommen getrennt und werden zusammengeführt.
     private var stand: [String: Kurs] = [:]
-    /// Zeit je Teil, damit ein frischer Abschluss ein altes Kursblatt nicht frisch aussehen lässt.
-    private var zeiten: [String: Teilzeiten] = [:]
-
-    private struct Teilzeiten: Sendable {
-        var abschluss: Date?
-        var blatt: Date?
-    }
-
     init(symbole: [String], schluessel: AlpacaSchluessel) {
         self.symbole = symbole
         self.schluessel = schluessel
@@ -98,23 +90,19 @@ struct AlpacaLeser: Nachrichtenleser {
         guard let symbol = e.S else { return nil }
         let zeit = e.t.flatMap(Zeitstempel.lies) ?? empfangen
         var kurs = stand[symbol] ?? Kurs(symbol: symbol, zeit: zeit, quelle: "alpaca")
-        var teile = zeiten[symbol] ?? Teilzeiten()
         if e.T == "t" {
             kurs.letzter = e.p?.wert
-            teile.abschluss = zeit
+            kurs.letzterZeit = kurs.letzter == nil ? nil : zeit
         } else {
             // IEX meldet 0, wenn auf einer Seite kein Angebot steht; 0 ist dann kein Kurs (Gegencheck Q2).
             kurs.geld = e.bp.flatMap { $0.wert > 0 ? $0.wert : nil }
             kurs.brief = e.ap.flatMap { $0.wert > 0 ? $0.wert : nil }
-            teile.blatt = zeit
+            kurs.geldZeit = kurs.geld == nil ? nil : zeit
+            kurs.briefZeit = kurs.brief == nil ? nil : zeit
         }
-        // Die Zeit folgt dem Teil, mit dem bewertet wird (`bewertungskurs`): dem Kursblatt, sonst dem Abschluss.
-        // Ein frischer Abschluss macht ein altes Kursblatt nicht frisch, und seltene IEX-Abschlüsse
-        // lassen ein frisches Kursblatt nicht veralten (Gegencheck Q1, 02.10.2026).
-        let mitBlatt = kurs.geld != nil || kurs.brief != nil
-        kurs.zeit = (mitBlatt ? teile.blatt : teile.abschluss) ?? zeit
+        // Allgemeiner Stand: Kursblatt, sonst Abschluss. Die Bewertung nutzt die Zeit ihrer Preisbestandteile.
+        kurs.zeit = kurs.geldZeit ?? kurs.briefZeit ?? kurs.letzterZeit ?? zeit
         stand[symbol] = kurs
-        zeiten[symbol] = teile
         return kurs.preis == nil ? nil : kurs
     }
 }

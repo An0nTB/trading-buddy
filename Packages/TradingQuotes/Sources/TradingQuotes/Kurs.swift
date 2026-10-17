@@ -12,6 +12,10 @@ public struct Kurs: Sendable, Equatable {
     public var brief: Decimal?
     /// Zeit laut Quelle, ersatzweise Empfangszeit.
     public var zeit: Date
+    /// Getrennte Zeiten bei zusammengeführten Nachrichten; sonst gilt `zeit`.
+    public var letzterZeit: Date?
+    public var geldZeit: Date?
+    public var briefZeit: Date?
     public var quelle: String
     public var verzoegerung: Verzoegerung
 
@@ -39,12 +43,26 @@ public struct Kurs: Sendable, Equatable {
         (kaufposition ? geld : brief) ?? preis
     }
 
-    /// Sekunden seit dem Kurs.
-    public func alter(jetzt: Date) -> TimeInterval { jetzt.timeIntervalSince(zeit) }
+    /// Zeit des tatsächlich verwendeten Bewertungskurses, einschließlich Ersatz durch `preis`.
+    public func bewertungszeit(kaufposition: Bool) -> Date {
+        if kaufposition, geld != nil { return geldZeit ?? zeit }
+        if !kaufposition, brief != nil { return briefZeit ?? zeit }
+        if letzter != nil { return letzterZeit ?? zeit }
+        if geld != nil, brief != nil { return min(geldZeit ?? zeit, briefZeit ?? zeit) }
+        if geld != nil { return geldZeit ?? zeit }
+        if brief != nil { return briefZeit ?? zeit }
+        return zeit
+    }
+
+    /// Sekunden seit dem Kurs; mit Positionsseite zählt der tatsächlich verwendete Preis.
+    public func alter(jetzt: Date, kaufposition: Bool? = nil) -> TimeInterval {
+        let kurszeit = kaufposition.map { bewertungszeit(kaufposition: $0) } ?? zeit
+        return jetzt.timeIntervalSince(kurszeit)
+    }
 
     /// R1 Erfolgskriterium: Kursalter in der Anzeige unter 30 s. Bei verzögerten Quellen zählt der Verzug dazu.
-    public func istVeraltet(jetzt: Date, grenze: TimeInterval = 30) -> Bool {
-        alter(jetzt: jetzt) > grenze + verzoegerung.sekunden
+    public func istVeraltet(jetzt: Date, grenze: TimeInterval = 30, kaufposition: Bool? = nil) -> Bool {
+        alter(jetzt: jetzt, kaufposition: kaufposition) > grenze + verzoegerung.sekunden
     }
 }
 

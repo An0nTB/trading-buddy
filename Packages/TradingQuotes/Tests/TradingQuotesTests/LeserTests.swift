@@ -153,6 +153,57 @@ let testSchluessel = AlpacaSchluessel(schluesselID: "TEST-ID", geheimnis: "TEST-
     #expect(kurs.bewertungskurs(kaufposition: true) == d("126.55"))
 }
 
+@Test(arguments: [true, false])
+func alpacaEinseitigesBlattBewahrtAlterDesErsatzkurses(kaufposition: Bool) throws {
+    var leser = AlpacaLeser(symbole: ["AAPL"], schluessel: testSchluessel)
+    let alt = zeit("2026-10-17T14:00:00Z")
+    let frisch = alt.addingTimeInterval(60)
+    _ = leser.lies(#"[{"T":"t","S":"AAPL","p":100,"t":"2026-10-17T14:00:00Z"}]"#, empfangen: alt)
+    // Eine zuvor vorhandene Seite wird durch 0 entfernt, auch ihre Zeit muss verschwinden.
+    _ = leser.lies(#"[{"T":"q","S":"AAPL","bp":99,"ap":101,"t":"2026-10-17T14:00:00Z"}]"#, empfangen: alt)
+    let preise = kaufposition ? #""bp":0,"ap":102"# : #""bp":98,"ap":0"#
+    let lesung = leser.lies(#"[{"T":"q","S":"AAPL","# + preise + #","t":"2026-10-17T14:01:00Z"}]"#,
+                            empfangen: frisch)
+    let kurs = try #require(lesung.kurse.first)
+    #expect(kurs.bewertungskurs(kaufposition: kaufposition) == 100)
+    #expect(kurs.bewertungszeit(kaufposition: kaufposition) == alt)
+    #expect(kurs.alter(jetzt: frisch, kaufposition: kaufposition) == 60)
+    #expect(kurs.istVeraltet(jetzt: frisch, kaufposition: kaufposition))
+    #expect((kaufposition ? kurs.geldZeit : kurs.briefZeit) == nil)
+    #expect(kurs.bewertungskurs(kaufposition: !kaufposition) == (kaufposition ? 102 : 98))
+    #expect(kurs.alter(jetzt: frisch, kaufposition: !kaufposition) == 0)
+    #expect(!kurs.istVeraltet(jetzt: frisch, kaufposition: !kaufposition))
+}
+
+@Test func alpacaFrischerAbschlussLaesstBeideBewertungsseitenAlt() throws {
+    var leser = AlpacaLeser(symbole: ["AAPL"], schluessel: testSchluessel)
+    let alt = zeit("2026-10-17T14:00:00Z")
+    let frisch = alt.addingTimeInterval(60)
+    _ = leser.lies(#"[{"T":"q","S":"AAPL","bp":99,"ap":101,"t":"2026-10-17T14:00:00Z"}]"#, empfangen: alt)
+    let lesung = leser.lies(#"[{"T":"t","S":"AAPL","p":100,"t":"2026-10-17T14:01:00Z"}]"#, empfangen: frisch)
+    let kurs = try #require(lesung.kurse.first)
+    #expect(kurs.letzterZeit == frisch)
+    for kaufposition in [true, false] {
+        #expect(kurs.bewertungskurs(kaufposition: kaufposition) == (kaufposition ? 99 : 101))
+        #expect(kurs.bewertungszeit(kaufposition: kaufposition) == alt)
+        #expect(kurs.istVeraltet(jetzt: frisch, kaufposition: kaufposition))
+    }
+}
+
+@Test func alpacaOhneAbschlussNutztZeitDerVorhandenenSeite() throws {
+    var leser = AlpacaLeser(symbole: ["AAPL"], schluessel: testSchluessel)
+    let frisch = zeit("2026-10-17T14:01:00Z")
+    let lesung = leser.lies(#"[{"T":"q","S":"AAPL","bp":0,"ap":102,"t":"2026-10-17T14:01:00Z"}]"#,
+                            empfangen: frisch)
+    let kurs = try #require(lesung.kurse.first)
+    for kaufposition in [true, false] {
+        #expect(kurs.bewertungskurs(kaufposition: kaufposition) == 102)
+        #expect(kurs.bewertungszeit(kaufposition: kaufposition) == frisch)
+        #expect(kurs.alter(jetzt: frisch, kaufposition: kaufposition) == 0)
+        #expect(!kurs.istVeraltet(jetzt: frisch, kaufposition: kaufposition))
+    }
+}
+
 @Test func alpacaFehlerCodes() {
     var leser = AlpacaLeser(symbole: ["AAPL"], schluessel: testSchluessel)
     let falsch = leser.lies(#"[{"T":"error","code":402,"msg":"auth failed"}]"#, empfangen: empfangen)

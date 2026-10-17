@@ -66,7 +66,7 @@ struct KurseKarte: View {
                 }
                 Text(verbatim: untertitel(p, eintrag: eintrag, wahl: wahl, jetzt: jetzt))
                     .font(Schrift.beschriftung)
-                    .foregroundStyle(veraltet(eintrag, jetzt: jetzt) ? thema.verlust : thema.textSchwach)
+                    .foregroundStyle(veraltet(eintrag, kaufposition: p.seite == .buy, jetzt: jetzt) ? thema.verlust : thema.textSchwach)
             }
             Spacer()
             if let netto = bewertung?.netto {
@@ -94,7 +94,7 @@ struct KurseKarte: View {
     private func untertitel(_ p: OffenePosition, eintrag: Kursstand.Eintrag?, wahl: Zuordnungswahl, jetzt: Date) -> String {
         var teile = [String(localized: "Einstieg \(Format.kurs(p.einstieg))")]
         if let eintrag, let preis = eintrag.kurs.bewertungskurs(kaufposition: p.seite == .buy) {
-            let alter = Int(eintrag.kurs.alter(jetzt: jetzt).rounded())
+            let alter = Int(eintrag.kurs.alter(jetzt: jetzt, kaufposition: p.seite == .buy).rounded())
             let wann = alter < 60 ? String(localized: "vor \(alter) s") : String(localized: "vor \(alter / 60) Min.")
             teile.append(String(localized: "Kurs \(Format.kurs(preis)) (\(wann), \(modell.kurse.quellenname(eintrag.kurs.quelle)))"))
             if let hinweis = eintrag.naeherung { teile.append(hinweis.uebersetzt) }
@@ -115,8 +115,8 @@ struct KurseKarte: View {
         return teile.joined(separator: " · ")
     }
 
-    private func veraltet(_ eintrag: Kursstand.Eintrag?, jetzt: Date) -> Bool {
-        eintrag?.kurs.istVeraltet(jetzt: jetzt) ?? false
+    private func veraltet(_ eintrag: Kursstand.Eintrag?, kaufposition: Bool, jetzt: Date) -> Bool {
+        eintrag?.kurs.istVeraltet(jetzt: jetzt, kaufposition: kaufposition) ?? false
     }
 
     @ViewBuilder private func fusszeile(_ positionen: [OffenePosition], jetzt: Date) -> some View {
