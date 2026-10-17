@@ -2,6 +2,7 @@ import Foundation
 import Testing
 import TradingCore
 import TradingStore
+import TradingRates
 @testable import Trading_Buddy
 
 /// Oberfläche zum Auftrag E1 bis E9 (Tim 17.10.2026): Kontoart, Prozentgrenzen in der Ampel, Setup-Grenzen und
@@ -106,6 +107,37 @@ import TradingStore
         let zaehlung = m.ampelbezug(stand).setupTrades
         #expect(zaehlung.first { $0.setup == "Day-DE" }?.anzahl == 4)
         #expect(zaehlung.first { $0.setup == "Day-US" }?.anzahl == 1)
+        #expect(m.regeln.leer)
+        #expect(m.ampellampen(stand).first { $0.id == "setup-day-de" }?.stufe == .rot)
+    }
+
+    /// Reine Datumsangaben bleiben in New York am Eröffnungstag, auch beim Risiko der Ampel.
+    @Test func setupAmpelZaehltDatumseintragAmErstenOktober() throws {
+        let zone = try #require(TimeZone(identifier: "America/New_York"))
+        let m = AppModell(journal: try Journal.imSpeicher(), nebenwirkungen: false, testZeitzone: zone)
+        let csv = T.scalable.replacingOccurrences(of: "2026-04-01", with: "2026-10-01")
+            .replacingOccurrences(of: "2026-04-02", with: "2026-10-02")
+            .replacingOccurrences(of: "10:00:00", with: "00:00:00")
+            .replacingOccurrences(of: "15:00:00", with: "00:00:00")
+        _ = try m.importiereCSV(daten: Data(csv.utf8), dateiname: "appt-setup-datum.csv", kontonummer: "APPT-DATUM",
+                                kontoname: "Depot", waehrung: "EUR", zeitzone: T.utc)
+        let trade = try #require(m.trades.first)
+        #expect(trade.nurDatum)
+        var eintrag = try #require(m.journaleintrag(trade))
+        eintrag.setup = "Day-DE"
+        m.speichereJournal(eintrag)
+        try m.speichereSetup(Setup(name: "Day-DE", maxTradesJeTag: 1))
+        var kalender = Calendar(identifier: .gregorian)
+        kalender.timeZone = zone
+        let tag = try #require(kalender.date(from: DateComponents(year: 2026, month: 10, day: 1)))
+        let staende = Regelpruefung.tagesstaende(m.angleich, regeln: m.regeln, zeitzone: zone,
+                                                 setups: m.setupsJeTicket, playbook: m.playbook)
+        let stand = try #require(staende.first { $0.tag == tag })
+        #expect(stand.trades == 1)
+        #expect(m.ampelbezug(stand).setupTrades.first?.anzahl == 1)
+        #expect(m.ampellampen(stand).first { $0.id == "setup-day-de" }?.stufe == .gelb)
+        #expect(m.trades(eroeffnetAm: tag).map(\.id) == [trade.id])
+        #expect(m.trades(eroeffnetAm: kalender.date(byAdding: .day, value: -1, to: tag)!).isEmpty)
     }
 
     /// Ein offener Day-Trade vom 02.03. verletzt „gleicher Tag“, weil die Prüfung bis jetzt zählt.
@@ -114,6 +146,9 @@ import TradingStore
         let ticket = try speichere(entwurf(stunde: 9, offen: true), in: m)
         try m.speichereSetup(Setup(name: "Day-DE", haltedauer: .gleicherTag))
         #expect(m.verstoesse.contains { $0.art == .haltedauer && $0.trade == ticket })
+        #expect(m.alleTrades.isEmpty && m.regeln.leer)
+        #expect(m.letzterTagesstand == nil)
+        #expect(m.ampellampen(m.letzterTagesstand).first { $0.id == "haltedauer" }?.stufe == .rot)
     }
 
     // MARK: E6 Offene Positionen
@@ -132,6 +167,35 @@ import TradingStore
         #expect(positionen == [tickets[3]])
         let risiko = Set(m.verstoesse.filter { $0.art == .offenesRisiko }.map(\.trade))
         #expect(risiko == Set(tickets[2...]))
+        #expect(m.alleTrades.isEmpty && m.letzterTagesstand == nil)
+        let lampen = m.ampellampen(m.letzterTagesstand)
+        #expect(lampen.first { $0.id == "offenePositionen" }?.stufe == .rot)
+        #expect(lampen.first { $0.id == "offenesRisiko" }?.stufe == .rot)
+    }
+
+    /// Der Monatsfilter wählt historische Tagesstände; offene Warnungen gelten weiterhin jetzt.
+    @Test func offeneWarnungenBleibenBeiLeeremMonatsfilterSichtbar() throws {
+        let m = try modell()
+        try speichere(entwurf(stunde: 8), in: m)
+        try speichere(entwurf(stunde: 9, offen: true), in: m)
+        try speichere(entwurf(stunde: 10, offen: true), in: m)
+        try m.speichereRegeln(Handelsregeln(maxOffenePositionen: 1, maxOffenesRisiko: 80))
+        try m.speichereSetup(Setup(name: "Day-DE", haltedauer: .gleicherTag))
+        #expect(m.letzterTagesstand != nil)
+        m.zeitraum = .monat(T.zeit(2026, 2, 1))
+        #expect(m.letzterTagesstand == nil)
+        let lampen = m.ampellampen(m.letzterTagesstand)
+        #expect(lampen.first { $0.id == "offenePositionen" }?.stufe == .rot)
+        #expect(lampen.first { $0.id == "offenesRisiko" }?.stufe == .rot)
+        #expect(lampen.first { $0.id == "haltedauer" }?.stufe == .rot)
+        #expect(lampen.first { $0.id == "tradesJeTag" } == nil)
+    }
+
+    @Test func ohneKontoOderRegelnBleibtDieAmpelLeer() throws {
+        let m = try modell()
+        #expect(m.ampellampen(m.letzterTagesstand).isEmpty)
+        try speichere(entwurf(stunde: 9, offen: true), in: m)
+        #expect(m.ampellampen(m.letzterTagesstand).isEmpty)
     }
 
     @Test func ampelOffenePositionenJetzt() {
@@ -204,6 +268,63 @@ import TradingStore
     }
 
     // MARK: E7 Kill-Kriterium
+
+    /// Gleichnamige Beispieltrades verändern weder Anzahl noch R oder Fälligkeit echter Setups.
+    @Test(arguments: [1, 2])
+    func killKriteriumIgnoriertBeispielkonto(schwelle: Int) throws {
+        let journal = try Journal.imSpeicher()
+        let m = AppModell(journal: journal, nebenwirkungen: false)
+        let namen = [String(localized: "Ausbruch"), String(localized: "Rücksetzer")]
+        for (n, name) in namen.enumerated() {
+            try speichere(entwurf(stunde: 9 + n, setup: name), in: m)
+            try m.speichereSetup(Setup(name: name, pruefungNachTrades: schwelle))
+        }
+        let vorher = m.setuppruefungen()
+        try m.legeBeispieldatenAn(heute: T.zeit(2026, 9, 15, 12))
+        #expect(m.beispielkonto?.kontoart == .echt)
+        #expect(m.journaleintraege.values.contains { $0.setup == namen[0] })
+        #expect(m.journaleintraege.values.contains { $0.setup == namen[1] })
+        let nachher = m.setuppruefungen()
+        #expect(nachher == vorher)
+        #expect(nachher.count == 2)
+        for pruefung in nachher {
+            #expect(pruefung.anzahl == 1 && pruefung.anzahlMitR == 1)
+            #expect(pruefung.erwartungswertR == T.d("-1.02"))
+            #expect(pruefung.faellig == (schwelle == 1))
+            #expect(pruefung.nichtBestanden == (schwelle == 1))
+        }
+        let export = try ExportOrdner.export(journal, zeitzone: m.zeitzone)
+        #expect(nachher == export.setuppruefungen(m.playbook))
+        #expect(m.fehler == nil)
+    }
+
+    /// 43,90 USD / 1,25 = 35,12 EUR; mit 20 EUR geplantem Risiko sind das 1,756 R. Ohne Kurs bleibt R unbekannt.
+    @Test(arguments: [true, false])
+    func killKriteriumGleichtFremdwaehrungWieExportAn(mitKurs: Bool) throws {
+        let journal = try Journal.imSpeicher()
+        let m = AppModell(journal: journal, nebenwirkungen: false)
+        let kurse = [JournalExport.Tageskurse(tag: T.tag(2026, 4, 3), kurse: ["USD": T.d("1.25")])]
+        if mitKurs { m.ezb.kurse = Referenzkurse(kurse: [T.tag(2026, 4, 3): ["USD": T.d("1.25")]]) }
+        _ = try m.importiereCSV(daten: Data(T.kraken().utf8), dateiname: "appt-setup-usd.csv", kontonummer: "APPT-USD",
+                                kontoname: "Kraken", waehrung: "EUR", zeitzone: T.berlin)
+        let trade = try #require(m.trades.first)
+        #expect(trade.stopLoss == nil && trade.waehrung == "USD")
+        var eintrag = try #require(m.journaleintrag(trade))
+        eintrag.setup = "Day-US"
+        eintrag.risikoEinstieg = 20
+        m.speichereJournal(eintrag)
+        try m.speichereSetup(Setup(name: "Day-US", pruefungNachTrades: 1))
+        let pruefung = try #require(m.setuppruefungen().first)
+        #expect(pruefung.anzahl == 1 && pruefung.faellig)
+        #expect(pruefung.anzahlMitR == (mitKurs ? 1 : 0))
+        #expect(pruefung.anzahlRAngenommen == (mitKurs ? 1 : 0))
+        #expect(pruefung.erwartungswertR == (mitKurs ? T.d("1.756") : nil))
+        #expect(pruefung.nichtBestanden == !mitKurs)
+        var export = try ExportOrdner.export(journal, zeitzone: m.zeitzone)
+        export.referenzkurse = mitKurs ? kurse : nil
+        #expect([pruefung] == export.setuppruefungen(m.playbook))
+        #expect(m.fehler == nil)
+    }
 
     /// Zwei Day-DE-Trades bei Prüfung nach 2: fällig, Erwartungswert −1,02 R (−51 bei 50 Risiko), nicht bestanden.
     /// Nach dem Umschalten auf Demo zählen sie als Demo.

@@ -16,6 +16,7 @@ struct UebersichtView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: Abstand.kachelAbstand) {
                 Kopfzeile("Übersicht") { Filterleiste() }
+                RegelAmpelKarte()
                 if modell.alleTrades.isEmpty {
                     KeineTrades()
                     if modell.konto != nil {
@@ -54,7 +55,6 @@ struct UebersichtView: View {
                     if modell.regeln.leer {
                         Kapitalkurve(punkte: verlauf.punkte)
                     } else {
-                        RegelAmpelKarte()
                         Kurvenpaar {
                             Kapitalkurve(punkte: verlauf.punkte)
                         } rechts: {

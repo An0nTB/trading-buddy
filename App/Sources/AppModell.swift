@@ -877,20 +877,22 @@ final class AppModell {
     }
 
     /// Bezug der Regel-Ampel für einen Handelstag (E2 bis E6): Kontostand zu Tages- und Monatsbeginn, Monatsergebnis
-    /// bis Tagesende, Trades je Setup an dem Tag und die jetzt offenen Positionen. Beträge in Kontowährung.
-    func ampelbezug(_ stand: Regelpruefung.Tagesstand) -> Ampelbezug {
+    /// bis Tagesende, Trades je Setup an dem Tag und die jetzt offenen Positionen. Ohne Tagesstand gilt heute.
+    /// Beträge in Kontowährung.
+    func ampelbezug(_ stand: Regelpruefung.Tagesstand?) -> Ampelbezug {
         let kalender = self.kalender
+        let tag = stand?.tag ?? kalender.startOfDay(for: Date())
         let mitBetrag = angleich.trades
-        let monatsbeginn = monatsanfang(stand.tag, kalender)
+        let monatsbeginn = monatsanfang(tag, kalender)
         var bezug = Ampelbezug()
-        bezug.kontostand = regeln.kontostand?.stand(bei: stand.tag, trades: mitBetrag, zeitzone: zeitzone)
+        bezug.kontostand = regeln.kontostand?.stand(bei: tag, trades: mitBetrag, zeitzone: zeitzone)
         bezug.monatsstand = regeln.kontostand?.stand(bei: monatsbeginn, trades: mitBetrag, zeitzone: zeitzone)
         bezug.monatsnetto = mitBetrag.filter { t in
             let schluss = t.schlusstag(kalender)
-            return schluss >= monatsbeginn && schluss <= stand.tag
+            return schluss >= monatsbeginn && schluss <= tag
         }.map(\.netProfit).reduce(0, +)
         let setups = setupsJeTicket
-        let amTag = (angleich.trades + angleich.ohneKurs).filter { kalender.startOfDay(for: $0.openTime) == stand.tag }
+        let amTag = (angleich.trades + angleich.ohneKurs).filter { $0.eroeffnungstag(kalender) == tag }
         for karte in playbook {
             guard let grenze = karte.maxTradesJeTag else { continue }
             let schluessel = Setup.schluessel(karte.name)
@@ -909,30 +911,40 @@ final class AppModell {
         return bezug
     }
 
+    /// Ohne abgeschlossenen Handelstag bleiben die aktuellen Monats-, Setup- und Positionsgrenzen sichtbar.
+    func ampellampen(_ stand: Regelpruefung.Tagesstand?) -> [Ampellampe] {
+        guard konto != nil else { return [] }
+        let bezug = ampelbezug(stand)
+        guard let stand else {
+            return Ampellampe.erweiterteLampen(regeln: regeln, verstoesse: [], waehrung: waehrung, bezug: bezug)
+        }
+        return Ampellampe.lampen(regeln: regeln, stand: stand, verstoesse: verstoesse.filter { $0.tag == stand.tag },
+                                 trades: trades(eroeffnetAm: stand.tag), waehrung: waehrung, bezug: bezug)
+    }
+
     /// Kill-Kriterium je Setup (E7) über alle Konten, Echtgeld und Demo getrennt. Liest alle Konten aus der Datenbank,
-    /// darum nur auf Abruf (Playbook-Einstellungen). Geplantes Risiko nur bei Trades in Kontowährung wie in
-    /// `aktualisiereTrades`, damit R nicht Fremdwährung durch Kontowährung teilt.
+    /// darum nur auf Abruf (Playbook-Einstellungen). Dieselbe Prüfgrundlage wie der Export: ohne Beispielkonten,
+    /// mit geplantem Risiko in Kontowährung und Währungsangleich vor der Berechnung von R.
     func setuppruefungen() -> [Setuppruefung] {
         guard let journal else { return [] }
-        var konten: [(kontoart: Kontoart, trades: [Trade], setups: [String: String])] = []
         do {
-            for konto in try journal.konten() {
+            let konten = try journal.konten().map { konto in
                 let eintraege = try journal.journaleintraege(konto: konto)
                 let quellen = try journal.risikoquellen(konto: konto)
-                let waehrung = konto.waehrung.uppercased()
-                var trades: [Trade] = []
-                for t in try journal.tradeBestand(konto: konto, zeitzone: zeitzone).auswertbareTrades {
-                    let mitJournal = t.mitJournal(eintraege[t.id])
-                    trades.append(mitJournal.waehrung(kontowaehrung: waehrung) == waehrung
-                        ? mitJournal.mitGeplantemRisiko(quellen.wirksam(ticket: t.id)?.betrag) : mitJournal)
+                let trades = try journal.tradeBestand(konto: konto, zeitzone: zeitzone).auswertbareTrades.map { t in
+                    t.mitJournal(eintraege[t.id]).mitGeplantemRisiko(quellen.wirksam(ticket: t.id)?.betrag)
                 }
-                konten.append((kontoart: konto.kontoart, trades: trades, setups: eintraege.compactMapValues(\.setup)))
+                return JournalExport.Kontodaten(broker: konto.broker, kontonummer: String(konto.kontonummer.suffix(4)),
+                                                waehrung: konto.waehrung, trades: trades,
+                                                journal: eintraege.mapValues(\.angaben),
+                                                beispiel: Beispieldaten.istBeispiel(konto), kontoart: konto.kontoart)
             }
+            let kurse = JournalExport.referenzkursauszug(ezb.kurse, fuer: konten)
+            return JournalExport(konten: konten, zeitzone: zeitzone, referenzkurse: kurse).setuppruefungen(playbook)
         } catch {
             fehler = error.localizedDescription
             return []
         }
-        return Setuppruefung.berechne(playbook: playbook, konten: konten)
     }
 
     /// Markiert ein Konto als Echtgeld oder Demo/Paper (E1); Export und Kill-Kriterium trennen danach.
@@ -951,7 +963,7 @@ final class AppModell {
     /// Regeln (Dritter Gegencheck G12: die Risiko-Ampel las sonst Fremdwährung als Kontowährung).
     func trades(eroeffnetAm tag: Date) -> [Trade] {
         let kalender = self.kalender
-        return angleich.trades.filter { kalender.startOfDay(for: $0.openTime) == tag }
+        return angleich.trades.filter { $0.eroeffnungstag(kalender) == tag }
     }
 
     /// Trades mit Verstoß gegen eigene oder Prop-Firm-Regeln, dieselbe Quelle wie Disziplin und Monatsbericht.
