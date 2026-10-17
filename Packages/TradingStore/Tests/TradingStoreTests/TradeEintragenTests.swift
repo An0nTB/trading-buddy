@@ -175,7 +175,7 @@ private func sicherung(notiz: String = "erste Notiz", exit2: String = "21", mitT
     try alt.close()
 
     let journal = try Journal(pfad: pfad, jetzt: zeit, zeitzone: TimeZone(secondsFromGMT: 0)!)
-    #expect(try journal.angewandteMigrationen().last == "v13 Eigenständige Hand-Trades")
+    #expect(try journal.angewandteMigrationen().last == "v14 Kontoart und Regeln je Setup")
     let konto = try #require(try journal.konten().first)
     let position = try #require(try journal.geschlossenePositionen(konto: konto).first)
     #expect(position.ausstiegszeitBekannt && position.closeTime == utc("2026-01-02T09:30:00Z"))

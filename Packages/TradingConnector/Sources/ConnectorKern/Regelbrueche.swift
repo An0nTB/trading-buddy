@@ -17,8 +17,12 @@ extension Anfrage {
     func verstoesse(_ trades: [Trade], ohneKurs: [Trade] = []) -> [Regelverstoss] {
         let ids = Set((trades + ohneKurs).map(\.id))
         let andere = andereWaehrungen.values.flatMap { $0 }
+        // Setup-Grenzen (E4, E5) aus den Playbookkarten, verbunden über das Setup im Journal. Offene Positionen
+        // stehen nicht in der Datei; Grenzen für offene Positionen zählen hier nur geschlossene Trades.
         return Regelpruefung.pruefe(konto.trades + andere, regeln: konto.regeln ?? Handelsregeln(),
-                                    zeitzone: zeitzone, manuell: manuellVerletzt, ohneBetrag: Set(andere.map(\.id)))
+                                    zeitzone: zeitzone, manuell: manuellVerletzt, ohneBetrag: Set(andere.map(\.id)),
+                                    setups: konto.journal.compactMapValues(\.setup),
+                                    playbook: (export.playbook ?? []).map(\.setupRegeln))
             .filter { ids.contains($0.trade) }
     }
 
@@ -32,7 +36,7 @@ extension Anfrage {
         let geprueft = trades.count + ohneKurs.count
         guard konto.regeln != nil || !verstoesse.isEmpty else { return [] }
         var t = ["\n## Eigene Handelsregeln (eingetragen in der App, geprüft nach dem Import)"]
-        t.append("Regeln: " + (konto.regeln.map(Self.regeltext) ?? "keine Grenzen eingetragen") + ".")
+        t.append("Regeln: " + (konto.regeln.map { Self.regeltext($0, zeitzone: zeitzone) } ?? "keine Grenzen eingetragen") + ".")
         let zone = zeitzone
         let zeilen: [[String]] = Regelverstoss.Art.allCases.compactMap { art in
             let teil = verstoesse.filter { $0.art == art }
@@ -98,12 +102,24 @@ extension Anfrage {
                     + "vergleicht, findet auch zufällige Unterschiede."]
     }
 
-    static func regeltext(_ r: Handelsregeln) -> String {
+    static func regeltext(_ r: Handelsregeln, zeitzone: TimeZone) -> String {
         var teile: [String] = []
         if let n = r.maxTradesJeTag { teile.append("höchstens \(n) Trades je Tag") }
         if let n = r.stoppNachVerlusten { teile.append("Schluss nach \(n) Verlusten in Folge am Tag") }
         if let b = r.maxTagesverlust { teile.append("Tagesverlust höchstens \(Format.zahl(b))") }
         if let b = r.maxRisikoJeTrade { teile.append("Risiko je Trade höchstens \(Format.zahl(b))") }
+        if let p = r.maxTagesverlustProzent { teile.append("Tagesverlust höchstens \(Format.zahl(p)) % vom Kontostand") }
+        if let p = r.maxRisikoJeTradeProzent { teile.append("Risiko je Trade höchstens \(Format.zahl(p)) % vom Kontostand") }
+        if let b = r.maxMonatsverlust { teile.append("Monatsverlust höchstens \(Format.zahl(b))") }
+        if let p = r.maxMonatsverlustProzent { teile.append("Monatsverlust höchstens \(Format.zahl(p)) % vom Kontostand") }
+        if let n = r.maxOffenePositionen { teile.append("höchstens \(n) Positionen gleichzeitig offen") }
+        if let b = r.maxOffenesRisiko { teile.append("offenes Risiko höchstens \(Format.zahl(b))") }
+        if let p = r.maxOffenesRisikoProzent { teile.append("offenes Risiko höchstens \(Format.zahl(p)) % vom Kontostand") }
+        if let k = r.kontostand {
+            teile.append("Kontostand für Prozentgrenzen: \(Format.zahl(k.betrag)) am "
+                + "\(Format.datum(k.seit, zeitzone, mitZeit: false)), fortgeschrieben mit "
+                + "den Ergebnissen")
+        }
         if r.propFirm != nil { teile.append("Prop-Firm-Regeln") }
         return teile.isEmpty ? "keine Grenzen eingetragen" : teile.joined(separator: "; ")
     }
@@ -118,6 +134,11 @@ extension Regelverstoss.Art {
         case .stoppNachVerlusten: "Verluste in Folge"
         case .risikoJeTrade: "Risiko je Trade"
         case .manuell: "Im Journal „nicht regeltreu“"
+        case .monatsverlust: "Monatsverlust"
+        case .tradesJeSetup: "Trades am Tag je Setup"
+        case .haltedauer: "Haltedauer des Setups"
+        case .offenePositionen: "Offene Positionen"
+        case .offenesRisiko: "Offenes Risiko"
         }
     }
 }

@@ -71,11 +71,13 @@ public struct JournalExport: Sendable, Equatable, Codable {
         /// Abgehakte Kriterien der Playbook-Checkliste je Trade-ID (Kennungen aus `Playbookkarte.kriterien`), für
         /// jeden Trade mit Setup im Journal, auch ohne Häkchen. Fehlt ohne solche Trades und in älteren Dateien.
         public var checklisten: [String: [String]]?
+        /// `Kontoart` als Text („echt“, „demo“; E1). Fehlt in älteren Dateien; dann gilt Echtgeld.
+        public var kontoart: String?
 
         public init(broker: String, kontonummer: String, waehrung: String, trades: [Trade],
                     geloeschteOrders: [Date] = [], journal: [String: Journalangaben] = [:],
                     ziele: [Reviewziel] = [], regeln: Handelsregeln? = nil, ausstieg: [Ausstieg] = [],
-                    beispiel: Bool = false, checklisten: [String: [String]] = [:]) {
+                    beispiel: Bool = false, checklisten: [String: [String]] = [:], kontoart: Kontoart = .echt) {
             self.broker = broker
             self.kontonummer = kontonummer
             self.waehrung = waehrung
@@ -89,7 +91,11 @@ public struct JournalExport: Sendable, Equatable, Codable {
             self.ausstieg = analysen.isEmpty ? nil : analysen
             self.beispiel = beispiel ? true : nil
             self.checklisten = checklisten.isEmpty ? nil : checklisten.mapValues { $0.sorted() }
+            self.kontoart = kontoart.rawValue
         }
+
+        /// Art des Kontos; eine unbekannte oder fehlende Angabe gilt als Echtgeld.
+        public var art: Kontoart { kontoart.flatMap(Kontoart.init(rawValue:)) ?? .echt }
 
         /// Ob dies das Beispielkonto der App ist.
         public var istBeispiel: Bool { beispiel == true }
@@ -101,7 +107,7 @@ public struct JournalExport: Sendable, Equatable, Codable {
 
         private enum CodingKeys: String, CodingKey {
             case broker, kontonummer, waehrung, trades, geloeschteOrders, journal, ziele, regeln, ausstieg, beispiel
-            case checklisten
+            case checklisten, kontoart
         }
 
         public init(from decoder: any Decoder) throws {
@@ -119,6 +125,8 @@ public struct JournalExport: Sendable, Equatable, Codable {
                       ausstieg: (try? c.decodeIfPresent([Ausstieg].self, forKey: .ausstieg)) ?? [],
                       beispiel: (try? c.decodeIfPresent(Bool.self, forKey: .beispiel)) == true,
                       checklisten: (try? c.decodeIfPresent([String: [String]].self, forKey: .checklisten)) ?? [:])
+            // Den Text behalten, auch wenn er unbekannt ist; `art` liest ihn.
+            kontoart = try? c.decodeIfPresent(String.self, forKey: .kontoart)
         }
 
         public init(broker: String, kontonummer: String, waehrung: String,

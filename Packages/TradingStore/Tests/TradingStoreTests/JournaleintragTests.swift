@@ -97,5 +97,6 @@ private let zeit = Date(timeIntervalSince1970: 1_759_350_000)
                                                    "v4 Review-Ziele", "v5 Handelsregeln je Konto",
                                                    "v6 Produktart", "v7 Playbook", "v8 Tagesnotiz, verpasste Trades, Bilder", "v9 Merkliste",
                                                    "v10 Risiko und Tags", "v11 Ausstiegszeit und Markterwartung",
-                                                   "v12 Offene Trades von Hand", "v13 Eigenständige Hand-Trades"])
+                                                   "v12 Offene Trades von Hand", "v13 Eigenständige Hand-Trades",
+                                                   "v14 Kontoart und Regeln je Setup"])
 }

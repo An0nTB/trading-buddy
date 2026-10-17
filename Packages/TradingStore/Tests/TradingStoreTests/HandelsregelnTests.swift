@@ -150,6 +150,8 @@ private let topstep = PropFirmRegeln(
         try journal.schreibe { db in
             try db.execute(sql: "DROP TABLE handelsregeln")
             try db.execute(sql: "DELETE FROM grdb_migrations WHERE identifier = 'v5 Handelsregeln je Konto'")
+            // Eine solche Datenbank stammt aus der Zeit vor v14; v14 läuft nach v5 erneut.
+            try db.execute(sql: "DELETE FROM grdb_migrations WHERE identifier = 'v14 Kontoart und Regeln je Setup'")
         }
         #expect(try !journal.angewandteMigrationen().contains("v5 Handelsregeln je Konto"))
     }
