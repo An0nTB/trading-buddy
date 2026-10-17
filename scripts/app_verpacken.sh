@@ -22,19 +22,26 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-ZIEL=build/verteilung
-ABLEITUNG=build/release-derived
+WURZEL="$PWD"
+ZIEL="$WURZEL/build/verteilung"
+ABLEITUNG="$WURZEL/build/release-derived"
 IDENT="${HENRY_SIGNIERUNG:-}"
 PROFIL="${HENRY_NOTAR_PROFIL:-}"
+SCHLUESSELBUND="${HENRY_NOTAR_KEYCHAIN:-}"
+case "$SCHLUESSELBUND" in
+    ""|/*) ;;
+    *) SCHLUESSELBUND="$WURZEL/$SCHLUESSELBUND" ;;
+esac
 ENTITLEMENTS=App/TradingBuddy-macOS.entitlements
 
 if [ "$(uname)" != "Darwin" ]; then echo "Läuft nur auf dem Mac."; exit 1; fi
 command -v xcodegen >/dev/null || { echo "XcodeGen fehlt: brew install xcodegen"; exit 1; }
 if [ -n "$PROFIL" ] && [ -z "$IDENT" ]; then echo "Notarisierung braucht eine Developer-ID-Signierung (HENRY_SIGNIERUNG)."; exit 1; fi
 
-# Nur eingecheckter Code kommt in die App (Tim 17.10.2026): Geänderte oder neue Dateien in den Ordnern, aus
-# denen gebaut wird, brechen ab. So rutscht nichts Lokales (Testdateien, eigene Links) in eine Fassung.
-UNSAUBER="$(git status --porcelain --untracked-files=all -- App Packages Connector Config project.yml)"
+# Offene Änderungen an den Build-Eingaben und Skripten müssen zuerst eingecheckt werden.
+# Ignorierte Dateien bleiben unten durch den Commit-Export vollständig außerhalb des Baus.
+STAND="$(git rev-parse HEAD)"
+UNSAUBER="$(git status --porcelain --untracked-files=all -- App Packages Connector Config scripts project.yml)"
 if [ -n "$UNSAUBER" ]; then
     echo "Im Repo-Ordner gibt es nicht eingecheckte Änderungen. Verpackt wird nur ein sauberer Stand:"
     echo "$UNSAUBER"
@@ -43,7 +50,7 @@ fi
 # Signierte Fassungen nur vom aktuellen main (Lehre 06.10.2026); in GitHub Actions entscheidet release.yml.
 if [ -n "$IDENT" ] && [ -z "${GITHUB_ACTIONS:-}" ]; then
     git fetch -q origin +refs/heads/main:refs/remotes/origin/main
-    if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]; then
+    if [ "$STAND" != "$(git rev-parse origin/main)" ]; then
         echo "HEAD ist $(git rev-parse --short HEAD), origin/main ist $(git rev-parse --short origin/main). Signiert wird nur der aktuelle main: git checkout main && git pull"
         exit 1
     fi
@@ -69,9 +76,15 @@ fi
 BUILDNUMMER="${HENRY_BUILDNUMMER:-}"
 if [ -z "$BUILDNUMMER" ]; then
     if [ "$(git rev-parse --is-shallow-repository)" = "true" ]; then echo "Flacher Klon: Die Build-Nummer aus der Commit-Zahl wäre falsch. Bitte mit voller Historie auschecken oder HENRY_BUILDNUMMER setzen."; exit 1; fi
-    BUILDNUMMER=$(git rev-list --count HEAD)
+    BUILDNUMMER=$(git rev-list --count "$STAND")
 fi
 [[ "$BUILDNUMMER" =~ ^[0-9]+$ ]] || { echo "Build-Nummer ${BUILDNUMMER} ist keine ganze Zahl."; exit 1; }
+
+# App, Connector und Berechtigungen stammen aus demselben Commit, nie aus lokalen Ressourcen oder Caches.
+QUELLE="$(mktemp -d "${TMPDIR:-/tmp}/henry-verpacken.XXXXXX")"
+trap 'rm -rf "$QUELLE"' EXIT
+git archive --format=tar "$STAND" | tar -xf - -C "$QUELLE"
+cd "$QUELLE"
 
 if [ -n "$IDENT" ]; then
     echo "Signierung: Developer ID ($IDENT)"
@@ -87,7 +100,7 @@ notarisieren() {
     local datei="$1" antwort status kennung
     antwort="$ZIEL/notar-$(basename "$1").json"
     local schluessel=(--keychain-profile "$PROFIL")
-    [ -n "${HENRY_NOTAR_KEYCHAIN:-}" ] && schluessel+=(--keychain "$HENRY_NOTAR_KEYCHAIN")
+    [ -n "$SCHLUESSELBUND" ] && schluessel+=(--keychain "$SCHLUESSELBUND")
     echo "Notarisierung von $(basename "$datei") läuft, das dauert meist einige Minuten."
     xcrun notarytool submit "$datei" "${schluessel[@]}" --wait --output-format json > "$antwort" || true
     status=$(plutil -extract status raw -o - "$antwort" 2>/dev/null || echo "unbekannt")
@@ -103,7 +116,7 @@ notarisieren() {
 # Fertige Pakete der letzten Fassung und den Ordner alt/ nicht löschen, sondern nach build/verteilung-alt/<Zeit>
 # legen, ohne die .app, damit Spotlight nur eine Henry findet.
 if compgen -G "$ZIEL/*.dmg" > /dev/null || compgen -G "$ZIEL/*.mcpb" > /dev/null || [ -d "$ZIEL/alt" ]; then
-    ALT="build/verteilung-alt/$(date +%Y-%m-%d_%H%M%S)"
+    ALT="$WURZEL/build/verteilung-alt/$(date +%Y-%m-%d_%H%M%S)"
     mkdir -p "$ALT"
     for f in "$ZIEL"/*.dmg "$ZIEL"/*.zip "$ZIEL"/*.mcpb "$ZIEL"/SHA256SUMS.txt "$ZIEL"/alt; do if [ -e "$f" ]; then mv "$f" "$ALT/"; fi; done
     echo "Vorige Pakete liegen in $ALT"
